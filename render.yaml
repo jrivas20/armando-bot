@@ -1,1 +1,14 @@
-<contents of render.yaml>
+services:
+  - type: web
+    name: armando-bot
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GHL_API_KEY
+        sync: false
+      - key: GHL_LOCATION_ID
+        value: d7iUPfamAaPlSBNj6IhT
