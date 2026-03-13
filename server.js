@@ -12,9 +12,8 @@ const BOOKING_URL = 'https://jrzmarketing.com/contact-us';
 // Track message count per contact (in-memory fallback)
 const contactMessageCount = new Map();
 
-// Dedup: track last time Armando replied per contact (timestamp in ms)
-const lastReplyTime = new Map();
-const DEDUP_WINDOW_MS = 60 * 1000; // 60 seconds
+// Dedup: track messageIds already replied to (prevents GHL double-firing same webhook)
+const repliedMessageIds = new Set();
 
 const ARMANDO_PROMPT = `
 You are Armando Rivas, the Community Manager of JRZ Marketing in Orlando, Florida.
@@ -43,12 +42,12 @@ MESSAGE 2+ — They respond:
 CLOSE (once you have both phone + email, OR after 3 exchanges):
 - "Perfecto, nuestro equipo se va a poner en contacto contigo muy pronto para agendar tu reunión gratuita. ¡Gracias por tu interés en JRZ Marketing! 😊"
 - English: "Perfect, our team will reach out very soon to schedule your free strategy meeting. Thank you for your interest in JRZ Marketing! 😊"
-- If no info given after 3 tries: drop booking link → https://jrzmarketing.com/contact-us
+- If no info given after 3 tries: drop booking link → ${BOOKING_URL}
 
 ABOUT JRZ MARKETING:
 - Bilingual marketing and digital strategy agency in Orlando, Florida.
 - Services: AI tools, automation, social media, branding, websites, marketing systems.
-- Website: jrzmarketing.com | Free consultation: https://jrzmarketing.com/contact-us
+- Website: jrzmarketing.com | Free consultation: ${BOOKING_URL}
 
 LANGUAGE RULES:
 - Default to Spanish unless they write in English.
@@ -73,7 +72,6 @@ function getSendType(messageType) {
   return 'IG';
 }
 
-// Fetch past messages from GHL conversation
 async function getConversationHistory(conversationId) {
   try {
     const res = await axios.get(
@@ -93,7 +91,6 @@ async function getConversationHistory(conversationId) {
   }
 }
 
-// Scan messages for phone numbers and emails already shared
 function extractContactInfo(messages) {
   const phoneRegex = /(\+?1?\s?)?(\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})/g;
   const emailRegex = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
@@ -101,7 +98,6 @@ function extractContactInfo(messages) {
   let foundPhone = null;
   let foundEmail = null;
 
-  // Only scan inbound messages (from the contact, not from Armando)
   const inboundMessages = messages.filter(m => m.direction === 'inbound');
 
   for (const msg of inboundMessages) {
@@ -121,17 +117,14 @@ function extractContactInfo(messages) {
 }
 
 async function getArmandoReply(incomingMessage, contactName, contactId, conversationId) {
-  // Track message count
   const count = (contactMessageCount.get(contactId) || 0) + 1;
   contactMessageCount.set(contactId, count);
 
-  // Time-based greeting
   const hour = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false });
   const h = parseInt(hour);
   const timeGreeting = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches';
   const timeGreetingEN = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
 
-  // Fetch conversation history and extract any info already shared
   let foundPhone = null;
   let foundEmail = null;
   let historyCount = count;
@@ -141,7 +134,6 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
     const extracted = extractContactInfo(messages);
     foundPhone = extracted.foundPhone;
     foundEmail = extracted.foundEmail;
-    // Use actual conversation length if available
     historyCount = Math.max(count, messages.filter(m => m.direction === 'inbound').length);
     console.log(`History check — phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}, inbound msgs: ${historyCount}`);
   }
@@ -161,7 +153,7 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   } else if (!alreadyHavePhone && alreadyHaveEmail) {
     stageInstruction = `You already have their email (${foundEmail}). You still need their PHONE NUMBER. Thank them for the email if this is the first time acknowledging it, then ask directly for their phone number. One sentence max before the ask.`;
   } else if (historyCount >= 4) {
-    stageInstruction = `This conversation has gone on long enough without getting their info. Close it gracefully and professionally. Say something like: "Para poder ayudarte mejor, te invitamos a agendar una reunión gratuita con nuestro equipo directamente aquí: https://jrzmarketing.com/contact-us 😊" (English: "To help you better, we'd love for you to book a free meeting with our team here: https://jrzmarketing.com/contact-us 😊"). Be warm, not pushy. Wrap it up cleanly.`;
+    stageInstruction = `This conversation has gone on long enough without getting their info. Close it gracefully and professionally. Say something like: "Para poder ayudarte mejor, te invitamos a agendar una reunión gratuita con nuestro equipo directamente aquí: ${BOOKING_URL} 😊" (English: "To help you better, we'd love for you to book a free meeting with our team here: ${BOOKING_URL} 😊"). Be warm, not pushy. Wrap it up cleanly.`;
   } else {
     stageInstruction = `This is message #${historyCount}. You don't have their phone or email yet. Be warm but direct: you need both their phone number and email to connect them with the team and schedule a meeting. Ask for both clearly.`;
   }
@@ -284,18 +276,22 @@ app.post('/webhook', async (req, res) => {
       payload.first_name ||
       '';
 
+    const messageId =
+      payload.messageId ||
+      payload.message_id ||
+      payload.message?.id ||
+      payload.id ||
+      '';
+
     if (!messageBody || !contactId) {
       console.log('Missing messageBody or contactId, skipping.');
       return res.status(200).json({ status: 'skipped', reason: 'missing fields' });
     }
 
-    // Dedup check — ignore if Armando replied to this contact in the last 60 seconds
-    const now = Date.now();
-    const lastReply = lastReplyTime.get(contactId);
-    if (lastReply && (now - lastReply) < DEDUP_WINDOW_MS) {
-      const secondsAgo = Math.round((now - lastReply) / 1000);
-      console.log(`Dedup: already replied to ${contactId} ${secondsAgo}s ago. Skipping.`);
-      return res.status(200).json({ status: 'skipped', reason: 'duplicate within 60s' });
+    // Dedup: skip only if this exact messageId was already replied to
+    if (messageId && repliedMessageIds.has(messageId)) {
+      console.log(`Dedup: already replied to messageId ${messageId}. Skipping.`);
+      return res.status(200).json({ status: 'skipped', reason: 'duplicate messageId' });
     }
 
     const sendType = getSendType(messageType);
@@ -305,7 +301,6 @@ app.post('/webhook', async (req, res) => {
     const msgCount = contactMessageCount.get(contactId) || 1;
     console.log(`Armando reply (msg #${msgCount}, lead: ${leadQuality}, phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}):`, reply);
 
-    // Auto-tag based on lead quality
     if (leadQuality === 'interested') {
       await tagContact(contactId, ['armando-interested']);
     } else if (leadQuality === 'qualified') {
@@ -315,7 +310,7 @@ app.post('/webhook', async (req, res) => {
     }
 
     await sendGHLReply(contactId, reply, sendType);
-    lastReplyTime.set(contactId, Date.now()); // record reply time for dedup
+    if (messageId) repliedMessageIds.add(messageId);
     console.log('Reply sent successfully.');
 
     res.status(200).json({ status: 'ok', reply, leadQuality, foundPhone, foundEmail, messageNumber: msgCount });
