@@ -65,12 +65,13 @@ Rules:
 Your goal in every conversation: create connection, build trust, help people feel understood, and open the door to a real business conversation with JRZ Marketing.
 `;
 
+
 function getSendType(messageType) {
-  if (!messageType) return null;
+  if (!messageType) return 'IG';
   const type = messageType.toString().toUpperCase().trim();
   if (type === '18' || type.includes('INSTAGRAM')) return 'IG';
   if (type === '11' || type.includes('FACEBOOK')) return 'FB';
-  return null;
+  return 'IG';
 }
 
 async function getArmandoReply(incomingMessage, contactName) {
