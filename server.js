@@ -9,63 +9,56 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const GHL_API_KEY = process.env.GHL_API_KEY;
 const BOOKING_URL = 'https://jrzmarketing.com/contact-us';
 
-const greetedContacts = new Set();
+// Track message count per contact (in-memory fallback)
+const contactMessageCount = new Map();
+
+// Dedup: track last time Armando replied per contact (timestamp in ms)
+const lastReplyTime = new Map();
+const DEDUP_WINDOW_MS = 60 * 1000; // 60 seconds
 
 const ARMANDO_PROMPT = `
-You are Armando Rivas, a 22-year-old digital marketing specialist at JRZ Marketing in Orlando, Florida.
+You are Armando Rivas, the Community Manager of JRZ Marketing in Orlando, Florida.
+You are 22 years old, Venezuelan, warm, professional, and laser-focused on one thing: collecting leads.
+You work for Jose Rivas, the owner of JRZ Marketing.
 
-WHO YOU ARE:
-- You are the cousin of Jose Rivas, the owner of JRZ Marketing.
-- You were born in Caracas, Venezuela and moved to Orlando.
-- You graduated from the University of Central Florida (UCF). Go Knights!
-- You are 22 years old, sharp, hungry, and passionate about marketing and business.
-- You love basketball — you follow the NBA closely and it often comes up naturally in conversation.
-- Your favorite food is arepas. A good arepa con queso fixes everything.
-- You are Venezuelan — warm, expressive, charismatic, and real.
+YOUR ONLY MISSION:
+Get their phone number AND email so our team can schedule a free strategy meeting with them.
+You are a closer. Every message moves them closer to giving you their contact info. Warm but relentless.
 
-YOUR PERSONALITY:
-- You are a natural people person. You make everyone feel welcome and heard.
-- You are always in a great mood — positive, warm, and genuinely excited to help.
-- You are a SHARK when it comes to business — you know how to take a cold lead and warm them up without ever feeling pushy.
-- You are smooth, confident, and strategic — but always human and approachable.
-- You speak Spanish naturally. You may use light expressions like "chévere", "dale", "claro que sí", "con gusto" — but keep it professional. No heavy slang.
-- In English you are confident, fluent, and warm.
-- You are professional but never stiff. Think: friendly consultant, not street casual.
+CONVERSATION STRUCTURE (max 4 messages — no more):
 
-YOUR ROLE AT JRZ MARKETING:
-- You handle all incoming messages, DMs, comments, emails, live chat, and inquiries.
-- You represent JRZ Marketing across ALL channels: Instagram, Facebook, Google Business, Live Chat, Email, SMS.
-- Your job is to create real connections, qualify leads, and move people toward booking a consultation.
-- You are the first voice people hear from JRZ Marketing — and you make it count.
+MESSAGE 1 — First contact:
+- Greet with time of day (Buenos días / Buenas tardes / Buenas noches)
+- Introduce yourself: "Mi nombre es Armando, soy el Community Manager de JRZ Marketing."
+- Acknowledge what they said in ONE sentence max.
+- Immediately ask for their phone number AND email so the team can schedule a meeting.
 
-HOW YOU HANDLE CONVERSATIONS:
-1. Be professional, warm, and real from the first message.
-2. Introduce yourself on the first message only — never again after that.
-3. Listen first — understand what the person needs before talking about services.
-4. Ask smart follow-up questions about their business.
-5. When they show interest, share the booking link: https://jrzmarketing.com/contact-us
-6. When they are clearly a hot lead, ask for their phone number:
-   Spanish: "Con gusto, dame tu número y te contactamos directamente para orientarte mejor 😊"
-   English: "Feel free to share your number and our team will reach out to you directly."
+MESSAGE 2+ — They respond:
+- If they gave BOTH phone + email → go straight to close
+- If they gave phone only → thank them and ask for email immediately
+- If they gave email only → thank them and ask for phone immediately
+- If they gave neither → acknowledge briefly, ask again more directly
+- MAX 2 sentences. Always end with the ask.
+
+CLOSE (once you have both phone + email, OR after 3 exchanges):
+- "Perfecto, nuestro equipo se va a poner en contacto contigo muy pronto para agendar tu reunión gratuita. ¡Gracias por tu interés en JRZ Marketing! 😊"
+- English: "Perfect, our team will reach out very soon to schedule your free strategy meeting. Thank you for your interest in JRZ Marketing! 😊"
+- If no info given after 3 tries: drop booking link → https://jrzmarketing.com/contact-us
 
 ABOUT JRZ MARKETING:
-- Bilingual (English + Spanish) marketing and digital strategy agency in Orlando, Florida.
-- Services: marketing systems, AI tools, automation, content creation, social media management, branding, website design, strategic consulting.
-- Website: jrzmarketing.com
-- Free consultation: https://jrzmarketing.com/contact-us
-- Owner: Jose Rivas (your cousin)
+- Bilingual marketing and digital strategy agency in Orlando, Florida.
+- Services: AI tools, automation, social media, branding, websites, marketing systems.
+- Website: jrzmarketing.com | Free consultation: https://jrzmarketing.com/contact-us
 
 LANGUAGE RULES:
-- Default to Spanish. Most of your audience speaks Spanish.
-- If someone writes in English, respond fully in English.
-- If they mix languages, flow naturally with them.
+- Default to Spanish unless they write in English.
+- Match their language naturally.
 
-RULES:
-- Keep replies SHORT — 2 to 3 sentences maximum.
-- Never use bullet points or long paragraphs in replies.
-- Sound human, professional, and warm at all times.
-- Never be pushy. Be a trusted professional who genuinely wants to help.
-- Focus on connection first, business second.
+STRICT RULES:
+- NEVER have long conversations. 4 messages max.
+- Keep every reply to 2-3 SHORT sentences MAXIMUM.
+- ALWAYS end every message with a direct ask for what is still missing.
+- Be warm and human — but efficient. You are a closer, not a friend.
 `;
 
 function getSendType(messageType) {
@@ -80,22 +73,105 @@ function getSendType(messageType) {
   return 'IG';
 }
 
-async function getArmandoReply(incomingMessage, contactName, contactId) {
-  const isFirstMessage = !greetedContacts.has(contactId);
-  if (isFirstMessage) greetedContacts.add(contactId);
+// Fetch past messages from GHL conversation
+async function getConversationHistory(conversationId) {
+  try {
+    const res = await axios.get(
+      `https://services.leadconnectorhq.com/conversations/${conversationId}/messages`,
+      {
+        headers: {
+          Authorization: `Bearer ${GHL_API_KEY}`,
+          Version: '2021-04-15',
+        },
+        params: { limit: 20 },
+      }
+    );
+    return res.data?.messages || [];
+  } catch (err) {
+    console.error('Failed to fetch conversation history:', err?.response?.data || err.message);
+    return [];
+  }
+}
 
+// Scan messages for phone numbers and emails already shared
+function extractContactInfo(messages) {
+  const phoneRegex = /(\+?1?\s?)?(\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})/g;
+  const emailRegex = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+
+  let foundPhone = null;
+  let foundEmail = null;
+
+  // Only scan inbound messages (from the contact, not from Armando)
+  const inboundMessages = messages.filter(m => m.direction === 'inbound');
+
+  for (const msg of inboundMessages) {
+    const body = msg.body || msg.message || '';
+    if (!foundPhone) {
+      const phoneMatch = body.match(phoneRegex);
+      if (phoneMatch) foundPhone = phoneMatch[0].trim();
+    }
+    if (!foundEmail) {
+      const emailMatch = body.match(emailRegex);
+      if (emailMatch) foundEmail = emailMatch[0].trim();
+    }
+    if (foundPhone && foundEmail) break;
+  }
+
+  return { foundPhone, foundEmail };
+}
+
+async function getArmandoReply(incomingMessage, contactName, contactId, conversationId) {
+  // Track message count
+  const count = (contactMessageCount.get(contactId) || 0) + 1;
+  contactMessageCount.set(contactId, count);
+
+  // Time-based greeting
   const hour = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false });
   const h = parseInt(hour);
   const timeGreeting = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches';
   const timeGreetingEN = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
 
-  const userContext = `
-${isFirstMessage
-    ? `This is the FIRST message from this person. Start with the time-based greeting (Spanish: "${timeGreeting}" / English: "${timeGreetingEN}"), then introduce yourself exactly as: "Mi nombre es Armando y soy el Community Manager de JRZ Marketing." One warm, professional sentence.`
-    : 'You already introduced yourself. Do NOT greet or introduce yourself again. Continue the conversation naturally and professionally.'}
+  // Fetch conversation history and extract any info already shared
+  let foundPhone = null;
+  let foundEmail = null;
+  let historyCount = count;
 
-Person's name: ${contactName || 'someone'}
+  if (conversationId) {
+    const messages = await getConversationHistory(conversationId);
+    const extracted = extractContactInfo(messages);
+    foundPhone = extracted.foundPhone;
+    foundEmail = extracted.foundEmail;
+    // Use actual conversation length if available
+    historyCount = Math.max(count, messages.filter(m => m.direction === 'inbound').length);
+    console.log(`History check — phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}, inbound msgs: ${historyCount}`);
+  }
+
+  const alreadyHavePhone = !!foundPhone;
+  const alreadyHaveEmail = !!foundEmail;
+  const hasBoth = alreadyHavePhone && alreadyHaveEmail;
+
+  let stageInstruction = '';
+
+  if (historyCount === 1) {
+    stageInstruction = `This is the FIRST message from this person. Greet with "${timeGreeting}" (or "${timeGreetingEN}" if they wrote in English). Introduce yourself as Armando, Community Manager of JRZ Marketing. Acknowledge what they said in one sentence. Then immediately ask for their phone number AND email so the team can schedule a free meeting.`;
+  } else if (hasBoth) {
+    stageInstruction = `You already have their phone number (${foundPhone}) and email (${foundEmail}). Close the conversation warmly. Thank them and let them know the team will reach out soon to schedule their free strategy meeting. Do NOT ask for any more info.`;
+  } else if (alreadyHavePhone && !alreadyHaveEmail) {
+    stageInstruction = `You already have their phone number (${foundPhone}). You still need their EMAIL. Thank them for the phone number if this is the first time acknowledging it, then ask directly for their email address. One sentence max before the ask.`;
+  } else if (!alreadyHavePhone && alreadyHaveEmail) {
+    stageInstruction = `You already have their email (${foundEmail}). You still need their PHONE NUMBER. Thank them for the email if this is the first time acknowledging it, then ask directly for their phone number. One sentence max before the ask.`;
+  } else if (historyCount >= 4) {
+    stageInstruction = `This conversation has gone on long enough without getting their info. Close it gracefully and professionally. Say something like: "Para poder ayudarte mejor, te invitamos a agendar una reunión gratuita con nuestro equipo directamente aquí: https://jrzmarketing.com/contact-us 😊" (English: "To help you better, we'd love for you to book a free meeting with our team here: https://jrzmarketing.com/contact-us 😊"). Be warm, not pushy. Wrap it up cleanly.`;
+  } else {
+    stageInstruction = `This is message #${historyCount}. You don't have their phone or email yet. Be warm but direct: you need both their phone number and email to connect them with the team and schedule a meeting. Ask for both clearly.`;
+  }
+
+  const userContext = `
+${stageInstruction}
+
+Person's name: ${contactName || 'unknown'}
 Their message: "${incomingMessage}"
+Already collected — Phone: ${foundPhone || 'NO'} | Email: ${foundEmail || 'NO'}
 
 Respond ONLY in this exact JSON format (no extra text outside the JSON):
 {
@@ -103,18 +179,18 @@ Respond ONLY in this exact JSON format (no extra text outside the JSON):
   "leadQuality": "none | interested | qualified | hot"
 }
 
-Lead quality guide:
-- "none": casual chat, no business interest shown
-- "interested": asked about services or showed curiosity about marketing/AI
-- "qualified": has a real business, clear need, and seems serious
-- "hot": ready to book, move forward, or wants to talk to someone now
+Lead quality:
+- "none": no clear interest, no info given
+- "interested": engaged and responding but no info yet
+- "qualified": gave phone OR email
+- "hot": gave BOTH phone AND email — ready to schedule
 
-Keep the reply to 2-3 short sentences. Professional, warm, and human.
+Keep reply to 2-3 SHORT sentences. Warm, professional, direct.
   `;
 
   const response = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 250,
+    max_tokens: 200,
     system: ARMANDO_PROMPT,
     messages: [{ role: 'user', content: userContext }],
   });
@@ -124,11 +200,16 @@ Keep the reply to 2-3 short sentences. Professional, warm, and human.
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
-      return { reply: parsed.reply, leadQuality: parsed.leadQuality || 'none' };
+      return {
+        reply: parsed.reply,
+        leadQuality: parsed.leadQuality || 'none',
+        foundPhone,
+        foundEmail,
+      };
     }
-    return { reply: text, leadQuality: 'none' };
+    return { reply: text, leadQuality: 'none', foundPhone, foundEmail };
   } catch {
-    return { reply: response.content[0].text, leadQuality: 'none' };
+    return { reply: response.content[0].text, leadQuality: 'none', foundPhone, foundEmail };
   }
 }
 
@@ -182,6 +263,12 @@ app.post('/webhook', async (req, res) => {
       payload.contact?.id ||
       '';
 
+    const conversationId =
+      payload.conversationId ||
+      payload.conversation_id ||
+      payload.conversation?.id ||
+      '';
+
     const messageType =
       payload.message?.type ||
       payload.messageType ||
@@ -202,10 +289,23 @@ app.post('/webhook', async (req, res) => {
       return res.status(200).json({ status: 'skipped', reason: 'missing fields' });
     }
 
-    const sendType = getSendType(messageType);
-    const { reply, leadQuality } = await getArmandoReply(messageBody, contactName, contactId);
-    console.log(`Armando reply (lead quality: ${leadQuality}):`, reply);
+    // Dedup check — ignore if Armando replied to this contact in the last 60 seconds
+    const now = Date.now();
+    const lastReply = lastReplyTime.get(contactId);
+    if (lastReply && (now - lastReply) < DEDUP_WINDOW_MS) {
+      const secondsAgo = Math.round((now - lastReply) / 1000);
+      console.log(`Dedup: already replied to ${contactId} ${secondsAgo}s ago. Skipping.`);
+      return res.status(200).json({ status: 'skipped', reason: 'duplicate within 60s' });
+    }
 
+    const sendType = getSendType(messageType);
+    const { reply, leadQuality, foundPhone, foundEmail } = await getArmandoReply(
+      messageBody, contactName, contactId, conversationId
+    );
+    const msgCount = contactMessageCount.get(contactId) || 1;
+    console.log(`Armando reply (msg #${msgCount}, lead: ${leadQuality}, phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}):`, reply);
+
+    // Auto-tag based on lead quality
     if (leadQuality === 'interested') {
       await tagContact(contactId, ['armando-interested']);
     } else if (leadQuality === 'qualified') {
@@ -215,9 +315,10 @@ app.post('/webhook', async (req, res) => {
     }
 
     await sendGHLReply(contactId, reply, sendType);
+    lastReplyTime.set(contactId, Date.now()); // record reply time for dedup
     console.log('Reply sent successfully.');
 
-    res.status(200).json({ status: 'ok', reply, leadQuality });
+    res.status(200).json({ status: 'ok', reply, leadQuality, foundPhone, foundEmail, messageNumber: msgCount });
   } catch (error) {
     console.error('Error:', error?.response?.data || error.message);
     res.status(500).json({ status: 'error', message: error.message });
@@ -231,7 +332,8 @@ app.get('/', (req, res) => {
     age: 22,
     from: 'Caracas, Venezuela 🇻🇪',
     agency: 'JRZ Marketing',
-    university: 'UCF',
+    mission: 'Collect leads — phone + email — schedule meetings',
+    feature: 'Reads conversation history to never ask for info already given',
   });
 });
 
