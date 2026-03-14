@@ -19,8 +19,10 @@ const repliedMessageIds = new Set();
 // Track contacts already written back to GHL (phone/email) to avoid redundant PATCH calls
 const knownContactInfo = new Map(); // contactId → { phone, email }
 
-// Track contacts already sent hot-lead alert for (avoid duplicate emails)
-const hotLeadNotified = new Set();
+// Track contacts already sent thank-you email (send as soon as we have their email)
+const thankYouEmailSent = new Set();
+// Track contacts already alerted Jose about (send as soon as we have phone OR email)
+const alertEmailSent = new Set();
 
 const ARMANDO_PROMPT = `
 You are Armando Rivas, Community Manager at JRZ Marketing in Orlando, Florida.
@@ -70,8 +72,10 @@ ABOUT JRZ MARKETING:
 
 STRICT RULES:
 - Max 2-3 SHORT sentences per reply. No paragraphs. Ever.
+- Never ask for phone AND email in the same message.
 - Never repeat the same opening phrase twice in a conversation.
 - Never sound like a bot, a form, or a sales script.
+- NEVER re-introduce yourself after the first message. If there is conversation history, you have already said who you are — never say "soy Armando" or "I'm Armando from JRZ" again. Jump straight into the conversation.
 `;
 
 function getSendType(messageType) {
@@ -114,6 +118,7 @@ function extractContactInfo(messages) {
   let foundPhone = null;
   let foundEmail = null;
 
+  // Only scan inbound messages (from the contact, not from Armando)
   const inboundMessages = messages.filter(m => m.direction === 'inbound');
 
   for (const msg of inboundMessages) {
@@ -133,14 +138,17 @@ function extractContactInfo(messages) {
 }
 
 async function getArmandoReply(incomingMessage, contactName, contactId, conversationId) {
+  // Track message count
   const count = (contactMessageCount.get(contactId) || 0) + 1;
   contactMessageCount.set(contactId, count);
 
+  // Time-based greeting
   const hour = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false });
   const h = parseInt(hour);
   const timeGreeting = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches';
   const timeGreetingEN = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
 
+  // Fetch conversation history and extract any info already shared
   let foundPhone = null;
   let foundEmail = null;
   let historyCount = count;
@@ -152,15 +160,30 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
     foundPhone = extracted.foundPhone;
     foundEmail = extracted.foundEmail;
     historyCount = Math.max(count, messages.filter(m => m.direction === 'inbound').length);
+    // GHL fires the webhook BEFORE saving the current message to history,
+    // so also scan the incoming message itself for phone/email
+    const phoneRegex = /(\+?1?\s?)?(\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})/g;
+    const emailRegex = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+    if (!foundPhone) {
+      const m = incomingMessage.match(phoneRegex);
+      if (m) foundPhone = m[0].trim();
+    }
+    if (!foundEmail) {
+      const m = incomingMessage.match(emailRegex);
+      if (m) foundEmail = m[0].trim();
+    }
     console.log(`History check — phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}, inbound msgs: ${historyCount}`);
 
+    // Build real conversation history for Claude (last 10 messages, oldest first)
     const recentMessages = messages.slice(-10).reverse();
     for (const msg of recentMessages) {
       const body = msg.body || msg.message || '';
       if (!body) continue;
+      // direction: 'inbound' = contact, 'outbound' = Armando
       const role = msg.direction === 'inbound' ? 'user' : 'assistant';
       claudeHistory.push({ role, content: body });
     }
+    // Remove last message from history since we're about to add it as current
     if (claudeHistory.length > 0 && claudeHistory[claudeHistory.length - 1].role === 'user') {
       claudeHistory.pop();
     }
@@ -170,19 +193,21 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   const alreadyHaveEmail = !!foundEmail;
   const hasBoth = alreadyHavePhone && alreadyHaveEmail;
 
+  // Build a hidden context block Armando uses to stay on track
   let stageInstruction = '';
+  const noReintro = historyCount > 1 ? `Do NOT re-introduce yourself — you already did that. ` : '';
   if (historyCount === 1) {
     stageInstruction = `FIRST MESSAGE. Greet with "${timeGreeting}" (or "${timeGreetingEN}" if they wrote in English). Introduce yourself as Armando, Community Manager of JRZ Marketing. Acknowledge what they said in ONE sentence. Then immediately ask for their phone number AND email — tell them the team will reach out to schedule a free strategy call. Be warm but direct.`;
   } else if (hasBoth) {
-    stageInstruction = `You have phone (${foundPhone}) and email (${foundEmail}). Close warmly — the team will reach out very soon to schedule their free strategy meeting. You're done collecting info.`;
+    stageInstruction = `${noReintro}You have phone (${foundPhone}) and email (${foundEmail}). Close warmly — the team will reach out very soon to schedule their free strategy meeting. You're done collecting info.`;
   } else if (alreadyHavePhone && !alreadyHaveEmail) {
-    stageInstruction = `You have their phone (${foundPhone}) but still need their EMAIL. Ask directly — one sentence max. Also drop the booking link so they can self-schedule: ${BOOKING_URL}`;
+    stageInstruction = `${noReintro}You have their phone (${foundPhone}) but still need their EMAIL. Ask directly — one sentence max. Also drop the booking link so they can self-schedule: https://jrzmarketing.com/contact-us`;
   } else if (!alreadyHavePhone && alreadyHaveEmail) {
-    stageInstruction = `You have their email (${foundEmail}) but still need their PHONE NUMBER. Ask directly — the team needs it to reach them personally. Also drop the booking link: ${BOOKING_URL}`;
+    stageInstruction = `${noReintro}You have their email (${foundEmail}) but still need their PHONE NUMBER. Ask directly — the team needs it to reach them personally. Also drop the booking link: https://jrzmarketing.com/contact-us`;
   } else if (historyCount >= 2) {
-    stageInstruction = `Message #${historyCount} and you still don't have their phone or email. Be direct — acknowledge briefly what they said, then ask for their phone AND email. Also drop the booking link NOW so they can self-schedule: ${BOOKING_URL}. Don't keep asking questions — get the info or get them booked.`;
+    stageInstruction = `${noReintro}Message #${historyCount} and you still don't have their phone or email. Be direct — acknowledge briefly what they said, then ask for their phone AND email. Also drop the booking link NOW so they can self-schedule: https://jrzmarketing.com/contact-us. Don't keep asking questions — get the info or get them booked.`;
   } else {
-    stageInstruction = `Still need phone and email. Ask directly and drop the booking link: ${BOOKING_URL}`;
+    stageInstruction = `${noReintro}Still need phone and email. Ask directly and drop the booking link: https://jrzmarketing.com/contact-us`;
   }
 
   const systemWithContext = `${ARMANDO_PROMPT}
@@ -193,6 +218,7 @@ Time of day: ${timeGreeting} / ${timeGreetingEN}
 Phone collected: ${foundPhone || 'NO'}
 Email collected: ${foundEmail || 'NO'}
 Message number: ${historyCount}
+Already introduced: ${historyCount > 1 ? 'YES — do NOT introduce yourself again under any circumstances.' : 'NO — this is the first message.'}
 LANGUAGE LOCK: ${historyCount === 1 ? `Detect from their current message and lock for entire conversation.` : `Use the SAME language as your very first reply in this conversation. Do NOT switch.`}
 
 SENTIMENT ADJUSTMENT:
@@ -208,6 +234,7 @@ Respond ONLY in this exact JSON format (no extra text):
 leadQuality: none=disengaged, interested=engaging/no info, qualified=phone OR email, hot=BOTH
 sentiment: positive=excited/friendly, neutral=normal, annoyed=frustrated/impatient`;
 
+  // Build messages array: history + current message
   const messagesForClaude = [
     ...claudeHistory,
     { role: 'user', content: incomingMessage },
@@ -278,7 +305,7 @@ async function updateGHLContact(contactId, phone, email) {
   const updates = {};
   if (phone && phone !== known.phone) updates.phone = phone;
   if (email && email !== known.email) updates.email = email;
-  if (Object.keys(updates).length === 0) return;
+  if (Object.keys(updates).length === 0) return; // nothing new to write
 
   try {
     await axios.put(
@@ -359,13 +386,13 @@ async function sendHotLeadAlertEmail(contactName, foundPhone, foundEmail, channe
     <div class="email-header">
       <img src="${logoUrl}" alt="JRZ Marketing" />
     </div>
-    <div class="week-badge"><span>Hot Lead Alert</span></div>
+    <div class="week-badge"><span>Lead Alert</span></div>
     <div class="email-hero">
-      <h1>🔥 ${contactName || 'New Lead'}<br />is ready to book.</h1>
-      <p>Armando collected a full lead. Time to close — reach out now.</p>
+      <h1>🔥 ${contactName || 'New Lead'}<br />is ready to connect.</h1>
+      <p>Armando collected contact info. Time to close — reach out now.</p>
     </div>
     <div class="email-body">
-      <p>A contact just gave Armando both their <strong>phone number and email</strong>. Here are the full details:</p>
+      <p>A contact just shared their info with Armando. Here are the full details:</p>
       <div class="lead-card">
         <div class="lead-row"><span class="lead-label">Name</span>${contactName || 'Unknown'}</div>
         <div class="lead-row"><span class="lead-label">Phone</span>${foundPhone || '—'}</div>
@@ -373,7 +400,7 @@ async function sendHotLeadAlertEmail(contactName, foundPhone, foundEmail, channe
         <div class="lead-row"><span class="lead-label">Channel</span>${channel || 'DM'}</div>
         <div class="lead-row"><span class="lead-label">Time</span>${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}</div>
       </div>
-      <p>A branded thank-you email with the booking link has already been sent to them automatically.</p>
+      <p>${foundEmail ? 'A branded thank-you email with the booking link has already been sent to them automatically.' : 'No email collected yet — follow up to get it.'}</p>
     </div>
     <div class="divider"></div>
     <div class="cta-section">
@@ -609,21 +636,29 @@ app.post('/webhook', async (req, res) => {
       await updateGHLContact(contactId, foundPhone, foundEmail);
     }
 
-    // Auto-tag based on lead quality
-    if (leadQuality === 'interested') {
-      await tagContact(contactId, ['armando-interested']);
-    } else if (leadQuality === 'qualified') {
-      await tagContact(contactId, ['armando-interested', 'qualified-lead']);
-    } else if (leadQuality === 'hot') {
+    // Tag based on what we actually collected (data-driven, not Claude's guess)
+    const hasBothData = !!(foundPhone && foundEmail);
+    const hasAnyData = !!(foundPhone || foundEmail);
+    if (hasBothData) {
       await tagContact(contactId, ['armando-interested', 'qualified-lead', 'hot-lead']);
-      // Fire hot-lead emails only once per contact
-      if (!hotLeadNotified.has(contactId)) {
-        hotLeadNotified.add(contactId);
-        await Promise.all([
-          sendHotLeadAlertEmail(contactName, foundPhone, foundEmail, sendType),
-          sendThankYouEmail(contactId, contactName),
-        ]);
-      }
+    } else if (hasAnyData) {
+      await tagContact(contactId, ['armando-interested', 'qualified-lead']);
+    } else if (leadQuality === 'interested') {
+      await tagContact(contactId, ['armando-interested']);
+    }
+
+    // Send thank-you email to lead as soon as we have their email (once per contact)
+    if (foundEmail && !thankYouEmailSent.has(contactId)) {
+      thankYouEmailSent.add(contactId);
+      console.log(`Sending thank-you email to contact ${contactId}...`);
+      await sendThankYouEmail(contactId, contactName);
+    }
+
+    // Alert Jose as soon as we have phone OR email (once per contact)
+    if (hasAnyData && !alertEmailSent.has(contactId)) {
+      alertEmailSent.add(contactId);
+      console.log(`Sending lead alert for contact ${contactId}...`);
+      await sendHotLeadAlertEmail(contactName, foundPhone, foundEmail, sendType);
     }
 
     await sendGHLReply(contactId, reply, sendType);
