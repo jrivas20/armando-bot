@@ -8,20 +8,12 @@ app.use(express.json());
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const GHL_API_KEY = process.env.GHL_API_KEY;
 const BOOKING_URL = 'https://jrzmarketing.com/contact-us';
-const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8'; // Jose's GHL contact
+const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
 
-// Track message count per contact (in-memory fallback)
 const contactMessageCount = new Map();
-
-// Dedup: track messageIds already replied to (prevents GHL double-firing same webhook)
 const repliedMessageIds = new Set();
-
-// Track contacts already written back to GHL (phone/email) to avoid redundant PATCH calls
-const knownContactInfo = new Map(); // contactId → { phone, email }
-
-// Track contacts already sent thank-you email (send as soon as we have their email)
+const knownContactInfo = new Map();
 const thankYouEmailSent = new Set();
-// Track contacts already alerted Jose about (send as soon as we have phone OR email)
 const alertEmailSent = new Set();
 
 const ARMANDO_PROMPT = `
@@ -90,16 +82,12 @@ function getSendType(messageType) {
   return 'IG';
 }
 
-// Fetch past messages from GHL conversation
 async function getConversationHistory(conversationId) {
   try {
     const res = await axios.get(
       `https://services.leadconnectorhq.com/conversations/${conversationId}/messages`,
       {
-        headers: {
-          Authorization: `Bearer ${GHL_API_KEY}`,
-          Version: '2021-04-15',
-        },
+        headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15' },
         params: { limit: 20 },
       }
     );
@@ -110,17 +98,12 @@ async function getConversationHistory(conversationId) {
   }
 }
 
-// Scan messages for phone numbers and emails already shared
 function extractContactInfo(messages) {
   const phoneRegex = /(\+?1?\s?)?(\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})/g;
   const emailRegex = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
-
   let foundPhone = null;
   let foundEmail = null;
-
-  // Only scan inbound messages (from the contact, not from Armando)
   const inboundMessages = messages.filter(m => m.direction === 'inbound');
-
   for (const msg of inboundMessages) {
     const body = msg.body || msg.message || '';
     if (!foundPhone) {
@@ -133,22 +116,18 @@ function extractContactInfo(messages) {
     }
     if (foundPhone && foundEmail) break;
   }
-
   return { foundPhone, foundEmail };
 }
 
 async function getArmandoReply(incomingMessage, contactName, contactId, conversationId) {
-  // Track message count
   const count = (contactMessageCount.get(contactId) || 0) + 1;
   contactMessageCount.set(contactId, count);
 
-  // Time-based greeting
   const hour = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false });
   const h = parseInt(hour);
   const timeGreeting = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches';
   const timeGreetingEN = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
 
-  // Fetch conversation history and extract any info already shared
   let foundPhone = null;
   let foundEmail = null;
   let historyCount = count;
@@ -160,40 +139,37 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
     foundPhone = extracted.foundPhone;
     foundEmail = extracted.foundEmail;
     historyCount = Math.max(count, messages.filter(m => m.direction === 'inbound').length);
-    // GHL fires the webhook BEFORE saving the current message to history,
-    // so also scan the incoming message itself for phone/email
-    const phoneRegex = /(\+?1?\s?)?(\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})/g;
-    const emailRegex = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
-    if (!foundPhone) {
-      const m = incomingMessage.match(phoneRegex);
-      if (m) foundPhone = m[0].trim();
-    }
-    if (!foundEmail) {
-      const m = incomingMessage.match(emailRegex);
-      if (m) foundEmail = m[0].trim();
-    }
-    console.log(`History check — phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}, inbound msgs: ${historyCount}`);
 
-    // Build real conversation history for Claude (last 10 messages, oldest first)
     const recentMessages = messages.slice(-10).reverse();
     for (const msg of recentMessages) {
       const body = msg.body || msg.message || '';
       if (!body) continue;
-      // direction: 'inbound' = contact, 'outbound' = Armando
       const role = msg.direction === 'inbound' ? 'user' : 'assistant';
       claudeHistory.push({ role, content: body });
     }
-    // Remove last message from history since we're about to add it as current
     if (claudeHistory.length > 0 && claudeHistory[claudeHistory.length - 1].role === 'user') {
       claudeHistory.pop();
     }
   }
 
+  // Always scan the current incoming message for phone/email —
+  // GHL fires webhook BEFORE saving message to history, and conversationId may be missing
+  const phoneRegex = /(\+?1?\s?)?(\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})/g;
+  const emailRegex = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+  if (!foundPhone) {
+    const m = incomingMessage.match(phoneRegex);
+    if (m) foundPhone = m[0].trim();
+  }
+  if (!foundEmail) {
+    const m = incomingMessage.match(emailRegex);
+    if (m) foundEmail = m[0].trim();
+  }
+  console.log(`Contact info — phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}, msg #: ${historyCount}`);
+
   const alreadyHavePhone = !!foundPhone;
   const alreadyHaveEmail = !!foundEmail;
   const hasBoth = alreadyHavePhone && alreadyHaveEmail;
 
-  // Build a hidden context block Armando uses to stay on track
   let stageInstruction = '';
   const noReintro = historyCount > 1 ? `Do NOT re-introduce yourself — you already did that. ` : '';
   if (historyCount === 1) {
@@ -205,7 +181,7 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   } else if (!alreadyHavePhone && alreadyHaveEmail) {
     stageInstruction = `${noReintro}You have their email (${foundEmail}) but still need their PHONE NUMBER. Ask directly — the team needs it to reach them personally. Also drop the booking link: https://jrzmarketing.com/contact-us`;
   } else if (historyCount >= 2) {
-    stageInstruction = `${noReintro}Message #${historyCount} and you still don't have their phone or email. Be direct — acknowledge briefly what they said, then ask for their phone AND email. Also drop the booking link NOW so they can self-schedule: https://jrzmarketing.com/contact-us. Don't keep asking questions — get the info or get them booked.`;
+    stageInstruction = `${noReintro}Message #${historyCount} and you still don't have their phone or email. Be direct — acknowledge briefly what they said, then ask for their phone AND email. Also drop the booking link NOW: https://jrzmarketing.com/contact-us. Don't keep asking questions — get the info or get them booked.`;
   } else {
     stageInstruction = `${noReintro}Still need phone and email. Ask directly and drop the booking link: https://jrzmarketing.com/contact-us`;
   }
@@ -234,7 +210,6 @@ Respond ONLY in this exact JSON format (no extra text):
 leadQuality: none=disengaged, interested=engaging/no info, qualified=phone OR email, hot=BOTH
 sentiment: positive=excited/friendly, neutral=normal, annoyed=frustrated/impatient`;
 
-  // Build messages array: history + current message
   const messagesForClaude = [
     ...claudeHistory,
     { role: 'user', content: incomingMessage },
@@ -299,14 +274,12 @@ async function tagContact(contactId, tags) {
   }
 }
 
-// Write phone/email back to GHL contact record (keeps CRM clean + survives restarts)
 async function updateGHLContact(contactId, phone, email) {
   const known = knownContactInfo.get(contactId) || {};
   const updates = {};
   if (phone && phone !== known.phone) updates.phone = phone;
   if (email && email !== known.email) updates.email = email;
-  if (Object.keys(updates).length === 0) return; // nothing new to write
-
+  if (Object.keys(updates).length === 0) return;
   try {
     await axios.put(
       `https://services.leadconnectorhq.com/contacts/${contactId}`,
@@ -326,16 +299,15 @@ async function updateGHLContact(contactId, phone, email) {
   }
 }
 
-// Send internal hot-lead alert email to Jose at info@jrzmarketing.com
 async function sendHotLeadAlertEmail(contactName, foundPhone, foundEmail, channel) {
-  const subject = `🔥 Hot Lead — ${contactName || 'New Lead'} is ready to book!`;
+  const subject = `🔥 New Lead — ${contactName || 'New Lead'} just shared their info!`;
   const logoUrl = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663415013329/cScWYsLVftXscDEx.png';
   const html = `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hot Lead Alert — JRZ Marketing</title>
+  <title>Lead Alert — JRZ Marketing</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -383,16 +355,14 @@ async function sendHotLeadAlertEmail(contactName, foundPhone, foundEmail, channe
 <body>
 <div class="email-wrapper">
   <div class="email-container">
-    <div class="email-header">
-      <img src="${logoUrl}" alt="JRZ Marketing" />
-    </div>
+    <div class="email-header"><img src="${logoUrl}" alt="JRZ Marketing" /></div>
     <div class="week-badge"><span>Lead Alert</span></div>
     <div class="email-hero">
-      <h1>🔥 ${contactName || 'New Lead'}<br />is ready to connect.</h1>
-      <p>Armando collected contact info. Time to close — reach out now.</p>
+      <h1>🔥 ${contactName || 'New Lead'}<br />just shared their info.</h1>
+      <p>Armando captured contact info. Time to reach out now.</p>
     </div>
     <div class="email-body">
-      <p>A contact just shared their info with Armando. Here are the full details:</p>
+      <p>Here are the full details from this lead:</p>
       <div class="lead-card">
         <div class="lead-row"><span class="lead-label">Name</span>${contactName || 'Unknown'}</div>
         <div class="lead-row"><span class="lead-label">Phone</span>${foundPhone || '—'}</div>
@@ -432,13 +402,12 @@ async function sendHotLeadAlertEmail(contactName, foundPhone, foundEmail, channe
         },
       }
     );
-    console.log('Hot lead alert email sent to Jose.');
+    console.log('Lead alert email sent to Jose.');
   } catch (err) {
-    console.error('Failed to send hot lead alert:', err?.response?.data || err.message);
+    console.error('Failed to send lead alert:', err?.response?.data || err.message);
   }
 }
 
-// Send branded thank-you email to the lead with booking link
 async function sendThankYouEmail(contactId, contactName) {
   const firstName = (contactName || 'there').split(' ')[0];
   const subject = `Gracias por contactar a JRZ Marketing 🙌 · Thank you for reaching out`;
@@ -502,9 +471,7 @@ async function sendThankYouEmail(contactId, contactName) {
 <body>
 <div class="email-wrapper">
   <div class="email-container">
-    <div class="email-header">
-      <img src="${logoUrl}" alt="JRZ Marketing" />
-    </div>
+    <div class="email-header"><img src="${logoUrl}" alt="JRZ Marketing" /></div>
     <div class="week-badge"><span>Sesi&oacute;n Gratuita &middot; Free Strategy Session</span></div>
     <div class="email-hero">
       <h1>${firstName},<br />ya estamos en contacto. &#128075;</h1>
@@ -577,12 +544,14 @@ app.post('/webhook', async (req, res) => {
       payload.body ||
       payload.message?.body ||
       payload.messageBody ||
+      payload.customData?.body ||
       '';
 
     const contactId =
       payload.contactId ||
       payload.contact_id ||
       payload.contact?.id ||
+      payload.customData?.contactId ||
       '';
 
     const conversationId =
@@ -596,6 +565,8 @@ app.post('/webhook', async (req, res) => {
       payload.messageType ||
       payload.message_type ||
       payload.type ||
+      payload.customData?.messageType ||
+      payload.customData?.['messageType\t'] ||
       '';
 
     const contactName =
@@ -604,6 +575,7 @@ app.post('/webhook', async (req, res) => {
       payload.contactName ||
       payload.firstName ||
       payload.first_name ||
+      payload.customData?.fullName ||
       '';
 
     const messageId =
@@ -618,7 +590,6 @@ app.post('/webhook', async (req, res) => {
       return res.status(200).json({ status: 'skipped', reason: 'missing fields' });
     }
 
-    // Dedup: skip only if this exact messageId was already replied to
     if (messageId && repliedMessageIds.has(messageId)) {
       console.log(`Dedup: already replied to messageId ${messageId}. Skipping.`);
       return res.status(200).json({ status: 'skipped', reason: 'duplicate messageId' });
@@ -631,12 +602,10 @@ app.post('/webhook', async (req, res) => {
     const msgCount = contactMessageCount.get(contactId) || 1;
     console.log(`Armando reply (msg #${msgCount}, lead: ${leadQuality}, sentiment: ${sentiment}, phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}):`, reply);
 
-    // Write phone/email back to GHL contact record whenever we have them
     if (foundPhone || foundEmail) {
       await updateGHLContact(contactId, foundPhone, foundEmail);
     }
 
-    // Tag based on what we actually collected (data-driven, not Claude's guess)
     const hasBothData = !!(foundPhone && foundEmail);
     const hasAnyData = !!(foundPhone || foundEmail);
     if (hasBothData) {
@@ -647,14 +616,12 @@ app.post('/webhook', async (req, res) => {
       await tagContact(contactId, ['armando-interested']);
     }
 
-    // Send thank-you email to lead as soon as we have their email (once per contact)
     if (foundEmail && !thankYouEmailSent.has(contactId)) {
       thankYouEmailSent.add(contactId);
       console.log(`Sending thank-you email to contact ${contactId}...`);
       await sendThankYouEmail(contactId, contactName);
     }
 
-    // Alert Jose as soon as we have phone OR email (once per contact)
     if (hasAnyData && !alertEmailSent.has(contactId)) {
       alertEmailSent.add(contactId);
       console.log(`Sending lead alert for contact ${contactId}...`);
