@@ -2832,13 +2832,13 @@ async function sendClientOnboarding(contactId, contactName, businessName, loginE
   const logoUrl    = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
   const appStoreUrl   = 'https://apps.apple.com/us/app/lead-connector/id1564153400';
   const playStoreUrl  = 'https://play.google.com/store/apps/details?id=com.gohighlevel.mobileapp';
-  const subject    = `Your marketing system is ready, ${firstName} 🚀 / Tu sistema de marketing está listo`;
+  const subject    = `Your marketing system is ready, ${firstName} 🚀`;
   const html = `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your system is ready / Tu sistema está listo</title>
+  <title>Your system is ready</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -2849,13 +2849,12 @@ async function sendClientOnboarding(contactId, contactName, businessName, loginE
     .email-header img { height:48px; width:auto; }
     .badge-wrap { background:#0a0a0a; padding:0 40px 24px; text-align:center; }
     .badge { display:inline-block; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:6px 16px; border-radius:100px; }
-    .email-hero { background:#0a0a0a; padding:40px 40px 48px; border-bottom:3px solid #ffffff; }
+    .email-hero { background:#0a0a0a; padding:40px 40px 48px; }
     .email-hero h1 { font-size:26px; font-weight:800; color:#ffffff; line-height:1.2; letter-spacing:-0.02em; margin-bottom:12px; }
     .email-hero p { font-size:14px; color:rgba(255,255,255,0.55); line-height:1.7; }
-    .lang-section { padding:36px 40px 28px; }
-    .lang-label { display:inline-block; font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#ffffff; background:#0a0a0a; padding:4px 12px; border-radius:100px; margin-bottom:20px; }
-    .lang-section p { font-size:15px; color:#333333; line-height:1.8; margin-bottom:16px; }
-    .lang-section strong { color:#0a0a0a; font-weight:700; }
+    .body-section { padding:36px 40px 28px; }
+    .body-section p { font-size:15px; color:#333333; line-height:1.8; margin-bottom:16px; }
+    .body-section strong { color:#0a0a0a; font-weight:700; }
     .login-box { background:#0a0a0a; border-radius:12px; padding:24px 28px; margin:20px 0; }
     .login-box .lbl { color:rgba(255,255,255,0.5); font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:4px; }
     .login-box .val { color:#ffffff; font-size:14px; font-weight:600; margin-bottom:14px; }
@@ -2872,7 +2871,6 @@ async function sendClientOnboarding(contactId, contactName, businessName, loginE
     .check { color:#0a0a0a; font-weight:700; }
     .app-row { display:flex; gap:10px; justify-content:center; margin:14px 0; flex-wrap:wrap; }
     .app-btn { display:inline-block; background:#f4f4f4; border:1px solid #e0e0e0; color:#0a0a0a !important; font-size:12px; font-weight:600; text-decoration:none; padding:9px 18px; border-radius:8px; }
-    .lang-divider { height:3px; background:#0a0a0a; margin:0 40px; border-radius:2px; }
     .divider { height:1px; background:#f0f0f0; margin:28px 40px; }
     .cta-section { padding:0 40px 36px; text-align:center; }
     .cta-label { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#999999; margin-bottom:14px; }
@@ -2891,14 +2889,11 @@ async function sendClientOnboarding(contactId, contactName, businessName, loginE
   <div class="email-header"><img src="${logoUrl}" alt="JRZ Marketing" /></div>
   <div class="badge-wrap"><span class="badge">Sub-account Active &middot; ${businessName || firstName + "'s Business"}</span></div>
   <div class="email-hero">
-    <h1>${firstName}, your system is ready ✅<br /><span style="font-size:22px;opacity:0.7">Tu sistema está listo</span></h1>
-    <p>Your CRM, automations, and sales pipeline are configured and ready to capture clients today.<br />
-    <span style="opacity:0.6">Tu CRM, automatizaciones y pipeline de ventas están listos para captar clientes desde hoy.</span></p>
+    <h1>${firstName}, your system is ready ✅</h1>
+    <p>Your CRM, automations, and sales pipeline are configured and ready to capture clients today.</p>
   </div>
 
-  <!-- ── ENGLISH ── -->
-  <div class="lang-section">
-    <span class="lang-label">🇺🇸 English</span>
+  <div class="body-section">
     <p>Hi <strong>${firstName}</strong>,</p>
     <p>Your sub-account on our marketing platform is now active. Here are your login credentials:</p>
     <div class="login-box">
@@ -2932,49 +2927,10 @@ async function sendClientOnboarding(contactId, contactName, businessName, loginE
     <p style="font-size:14px;">Questions? Reply to this email or reach us directly at (407) 844-6376. We're here to make sure your system runs at 100%.</p>
   </div>
 
-  <!-- ── DIVIDER ── -->
-  <div class="lang-divider"></div>
-
-  <!-- ── ESPAÑOL ── -->
-  <div class="lang-section">
-    <span class="lang-label">🇪🇸 Español</span>
-    <p>Hola <strong>${firstName}</strong>,</p>
-    <p>Tu sub-cuenta en nuestra plataforma de marketing ya está activa. Aquí están tus credenciales de acceso:</p>
-    <div class="login-box">
-      <div class="lbl">Plataforma</div>
-      <div class="val">app.gohighlevel.com</div>
-      <div class="lbl">Email de acceso</div>
-      <div class="val">${loginEmail || 'Tu email registrado'}</div>
-      <div class="lbl">Contraseña</div>
-      <div class="val">Te llegará un email separado de GoHighLevel para configurar tu contraseña.</div>
-    </div>
-    <p><strong>Lo que ya está configurado en tu sistema:</strong></p>
-    <div class="setup-grid">
-      <div class="setup-item"><span class="check">✓</span> CRM con tu pipeline de ventas organizado</div>
-      <div class="setup-item"><span class="check">✓</span> Chatbot IA — responde a leads automáticamente 24/7</div>
-      <div class="setup-item"><span class="check">✓</span> Secuencia de 13 emails de seguimiento (6 meses)</div>
-      <div class="setup-item"><span class="check">✓</span> Calendario de citas integrado</div>
-      <div class="setup-item"><span class="check">✓</span> Dashboard de reportes semanales</div>
-      <div class="setup-item"><span class="check">✓</span> Integración con redes sociales</div>
-    </div>
-    <p><strong>Tus primeros 3 pasos:</strong></p>
-    <div class="steps">
-      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Inicia sesión</strong> en app.gohighlevel.com y configura tu contraseña.</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Descarga la app</strong> "Lead Connector" en tu teléfono para gestionar leads desde donde estés.</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Agenda tu llamada de onboarding</strong> — 30 minutos y te mostramos todo en vivo.</div></div>
-    </div>
-    <p style="text-align:center;font-size:14px;"><strong>Descarga la app móvil:</strong></p>
-    <div class="app-row">
-      <a href="${appStoreUrl}" class="app-btn">📱 App Store (iPhone)</a>
-      <a href="${playStoreUrl}" class="app-btn">🤖 Google Play (Android)</a>
-    </div>
-    <p style="font-size:14px;">¿Tienes preguntas? Responde este email o llámanos al (407) 844-6376. Estamos aquí para que tu sistema funcione al 100%.</p>
-  </div>
-
   <div class="divider"></div>
   <div class="cta-section">
-    <p class="cta-label">Next Step / Siguiente Paso</p>
-    <a href="${BOOKING_URL}" class="cta-button">Book Your Onboarding Call / Agenda tu Llamada &rarr;</a>
+    <p class="cta-label">Next Step</p>
+    <a href="${BOOKING_URL}" class="cta-button">Book Your Onboarding Call &rarr;</a>
     <p class="cta-note">30 min &middot; Free &middot; We walk you through everything live</p>
   </div>
   <div class="signature">
