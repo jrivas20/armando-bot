@@ -45,6 +45,8 @@ const SOCIAL_ACCOUNTS = {
   linkedinJRZ:  '69571db227f36db5a4c941a7_d7iUPfamAaPlSBNj6IhT_59796032_page',
   google:       '69571da123b2d16f33f435a2_d7iUPfamAaPlSBNj6IhT_9708635617980992827',
   youtube:      '69571dd027f36d280fc94983_d7iUPfamAaPlSBNj6IhT_UCz-cQ8MvL74r83op8SvuSHw_profile',
+  // TikTok: connect at GHL → Social Planner → Connect Account → TikTok, then paste the account ID here
+  tiktok:       process.env.TIKTOK_ACCOUNT_ID || null,
 };
 
 // Facebook, LinkedIn, YouTube, Google Business accept text-only posts
@@ -58,6 +60,16 @@ const TEXT_POST_ACCOUNTS = [
 
 // Instagram carousel accounts — always posts with images
 const INSTAGRAM_ACCOUNTS = [SOCIAL_ACCOUNTS.instagram];
+
+// 4pm daily Reel accounts — all video-capable platforms
+const REEL_ACCOUNTS = [
+  SOCIAL_ACCOUNTS.instagram,
+  SOCIAL_ACCOUNTS.facebook,
+  SOCIAL_ACCOUNTS.youtube,
+  SOCIAL_ACCOUNTS.linkedinJose,
+  SOCIAL_ACCOUNTS.linkedinJRZ,
+  ...(SOCIAL_ACCOUNTS.tiktok ? [SOCIAL_ACCOUNTS.tiktok] : []),
+];
 
 // ─── Cloudinary Carousel Images — 7 days × 4 slides ────────────────────────
 // URLs without version = always serve latest uploaded image (overwrite weekly)
@@ -969,39 +981,45 @@ async function sendThankYouEmail(contactId, contactName) {
 // SOCIAL MEDIA AUTOMATION FUNCTIONS
 // ═══════════════════════════════════════════════════════════
 
-// ─── Build a Reel from 4 carousel slides via FFmpeg → upload to Cloudinary ────
+// ─── Build a Reel from carousel slides via FFmpeg → upload to Cloudinary ────
+// opts.maxSlides: how many slides to use (default 4 = 28s, use 3 for 15s)
+// opts.slideDuration: seconds per slide (default 7 for carousel, 5 for short Reels)
+// opts.publicIdSuffix: extra suffix for Cloudinary public_id (e.g. '_short')
 // Returns permanent Cloudinary video URL, or null on failure
-async function createReelFromSlides(slideUrls, dayIdx) {
+async function createReelFromSlides(slideUrls, dayIdx, opts = {}) {
+  const { maxSlides = 4, slideDuration = 7, publicIdSuffix = '' } = opts;
+  const slides  = slideUrls.slice(0, maxSlides);
   const tmpDir = '/tmp/jrz_reel';
   try {
     fs.mkdirSync(tmpDir, { recursive: true });
 
-    // 1. Download each slide PNG to /tmp
+    // 1. Download selected slides to /tmp
     const slidePaths = [];
-    for (let i = 0; i < slideUrls.length; i++) {
+    for (let i = 0; i < slides.length; i++) {
       const dest = path.join(tmpDir, `slide${i}.png`);
-      const res  = await axios.get(slideUrls[i], { responseType: 'arraybuffer' });
+      const res  = await axios.get(slides[i], { responseType: 'arraybuffer' });
       fs.writeFileSync(dest, res.data);
       slidePaths.push(dest);
     }
 
-    // 2. Build FFmpeg filter: 7 seconds per slide, black fade between each
+    // 2. Build FFmpeg filter — slideDuration seconds per slide with black fade between each
+    const fadeStart = slideDuration - 1; // fade begins 1s before slide ends
     const n       = slidePaths.length;
-    const inputs  = slidePaths.map(p => `-loop 1 -t 7 -i "${p}"`).join(' ');
+    const inputs  = slidePaths.map(p => `-loop 1 -t ${slideDuration} -i "${p}"`).join(' ');
     const filters = slidePaths.map((_, i) => {
       const base = `[${i}:v]scale=1080:1080:force_original_aspect_ratio=decrease,pad=1080:1080:(ow-iw)/2:(oh-ih)/2,setsar=1`;
-      if (i === 0)     return `${base},fade=t=out:st=6:d=1[v${i}]`;
+      if (i === 0)     return `${base},fade=t=out:st=${fadeStart}:d=1[v${i}]`;
       if (i === n - 1) return `${base},fade=t=in:st=0:d=1[v${i}]`;
-      return               `${base},fade=t=in:st=0:d=1,fade=t=out:st=6:d=1[v${i}]`;
+      return               `${base},fade=t=in:st=0:d=1,fade=t=out:st=${fadeStart}:d=1[v${i}]`;
     }).join(';');
     const concat  = slidePaths.map((_, i) => `[v${i}]`).join('');
-    const outPath = path.join(tmpDir, 'reel.mp4');
+    const outPath = path.join(tmpDir, `reel${publicIdSuffix}.mp4`);
 
     const cmd = `ffmpeg -y ${inputs} -filter_complex "${filters};${concat}concat=n=${n}:v=1:a=0,format=yuv420p[v]" -map "[v]" -r 30 -c:v libx264 -preset ultrafast -crf 26 "${outPath}"`;
     execSync(cmd, { stdio: 'pipe', timeout: 120000 });
 
-    // 3. Upload to Cloudinary (video resource, overwrite weekly)
-    const publicId  = `jrz/reel_day${dayIdx}`;
+    // 3. Upload to Cloudinary (video resource, overwrite on each run)
+    const publicId  = `jrz/reel_day${dayIdx}${publicIdSuffix}`;
     const timestamp = Math.floor(Date.now() / 1000);
     const sigStr    = `overwrite=true&public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
     const signature = crypto.createHash('sha1').update(sigStr).digest('hex');
@@ -1014,7 +1032,7 @@ async function createReelFromSlides(slideUrls, dayIdx) {
     form.append('signature',  signature);
     form.append('overwrite',  'true');
 
-    const upload = await axios.post(
+    await axios.post(
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/video/upload`,
       form,
       { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 120000 }
@@ -1025,7 +1043,7 @@ async function createReelFromSlides(slideUrls, dayIdx) {
     try { fs.unlinkSync(outPath); } catch (_) {}
 
     // Return version-less URL so it always serves the latest
-    return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/video/upload/jrz/reel_day${dayIdx}.mp4`;
+    return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/video/upload/jrz/reel_day${dayIdx}${publicIdSuffix}.mp4`;
   } catch (err) {
     console.error('[Reel] ❌ Failed to create reel:', err.message);
     return null;
@@ -1348,6 +1366,52 @@ async function runDailyStory() {
   }
 }
 
+// Post a 15-second Reel every day at 4pm EST across all video platforms
+// Uses first 3 carousel slides (hook + content + tip) at 5s each = 15s
+async function runDailyReel() {
+  console.log('[Reel] Running daily 4pm Reel scheduler...');
+
+  const dayOfWeek = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'short' });
+  const dayIdx    = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(dayOfWeek.substring(0, 3));
+  const safeIdx   = dayIdx >= 0 ? dayIdx : new Date().getDay();
+  const slideUrls = CAROUSEL_IMAGES[safeIdx];
+
+  // Schedule for 4pm EST (20:00 UTC during EDT / 21:00 UTC during EST)
+  const reelTime = new Date();
+  reelTime.setUTCHours(20, 0, 0, 0);
+  if (reelTime < new Date()) reelTime.setDate(reelTime.getDate() + 1);
+
+  // Build 15-second Reel (3 slides × 5s) and upload to Cloudinary
+  const reelUrl = await createReelFromSlides(slideUrls, safeIdx, {
+    maxSlides: 3,
+    slideDuration: 5,
+    publicIdSuffix: '_short',
+  });
+
+  if (!reelUrl) {
+    console.error('[Reel] ❌ Reel creation failed — skipping 4pm post');
+    return { success: false, error: 'Reel creation failed' };
+  }
+
+  // Pick caption from today's carousel script (same content, already in Spanish)
+  const { script } = getTodaysScript();
+
+  try {
+    const result = await schedulePost({
+      caption: script.caption,
+      accountIds: REEL_ACCOUNTS,
+      type: 'post',
+      scheduleDate: reelTime,
+      media: [{ url: reelUrl, type: 'video' }],
+    });
+    console.log(`[Reel] ✅ 15s Reel scheduled for ${reelTime.toISOString()} on ${REEL_ACCOUNTS.length} platforms`);
+    return { success: true, reelUrl, scheduledFor: reelTime.toISOString(), platforms: REEL_ACCOUNTS.length, result };
+  } catch (err) {
+    console.error('[Reel] ❌ Failed to schedule Reel post:', err?.response?.data || err.message);
+    return { success: false, error: err.message };
+  }
+}
+
 // Send weekly content summary email to Jose every Monday
 async function sendWeeklySummaryEmail(weekPosts) {
   const subject = `📅 JRZ Marketing — Resumen de contenido semanal (semana del ${new Date().toLocaleDateString('es-ES')})`;
@@ -1620,11 +1684,13 @@ app.get('/', (_req, res) => {
 
 // ═══════════════════════════════════════════════════════════
 // INTERNAL CRON — checks every 2 minutes if it's time to post
-// Carousel: every day at 7:00am EST
-// Story:    every day at 6:30pm EST
-// Summary:  every Monday at 7:05am EST
+// Carousel + Instagram Reel (8am):  every day at 7:00am EST
+// 15s Reel (all platforms, 4pm):    every day at 4:00pm EST
+// Story (7pm):                      every day at 6:30pm EST
+// Weekly summary email:             every Monday at 7:05am EST
 // ═══════════════════════════════════════════════════════════
 let lastPostDate    = null;
+let lastReelDate    = null;
 let lastStoryDate   = null;
 let lastSummaryDate = null;
 
@@ -1644,7 +1710,6 @@ setInterval(async () => {
       // Monday: also collect 7-day schedule and email summary
       if (dayOfWeek === 1 && lastSummaryDate !== today) {
         lastSummaryDate = today;
-        // Build a simple week preview for the email
         const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
         const weekPosts = CAROUSEL_SCRIPTS.slice(0, 7).map((s, i) => ({
           day: days[i],
@@ -1653,6 +1718,12 @@ setInterval(async () => {
         }));
         await sendWeeklySummaryEmail(weekPosts);
       }
+    }
+
+    // Daily 15s Reel at 4:00pm EST (window: 16:00–16:04)
+    if (hour === 16 && minute < 5 && lastReelDate !== today) {
+      lastReelDate = today;
+      await runDailyReel();
     }
 
     // Daily story at 6:30pm EST (window: 18:30–18:34)
@@ -1669,6 +1740,7 @@ setInterval(async () => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
-  console.log(`Social Media: 7 days/week · Carousel 8am EST · Story 7pm EST`);
-  console.log(`Platforms: Instagram · Facebook · LinkedIn · YouTube · Google Business`);
+  console.log(`7am  EST → Carousel post (Instagram + Facebook + LinkedIn + YouTube + Google)`);
+  console.log(`4pm  EST → 15s Reel     (Instagram + Facebook + LinkedIn + YouTube + TikTok)`);
+  console.log(`6:30pm EST → Story      (Instagram + Facebook)`);
 });
