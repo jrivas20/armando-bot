@@ -721,7 +721,7 @@ function extractContactInfo(messages) {
   return { foundPhone, foundEmail };
 }
 
-async function getArmandoReply(incomingMessage, contactName, contactId, conversationId) {
+async function getArmandoReply(incomingMessage, contactName, contactId, conversationId, channel = 'IG') {
   const count = (contactMessageCount.get(contactId) || 0) + 1;
   contactMessageCount.set(contactId, count);
 
@@ -804,10 +804,12 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
 
 --- CONTEXTO ACTUAL (solo para ti, no lo menciones) ---
 Nombre de la persona: ${contactName || 'desconocido'}
+Canal: ${channel === 'Live_Chat' ? 'Chat del website (persona que visitó jrzmarketing.com — alta intención)' : channel === 'FB' ? 'Facebook Messenger' : channel === 'IG' ? 'Instagram DM' : channel === 'SMS' ? 'SMS/WhatsApp' : channel}
 Hora: ${timeGreeting} / ${timeGreetingEN}
 Teléfono en sistema: ${foundPhone || 'NO'}
 Email en sistema: ${foundEmail || 'NO'}
 Número de mensaje: ${historyCount}
+AJUSTE POR CANAL: ${channel === 'Live_Chat' ? 'Esta persona está EN tu website AHORA MISMO — tiene altísima intención. Sé más directo y rápido hacia el booking. No les hagas esperar.' : channel === 'SMS' ? 'Es SMS/WhatsApp — mensajes aún más cortos, máximo 2 oraciones.' : 'Canal social — sé cálido y natural.'}
 IDIOMA: ${historyCount === 1 ? `Detecta del mensaje actual y mantén ESE idioma toda la conversación.` : `Usa el MISMO idioma de tu primer respuesta. NO cambies.`}
 
 AJUSTE DE ENERGÍA:
@@ -2434,7 +2436,7 @@ app.post('/webhook', async (req, res) => {
     }
 
     const { reply, leadQuality, sentiment, shouldEngage, foundPhone, foundEmail } = await getArmandoReply(
-      messageBody, contactName, contactId, conversationId
+      messageBody, contactName, contactId, conversationId, sendType
     );
     const msgCount = contactMessageCount.get(contactId) || 1;
     console.log(`Armando reply (msg #${msgCount}, lead: ${leadQuality}, sentiment: ${sentiment}, engage: ${shouldEngage}, phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}):`, reply);
