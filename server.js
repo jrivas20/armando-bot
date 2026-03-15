@@ -2477,6 +2477,14 @@ app.post('/webhook', async (req, res) => {
       await sendHotLeadAlertEmail(contactName, foundPhone, foundEmail, sendType);
     }
 
+    // Lead scoring — alert Jose if score >= 8
+    const leadScore = calculateLeadScore({ leadQuality, sentiment, foundPhone, foundEmail, historyCount: msgCount, channel: sendType });
+    console.log(`[LeadScore] ${contactName} scored ${leadScore}/10`);
+    if (leadScore >= 8 && !leadScoreAlertSent.has(contactId)) {
+      leadScoreAlertSent.add(contactId);
+      await sendLeadScoreAlert(contactId, contactName, leadScore, sendType, foundPhone, foundEmail);
+    }
+
     if (shouldAutoReply) {
       await sendGHLReply(contactId, reply, sendType);
       if (messageId) repliedMessageIds.add(messageId);
@@ -2703,10 +2711,735 @@ app.post('/cron/ab-test-analysis', async (_req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
+// FEATURE 1 — LEAD SCORING
+// ═══════════════════════════════════════════════════════════
+
+function calculateLeadScore({ leadQuality, sentiment, foundPhone, foundEmail, historyCount, channel }) {
+  let score = 0;
+  if (foundPhone && foundEmail) score += 4;
+  else if (foundPhone || foundEmail) score += 2;
+  if (leadQuality === 'hot') score += 3;
+  else if (leadQuality === 'qualified') score += 2;
+  else if (leadQuality === 'interested') score += 1;
+  if (sentiment === 'positive') score += 2;
+  else if (sentiment === 'annoyed') score -= 1;
+  if (channel === 'Live_Chat') score += 2;
+  if (historyCount >= 3) score += 1;
+  return Math.max(0, Math.min(10, score));
+}
+
+const leadScoreAlertSent = new Set();
+
+async function sendLeadScoreAlert(contactId, contactName, score, channel, foundPhone, foundEmail) {
+  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  const subject = `🎯 Lead Score ${score}/10 — ${contactName} está listo`;
+  const html = `<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lead Score Alert — JRZ Marketing</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background-color:#f4f4f4; color:#0a0a0a; -webkit-font-smoothing:antialiased; }
+    .email-wrapper { background-color:#f4f4f4; padding:40px 20px; }
+    .email-container { max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+    .email-header { background:#0a0a0a; padding:32px 40px; text-align:center; }
+    .email-header img { height:48px; width:auto; }
+    .week-badge { background:#0a0a0a; padding:0 40px 24px; text-align:center; }
+    .week-badge span { display:inline-block; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:6px 16px; border-radius:100px; }
+    .email-hero { background:#0a0a0a; padding:40px 40px 48px; border-bottom:3px solid #ffffff; }
+    .email-hero h1 { font-size:28px; font-weight:800; color:#ffffff; line-height:1.2; letter-spacing:-0.02em; margin-bottom:16px; }
+    .email-hero p { font-size:15px; color:rgba(255,255,255,0.55); line-height:1.7; }
+    .email-body { padding:40px 40px 32px; }
+    .email-body p { font-size:15px; color:#333333; line-height:1.8; margin-bottom:20px; }
+    .email-body strong { color:#0a0a0a; font-weight:700; }
+    .lead-card { background:#f9f9f9; border-radius:12px; overflow:hidden; margin:24px 0; }
+    .lead-row { padding:12px 20px; border-bottom:1px solid #eeeeee; font-size:14px; color:#333333; }
+    .lead-row:last-child { border-bottom:none; }
+    .lead-label { font-weight:700; color:#0a0a0a; display:inline-block; width:80px; }
+    .score-bar { background:#eeeeee; border-radius:999px; height:10px; margin:8px 0 0; overflow:hidden; }
+    .score-fill { background:#0a0a0a; height:10px; border-radius:999px; width:${score * 10}%; }
+    .divider { height:1px; background:#f0f0f0; margin:32px 40px; }
+    .cta-section { padding:0 40px 40px; text-align:center; }
+    .cta-label { font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#999999; margin-bottom:16px; }
+    .cta-button { display:inline-block; background:#0a0a0a; color:#ffffff !important; font-size:15px; font-weight:700; text-decoration:none; padding:16px 40px; border-radius:10px; }
+    .signature { padding:32px 40px; background:#f9f9f9; border-top:1px solid #eeeeee; }
+    .signature-name { font-size:16px; font-weight:700; color:#0a0a0a; margin-bottom:4px; }
+    .signature-title { font-size:13px; color:#777777; }
+    .email-footer { background:#0a0a0a; padding:28px 40px; text-align:center; }
+    .email-footer img { height:28px; width:auto; margin-bottom:16px; opacity:0.7; }
+    .footer-copy { font-size:11px; color:rgba(255,255,255,0.2); line-height:1.6; }
+  </style>
+</head>
+<body>
+<div class="email-wrapper"><div class="email-container">
+  <div class="email-header"><img src="${logoUrl}" alt="JRZ Marketing" /></div>
+  <div class="week-badge"><span>🎯 Lead Score Alert</span></div>
+  <div class="email-hero">
+    <h1>${contactName}<br />Score: ${score}/10</h1>
+    <p>Armando detectó un lead de alta intención. Actúa ahora.</p>
+  </div>
+  <div class="email-body">
+    <p>Este lead alcanzó un puntaje de <strong>${score}/10</strong> basado en su comportamiento e información proporcionada:</p>
+    <div class="lead-card">
+      <div class="lead-row"><span class="lead-label">Nombre</span>${contactName}</div>
+      <div class="lead-row"><span class="lead-label">Canal</span>${channel || 'DM'}</div>
+      <div class="lead-row"><span class="lead-label">Teléfono</span>${foundPhone || '—'}</div>
+      <div class="lead-row"><span class="lead-label">Email</span>${foundEmail || '—'}</div>
+      <div class="lead-row"><span class="lead-label">Score</span>${score}/10 <div class="score-bar"><div class="score-fill"></div></div></div>
+      <div class="lead-row"><span class="lead-label">Hora</span>${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}</div>
+    </div>
+    <p>Este lead está listo para cerrar. Contáctalo directamente o agenda una llamada.</p>
+  </div>
+  <div class="divider"></div>
+  <div class="cta-section">
+    <p class="cta-label">¿Listo para cerrar?</p>
+    <a href="${BOOKING_URL}" class="cta-button">Agenda llamada &rarr;</a>
+  </div>
+  <div class="signature">
+    <div class="signature-name">Armando Rivas</div>
+    <div class="signature-title">AI Community Manager &middot; JRZ Marketing</div>
+  </div>
+  <div class="email-footer">
+    <img src="${logoUrl}" alt="JRZ Marketing" />
+    <p class="footer-copy">&copy; 2026 JRZ Marketing. Orlando, Florida.<br />Alerta automática generada por Armando.</p>
+  </div>
+</div></div>
+</body></html>`;
+
+  try {
+    await axios.post(
+      'https://services.leadconnectorhq.com/conversations/messages',
+      { type: 'Email', contactId: OWNER_CONTACT_ID, subject, html },
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
+    );
+    console.log(`[LeadScore] Alert sent for ${contactName} (${score}/10)`);
+  } catch (err) {
+    console.error('[LeadScore] Failed to send alert:', err?.response?.data || err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// FEATURE 2 — NEW CLIENT ONBOARDING
+// ═══════════════════════════════════════════════════════════
+
+const onboardedContacts = new Set();
+
+async function sendClientOnboarding(contactId, contactName, email) {
+  const firstName = (contactName || 'Cliente').split(' ')[0];
+  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  const subject = `¡Bienvenido a JRZ Marketing, ${firstName}! 🚀`;
+  const html = `<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bienvenido a JRZ Marketing</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background-color:#f4f4f4; color:#0a0a0a; -webkit-font-smoothing:antialiased; }
+    .email-wrapper { background-color:#f4f4f4; padding:40px 20px; }
+    .email-container { max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+    .email-header { background:#0a0a0a; padding:32px 40px; text-align:center; }
+    .email-header img { height:48px; width:auto; }
+    .week-badge { background:#0a0a0a; padding:0 40px 24px; text-align:center; }
+    .week-badge span { display:inline-block; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:6px 16px; border-radius:100px; }
+    .email-hero { background:#0a0a0a; padding:40px 40px 48px; border-bottom:3px solid #ffffff; }
+    .email-hero h1 { font-size:28px; font-weight:800; color:#ffffff; line-height:1.2; letter-spacing:-0.02em; margin-bottom:16px; }
+    .email-hero p { font-size:15px; color:rgba(255,255,255,0.55); line-height:1.7; }
+    .email-body { padding:40px 40px 32px; }
+    .email-body p { font-size:15px; color:#333333; line-height:1.8; margin-bottom:20px; }
+    .email-body strong { color:#0a0a0a; font-weight:700; }
+    .steps { margin:24px 0; }
+    .step { display:flex; align-items:flex-start; padding:16px 0; border-bottom:1px solid #f0f0f0; }
+    .step:last-child { border-bottom:none; }
+    .step-num { background:#0a0a0a; color:#ffffff; font-size:13px; font-weight:800; min-width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:16px; margin-top:2px; }
+    .step-text { font-size:15px; color:#333333; line-height:1.6; }
+    .step-text strong { color:#0a0a0a; }
+    .team-card { background:#f9f9f9; border-radius:12px; padding:24px; margin:24px 0; }
+    .team-member { font-size:14px; color:#333333; padding:8px 0; border-bottom:1px solid #eeeeee; }
+    .team-member:last-child { border-bottom:none; }
+    .team-member strong { color:#0a0a0a; font-weight:700; }
+    .divider { height:1px; background:#f0f0f0; margin:32px 40px; }
+    .cta-section { padding:0 40px 40px; text-align:center; }
+    .cta-label { font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#999999; margin-bottom:16px; }
+    .cta-button { display:inline-block; background:#0a0a0a; color:#ffffff !important; font-size:15px; font-weight:700; text-decoration:none; padding:16px 40px; border-radius:10px; }
+    .signature { padding:32px 40px; background:#f9f9f9; border-top:1px solid #eeeeee; }
+    .signature-name { font-size:16px; font-weight:700; color:#0a0a0a; margin-bottom:4px; }
+    .signature-title { font-size:13px; color:#777777; }
+    .email-footer { background:#0a0a0a; padding:28px 40px; text-align:center; }
+    .email-footer img { height:28px; width:auto; margin-bottom:16px; opacity:0.7; }
+    .footer-copy { font-size:11px; color:rgba(255,255,255,0.2); line-height:1.6; }
+  </style>
+</head>
+<body>
+<div class="email-wrapper"><div class="email-container">
+  <div class="email-header"><img src="${logoUrl}" alt="JRZ Marketing" /></div>
+  <div class="week-badge"><span>Bienvenido a la familia JRZ</span></div>
+  <div class="email-hero">
+    <h1>${firstName},<br />bienvenido a bordo. 🚀</h1>
+    <p>Estamos emocionados de trabajar contigo. Esto es solo el comienzo.</p>
+  </div>
+  <div class="email-body">
+    <p>Hola <strong>${firstName}</strong>,</p>
+    <p>Soy Jose Rivas, fundador de JRZ Marketing. Personalmente quiero darte la bienvenida a nuestra familia. Tomaste una gran decisión y vamos a asegurarnos de que valga cada peso invertido.</p>
+    <p><strong>¿Qué pasa ahora? Aquí los próximos 3 pasos:</strong></p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Llamada de estrategia</strong> — En los próximos días agendamos una sesión para entender tu negocio a fondo y definir el plan de ataque.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Configuración del sistema</strong> — Nuestro equipo conecta tu CRM, automatizaciones, canales de redes sociales y todo lo necesario para arrancar.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Primeros resultados en 30 días</strong> — Verás tu presencia digital activa, leads llegando y el sistema trabajando para ti.</div></div>
+    </div>
+    <p><strong>¿Qué esperar este primer mes?</strong></p>
+    <p>Contenido publicándose todos los días en tus redes, sistema de respuesta automática a leads, tu pipeline de ventas organizado y reportes semanales de lo que está funcionando.</p>
+    <p><strong>Tu equipo:</strong></p>
+    <div class="team-card">
+      <div class="team-member"><strong>Jose Rivas</strong> — CEO & Estratega Principal</div>
+      <div class="team-member"><strong>Armando Rivas</strong> — Community Manager (IA) 24/7</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="cta-section">
+    <p class="cta-label">Agenda tu llamada de inicio</p>
+    <a href="${BOOKING_URL}" class="cta-button">Ver mi calendario &rarr;</a>
+  </div>
+  <div class="signature">
+    <div class="signature-name">Jose Rivas</div>
+    <div class="signature-title">CEO &middot; JRZ Marketing</div>
+  </div>
+  <div class="email-footer">
+    <img src="${logoUrl}" alt="JRZ Marketing" />
+    <p class="footer-copy">&copy; 2026 JRZ Marketing. Orlando, Florida.<br />Bienvenido a la familia.</p>
+  </div>
+</div></div>
+</body></html>`;
+
+  try {
+    await axios.post(
+      'https://services.leadconnectorhq.com/conversations/messages',
+      { type: 'Email', contactId, subject, html },
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
+    );
+    console.log(`[Onboarding] Welcome email sent to ${contactName} (${contactId})`);
+  } catch (err) {
+    console.error('[Onboarding] Failed to send welcome email:', err?.response?.data || err.message);
+  }
+}
+
+app.post('/webhook/new-client', async (req, res) => {
+  res.json({ ok: true });
+  try {
+    const payload = req.body;
+    const contactId = payload.contactId || payload.contact_id || payload.contact?.id || payload.customData?.contactId || '';
+    const contactName = payload.fullName || payload.full_name || payload.contactName || payload.firstName || payload.first_name || payload.customData?.fullName || '';
+    const email = payload.email || payload.contact?.email || payload.customData?.email || '';
+    if (!contactId) { console.log('[Onboarding] Missing contactId, skipping.'); return; }
+    if (onboardedContacts.has(contactId)) { console.log(`[Onboarding] Already onboarded ${contactId}, skipping.`); return; }
+    onboardedContacts.add(contactId);
+    await sendClientOnboarding(contactId, contactName, email);
+  } catch (err) {
+    console.error('[Onboarding] Webhook error:', err.message);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// FEATURE 3 — PROPOSAL GENERATOR
+// ═══════════════════════════════════════════════════════════
+
+const proposalsSent = new Set();
+
+async function generateAndSendProposal(contactId, contactName, businessType, email) {
+  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  try {
+    const promptText = `Generate a professional proposal for a ${businessType} business wanting JRZ Marketing services. Return ONLY valid JSON: { "challenge": "main pain point", "solution": "how JRZ solves it", "services": ["service1", "service2", "service3"], "timeline": "expected timeline", "investment": "Starting at $497/month" }`;
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 600,
+      messages: [{ role: 'user', content: promptText }],
+    });
+    const proposal = JSON.parse(msg.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+
+    const subject = `Propuesta JRZ Marketing — ${contactName}`;
+    const servicesHtml = (proposal.services || []).map(s => `<li style="padding:10px 0 10px 28px;position:relative;border-bottom:1px solid #f0f0f0;font-size:15px;color:#333333;"><span style="position:absolute;left:0;font-weight:700;color:#0a0a0a;">✓</span>${s}</li>`).join('');
+    const html = `<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Propuesta JRZ Marketing</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background-color:#f4f4f4; color:#0a0a0a; -webkit-font-smoothing:antialiased; }
+    .email-wrapper { background-color:#f4f4f4; padding:40px 20px; }
+    .email-container { max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+    .email-header { background:#0a0a0a; padding:32px 40px; text-align:center; }
+    .email-header img { height:48px; width:auto; }
+    .week-badge { background:#0a0a0a; padding:0 40px 24px; text-align:center; }
+    .week-badge span { display:inline-block; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:6px 16px; border-radius:100px; }
+    .email-hero { background:#0a0a0a; padding:40px 40px 48px; border-bottom:3px solid #ffffff; }
+    .email-hero h1 { font-size:28px; font-weight:800; color:#ffffff; line-height:1.2; letter-spacing:-0.02em; margin-bottom:16px; }
+    .email-hero p { font-size:15px; color:rgba(255,255,255,0.55); line-height:1.7; }
+    .email-body { padding:40px 40px 32px; }
+    .email-body p { font-size:15px; color:#333333; line-height:1.8; margin-bottom:20px; }
+    .email-body strong { color:#0a0a0a; font-weight:700; }
+    .section-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#999999; margin:28px 0 10px; }
+    .section-box { background:#f9f9f9; border-radius:12px; padding:20px 24px; margin-bottom:20px; font-size:15px; color:#333333; line-height:1.7; }
+    .services-list { list-style:none; padding:0; margin:0; }
+    .investment-box { background:#0a0a0a; border-radius:12px; padding:24px; text-align:center; margin:24px 0; }
+    .investment-amount { font-size:28px; font-weight:800; color:#ffffff; }
+    .investment-label { font-size:12px; color:rgba(255,255,255,0.4); margin-top:4px; letter-spacing:0.08em; text-transform:uppercase; }
+    .divider { height:1px; background:#f0f0f0; margin:32px 40px; }
+    .cta-section { padding:0 40px 40px; text-align:center; }
+    .cta-label { font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#999999; margin-bottom:16px; }
+    .cta-button { display:inline-block; background:#0a0a0a; color:#ffffff !important; font-size:15px; font-weight:700; text-decoration:none; padding:16px 40px; border-radius:10px; }
+    .signature { padding:32px 40px; background:#f9f9f9; border-top:1px solid #eeeeee; }
+    .signature-name { font-size:16px; font-weight:700; color:#0a0a0a; margin-bottom:4px; }
+    .signature-title { font-size:13px; color:#777777; }
+    .email-footer { background:#0a0a0a; padding:28px 40px; text-align:center; }
+    .email-footer img { height:28px; width:auto; margin-bottom:16px; opacity:0.7; }
+    .footer-copy { font-size:11px; color:rgba(255,255,255,0.2); line-height:1.6; }
+  </style>
+</head>
+<body>
+<div class="email-wrapper"><div class="email-container">
+  <div class="email-header"><img src="${logoUrl}" alt="JRZ Marketing" /></div>
+  <div class="week-badge"><span>Propuesta Personalizada</span></div>
+  <div class="email-hero">
+    <h1>Propuesta para<br />${contactName}</h1>
+    <p>Solución de marketing digital diseñada específicamente para tu negocio de ${businessType}.</p>
+  </div>
+  <div class="email-body">
+    <p class="section-title">El reto</p>
+    <div class="section-box">${proposal.challenge || ''}</div>
+    <p class="section-title">Nuestra solución</p>
+    <div class="section-box">${proposal.solution || ''}</div>
+    <p class="section-title">Servicios incluidos</p>
+    <ul class="services-list">${servicesHtml}</ul>
+    <p class="section-title">Timeline</p>
+    <div class="section-box">${proposal.timeline || ''}</div>
+    <p class="section-title">Inversión</p>
+    <div class="investment-box">
+      <div class="investment-amount">${proposal.investment || 'Starting at $497/month'}</div>
+      <div class="investment-label">Inversión mensual personalizada</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="cta-section">
+    <p class="cta-label">¿Listo para arrancar?</p>
+    <a href="${BOOKING_URL}" class="cta-button">Agenda tu llamada de inicio &rarr;</a>
+  </div>
+  <div class="signature">
+    <div class="signature-name">Jose Rivas</div>
+    <div class="signature-title">CEO &middot; JRZ Marketing</div>
+  </div>
+  <div class="email-footer">
+    <img src="${logoUrl}" alt="JRZ Marketing" />
+    <p class="footer-copy">&copy; 2026 JRZ Marketing. Orlando, Florida.<br />Propuesta generada por el equipo de JRZ Marketing.</p>
+  </div>
+</div></div>
+</body></html>`;
+
+    await axios.post(
+      'https://services.leadconnectorhq.com/conversations/messages',
+      { type: 'Email', contactId, subject, html },
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
+    );
+    console.log(`[Proposal] Sent proposal to ${contactName} (${contactId})`);
+  } catch (err) {
+    console.error('[Proposal] Failed:', err?.response?.data || err.message);
+  }
+}
+
+app.post('/webhook/hot-lead', async (req, res) => {
+  res.json({ ok: true });
+  try {
+    const payload = req.body;
+    const contactId = payload.contactId || payload.contact_id || payload.contact?.id || payload.customData?.contactId || '';
+    const contactName = payload.fullName || payload.full_name || payload.contactName || payload.firstName || payload.first_name || payload.customData?.fullName || '';
+    const businessType = payload.customData?.businessType || payload.businessType || 'negocio';
+    const email = payload.email || payload.contact?.email || payload.customData?.email || '';
+    if (!contactId) { console.log('[Proposal] Missing contactId, skipping.'); return; }
+    if (proposalsSent.has(contactId)) { console.log(`[Proposal] Already sent proposal for ${contactId}, skipping.`); return; }
+    proposalsSent.add(contactId);
+    await generateAndSendProposal(contactId, contactName, businessType, email);
+  } catch (err) {
+    console.error('[Proposal] Webhook error:', err.message);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// FEATURE 4 — CLIENT CHECK-INS (30-day rolling)
+// ═══════════════════════════════════════════════════════════
+
+const CHECKIN_URL    = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/client_checkins.json';
+const CHECKIN_PUB_ID = 'jrz/client_checkins';
+
+async function loadCheckInData() {
+  try {
+    const res = await axios.get(CHECKIN_URL, { timeout: 8000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch {
+    return {};
+  }
+}
+
+async function saveCheckInData(data) {
+  try {
+    const ts      = Math.floor(Date.now() / 1000);
+    const sigStr  = `overwrite=true&public_id=${CHECKIN_PUB_ID}&resource_type=raw&timestamp=${ts}${CLOUDINARY_API_SECRET}`;
+    const sig     = crypto.createHash('sha1').update(sigStr).digest('hex');
+    const form    = new FormData();
+    const buf     = Buffer.from(JSON.stringify(data, null, 2));
+    form.append('file',          buf,  { filename: 'client_checkins.json', contentType: 'application/json' });
+    form.append('public_id',     CHECKIN_PUB_ID);
+    form.append('resource_type', 'raw');
+    form.append('timestamp',     String(ts));
+    form.append('api_key',       CLOUDINARY_API_KEY);
+    form.append('signature',     sig);
+    form.append('overwrite',     'true');
+    await axios.post(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`,
+      form, { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 30000 }
+    );
+  } catch (err) {
+    console.error('[CheckIn] Failed to save check-in data:', err.message);
+  }
+}
+
+async function getActiveClients() {
+  const res = await axios.get(
+    `https://services.leadconnectorhq.com/contacts/`,
+    { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' },
+      params: { locationId: GHL_LOCATION_ID, query: 'active-client', limit: 100 } }
+  );
+  return res.data?.contacts || [];
+}
+
+async function runClientCheckIns() {
+  console.log('[CheckIn] Running 30-day client check-ins...');
+  try {
+    const [clients, checkInData] = await Promise.all([getActiveClients(), loadCheckInData()]);
+    const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    for (const client of clients) {
+      try {
+        const lastCheckIn = checkInData[client.id];
+        if (lastCheckIn && (now - lastCheckIn) < thirtyDays) continue;
+        const contactName = `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'amigo';
+        const msgResp = await anthropic.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 150,
+          messages: [{ role: 'user', content: `You are Armando from JRZ Marketing. Write a short, warm 2-sentence check-in message in Spanish to ${contactName} asking how their business is going and if there's anything the team can help with. Sound like a real person, not a template.` }],
+        });
+        const message = msgResp.content[0].text.trim();
+        await sendGHLReply(client.id, message, 'SMS');
+        checkInData[client.id] = Date.now();
+        console.log(`[CheckIn] Sent check-in to ${contactName} (${client.id})`);
+      } catch (err) {
+        console.error(`[CheckIn] Failed for client ${client.id}:`, err.message);
+      }
+    }
+    await saveCheckInData(checkInData);
+    console.log('[CheckIn] Done.');
+  } catch (err) {
+    console.error('[CheckIn] Error:', err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// FEATURE 5 — MONTHLY CLIENT REPORTS
+// ═══════════════════════════════════════════════════════════
+
+async function sendMonthlyClientReports() {
+  console.log('[MonthlyReport] Generating monthly client reports...');
+  try {
+    const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+    const nowDate = new Date();
+    const month = nowDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+    const [clients, stats] = await Promise.all([getActiveClients(), getWeeklyStats().catch(() => null)]);
+    const statsSnap = stats ? JSON.stringify(stats).slice(0, 400) : 'Sin datos disponibles';
+
+    for (const client of clients) {
+      try {
+        const contactName = `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'Cliente';
+        const firstName = (contactName).split(' ')[0];
+        const businessType = (client.tags || []).find(t => t !== 'active-client') || 'negocio';
+
+        const reportMsg = await anthropic.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 500,
+          messages: [{ role: 'user', content: `You are JRZ Marketing's reporting AI. Generate a personalized monthly report for client: ${contactName}, business type: ${businessType}, month: ${month}. Social stats snapshot: ${statsSnap}. Return ONLY valid JSON: { "headline": "...", "wins": ["win1", "win2", "win3"], "nextMonth": "focus for next month", "personalNote": "personal note for this client from Jose" }` }],
+        });
+        const report = JSON.parse(reportMsg.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+        const winsHtml = (report.wins || []).map(w => `<li style="padding:10px 0 10px 28px;position:relative;border-bottom:1px solid #f0f0f0;font-size:15px;color:#333333;"><span style="position:absolute;left:0;font-weight:700;color:#0a0a0a;">✓</span>${w}</li>`).join('');
+
+        const subject = `📊 Tu Reporte Mensual — ${month} | JRZ Marketing`;
+        const html = `<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reporte Mensual JRZ Marketing</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background-color:#f4f4f4; color:#0a0a0a; -webkit-font-smoothing:antialiased; }
+    .email-wrapper { background-color:#f4f4f4; padding:40px 20px; }
+    .email-container { max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+    .email-header { background:#0a0a0a; padding:32px 40px; text-align:center; }
+    .email-header img { height:48px; width:auto; }
+    .week-badge { background:#0a0a0a; padding:0 40px 24px; text-align:center; }
+    .week-badge span { display:inline-block; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:6px 16px; border-radius:100px; }
+    .email-hero { background:#0a0a0a; padding:40px 40px 48px; border-bottom:3px solid #ffffff; }
+    .email-hero h1 { font-size:28px; font-weight:800; color:#ffffff; line-height:1.2; letter-spacing:-0.02em; margin-bottom:16px; }
+    .email-hero p { font-size:15px; color:rgba(255,255,255,0.55); line-height:1.7; }
+    .email-body { padding:40px 40px 32px; }
+    .email-body p { font-size:15px; color:#333333; line-height:1.8; margin-bottom:20px; }
+    .email-body strong { color:#0a0a0a; font-weight:700; }
+    .section-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#999999; margin:28px 0 10px; }
+    .wins-list { list-style:none; padding:0; margin:0 0 20px; }
+    .section-box { background:#f9f9f9; border-radius:12px; padding:20px 24px; margin-bottom:20px; font-size:15px; color:#333333; line-height:1.7; }
+    .note-box { background:#0a0a0a; border-radius:12px; padding:24px; margin:24px 0; font-size:15px; color:rgba(255,255,255,0.8); line-height:1.7; font-style:italic; }
+    .divider { height:1px; background:#f0f0f0; margin:32px 40px; }
+    .cta-section { padding:0 40px 40px; text-align:center; }
+    .cta-label { font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#999999; margin-bottom:16px; }
+    .cta-button { display:inline-block; background:#0a0a0a; color:#ffffff !important; font-size:15px; font-weight:700; text-decoration:none; padding:16px 40px; border-radius:10px; }
+    .signature { padding:32px 40px; background:#f9f9f9; border-top:1px solid #eeeeee; }
+    .signature-name { font-size:16px; font-weight:700; color:#0a0a0a; margin-bottom:4px; }
+    .signature-title { font-size:13px; color:#777777; }
+    .email-footer { background:#0a0a0a; padding:28px 40px; text-align:center; }
+    .email-footer img { height:28px; width:auto; margin-bottom:16px; opacity:0.7; }
+    .footer-copy { font-size:11px; color:rgba(255,255,255,0.2); line-height:1.6; }
+  </style>
+</head>
+<body>
+<div class="email-wrapper"><div class="email-container">
+  <div class="email-header"><img src="${logoUrl}" alt="JRZ Marketing" /></div>
+  <div class="week-badge"><span>Reporte Mensual — ${month}</span></div>
+  <div class="email-hero">
+    <h1>${firstName},<br />este fue tu mes. 📊</h1>
+    <p>${report.headline || 'Resumen de tus resultados con JRZ Marketing.'}</p>
+  </div>
+  <div class="email-body">
+    <p>Hola <strong>${firstName}</strong>,</p>
+    <p>Aquí está tu reporte mensual de resultados. Estos son los logros más importantes de este mes:</p>
+    <p class="section-title">Logros del mes</p>
+    <ul class="wins-list">${winsHtml}</ul>
+    <p class="section-title">Enfoque del próximo mes</p>
+    <div class="section-box">${report.nextMonth || ''}</div>
+    <p class="section-title">Nota personal de Jose</p>
+    <div class="note-box">${report.personalNote || ''}</div>
+  </div>
+  <div class="divider"></div>
+  <div class="cta-section">
+    <p class="cta-label">¿Tienes preguntas?</p>
+    <a href="${BOOKING_URL}" class="cta-button">Habla con el equipo &rarr;</a>
+  </div>
+  <div class="signature">
+    <div class="signature-name">Jose Rivas</div>
+    <div class="signature-title">CEO &middot; JRZ Marketing</div>
+  </div>
+  <div class="email-footer">
+    <img src="${logoUrl}" alt="JRZ Marketing" />
+    <p class="footer-copy">&copy; 2026 JRZ Marketing. Orlando, Florida.</p>
+  </div>
+</div></div>
+</body></html>`;
+
+        await axios.post(
+          'https://services.leadconnectorhq.com/conversations/messages',
+          { type: 'Email', contactId: client.id, subject, html },
+          { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
+        );
+        console.log(`[MonthlyReport] Sent to ${contactName} (${client.id})`);
+      } catch (err) {
+        console.error(`[MonthlyReport] Failed for client ${client.id}:`, err.message);
+      }
+    }
+    console.log('[MonthlyReport] Done.');
+  } catch (err) {
+    console.error('[MonthlyReport] Error:', err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// FEATURE 6 — COMPETITOR MONITORING
+// ═══════════════════════════════════════════════════════════
+
+async function runCompetitorMonitoring() {
+  console.log('[Competitor] Running weekly competitor monitoring...');
+  try {
+    const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+    const date = new Date().toLocaleDateString('es-ES', { timeZone: 'America/New_York', day: '2-digit', month: 'long', year: 'numeric' });
+
+    const [res1, res2, res3] = await Promise.all([
+      axios.get('https://newsapi.org/v2/everything?q=marketing+digital+hispano+peque%C3%B1os+negocios&language=es&sortBy=publishedAt&pageSize=5&apiKey=dff54f64e9eb4087aa7c215a1c674644', { timeout: 10000 }).catch(() => null),
+      axios.get('https://newsapi.org/v2/everything?q=AI+marketing+automation+small+business&language=en&sortBy=publishedAt&pageSize=5&apiKey=dff54f64e9eb4087aa7c215a1c674644', { timeout: 10000 }).catch(() => null),
+      axios.get('https://newsapi.org/v2/everything?q=Go+High+Level+CRM+agency&language=en&sortBy=publishedAt&pageSize=5&apiKey=dff54f64e9eb4087aa7c215a1c674644', { timeout: 10000 }).catch(() => null),
+    ]);
+
+    const articles = [
+      ...(res1?.data?.articles || []),
+      ...(res2?.data?.articles || []),
+      ...(res3?.data?.articles || []),
+    ];
+    const summary = articles.map(a => `- ${a.title}: ${a.description || ''}`).join('\n').slice(0, 3000);
+
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 600,
+      messages: [{ role: 'user', content: `Analyze these digital marketing news articles and return ONLY valid JSON: { "trendingSince": "what's trending in digital marketing this week", "opportunity": "biggest opportunity for JRZ Marketing based on these trends", "contentIdea": "one specific content idea for JRZ's social media based on trends", "competitorMove": "what agencies/competitors seem to be focusing on", "actionItem": "one specific action Jose should take this week" }\n\nArticles:\n${summary}` }],
+    });
+    const insights = JSON.parse(msg.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+
+    const subject = `🔍 Radar Semanal — Tendencias + Competencia (${date})`;
+    const html = `<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radar Semanal JRZ Marketing</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background-color:#f4f4f4; color:#0a0a0a; -webkit-font-smoothing:antialiased; }
+    .email-wrapper { background-color:#f4f4f4; padding:40px 20px; }
+    .email-container { max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+    .email-header { background:#0a0a0a; padding:32px 40px; text-align:center; }
+    .email-header img { height:48px; width:auto; }
+    .week-badge { background:#0a0a0a; padding:0 40px 24px; text-align:center; }
+    .week-badge span { display:inline-block; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:6px 16px; border-radius:100px; }
+    .email-hero { background:#0a0a0a; padding:40px 40px 48px; border-bottom:3px solid #ffffff; }
+    .email-hero h1 { font-size:28px; font-weight:800; color:#ffffff; line-height:1.2; letter-spacing:-0.02em; margin-bottom:16px; }
+    .email-hero p { font-size:15px; color:rgba(255,255,255,0.55); line-height:1.7; }
+    .email-body { padding:40px 40px 32px; }
+    .email-body p { font-size:15px; color:#333333; line-height:1.8; margin-bottom:20px; }
+    .email-body strong { color:#0a0a0a; font-weight:700; }
+    .insight-row { display:flex; align-items:flex-start; padding:20px 0; border-bottom:1px solid #f0f0f0; }
+    .insight-row:last-child { border-bottom:none; }
+    .insight-icon { font-size:22px; min-width:36px; margin-right:16px; }
+    .insight-content { flex:1; }
+    .insight-label { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#999999; margin-bottom:6px; }
+    .insight-text { font-size:15px; color:#333333; line-height:1.6; }
+    .action-box { background:#0a0a0a; border-radius:12px; padding:24px; margin:24px 0; }
+    .action-label { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:10px; }
+    .action-text { font-size:16px; font-weight:700; color:#ffffff; line-height:1.5; }
+    .divider { height:1px; background:#f0f0f0; margin:32px 40px; }
+    .signature { padding:32px 40px; background:#f9f9f9; border-top:1px solid #eeeeee; }
+    .signature-name { font-size:16px; font-weight:700; color:#0a0a0a; margin-bottom:4px; }
+    .signature-title { font-size:13px; color:#777777; }
+    .email-footer { background:#0a0a0a; padding:28px 40px; text-align:center; }
+    .email-footer img { height:28px; width:auto; margin-bottom:16px; opacity:0.7; }
+    .footer-copy { font-size:11px; color:rgba(255,255,255,0.2); line-height:1.6; }
+  </style>
+</head>
+<body>
+<div class="email-wrapper"><div class="email-container">
+  <div class="email-header"><img src="${logoUrl}" alt="JRZ Marketing" /></div>
+  <div class="week-badge"><span>Radar Semanal — ${date}</span></div>
+  <div class="email-hero">
+    <h1>Tendencias + Competencia<br />esta semana. 🔍</h1>
+    <p>Análisis automático de ${articles.length} artículos del mercado digital.</p>
+  </div>
+  <div class="email-body">
+    <div class="insight-row">
+      <div class="insight-icon">📈</div>
+      <div class="insight-content"><div class="insight-label">Tendencia de la semana</div><div class="insight-text">${insights.trendingSince || ''}</div></div>
+    </div>
+    <div class="insight-row">
+      <div class="insight-icon">💡</div>
+      <div class="insight-content"><div class="insight-label">Oportunidad para JRZ</div><div class="insight-text">${insights.opportunity || ''}</div></div>
+    </div>
+    <div class="insight-row">
+      <div class="insight-icon">🎯</div>
+      <div class="insight-content"><div class="insight-label">Idea de contenido</div><div class="insight-text">${insights.contentIdea || ''}</div></div>
+    </div>
+    <div class="insight-row">
+      <div class="insight-icon">🏢</div>
+      <div class="insight-content"><div class="insight-label">Movimiento de competidores</div><div class="insight-text">${insights.competitorMove || ''}</div></div>
+    </div>
+    <div class="action-box">
+      <div class="action-label">Accion de esta semana</div>
+      <div class="action-text">${insights.actionItem || ''}</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="signature">
+    <div class="signature-name">Armando Rivas</div>
+    <div class="signature-title">AI Community Manager &middot; JRZ Marketing</div>
+  </div>
+  <div class="email-footer">
+    <img src="${logoUrl}" alt="JRZ Marketing" />
+    <p class="footer-copy">&copy; 2026 JRZ Marketing. Orlando, Florida.<br />Radar semanal automático generado por Armando.</p>
+  </div>
+</div></div>
+</body></html>`;
+
+    await axios.post(
+      'https://services.leadconnectorhq.com/conversations/messages',
+      { type: 'Email', contactId: OWNER_CONTACT_ID, subject, html },
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
+    );
+    console.log('[Competitor] Weekly radar email sent to Jose.');
+  } catch (err) {
+    console.error('[Competitor] Error:', err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MANUAL TRIGGER ENDPOINTS — new features
+// ═══════════════════════════════════════════════════════════
+
+app.post('/cron/competitor-monitoring', async (_req, res) => {
+  try {
+    await runCompetitorMonitoring();
+    res.json({ status: 'ok' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/cron/client-checkins', async (_req, res) => {
+  try {
+    await runClientCheckIns();
+    res.json({ status: 'ok' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/cron/monthly-reports', async (_req, res) => {
+  try {
+    await sendMonthlyClientReports();
+    res.json({ status: 'ok' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/cron/proposal', async (req, res) => {
+  try {
+    const { contactId, contactName, businessType } = req.body;
+    if (!contactId) return res.status(400).json({ status: 'error', message: 'contactId required' });
+    await generateAndSendProposal(contactId, contactName || 'Cliente', businessType || 'negocio', '');
+    res.json({ status: 'ok' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
 // INTERNAL CRON — checks every 2 minutes
 //  7:00am EST  daily      → Carousel post + blog
 //  7:05am EST  Monday     → Weekly analytics analysis + A/B test + summary email
+//  8:00am EST  Monday     → Competitor monitoring
+//  9:00am EST  1st/month  → Monthly client reports
+//  9:00am EST  Monday     → Apollo email enrichment
 // 10:00am EST  Mon–Fri    → Outbound prospecting (15 contacts/day)
+// 10:30am EST  daily      → Client check-ins (30-day rolling)
 //  4:00pm EST  daily      → Viral 15s Reel (7 platforms)
 //  6:30pm EST  daily      → Story (Instagram + Facebook)
 // ═══════════════════════════════════════════════════════════
@@ -2716,6 +3449,9 @@ let lastStoryDate    = null;
 let lastSummaryDate  = null;
 let lastOutboundDate = null;
 let lastEnrichDate   = null;
+let lastCheckInDate       = null;
+let lastMonthlyReportDate = null;
+let lastCompetitorDate    = null;
 
 setInterval(async () => {
   try {
@@ -2742,16 +3478,35 @@ setInterval(async () => {
       await sendWeeklySummaryEmail(weekPosts);
     }
 
+    // 8:00am Monday — competitor monitoring
+    if (hour === 8 && minute < 5 && dayOfWeek === 1 && lastCompetitorDate !== today) {
+      lastCompetitorDate = today;
+      await runCompetitorMonitoring();
+    }
+
     // 9:00am Monday — Apollo email enrichment (free plan: 50 credits/month)
     if (hour === 9 && minute < 5 && dayOfWeek === 1 && lastEnrichDate !== today) {
       lastEnrichDate = today;
       await enrichProspectEmails();
     }
 
+    // 1st of month, 9:00am — monthly client reports
+    const dateOfMonth = nowEST.getDate();
+    if (hour === 9 && minute < 5 && dateOfMonth === 1 && lastMonthlyReportDate !== today) {
+      lastMonthlyReportDate = today;
+      await sendMonthlyClientReports();
+    }
+
     // 10:00am Mon–Fri — outbound prospecting
     if (hour === 10 && minute < 5 && isWeekday && lastOutboundDate !== today) {
       lastOutboundDate = today;
       await runDailyOutbound();
+    }
+
+    // 10:30am daily — client check-ins (30-day rolling)
+    if (hour === 10 && minute >= 30 && minute < 35 && lastCheckInDate !== today) {
+      lastCheckInDate = today;
+      await runClientCheckIns();
     }
 
     // 4:00pm — viral Reel
