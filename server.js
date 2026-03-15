@@ -2424,12 +2424,12 @@ app.post('/webhook', async (req, res) => {
       }
     }
 
-    // 2. If contact already has both phone AND email in GHL → we have what we need, stay silent
+    // 2. If contact already has phone OR email in GHL → they gave us info, link was dropped, done.
     if (shouldAutoReply) {
       const existing = await getGHLContact(contactId);
-      if (existing.phone && existing.email) {
+      if (existing.phone || existing.email) {
         shouldAutoReply = false;
-        console.log(`[Armando] Contact already has phone+email in GHL — staying silent, no need to ask again.`);
+        console.log(`[Armando] Contact already has contact info in GHL — staying silent, Jose handles it.`);
       }
     }
 
