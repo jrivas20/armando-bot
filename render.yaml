@@ -3,7 +3,7 @@ services:
     name: armando-bot
     env: node
     plan: free
-    buildCommand: npm install
+    buildCommand: apt-get install -y ffmpeg && npm install
     startCommand: npm start
     envVars:
       - key: ANTHROPIC_API_KEY

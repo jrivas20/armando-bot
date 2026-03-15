@@ -1,6 +1,11 @@
 const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 const axios = require('axios');
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const FormData = require('form-data');
 
 const app = express();
 app.use(express.json());
@@ -10,6 +15,11 @@ const GHL_API_KEY = process.env.GHL_API_KEY;
 const NEWS_API_KEY = process.env.NEWS_API_KEY || 'dff54f64e9eb4087aa7c215a1c674644';
 const BOOKING_URL = 'https://jrzmarketing.com/contact-us';
 const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
+
+// ─── Cloudinary credentials ────────────────────────────────
+const CLOUDINARY_CLOUD      = 'dbsuw1mfm';
+const CLOUDINARY_API_KEY    = '984314321446626';
+const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || 'IdUnHGrO7wYG6JTSrRyiIwg1Q-g';
 
 // ═══════════════════════════════════════════════════════════
 // SOCIAL MEDIA — ACCOUNT IDs & CONSTANTS
@@ -959,6 +969,69 @@ async function sendThankYouEmail(contactId, contactName) {
 // SOCIAL MEDIA AUTOMATION FUNCTIONS
 // ═══════════════════════════════════════════════════════════
 
+// ─── Build a Reel from 4 carousel slides via FFmpeg → upload to Cloudinary ────
+// Returns permanent Cloudinary video URL, or null on failure
+async function createReelFromSlides(slideUrls, dayIdx) {
+  const tmpDir = '/tmp/jrz_reel';
+  try {
+    fs.mkdirSync(tmpDir, { recursive: true });
+
+    // 1. Download each slide PNG to /tmp
+    const slidePaths = [];
+    for (let i = 0; i < slideUrls.length; i++) {
+      const dest = path.join(tmpDir, `slide${i}.png`);
+      const res  = await axios.get(slideUrls[i], { responseType: 'arraybuffer' });
+      fs.writeFileSync(dest, res.data);
+      slidePaths.push(dest);
+    }
+
+    // 2. Build FFmpeg filter: 7 seconds per slide, black fade between each
+    const n       = slidePaths.length;
+    const inputs  = slidePaths.map(p => `-loop 1 -t 7 -i "${p}"`).join(' ');
+    const filters = slidePaths.map((_, i) => {
+      const base = `[${i}:v]scale=1080:1080:force_original_aspect_ratio=decrease,pad=1080:1080:(ow-iw)/2:(oh-ih)/2,setsar=1`;
+      if (i === 0)     return `${base},fade=t=out:st=6:d=1[v${i}]`;
+      if (i === n - 1) return `${base},fade=t=in:st=0:d=1[v${i}]`;
+      return               `${base},fade=t=in:st=0:d=1,fade=t=out:st=6:d=1[v${i}]`;
+    }).join(';');
+    const concat  = slidePaths.map((_, i) => `[v${i}]`).join('');
+    const outPath = path.join(tmpDir, 'reel.mp4');
+
+    const cmd = `ffmpeg -y ${inputs} -filter_complex "${filters};${concat}concat=n=${n}:v=1:a=0,format=yuv420p[v]" -map "[v]" -r 30 -c:v libx264 -preset ultrafast -crf 26 "${outPath}"`;
+    execSync(cmd, { stdio: 'pipe', timeout: 120000 });
+
+    // 3. Upload to Cloudinary (video resource, overwrite weekly)
+    const publicId  = `jrz/reel_day${dayIdx}`;
+    const timestamp = Math.floor(Date.now() / 1000);
+    const sigStr    = `overwrite=true&public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
+    const signature = crypto.createHash('sha1').update(sigStr).digest('hex');
+
+    const form = new FormData();
+    form.append('file',       fs.createReadStream(outPath));
+    form.append('public_id',  publicId);
+    form.append('timestamp',  String(timestamp));
+    form.append('api_key',    CLOUDINARY_API_KEY);
+    form.append('signature',  signature);
+    form.append('overwrite',  'true');
+
+    const upload = await axios.post(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/video/upload`,
+      form,
+      { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 120000 }
+    );
+
+    // Cleanup temp files
+    slidePaths.forEach(p => { try { fs.unlinkSync(p); } catch (_) {} });
+    try { fs.unlinkSync(outPath); } catch (_) {}
+
+    // Return version-less URL so it always serves the latest
+    return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/video/upload/jrz/reel_day${dayIdx}.mp4`;
+  } catch (err) {
+    console.error('[Reel] ❌ Failed to create reel:', err.message);
+    return null;
+  }
+}
+
 // Schedule a post via GHL Social Media API
 // Pass media = [{ url, type: 'photo' }] array for Instagram image posts
 async function schedulePost({ caption, accountIds, type = 'post', scheduleDate, media }) {
@@ -1186,21 +1259,55 @@ async function runDailyPost() {
     socialResult = { success: false, error: err.message };
   }
 
-  // ── Instagram post — carousel images from Cloudinary ──
+  // ── Instagram Reel — build video from slides via FFmpeg → Cloudinary ──
   let instagramResult = { success: false };
-  try {
-    const result = await schedulePost({
-      caption,
-      accountIds: INSTAGRAM_ACCOUNTS,
-      type: 'post',
-      scheduleDate: postTime,
-      media: instagramMedia,
-    });
-    console.log(`[Social] ✅ Instagram carousel scheduled for ${postTime.toISOString()} — "${title}"`);
-    instagramResult = { success: true, title, scheduledFor: postTime.toISOString(), slides: todayImages.length, result };
-  } catch (err) {
-    console.error('[Social] ❌ Failed to schedule Instagram carousel:', err?.response?.data || err.message);
-    instagramResult = { success: false, error: err.message };
+  console.log('[Reel] Building reel from carousel slides...');
+  const reelUrl = await createReelFromSlides(todayImages, dayIdx >= 0 ? dayIdx : new Date().getDay());
+
+  if (reelUrl) {
+    // Post as Reel (video) — higher reach than static carousel
+    try {
+      const result = await schedulePost({
+        caption,
+        accountIds: INSTAGRAM_ACCOUNTS,
+        type: 'post',
+        scheduleDate: postTime,
+        media: [{ url: reelUrl, type: 'video' }],
+      });
+      console.log(`[Reel] ✅ Instagram Reel scheduled for ${postTime.toISOString()} — "${title}"`);
+      instagramResult = { success: true, title, scheduledFor: postTime.toISOString(), reelUrl, result };
+    } catch (err) {
+      console.error('[Reel] ❌ Failed to schedule Instagram Reel:', err?.response?.data || err.message);
+      // Fallback: post static carousel images if Reel fails
+      try {
+        await schedulePost({
+          caption,
+          accountIds: INSTAGRAM_ACCOUNTS,
+          type: 'post',
+          scheduleDate: postTime,
+          media: instagramMedia,
+        });
+        console.log('[Reel] ↩️  Fell back to static carousel for Instagram');
+        instagramResult = { success: true, fallback: 'carousel', title };
+      } catch (fallbackErr) {
+        instagramResult = { success: false, error: fallbackErr.message };
+      }
+    }
+  } else {
+    // Reel creation failed — post static carousel as fallback
+    console.log('[Reel] ↩️  Reel creation failed, falling back to static carousel');
+    try {
+      await schedulePost({
+        caption,
+        accountIds: INSTAGRAM_ACCOUNTS,
+        type: 'post',
+        scheduleDate: postTime,
+        media: instagramMedia,
+      });
+      instagramResult = { success: true, fallback: 'carousel', title };
+    } catch (err) {
+      instagramResult = { success: false, error: err.message };
+    }
   }
 
   // ── Blog post (English, published same day) ──
