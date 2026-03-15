@@ -978,6 +978,268 @@ async function sendThankYouEmail(contactId, contactName) {
   }
 }
 
+// ─── Profile IDs for analytics API ───────────────────────
+const ANALYTICS_PROFILE_IDS = [
+  '69571d84f8b32728afd7c45c', // Instagram
+  '69571d95c63407b04d656891', // Facebook
+  '69571db827f36d340ac94361', // LinkedIn Jose
+  '69571dbe19b790b6ae98d688', // LinkedIn JRZ
+  '69571dd3f8b327a382d7dbdf', // YouTube
+  '69b64ef0dbe649d4431d3fcc', // TikTok Jose
+  '69b64e8326ef3d3693ae68a9', // TikTok JRZ
+];
+
+// ═══════════════════════════════════════════════════════════
+// FEATURE 1 — SELF-LEARNING ANALYTICS
+// Every Monday: pull 7-day stats → Claude finds patterns →
+// saves a content strategy to Cloudinary → all future
+// content generation uses it to improve week over week.
+// ═══════════════════════════════════════════════════════════
+
+const STRATEGY_URL    = `https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/content_strategy.json`;
+const STRATEGY_PUB_ID = 'jrz/content_strategy';
+
+async function loadContentStrategy() {
+  try {
+    const res = await axios.get(STRATEGY_URL, { timeout: 8000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch {
+    return {
+      bestTopics: ['IA y automatización', 'errores de marketing', 'leads perdidos'],
+      bestHookStyle: 'question-based hooks outperform statements',
+      bestDays: { instagram: 'saturday', facebook: 'monday', linkedin: 'thursday' },
+      audienceInsights: '25–34 year-old male business owners, Orlando FL, respond to problem-focused content',
+      avoidTopics: [],
+      weeklyNotes: 'No data yet — baseline week.',
+    };
+  }
+}
+
+async function saveContentStrategy(strategy) {
+  const ts       = Math.floor(Date.now() / 1000);
+  const sigStr   = `overwrite=true&public_id=${STRATEGY_PUB_ID}&resource_type=raw&timestamp=${ts}${CLOUDINARY_API_SECRET}`;
+  const signature = crypto.createHash('sha1').update(sigStr).digest('hex');
+  const form = new FormData();
+  const buf  = Buffer.from(JSON.stringify(strategy, null, 2));
+  form.append('file',          buf,    { filename: 'content_strategy.json', contentType: 'application/json' });
+  form.append('public_id',     STRATEGY_PUB_ID);
+  form.append('resource_type', 'raw');
+  form.append('timestamp',     String(ts));
+  form.append('api_key',       CLOUDINARY_API_KEY);
+  form.append('signature',     signature);
+  form.append('overwrite',     'true');
+  await axios.post(
+    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`,
+    form, { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 30000 }
+  );
+}
+
+async function getWeeklyStats() {
+  const res = await axios.post(
+    `https://services.leadconnectorhq.com/social-media-posting/statistics?locationId=${GHL_LOCATION_ID}`,
+    { profileIds: ANALYTICS_PROFILE_IDS, platforms: ['instagram','facebook','linkedin','youtube','tiktok'] },
+    { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+  );
+  return res.data?.results || res.data;
+}
+
+async function runWeeklyAnalysis() {
+  console.log('[Learn] Running weekly analytics analysis...');
+  try {
+    const [stats, prevStrategy] = await Promise.all([getWeeklyStats(), loadContentStrategy()]);
+
+    const breakdown = stats?.breakdowns || {};
+    const eng       = breakdown?.engagement || {};
+
+    const prompt = `Eres el director de marketing de JRZ Marketing. Analiza estos datos de la semana pasada y actualiza la estrategia de contenido.
+
+DATOS DE LA SEMANA:
+- Impresiones totales: ${breakdown?.impressions?.total || 0} (cambio: ${breakdown?.impressions?.totalChange || 0}%)
+- Alcance total: ${breakdown?.reach?.total || 0} (cambio: ${breakdown?.reach?.totalChange || 0}%)
+- Instagram: ${breakdown?.impressions?.platforms?.instagram?.value || 0} impresiones, ${eng?.instagram?.likes || 0} likes, ${eng?.instagram?.comments || 0} comentarios, ${eng?.instagram?.shares || 0} shares
+- Facebook: ${breakdown?.impressions?.platforms?.facebook?.value || 0} impresiones, ${eng?.facebook?.likes || 0} likes
+- LinkedIn: ${breakdown?.impressions?.platforms?.linkedin?.value || 0} impresiones, ${eng?.linkedin?.likes || 0} likes
+- TikTok: ${breakdown?.impressions?.platforms?.tiktok?.value || 0} impresiones
+- YouTube: ${breakdown?.impressions?.platforms?.youtube?.value || 0} impresiones
+- Nuevos seguidores: ${breakdown?.followers?.total || 0} (Instagram)
+- Demografía: 53% hombres, 25-34 años es el grupo más grande
+- Mejor día de impresiones: ${stats?.postPerformance?.impressions ? JSON.stringify(stats.postPerformance.impressions) : 'no data'}
+
+ESTRATEGIA ANTERIOR:
+${JSON.stringify(prevStrategy, null, 2)}
+
+Responde SOLO con un JSON válido con esta estructura:
+{
+  "bestTopics": ["tema1", "tema2", "tema3"],
+  "bestHookStyle": "descripción del estilo de hook que más funciona",
+  "bestDays": {"instagram": "día", "facebook": "día", "linkedin": "día", "tiktok": "día"},
+  "audienceInsights": "insights sobre la audiencia basados en los datos",
+  "avoidTopics": ["temas que no funcionaron"],
+  "weeklyNotes": "observaciones clave y ajustes para la próxima semana",
+  "hookFormulas": ["fórmula de hook 1", "fórmula de hook 2", "fórmula de hook 3"]
+}`;
+
+    const msg = await anthropic.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 800,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const newStrategy = JSON.parse(msg.content[0].text.trim());
+    newStrategy.updatedAt = new Date().toISOString().split('T')[0];
+    await saveContentStrategy(newStrategy);
+    console.log('[Learn] ✅ Strategy updated:', newStrategy.weeklyNotes);
+    return newStrategy;
+  } catch (err) {
+    console.error('[Learn] ❌ Weekly analysis failed:', err.message);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// FEATURE 2 — WARM DM OUTREACH
+// When someone comments or follows → Armando DMs them
+// within 60 seconds with a personalized message.
+// Cooldown: never re-messages same contact within 7 days.
+// ═══════════════════════════════════════════════════════════
+
+const dmCooldown = new Map(); // contactId → last DM timestamp
+
+async function sendWarmDM(contactId, triggerType, context = {}) {
+  // Cooldown check — 7 days
+  const lastDM = dmCooldown.get(contactId);
+  if (lastDM && Date.now() - lastDM < 7 * 24 * 60 * 60 * 1000) return;
+  dmCooldown.set(contactId, Date.now());
+
+  // Get contact name if available
+  let contactName = context.name || 'amigo';
+  try {
+    const c = await axios.get(
+      `https://services.leadconnectorhq.com/contacts/${contactId}`,
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' } }
+    );
+    contactName = c.data?.contact?.firstName || contactName;
+  } catch (_) {}
+
+  const prompts = {
+    comment: `Alguien llamado ${contactName} comentó en uno de nuestros posts de JRZ Marketing en redes sociales. Escribe un DM corto, natural y humano de Armando Rivas (22 años, venezolano, Community Manager de JRZ Marketing) para iniciar una conversación. Menciona que viste su comentario, pregunta sobre su negocio, y de forma casual menciona que ofrecemos consultas gratuitas. MAX 3 oraciones. Sin hashtags. En español.`,
+    follower: `Alguien llamado ${contactName} acaba de seguir la cuenta de JRZ Marketing en Instagram. Escribe un DM de bienvenida corto y humano de Armando Rivas. Agradece que siguió, pregunta qué tipo de negocio tiene, y menciona casualmente la consulta gratuita. MAX 3 oraciones. Sin hashtags. En español.`,
+    form_fill: `Alguien llamado ${contactName} llenó un formulario de interés en JRZ Marketing. Escribe un DM de seguimiento rápido de Armando Rivas. Menciona que vio su información, pregunta cuál es su mayor reto de marketing ahora mismo, y propone hablar 15 minutos. MAX 3 oraciones. Sin hashtags. En español.`,
+  };
+
+  const msg = await anthropic.messages.create({
+    model: 'claude-opus-4-6',
+    max_tokens: 200,
+    messages: [{ role: 'user', content: prompts[triggerType] || prompts.comment }],
+  });
+  const dmText = msg.content[0].text.trim();
+
+  // Send via GHL conversations API
+  try {
+    await axios.post(
+      'https://services.leadconnectorhq.com/conversations/messages',
+      {
+        type: 'Email',
+        contactId,
+        html: `<p>${dmText}</p>`,
+        subject: '👋 Hola desde JRZ Marketing',
+      },
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+    );
+    console.log(`[WarmDM] ✅ Sent ${triggerType} DM to contact ${contactId}`);
+  } catch (err) {
+    console.error('[WarmDM] ❌ Failed to send DM:', err?.response?.data || err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// FEATURE 3 — OUTBOUND PROSPECTING
+// Runs Mon–Fri at 10am EST. Finds contacts in GHL tagged
+// "outbound_pending", sends 15 personalized outreach
+// messages per day, then tags them "outbound_sent".
+// To add prospects: import contacts in GHL with tag
+// "outbound_pending" (LinkedIn export, referrals, etc.)
+// ═══════════════════════════════════════════════════════════
+
+async function runDailyOutbound() {
+  console.log('[Outbound] Running daily prospecting (15 contacts)...');
+  try {
+    // Fetch contacts tagged outbound_pending
+    const res = await axios.get(
+      `https://services.leadconnectorhq.com/contacts/?locationId=${GHL_LOCATION_ID}&tags=outbound_pending&limit=15`,
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' } }
+    );
+    const contacts = res.data?.contacts || [];
+    if (!contacts.length) {
+      console.log('[Outbound] No pending prospects today.');
+      return { sent: 0 };
+    }
+
+    let sent = 0;
+    for (const contact of contacts) {
+      const name     = contact.firstName || 'dueño de negocio';
+      const business = contact.companyName || 'tu negocio';
+      const city     = contact.city || 'Orlando';
+
+      // Generate personalized outreach via Claude
+      const msg = await anthropic.messages.create({
+        model: 'claude-opus-4-6',
+        max_tokens: 250,
+        messages: [{
+          role: 'user',
+          content: `Escribe un mensaje de prospección corto, humano y no genérico de parte de Jose Rivas de JRZ Marketing para ${name}, dueño/a de ${business} en ${city}.
+
+Objetivo: iniciar conversación → agendar una llamada de 15 min gratuita.
+Estilo: directo, profesional pero cálido. Como si fuera un mensaje de LinkedIn o email.
+Menciona: que ayudamos negocios en ${city} con IA y automatización de marketing.
+Termina con: una pregunta abierta sobre su mayor reto de marketing.
+MAX 4 oraciones. Sin hashtags. En español.`,
+        }],
+      });
+
+      const outboundMsg = msg.content[0].text.trim();
+
+      // Send via GHL
+      try {
+        await axios.post(
+          'https://services.leadconnectorhq.com/conversations/messages',
+          {
+            type: 'Email',
+            contactId: contact.id,
+            html: `<p>${outboundMsg}</p><p style="color:#666;font-size:12px">Jose Rivas · JRZ Marketing · jrzmarketing.com · (407) 844-6376</p>`,
+            subject: '¿Cómo está creciendo tu negocio en 2026?',
+          },
+          { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+        );
+
+        // Move from outbound_pending → outbound_sent
+        await axios.post(
+          `https://services.leadconnectorhq.com/contacts/${contact.id}/tags`,
+          { tags: ['outbound_sent'] },
+          { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+        );
+        await axios.delete(
+          `https://services.leadconnectorhq.com/contacts/${contact.id}/tags`,
+          { data: { tags: ['outbound_pending'] }, headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+        );
+
+        sent++;
+        console.log(`[Outbound] ✅ Sent to ${name} (${business})`);
+        // Small delay between messages to avoid rate limits
+        await new Promise(r => setTimeout(r, 2000));
+      } catch (err) {
+        console.error(`[Outbound] ❌ Failed for ${contact.id}:`, err?.response?.data || err.message);
+      }
+    }
+
+    console.log(`[Outbound] ✅ Done — ${sent}/${contacts.length} messages sent today`);
+    return { sent, total: contacts.length };
+  } catch (err) {
+    console.error('[Outbound] ❌ Outbound run failed:', err.message);
+    return { sent: 0, error: err.message };
+  }
+}
+
 // ═══════════════════════════════════════════════════════════
 // SOCIAL MEDIA AUTOMATION FUNCTIONS
 // ═══════════════════════════════════════════════════════════
@@ -1367,28 +1629,39 @@ async function runDailyStory() {
   }
 }
 
-// Generate viral hook content via Claude for today's Reel
+// Generate viral hook content via Claude — uses weekly learned strategy
 async function generateViralReelContent(topic) {
+  const strategy = await loadContentStrategy();
+  const strategyContext = strategy ? `
+ESTRATEGIA APRENDIDA (basada en datos reales de tu audiencia):
+- Mejores temas: ${(strategy.bestTopics || []).join(', ')}
+- Estilo de hook que más funciona: ${strategy.bestHookStyle || 'preguntas directas'}
+- Fórmulas de hook probadas: ${(strategy.hookFormulas || []).join(' | ')}
+- Insights de audiencia: ${strategy.audienceInsights || '25-34 años, dueños de negocios'}
+- Evitar: ${(strategy.avoidTopics || []).join(', ') || 'nada aún'}
+- Notas de la semana: ${strategy.weeklyNotes || 'primera semana'}
+` : '';
+
   const msg = await anthropic.messages.create({
     model: 'claude-opus-4-6',
     max_tokens: 600,
     messages: [{
       role: 'user',
       content: `Crea contenido viral en ESPAÑOL para un Reel de marketing de 15 segundos para JRZ Marketing (agencia de IA y automatización en Orlando, FL).
-
+${strategyContext}
 Tema del día: "${topic}"
 
 Devuelve SOLO un JSON válido con esta estructura exacta:
 {
   "hook": "2-4 PALABRAS EN MAYÚSCULAS (frase impactante, pregunta o dato)",
   "hook_sub": "1-2 líneas que amplíen el hook\\nseparadas por \\\\n",
-  "content": ["→ punto 1", "→ punto 2", "→ punto 3", "→ punto 4"],
+  "content": ["→  punto 1", "→  punto 2", "→  punto 3"],
   "climax1": "2-3 PALABRAS IMPACTO",
   "climax2": "REMATE EN MAYÚSCULAS.",
   "climax_sub": "frase de cierre poderosa"
 }
 
-Reglas: gancho que detenga el scroll, estilo directo, sin hashtags en el JSON.`,
+Reglas: gancho que detenga el scroll en los primeros 2 segundos, estilo directo, sin hashtags en el JSON.`,
     }],
   });
   return JSON.parse(msg.content[0].text.trim());
@@ -1690,6 +1963,36 @@ app.post('/webhook', async (req, res) => {
 // SOCIAL MEDIA CRON ENDPOINTS (manual triggers + internal scheduler)
 // ═══════════════════════════════════════════════════════════
 
+/// ── Warm DM webhook — GHL fires this when someone comments or follows ──────
+// Setup: GHL → Settings → Webhooks → add https://armando-bot-1.onrender.com/webhook/engage
+// Events: ContactCreated, InboundMessage
+app.post('/webhook/engage', async (req, res) => {
+  res.json({ ok: true }); // respond fast so GHL doesn't retry
+  try {
+    const e = req.body;
+    const contactId = e.contact_id || e.contactId || e.id;
+    if (!contactId) return;
+
+    const source  = (e.source || e.channel || '').toLowerCase();
+    const type    = (e.type || e.event || '').toLowerCase();
+    const isSocial = source.includes('instagram') || source.includes('facebook')
+                  || source.includes('tiktok')    || source.includes('linkedin');
+
+    if (type.includes('contactcreated') && isSocial) {
+      // New follower / social lead
+      await sendWarmDM(contactId, 'follower', { name: e.first_name || e.firstName });
+    } else if (type.includes('inboundmessage') && isSocial) {
+      // Comment or DM on social post
+      await sendWarmDM(contactId, 'comment', { name: e.first_name || e.firstName });
+    } else if (type.includes('formsubmit') || type.includes('opportunitycreated')) {
+      // Form fill or new opportunity
+      await sendWarmDM(contactId, 'form_fill', { name: e.first_name || e.firstName });
+    }
+  } catch (err) {
+    console.error('[WarmDM] Webhook error:', err.message);
+  }
+});
+
 // Manual trigger: POST /cron/daily-post
 app.post('/cron/daily-post', async (_req, res) => {
   try {
@@ -1752,50 +2055,56 @@ app.get('/', (_req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
-// INTERNAL CRON — checks every 2 minutes if it's time to post
-// Carousel + Instagram Reel (8am):  every day at 7:00am EST
-// 15s Reel (all platforms, 4pm):    every day at 4:00pm EST
-// Story (7pm):                      every day at 6:30pm EST
-// Weekly summary email:             every Monday at 7:05am EST
+// INTERNAL CRON — checks every 2 minutes
+//  7:00am EST  daily      → Carousel post + blog
+//  7:05am EST  Monday     → Weekly analytics analysis + summary email
+// 10:00am EST  Mon–Fri    → Outbound prospecting (15 contacts/day)
+//  4:00pm EST  daily      → Viral 15s Reel (7 platforms)
+//  6:30pm EST  daily      → Story (Instagram + Facebook)
 // ═══════════════════════════════════════════════════════════
-let lastPostDate    = null;
-let lastReelDate    = null;
-let lastStoryDate   = null;
-let lastSummaryDate = null;
+let lastPostDate     = null;
+let lastReelDate     = null;
+let lastStoryDate    = null;
+let lastSummaryDate  = null;
+let lastOutboundDate = null;
 
 setInterval(async () => {
   try {
-    const nowEST = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
-    const today = nowEST.toISOString().split('T')[0];
-    const hour   = nowEST.getHours();
-    const minute = nowEST.getMinutes();
-    const dayOfWeek = nowEST.getDay(); // 0=Sun, 1=Mon
+    const nowEST    = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const today     = nowEST.toISOString().split('T')[0];
+    const hour      = nowEST.getHours();
+    const minute    = nowEST.getMinutes();
+    const dayOfWeek = nowEST.getDay(); // 0=Sun, 1=Mon…6=Sat
+    const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
 
-    // Daily carousel post at 7:00am EST (window: 7:00–7:04)
+    // 7:00am — daily carousel + blog
     if (hour === 7 && minute < 5 && lastPostDate !== today) {
       lastPostDate = today;
       await runDailyPost();
-
-      // Monday: also collect 7-day schedule and email summary
-      if (dayOfWeek === 1 && lastSummaryDate !== today) {
-        lastSummaryDate = today;
-        const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-        const weekPosts = CAROUSEL_SCRIPTS.slice(0, 7).map((s, i) => ({
-          day: days[i],
-          title: s.title,
-          success: true,
-        }));
-        await sendWeeklySummaryEmail(weekPosts);
-      }
     }
 
-    // Daily 15s Reel at 4:00pm EST (window: 16:00–16:04)
+    // 7:05am Monday — analytics self-learning + weekly email
+    if (hour === 7 && minute >= 5 && minute < 10 && dayOfWeek === 1 && lastSummaryDate !== today) {
+      lastSummaryDate = today;
+      await runWeeklyAnalysis();
+      const days     = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+      const weekPosts = CAROUSEL_SCRIPTS.slice(0, 7).map((s, i) => ({ day: days[i], title: s.title, success: true }));
+      await sendWeeklySummaryEmail(weekPosts);
+    }
+
+    // 10:00am Mon–Fri — outbound prospecting
+    if (hour === 10 && minute < 5 && isWeekday && lastOutboundDate !== today) {
+      lastOutboundDate = today;
+      await runDailyOutbound();
+    }
+
+    // 4:00pm — viral Reel
     if (hour === 16 && minute < 5 && lastReelDate !== today) {
       lastReelDate = today;
       await runDailyReel();
     }
 
-    // Daily story at 6:30pm EST (window: 18:30–18:34)
+    // 6:30pm — story
     if (hour === 18 && minute >= 30 && minute < 35 && lastStoryDate !== today) {
       lastStoryDate = today;
       await runDailyStory();
@@ -1809,7 +2118,10 @@ setInterval(async () => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
-  console.log(`7am  EST → Carousel post (Instagram + Facebook + LinkedIn + YouTube + Google)`);
-  console.log(`4pm  EST → 15s Reel     (Instagram + Facebook + LinkedIn x2 + YouTube + TikTok x2)`);
-  console.log(`6:30pm EST → Story      (Instagram + Facebook)`);
+  console.log(`7:00am  EST daily     → Carousel + Blog`);
+  console.log(`7:05am  EST Monday    → Weekly analytics self-learning + email`);
+  console.log(`10:00am EST Mon-Fri   → Outbound prospecting (15 contacts/day)`);
+  console.log(`4:00pm  EST daily     → 15s Viral Reel (7 platforms)`);
+  console.log(`6:30pm  EST daily     → Story (Instagram + Facebook)`);
+  console.log(`24/7                  → Armando warm DMs on comments/follows`);
 });
