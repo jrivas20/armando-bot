@@ -27,6 +27,17 @@ const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || 'IdUnHGrO7wYG
 const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID || 'd7iUPfamAaPlSBNj6IhT';
 const GHL_USER_ID     = process.env.GHL_USER_ID     || 'ALHFH3LlHUg7V4GuSbop';
 
+// ─── Marketing Pipeline constants ────────────────────────
+const MARKETING_PIPELINE_ID = 'AA7OHokVnWcxHbbclGTk';
+const PIPELINE_STAGES = {
+  newLead:  '40493ee9-177a-4c42-ac4b-51b431f81a25',
+  hotLead:  '184cf994-5c67-4cba-b5a0-c6d619c9fd8b',
+  booking:  'b5fd5971-5f90-4343-a93a-22cc60c3bad9',
+  attended: 'edc7830a-4171-4bd2-a25f-c84e21b81acb',
+  sale:     'cbe933ec-5fd9-4e36-bcc5-b5db54479ffc',
+  review:   '508da827-df8a-49f0-ae24-feb1dac67c8c',
+};
+
 // ─── Blog constants ───────────────────────────────────────
 const BLOG_ID        = 'BSFKLAs40udrWd6XM0Tw';
 const BLOG_AUTHOR_ID = '69b556769166961ed4d1ce43';
@@ -1097,6 +1108,31 @@ Responde SOLO con un JSON válido con esta estructura:
 }
 
 // ═══════════════════════════════════════════════════════════
+// OPPORTUNITIES — Add contacts to Marketing Pipeline in GHL
+// ═══════════════════════════════════════════════════════════
+
+async function createOpportunity(contactId, contactName, stageId) {
+  try {
+    await axios.post(
+      'https://services.leadconnectorhq.com/opportunities/',
+      {
+        pipelineId:    MARKETING_PIPELINE_ID,
+        locationId:    GHL_LOCATION_ID,
+        name:          contactName || 'Lead',
+        pipelineStageId: stageId,
+        contactId,
+        assignedTo:    GHL_USER_ID,
+        status:        'open',
+      },
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+    );
+    console.log(`[Opportunity] ✅ Added ${contactName} (${contactId}) → stage ${stageId}`);
+  } catch (err) {
+    console.error(`[Opportunity] ❌ Failed for ${contactId}:`, err?.response?.data || err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 // FEATURE 2 — WARM DM OUTREACH
 // When someone comments or follows → Armando DMs them
 // within 60 seconds with a personalized message.
@@ -1147,6 +1183,7 @@ async function sendWarmDM(contactId, triggerType, context = {}) {
       { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
     );
     console.log(`[WarmDM] ✅ Sent ${triggerType} DM to contact ${contactId}`);
+    await createOpportunity(contactId, contactName, PIPELINE_STAGES.newLead);
   } catch (err) {
     console.error('[WarmDM] ❌ Failed to send DM:', err?.response?.data || err.message);
   }
@@ -1162,11 +1199,11 @@ async function sendWarmDM(contactId, triggerType, context = {}) {
 // ═══════════════════════════════════════════════════════════
 
 async function runDailyOutbound() {
-  console.log('[Outbound] Running daily prospecting (15 contacts)...');
+  console.log('[Outbound] Running daily prospecting (50 contacts)...');
   try {
     // Fetch contacts tagged outbound_pending
     const res = await axios.get(
-      `https://services.leadconnectorhq.com/contacts/?locationId=${GHL_LOCATION_ID}&tags=outbound_pending&limit=15`,
+      `https://services.leadconnectorhq.com/contacts/?locationId=${GHL_LOCATION_ID}&tags=outbound_pending&limit=50`,
       { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' } }
     );
     const contacts = res.data?.contacts || [];
@@ -1179,21 +1216,30 @@ async function runDailyOutbound() {
     for (const contact of contacts) {
       const name     = contact.firstName || 'dueño de negocio';
       const business = contact.companyName || 'tu negocio';
-      const city     = contact.city || 'Orlando';
+      const city     = contact.city || 'Tampa';
+      const industry = contact.tags?.find(t => ['restaurant','construccion','gym','tattoo','fitness'].some(k => t.toLowerCase().includes(k))) || '';
 
       // Generate personalized outreach via Claude
       const msg = await anthropic.messages.create({
         model: 'claude-opus-4-6',
-        max_tokens: 250,
+        max_tokens: 300,
         messages: [{
           role: 'user',
-          content: `Escribe un mensaje de prospección corto, humano y no genérico de parte de Jose Rivas de JRZ Marketing para ${name}, dueño/a de ${business} en ${city}.
+          content: `Eres Jose Rivas, fundador de JRZ Marketing — una agencia de marketing bilingüe (español e inglés) en Florida que ayuda a dueños de negocios hispanos a capturar más clientes y automatizar su seguimiento.
 
-Objetivo: iniciar conversación → agendar una llamada de 15 min gratuita.
-Estilo: directo, profesional pero cálido. Como si fuera un mensaje de LinkedIn o email.
-Menciona: que ayudamos negocios en ${city} con IA y automatización de marketing.
-Termina con: una pregunta abierta sobre su mayor reto de marketing.
-MAX 4 oraciones. Sin hashtags. En español.`,
+Escribe un mensaje de prospección corto, directo y personal para ${name}, dueño/a de ${business} en ${city}${industry ? `, en la industria de ${industry}` : ''}.
+
+Contexto del cliente ideal: dueño hispano de negocio pequeño o mediano (restaurante, construcción, gimnasio, tattoo, etc.) en Tampa, Orlando o Miami. Tiene 30+ años. Trabaja duro pero pierde clientes por falta de seguimiento o sistema organizado.
+
+Tono: estratégico, confiado, cálido. Habla de oportunidad, no de problemas. Como si fueras un colega exitoso que quiere ayudar.
+
+Reglas:
+- Máximo 4 oraciones
+- En español (menciona que somos bilingües)
+- Termina con UNA pregunta sobre su mayor reto para conseguir o retener clientes
+- No uses hashtags, emojis ni jerga de vendedor
+- No menciones precios
+- Sé específico a su industria o ciudad si puedes`,
         }],
       });
 
@@ -1206,13 +1252,13 @@ MAX 4 oraciones. Sin hashtags. En español.`,
           {
             type: 'Email',
             contactId: contact.id,
-            html: `<p>${outboundMsg}</p><p style="color:#666;font-size:12px">Jose Rivas · JRZ Marketing · jrzmarketing.com · (407) 844-6376</p>`,
-            subject: '¿Cómo está creciendo tu negocio en 2026?',
+            html: `<p>${outboundMsg}</p><p style="color:#666;font-size:12px">Jose Rivas · JRZ Marketing · Bilingüe: English / Español · jrzmarketing.com · (407) 844-6376</p>`,
+            subject: `${name}, ¿estás capturando todos tus clientes potenciales?`,
           },
           { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
         );
 
-        // Move from outbound_pending → outbound_sent
+        // Move from outbound_pending → outbound_sent + add to pipeline
         await axios.post(
           `https://services.leadconnectorhq.com/contacts/${contact.id}/tags`,
           { tags: ['outbound_sent'] },
@@ -1222,6 +1268,7 @@ MAX 4 oraciones. Sin hashtags. En español.`,
           `https://services.leadconnectorhq.com/contacts/${contact.id}/tags`,
           { data: { tags: ['outbound_pending'] }, headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
         );
+        await createOpportunity(contact.id, `${name} — ${business}`, PIPELINE_STAGES.newLead);
 
         sent++;
         console.log(`[Outbound] ✅ Sent to ${name} (${business})`);
@@ -1930,10 +1977,13 @@ app.post('/webhook', async (req, res) => {
     const hasAnyData  = !!(foundPhone || foundEmail);
     if (hasBothData) {
       await tagContact(contactId, ['armando-interested', 'qualified-lead', 'hot-lead']);
+      await createOpportunity(contactId, contactName, PIPELINE_STAGES.hotLead);
     } else if (hasAnyData) {
       await tagContact(contactId, ['armando-interested', 'qualified-lead']);
+      await createOpportunity(contactId, contactName, PIPELINE_STAGES.hotLead);
     } else if (leadQuality === 'interested') {
       await tagContact(contactId, ['armando-interested']);
+      await createOpportunity(contactId, contactName, PIPELINE_STAGES.newLead);
     }
 
     if (foundEmail && !thankYouEmailSent.has(contactId)) {
