@@ -16,7 +16,7 @@ const NEWS_API_KEY  = process.env.NEWS_API_KEY  || 'dff54f64e9eb4087aa7c215a1c67
 const APOLLO_API_KEY = process.env.APOLLO_API_KEY || 'pHTTmBc8ljBQFxaa0YcUQQ';
 const BOOKING_URL = 'https://jrzmarketing.com/contact-us';
 const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
-const EMAIL_FROM      = 'info@jrzmarketing.com';
+const EMAIL_FROM      = 'info@email.jrzmarketing.com';
 const EMAIL_FROM_NAME = 'Jose Rivas | JRZ Marketing';
 
 async function sendEmail(contactId, subject, html) {
