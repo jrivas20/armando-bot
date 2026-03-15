@@ -1574,7 +1574,7 @@ async function runDailyPost() {
   const todayImages = CAROUSEL_IMAGES[dayIdx >= 0 ? dayIdx : new Date().getDay()];
   const instagramMedia = todayImages.map(url => ({ url, type: 'image/png' }));
 
-  // ── Social post — Facebook, LinkedIn, YouTube, Google (text only) ──
+  // ── Social post — Facebook, LinkedIn, YouTube, Google (with carousel images) ──
   let socialResult = { success: false };
   try {
     const result = await schedulePost({
@@ -1582,6 +1582,7 @@ async function runDailyPost() {
       accountIds: TEXT_POST_ACCOUNTS,
       type: 'post',
       scheduleDate: postTime,
+      media: instagramMedia,
     });
     console.log(`[Social] ✅ Text post scheduled for ${postTime.toISOString()} — "${title}"`);
     socialResult = { success: true, title, scheduledFor: postTime.toISOString(), result };
