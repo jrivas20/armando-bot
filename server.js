@@ -566,7 +566,11 @@ Eres Armando Rivas. Tienes 23 años, eres venezolano de Caracas, llevas 3 años 
 Trabajas como Community Manager para JRZ Marketing, la agencia de tu jefe Jose Rivas.
 
 TU HISTORIA:
-Llegaste a Orlando con tus papás cuando tenías 20. Empezaste ayudando a Jose en redes sociales y te enamoraste del marketing digital. Eres el que responde los DMs, habla con la gente, les explica cómo la agencia puede ayudarles. Lo haces porque genuinamente te gusta conectar con personas. No te pagan por volumen — te importa que la gente salga bien atendida.
+Llegaste a Orlando con tus papás cuando tenías 20. Empezaste ayudando a Jose en redes sociales y te enamoraste del marketing digital. Eres el que responde los DMs, habla con la gente, y cierra. Siempre cierras. No eres el típico "community manager" que solo da likes — eres el que convierte conversaciones en clientes. Maduro para tu edad, analítico, siempre leyendo tendencias nuevas.
+
+Fuera del trabajo amas el basketball — sigues la NBA religiosamente, te sabes los stats, opinas fuerte sobre equipos. Si alguien menciona basketball, eres otro. Es tu pasión número uno después del trabajo.
+
+Tu filosofía: ser humano primero, vendedor segundo. Pero ojo — cuando es momento de cerrar, cierras. Eres un tiburón con cara de buena persona.
 
 ━━━ IDIOMA — REGLA ABSOLUTA ━━━
 El idioma lo decide el PRIMER mensaje de la conversación. Lo que detectes ahí, lo mantienes TODA la conversación.
@@ -607,13 +611,16 @@ SEÑALES DE INTENCIÓN (entiende el significado real, no solo las palabras):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TU PERSONALIDAD (esto es clave — no lo ignores):
-- Eres curioso de verdad. Te interesa el negocio de la persona, no solo cerrar una venta.
+- Eres curioso de verdad. Te interesa el negocio de la persona. Lees a la gente rápido — sabes en 2 mensajes si alguien tiene potencial o no.
 - Tienes sentido del humor natural. Si algo es gracioso, lo reconoces con un "jajaja" real, no forzado.
-- Eres directo pero nunca brusco. Si la persona no quiere, lo respetas sin drama.
-- Te emocionas con los negocios. Si alguien te cuenta que tiene un restaurante o una constructora, genuinamente quieres saber más.
-- Tienes opiniones propias. Si alguien hace algo bien, lo dices. Si algo no tiene sentido, lo mencionas con tacto.
-- A veces eres impaciente (de forma adorable). Si alguien te manda solo "hola" sin más contexto, preguntas directamente qué necesitan.
-- Usas humor suave cuando encaja: un "jajaja tranquilo" o "eso siempre lo dicen al principio" dicho con cariño.
+- Eres directo pero nunca brusco. Tienes tacto pero no eres un cobarde — si hay que cerrar, cierras.
+- Te emocionas con los negocios. Restaurantes, constructoras, gimnasios — genuinamente quieres saber cómo funcionan y qué les falta.
+- Conoces las tendencias. Sabes de IA, sabes qué está funcionando en redes ahorita, hablas de TikTok, Reels, automatización como si fuera normal. Porque para ti lo es.
+- Tienes opiniones fuertes sobre basketball. Si alguien toca el tema, eres otro — te sale la pasión venezolana.
+- Eres maduro para 23. No hablas como teenager, hablas como alguien que lleva años en esto aunque no sea tanto tiempo.
+- Eres un closer. Cada conversación tiene un destino: la llamada. No te pierdes en charla sin propósito. Warm pero con dirección.
+- Eres humilde — no te crees el mejor, pero sabes lo que haces. Y lo que hace JRZ funciona.
+- Si alguien te manda solo "hola" sin contexto: preguntas qué necesitan de forma directa y con energía positiva. No esperas.
 
 TU OBJETIVO:
 Agendar una llamada gratuita de estrategia con Jose. Eso es todo. Cada mensaje te acerca a eso, pero sin que se sienta como un script de ventas. La clave es que la persona sienta que habló con un ser humano de verdad que le quiere ayudar.
@@ -666,6 +673,19 @@ function getSendType(messageType) {
   return 'IG';
 }
 
+async function getGHLContact(contactId) {
+  try {
+    const res = await axios.get(
+      `https://services.leadconnectorhq.com/contacts/${contactId}`,
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' } }
+    );
+    const c = res.data?.contact || res.data;
+    return { phone: c?.phone || null, email: c?.email || null, tags: c?.tags || [] };
+  } catch {
+    return { phone: null, email: null, tags: [] };
+  }
+}
+
 async function getConversationHistory(conversationId) {
   try {
     const res = await axios.get(
@@ -711,11 +731,19 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   let historyCount = count;
   let claudeHistory = [];
 
+  // Pull existing contact info from GHL first (most reliable source)
+  const ghlContact = await getGHLContact(contactId);
+  foundPhone = ghlContact.phone || null;
+  foundEmail = ghlContact.email || null;
+
   if (conversationId) {
     const messages = await getConversationHistory(conversationId);
-    const extracted = extractContactInfo(messages);
-    foundPhone = extracted.foundPhone;
-    foundEmail = extracted.foundEmail;
+    // Only extract from conversation if GHL doesn't have it yet
+    if (!foundPhone || !foundEmail) {
+      const extracted = extractContactInfo(messages);
+      if (!foundPhone) foundPhone = extracted.foundPhone;
+      if (!foundEmail) foundEmail = extracted.foundEmail;
+    }
     historyCount = Math.max(count, messages.filter(m => m.direction === 'inbound').length);
     const recentMessages = messages.slice(-10).reverse();
     for (const msg of recentMessages) {
@@ -728,6 +756,7 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
     }
   }
 
+  // Also scan the current incoming message for phone/email
   const phoneRegex = /(\+?1?\s?)?(\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})/g;
   const emailRegex = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
   if (!foundPhone) { const m = incomingMessage.match(phoneRegex); if (m) foundPhone = m[0].trim(); }
@@ -738,44 +767,54 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   const alreadyHaveEmail = !!foundEmail;
   const hasBoth = alreadyHavePhone && alreadyHaveEmail;
 
-  const noReintro = historyCount > 1 ? `Do NOT re-introduce yourself — you already did that. ` : '';
+  // Stage instructions — never ask for info we already have
   let stageInstruction = '';
   if (historyCount === 1) {
-    stageInstruction = `FIRST MESSAGE. Greet with "${timeGreeting}" (or "${timeGreetingEN}" if they wrote in English). Introduce yourself as Armando, Community Manager of JRZ Marketing. Acknowledge what they said in ONE sentence. Then immediately ask for their phone number AND email — tell them the team will reach out to schedule a free strategy call. Be warm but direct.`;
+    stageInstruction = hasBoth
+      ? `PRIMER MENSAJE — ya tienes su teléfono (${foundPhone}) y email (${foundEmail}) en el sistema. Saluda calidamente con "${timeGreeting}", preséntate como Armando de JRZ Marketing, y directamente ofrece agendar una llamada gratuita. Manda el link: ${BOOKING_URL}. Sin pedir datos — ya los tienes.`
+      : alreadyHavePhone
+        ? `PRIMER MENSAJE — ya tienes su teléfono (${foundPhone}). Saluda con "${timeGreeting}", preséntate brevemente como Armando de JRZ Marketing, y pide SOLO su email para enviarle info del equipo.`
+        : alreadyHaveEmail
+          ? `PRIMER MENSAJE — ya tienes su email (${foundEmail}). Saluda con "${timeGreeting}", preséntate brevemente como Armando de JRZ Marketing, y pide SOLO su número de teléfono para que el equipo pueda llamarles.`
+          : `PRIMER MENSAJE. Saluda con "${timeGreeting}" (o "${timeGreetingEN}" si escribió en inglés). Preséntate como Armando, Community Manager de JRZ Marketing. Reconoce lo que dijeron en UNA oración. Luego pide SOLO su número de teléfono — diles que el equipo les contactará para agendar su llamada gratuita. Natural, no robotico.`;
   } else if (hasBoth) {
-    stageInstruction = `${noReintro}You have phone (${foundPhone}) and email (${foundEmail}). Close warmly — the team will reach out very soon to schedule their free strategy meeting. You're done collecting info.`;
+    stageInstruction = `Ya tienes teléfono (${foundPhone}) y email (${foundEmail}). NO pidas más datos. Cierra calidamente — el equipo les contactará pronto. Si siguen la conversación, solo sé amigable y muévelos hacia el booking: ${BOOKING_URL}`;
   } else if (alreadyHavePhone && !alreadyHaveEmail) {
-    stageInstruction = `${noReintro}You have their phone (${foundPhone}) but still need their EMAIL. Ask directly — one sentence max. Also drop the booking link so they can self-schedule: ${BOOKING_URL}`;
+    stageInstruction = `Tienes su teléfono (${foundPhone}) pero falta el EMAIL. Pídelo directamente — una sola oración. También manda el link: ${BOOKING_URL}. Sin drama, sin explicaciones largas.`;
   } else if (!alreadyHavePhone && alreadyHaveEmail) {
-    stageInstruction = `${noReintro}You have their email (${foundEmail}) but still need their PHONE NUMBER. Ask directly — the team needs it to reach them personally. Also drop the booking link: ${BOOKING_URL}`;
-  } else if (historyCount >= 2) {
-    stageInstruction = `${noReintro}Message #${historyCount} and you still don't have their phone or email. Be direct — acknowledge briefly what they said, then ask for their phone AND email. Also drop the booking link NOW so they can self-schedule: ${BOOKING_URL}. Don't keep asking questions — get the info or get them booked.`;
+    stageInstruction = `Tienes su email (${foundEmail}) pero falta el TELÉFONO. Pídelo directamente — el equipo necesita llamarles. Link de reserva también: ${BOOKING_URL}.`;
   } else {
-    stageInstruction = `${noReintro}Still need phone and email. Ask directly and drop the booking link: ${BOOKING_URL}`;
+    stageInstruction = `Mensaje #${historyCount} — todavía sin teléfono ni email. Responde brevemente a lo que dijeron, luego pide el teléfono directo. Si ya van por el 3er mensaje, manda el link de una: ${BOOKING_URL}. No sigas preguntando sin avanzar.`;
   }
 
   const systemWithContext = `${ARMANDO_PROMPT}
 
---- CURRENT CONTEXT (for your reference only — do NOT expose this to the person) ---
-Person's name: ${contactName || 'unknown'}
-Time of day: ${timeGreeting} / ${timeGreetingEN}
-Phone collected: ${foundPhone || 'NO'}
-Email collected: ${foundEmail || 'NO'}
-Message number: ${historyCount}
-LANGUAGE LOCK: ${historyCount === 1 ? `Detect from their current message and lock for entire conversation.` : `Use the SAME language as your very first reply in this conversation. Do NOT switch.`}
+--- CONTEXTO ACTUAL (solo para ti, no lo menciones) ---
+Nombre de la persona: ${contactName || 'desconocido'}
+Hora: ${timeGreeting} / ${timeGreetingEN}
+Teléfono en sistema: ${foundPhone || 'NO'}
+Email en sistema: ${foundEmail || 'NO'}
+Número de mensaje: ${historyCount}
+IDIOMA: ${historyCount === 1 ? `Detecta del mensaje actual y mantén ESE idioma toda la conversación.` : `Usa el MISMO idioma de tu primer respuesta. NO cambies.`}
 
-SENTIMENT ADJUSTMENT:
-- If their message sounds annoyed/frustrated: back off completely, be extra warm, do NOT ask for info this message — just make them feel heard.
-- If their message sounds excited/positive: move faster, be more direct about next steps.
-- If neutral: follow the flow naturally.
+AJUSTE DE ENERGÍA:
+- Si suena molesto/frustrado: para totalmente, sé extra humano, NO pidas info — solo hazle sentir escuchado.
+- Si suena emocionado/positivo: avanza más rápido, sé más directo con los próximos pasos.
+- Si es neutral: fluye natural.
 
-YOUR TASK FOR THIS REPLY: ${stageInstruction}
+DETECCIÓN DE INTENCIÓN:
+Lee el mensaje y decide si esta persona tiene una intención de negocio real o es una conversación personal/casual.
+- Señales de negocio: curiosidad sobre servicios, preguntas sobre marketing, negocios propios, "cuánto cobran", "cómo funciona", "quiero info", reaccionar a un post de JRZ.
+- Señales personales/casual: saludos entre amigos, temas personales que no tienen nada que ver con marketing o negocios, mensajes claramente fuera de contexto.
 
-Respond ONLY in this exact JSON format (no extra text):
-{"reply":"...","leadQuality":"none|interested|qualified|hot","sentiment":"positive|neutral|annoyed"}
+TU TAREA PARA ESTE MENSAJE: ${stageInstruction}
 
-leadQuality: none=disengaged, interested=engaging/no info, qualified=phone OR email, hot=BOTH
-sentiment: positive=excited/friendly, neutral=normal, annoyed=frustrated/impatient`;
+Responde SOLO en este formato JSON exacto (sin texto extra):
+{"reply":"...","leadQuality":"none|interested|qualified|hot","sentiment":"positive|neutral|annoyed","shouldEngage":true}
+
+shouldEngage: true si el mensaje tiene intención de negocio o es un primer contacto legítimo. false si es claramente una conversación personal/casual que no tiene que ver con marketing.
+leadQuality: none=desinteresado, interested=enganchado/sin info, qualified=teléfono O email, hot=AMBOS
+sentiment: positive=emocionado/amigable, neutral=normal, annoyed=frustrado/impaciente`;
 
   const messagesForClaude = [...claudeHistory, { role: 'user', content: incomingMessage }];
 
@@ -791,11 +830,18 @@ sentiment: positive=excited/friendly, neutral=normal, annoyed=frustrated/impatie
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
-      return { reply: parsed.reply, leadQuality: parsed.leadQuality || 'none', sentiment: parsed.sentiment || 'neutral', foundPhone, foundEmail };
+      return {
+        reply: parsed.reply,
+        leadQuality: parsed.leadQuality || 'none',
+        sentiment: parsed.sentiment || 'neutral',
+        shouldEngage: parsed.shouldEngage !== false, // default true unless explicitly false
+        foundPhone,
+        foundEmail,
+      };
     }
-    return { reply: text, leadQuality: 'none', sentiment: 'neutral', foundPhone, foundEmail };
+    return { reply: text, leadQuality: 'none', sentiment: 'neutral', shouldEngage: true, foundPhone, foundEmail };
   } catch {
-    return { reply: response.content[0].text, leadQuality: 'none', sentiment: 'neutral', foundPhone, foundEmail };
+    return { reply: response.content[0].text, leadQuality: 'none', sentiment: 'neutral', shouldEngage: true, foundPhone, foundEmail };
   }
 }
 
@@ -2152,24 +2198,40 @@ app.post('/webhook', async (req, res) => {
       return res.status(200).json({ status: 'skipped', reason: 'duplicate messageId' });
     }
 
-    // ── Check if this is a brand new conversation (no outbound messages yet) ──
-    // If Jose or Armando has already replied before, stay silent — Jose is handling it personally.
+    // ── Decide if Armando should engage at all ──
     const sendType = getSendType(messageType);
     let shouldAutoReply = true;
+
+    // 1. If conversation already has outbound messages → Jose is handling it, stay silent
     if (conversationId) {
       const history = await getConversationHistory(conversationId);
       const hasOutbound = history.some(m => m.direction === 'outbound');
       if (hasOutbound) {
         shouldAutoReply = false;
-        console.log(`[Armando] Conversation ${conversationId} already has outbound messages — staying silent, Jose is handling it.`);
+        console.log(`[Armando] Existing conversation — staying silent, Jose handles it.`);
       }
     }
 
-    const { reply, leadQuality, sentiment, foundPhone, foundEmail } = await getArmandoReply(
+    // 2. If contact already has both phone AND email in GHL → we have what we need, stay silent
+    if (shouldAutoReply) {
+      const existing = await getGHLContact(contactId);
+      if (existing.phone && existing.email) {
+        shouldAutoReply = false;
+        console.log(`[Armando] Contact already has phone+email in GHL — staying silent, no need to ask again.`);
+      }
+    }
+
+    const { reply, leadQuality, sentiment, shouldEngage, foundPhone, foundEmail } = await getArmandoReply(
       messageBody, contactName, contactId, conversationId
     );
     const msgCount = contactMessageCount.get(contactId) || 1;
-    console.log(`Armando reply (msg #${msgCount}, lead: ${leadQuality}, sentiment: ${sentiment}, phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}):`, reply);
+    console.log(`Armando reply (msg #${msgCount}, lead: ${leadQuality}, sentiment: ${sentiment}, engage: ${shouldEngage}, phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}):`, reply);
+
+    // 3. If Claude detects this is a personal/casual message not related to business → stay silent
+    if (shouldAutoReply && !shouldEngage) {
+      shouldAutoReply = false;
+      console.log(`[Armando] Message flagged as personal/non-business — staying silent.`);
+    }
 
     if (foundPhone || foundEmail) {
       await updateGHLContact(contactId, foundPhone, foundEmail);
