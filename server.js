@@ -778,27 +778,26 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   // Stage instructions — never ask for info we already have
   let stageInstruction = '';
   if (historyCount === 1) {
+    // Message 1 — greet + ask for phone AND email
     stageInstruction = hasBoth
-      ? `PRIMER MENSAJE — ya tienes su teléfono (${foundPhone}) y email (${foundEmail}) en el sistema. Saluda calidamente con "${timeGreeting}", preséntate como Armando de JRZ Marketing, y directamente ofrece agendar una llamada gratuita. Manda el link: ${BOOKING_URL}. Sin pedir datos — ya los tienes.`
+      ? `PRIMER MENSAJE — ya tienes teléfono (${foundPhone}) y email (${foundEmail}). Saluda con "${timeGreeting}", preséntate como Armando de JRZ Marketing, y ofrece agendar directamente: ${BOOKING_URL}. Sin pedir nada — ya lo tienes todo.`
       : alreadyHavePhone
-        ? `PRIMER MENSAJE — ya tienes su teléfono (${foundPhone}). Saluda con "${timeGreeting}", preséntate brevemente como Armando de JRZ Marketing, y pide SOLO su email para enviarle info del equipo.`
+        ? `PRIMER MENSAJE — ya tienes su teléfono (${foundPhone}). Saluda, preséntate, y pide solo el EMAIL en la misma oración.`
         : alreadyHaveEmail
-          ? `PRIMER MENSAJE — ya tienes su email (${foundEmail}). Saluda con "${timeGreeting}", preséntate brevemente como Armando de JRZ Marketing, y pide SOLO su número de teléfono para que el equipo pueda llamarles.`
-          : `PRIMER MENSAJE. Saluda con "${timeGreeting}" (o "${timeGreetingEN}" si escribió en inglés). Preséntate como Armando, Community Manager de JRZ Marketing. Reconoce lo que dijeron en UNA oración. Luego pide SOLO su número de teléfono — diles que el equipo les contactará para agendar su llamada gratuita. Natural, no robotico.`;
+          ? `PRIMER MENSAJE — ya tienes su email (${foundEmail}). Saluda, preséntate, y pide solo el TELÉFONO en la misma oración.`
+          : `PRIMER MENSAJE. Saluda con "${timeGreeting}" (o "${timeGreetingEN}" si escribió en inglés). Preséntate como Armando, Community Manager de JRZ Marketing. Reconoce lo que dijeron en UNA oración. Luego pide su TELÉFONO y EMAIL — diles que el equipo los contactará para agendar su llamada gratuita. Natural, directo, humano.`;
   } else if (hasBoth) {
-    stageInstruction = `Ya tienes teléfono (${foundPhone}) y email (${foundEmail}). NO pidas más datos. Cierra calidamente — el equipo les contactará pronto. Si siguen la conversación, solo sé amigable y muévelos hacia el booking: ${BOOKING_URL}`;
+    stageInstruction = `Ya tienes teléfono (${foundPhone}) y email (${foundEmail}). NO pidas más datos. Cierra calidamente — el equipo les contactará pronto. Muévelos al booking: ${BOOKING_URL}`;
   } else if (alreadyHavePhone && !alreadyHaveEmail) {
-    // Has phone, needs email — use A/B closing style
-    stageInstruction = `Tienes su teléfono (${foundPhone}) pero falta el EMAIL. Pídelo en una sola oración. Luego aplica esta técnica de cierre: ${closingInstruction}`;
+    stageInstruction = `Tienes su teléfono (${foundPhone}) pero falta el EMAIL. Pídelo en una sola oración. ${historyCount >= 3 ? `También manda el link directo: ${BOOKING_URL}` : ''}`;
   } else if (!alreadyHavePhone && alreadyHaveEmail) {
-    // Has email, needs phone — use A/B closing style
-    stageInstruction = `Tienes su email (${foundEmail}) pero falta el TELÉFONO. Pídelo directamente — el equipo necesita llamarles. Luego aplica: ${closingInstruction}`;
+    stageInstruction = `Tienes su email (${foundEmail}) pero falta el TELÉFONO. Pídelo en una sola oración. ${historyCount >= 3 ? `También manda el link directo: ${BOOKING_URL}` : ''}`;
   } else if (historyCount === 2) {
-    // Second message, still no info — ask for phone one more time with A/B style
-    stageInstruction = `Segundo mensaje — todavía sin teléfono ni email. Responde en una oración y pide el teléfono directamente. Aplica: ${closingInstruction}`;
+    // Message 2 — ask phone + email again + A/B closing style
+    stageInstruction = `Segundo mensaje — todavía sin teléfono ni email. Responde brevemente a lo que dijeron y vuelve a pedir TELÉFONO y EMAIL en la misma oración. Aplica también: ${closingInstruction}`;
   } else {
-    // Message 3+ — stop asking questions. Drop the booking link directly and close.
-    stageInstruction = `Mensaje #${historyCount} — NO sigas pidiendo datos por mensaje. Ya es momento de cerrar directamente. Responde brevemente y manda el link para que agenden solos: "${BOOKING_URL}" — dilo de forma natural y con energía. Ej: "Mira, lo mejor es que lo agendemos directo — aquí tienes el link para la llamada gratis: ${BOOKING_URL} ¿Cuándo te viene bien?" o similar. Sin preguntar más por teléfono ni email por mensaje.`;
+    // Message 3+ — stop asking, drop the link directly
+    stageInstruction = `Mensaje #${historyCount} — NO pidas más teléfono ni email por mensaje. Cierra directo con el link: manda "${BOOKING_URL}" de forma natural y con energía. Algo como "Mira, lo mejor es que lo agendemos directo — aquí la llamada gratis: ${BOOKING_URL}" y listo. Sin más preguntas.`;
   }
 
   const systemWithContext = `${ARMANDO_PROMPT}
