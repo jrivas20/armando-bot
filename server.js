@@ -767,6 +767,10 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   const alreadyHaveEmail = !!foundEmail;
   const hasBoth = alreadyHavePhone && alreadyHaveEmail;
 
+  // Assign A/B closing variant for this contact (persists in memory per contact)
+  const abVariant = await assignClosingVariant(contactId);
+  const closingInstruction = CLOSING_VARIANTS[abVariant].instruction(BOOKING_URL);
+
   // Stage instructions — never ask for info we already have
   let stageInstruction = '';
   if (historyCount === 1) {
@@ -780,11 +784,14 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   } else if (hasBoth) {
     stageInstruction = `Ya tienes teléfono (${foundPhone}) y email (${foundEmail}). NO pidas más datos. Cierra calidamente — el equipo les contactará pronto. Si siguen la conversación, solo sé amigable y muévelos hacia el booking: ${BOOKING_URL}`;
   } else if (alreadyHavePhone && !alreadyHaveEmail) {
-    stageInstruction = `Tienes su teléfono (${foundPhone}) pero falta el EMAIL. Pídelo directamente — una sola oración. También manda el link: ${BOOKING_URL}. Sin drama, sin explicaciones largas.`;
+    // Has phone, needs email — use A/B closing style
+    stageInstruction = `Tienes su teléfono (${foundPhone}) pero falta el EMAIL. Pídelo en una sola oración. Luego aplica esta técnica de cierre: ${closingInstruction}`;
   } else if (!alreadyHavePhone && alreadyHaveEmail) {
-    stageInstruction = `Tienes su email (${foundEmail}) pero falta el TELÉFONO. Pídelo directamente — el equipo necesita llamarles. Link de reserva también: ${BOOKING_URL}.`;
+    // Has email, needs phone — use A/B closing style
+    stageInstruction = `Tienes su email (${foundEmail}) pero falta el TELÉFONO. Pídelo directamente — el equipo necesita llamarles. Luego aplica: ${closingInstruction}`;
   } else {
-    stageInstruction = `Mensaje #${historyCount} — todavía sin teléfono ni email. Responde brevemente a lo que dijeron, luego pide el teléfono directo. Si ya van por el 3er mensaje, manda el link de una: ${BOOKING_URL}. No sigas preguntando sin avanzar.`;
+    // Nothing yet — use A/B closing style to move them
+    stageInstruction = `Mensaje #${historyCount} — todavía sin teléfono ni email. Responde brevemente a lo que dijeron. Luego aplica esta técnica de cierre: ${closingInstruction}`;
   }
 
   const systemWithContext = `${ARMANDO_PROMPT}
@@ -1095,6 +1102,190 @@ const ANALYTICS_PROFILE_IDS = [
 
 const STRATEGY_URL    = `https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/content_strategy.json`;
 const STRATEGY_PUB_ID = 'jrz/content_strategy';
+
+// ═══════════════════════════════════════════════════════════
+// A/B TESTING — CLOSING APPROACHES
+// 4 variants. Weekly Claude analysis shifts traffic to winner.
+// Persisted in Cloudinary so it survives server restarts.
+// ═══════════════════════════════════════════════════════════
+const AB_URL    = `https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/ab_closing_test.json`;
+const AB_PUB_ID = 'jrz/ab_closing_test';
+
+// In-memory: contactId → variant letter assigned for this session
+const contactVariantMap = new Map();
+
+// The 4 closing variants injected into Armando's stage instruction
+const CLOSING_VARIANTS = {
+  A: {
+    name: 'Direct',
+    description: 'Straight to the point. No fluff. Quick link.',
+    instruction: (url) =>
+      `CIERRE DIRECTO: Responde brevemente a lo que dijeron, luego ve al grano — "¿Tienes 30 minutos esta semana? La llamada es gratis, te digo exactamente qué necesitas." Manda el link: ${url}. Sin rodeos.`,
+  },
+  B: {
+    name: 'Social Proof',
+    description: 'Quick win story from a similar business, then invite them.',
+    instruction: (url) =>
+      `CIERRE CON PRUEBA SOCIAL: Menciona brevemente un cliente similar al de ellos (restaurante, constructora, gimnasio, etc.) que mejoró resultados con JRZ — en UNA oración, sin exagerar. Luego invítalos a hablar: "¿Hablamos?" + link: ${url}`,
+  },
+  C: {
+    name: 'Pain Point',
+    description: 'Name their specific problem, position the call as the solution.',
+    instruction: (url) =>
+      `CIERRE POR DOLOR: Nombra el problema específico que detectas en su mensaje (sin inventar, usa lo que te dijeron). Luego: "Eso es exactamente lo que resolvemos. Una llamada de 30 minutos y te explico cómo." + link: ${url}. Hazlo sentir que los entiendes.`,
+  },
+  D: {
+    name: 'Curiosity Gap',
+    description: 'Tease something they can only get on the call.',
+    instruction: (url) =>
+      `CIERRE POR CURIOSIDAD: Di algo que genere intriga — "Lo que hacemos diferente no lo puedo explicar bien por mensaje, necesito mostrártelo." No des más detalles. Solo invítalos: "¿Me das 30 minutos?" + link: ${url}. Que quieran saber.`,
+  },
+};
+
+async function loadABTestData() {
+  try {
+    const res = await axios.get(AB_URL, { timeout: 8000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch {
+    // Default starting state — equal weights
+    return {
+      variants: {
+        A: { name: 'Direct',        sent: 0, conversions: 0 },
+        B: { name: 'Social Proof',  sent: 0, conversions: 0 },
+        C: { name: 'Pain Point',    sent: 0, conversions: 0 },
+        D: { name: 'Curiosity Gap', sent: 0, conversions: 0 },
+      },
+      weights: { A: 25, B: 25, C: 25, D: 25 },
+      lastOptimized: null,
+      history: [],
+    };
+  }
+}
+
+async function saveABTestData(data) {
+  try {
+    const ts      = Math.floor(Date.now() / 1000);
+    const sigStr  = `overwrite=true&public_id=${AB_PUB_ID}&resource_type=raw&timestamp=${ts}${CLOUDINARY_API_SECRET}`;
+    const sig     = crypto.createHash('sha1').update(sigStr).digest('hex');
+    const form    = new FormData();
+    const buf     = Buffer.from(JSON.stringify(data, null, 2));
+    form.append('file',          buf,  { filename: 'ab_closing_test.json', contentType: 'application/json' });
+    form.append('public_id',     AB_PUB_ID);
+    form.append('resource_type', 'raw');
+    form.append('timestamp',     String(ts));
+    form.append('api_key',       CLOUDINARY_API_KEY);
+    form.append('signature',     sig);
+    form.append('overwrite',     'true');
+    await axios.post(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`,
+      form, { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 30000 }
+    );
+  } catch (err) {
+    console.error('[AB] Failed to save test data:', err.message);
+  }
+}
+
+// Weighted random variant assignment — winner gets more traffic over time
+async function assignClosingVariant(contactId) {
+  if (contactVariantMap.has(contactId)) return contactVariantMap.get(contactId);
+  const data = await loadABTestData();
+  const w = data.weights;
+  const total = w.A + w.B + w.C + w.D;
+  let rand = Math.random() * total;
+  let variant = 'A';
+  for (const [v, weight] of Object.entries(w)) {
+    rand -= weight;
+    if (rand <= 0) { variant = v; break; }
+  }
+  contactVariantMap.set(contactId, variant);
+  // Record the send
+  data.variants[variant].sent++;
+  await saveABTestData(data);
+  console.log(`[AB] Contact ${contactId} assigned variant ${variant} (${CLOSING_VARIANTS[variant].name})`);
+  return variant;
+}
+
+// Call this when a contact converts (gives phone or email)
+async function recordABConversion(contactId) {
+  const variant = contactVariantMap.get(contactId);
+  if (!variant) return;
+  const data = await loadABTestData();
+  data.variants[variant].conversions++;
+  await saveABTestData(data);
+  console.log(`[AB] Conversion recorded for variant ${variant} (${CLOSING_VARIANTS[variant].name})`);
+}
+
+// Weekly: Claude analyzes results → adjusts weights → winner gets more traffic
+async function runABTestAnalysis() {
+  console.log('[AB] Running weekly A/B test analysis...');
+  try {
+    const data = await loadABTestData();
+    const summary = Object.entries(data.variants).map(([v, s]) => {
+      const rate = s.sent > 0 ? ((s.conversions / s.sent) * 100).toFixed(1) : '0.0';
+      return `Variant ${v} (${s.name}): ${s.sent} sent, ${s.conversions} conversions, ${rate}% conversion rate`;
+    }).join('\n');
+
+    const prompt = `Eres el director de marketing de JRZ Marketing analizando los resultados del A/B test de cierres de venta de Armando (DM bot).
+
+RESULTADOS DE ESTA SEMANA:
+${summary}
+
+Pesos actuales: A=${data.weights.A}%, B=${data.weights.B}%, C=${data.weights.C}%, D=${data.weights.D}%
+
+VARIANTES:
+A - Direct: cierre directo sin rodeos
+B - Social Proof: historia de cliente similar + invitación
+C - Pain Point: nombra su problema específico + solución
+D - Curiosity Gap: genera intriga para que quieran la llamada
+
+Tu tarea:
+1. Analiza qué variante está convirtiendo mejor
+2. Ajusta los pesos para la próxima semana — el ganador debe recibir más tráfico, pero no elimines ninguna variante (mínimo 10% cada una)
+3. Suma total de pesos debe ser exactamente 100
+4. Si hay pocos datos (menos de 5 sends por variante), mantén pesos iguales y espera más datos
+
+Responde SOLO con JSON válido:
+{
+  "weights": {"A": number, "B": number, "C": number, "D": number},
+  "winner": "A|B|C|D|none",
+  "insight": "una oración sobre qué está funcionando y por qué"
+}`;
+
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const parsed = JSON.parse(msg.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+    const prevWeights = { ...data.weights };
+
+    data.weights = parsed.weights;
+    data.lastOptimized = new Date().toISOString().split('T')[0];
+    data.history.push({
+      date: data.lastOptimized,
+      winner: parsed.winner,
+      insight: parsed.insight,
+      oldWeights: prevWeights,
+      newWeights: parsed.weights,
+      snapshot: JSON.parse(JSON.stringify(data.variants)),
+    });
+
+    // Reset weekly counts after saving snapshot
+    for (const v of Object.keys(data.variants)) {
+      data.variants[v].sent = 0;
+      data.variants[v].conversions = 0;
+    }
+
+    await saveABTestData(data);
+    console.log(`[AB] ✅ Weights updated. Winner: ${parsed.winner}. Insight: ${parsed.insight}`);
+    console.log(`[AB] New weights:`, parsed.weights);
+    return parsed;
+  } catch (err) {
+    console.error('[AB] ❌ Analysis failed:', err.message);
+    return null;
+  }
+}
 
 async function loadContentStrategy() {
   try {
@@ -2235,6 +2426,7 @@ app.post('/webhook', async (req, res) => {
 
     if (foundPhone || foundEmail) {
       await updateGHLContact(contactId, foundPhone, foundEmail);
+      await recordABConversion(contactId); // track which closing variant converted
     }
 
     const hasBothData = !!(foundPhone && foundEmail);
@@ -2458,10 +2650,39 @@ app.post('/cron/enrich-prospects', async (_req, res) => {
   }
 });
 
+// Manual trigger: GET /ab-test/results — view current A/B test standings
+app.get('/ab-test/results', async (_req, res) => {
+  try {
+    const data = await loadABTestData();
+    const results = Object.entries(data.variants).map(([v, s]) => ({
+      variant: v,
+      name: CLOSING_VARIANTS[v].name,
+      description: CLOSING_VARIANTS[v].description,
+      sent: s.sent,
+      conversions: s.conversions,
+      rate: s.sent > 0 ? `${((s.conversions / s.sent) * 100).toFixed(1)}%` : '—',
+      weight: `${data.weights[v]}%`,
+    }));
+    res.json({ lastOptimized: data.lastOptimized, results, history: data.history.slice(-5) });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// Manual trigger: POST /cron/ab-test-analysis — force A/B analysis now
+app.post('/cron/ab-test-analysis', async (_req, res) => {
+  try {
+    const result = await runABTestAnalysis();
+    res.json({ status: 'ok', ...result });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
 // ═══════════════════════════════════════════════════════════
 // INTERNAL CRON — checks every 2 minutes
 //  7:00am EST  daily      → Carousel post + blog
-//  7:05am EST  Monday     → Weekly analytics analysis + summary email
+//  7:05am EST  Monday     → Weekly analytics analysis + A/B test + summary email
 // 10:00am EST  Mon–Fri    → Outbound prospecting (15 contacts/day)
 //  4:00pm EST  daily      → Viral 15s Reel (7 platforms)
 //  6:30pm EST  daily      → Story (Instagram + Facebook)
@@ -2488,10 +2709,11 @@ setInterval(async () => {
       await runDailyPost();
     }
 
-    // 7:05am Monday — analytics self-learning + weekly email
+    // 7:05am Monday — analytics self-learning + A/B test analysis + weekly email
     if (hour === 7 && minute >= 5 && minute < 10 && dayOfWeek === 1 && lastSummaryDate !== today) {
       lastSummaryDate = today;
       await runWeeklyAnalysis();
+      await runABTestAnalysis(); // analyze closing variants, shift weights to winner
       const days     = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
       const weekPosts = CAROUSEL_SCRIPTS.slice(0, 7).map((s, i) => ({ day: days[i], title: s.title, success: true }));
       await sendWeeklySummaryEmail(weekPosts);
