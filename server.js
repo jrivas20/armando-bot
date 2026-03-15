@@ -1375,7 +1375,7 @@ async function schedulePost({ caption, accountIds, type = 'post', scheduleDate, 
     scheduleDate: scheduleDate.toISOString(),
     scheduleTimeUpdated: true,
   };
-  if (media && media.length) body.media = media;
+  body.media = (media && media.length) ? media : [];
   const res = await axios.post(
     `https://services.leadconnectorhq.com/social-media-posting/${GHL_LOCATION_ID}/posts`,
     body,
