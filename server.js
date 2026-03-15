@@ -16,6 +16,16 @@ const NEWS_API_KEY  = process.env.NEWS_API_KEY  || 'dff54f64e9eb4087aa7c215a1c67
 const APOLLO_API_KEY = process.env.APOLLO_API_KEY || 'pHTTmBc8ljBQFxaa0YcUQQ';
 const BOOKING_URL = 'https://jrzmarketing.com/contact-us';
 const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
+const EMAIL_FROM      = 'info@jrzmarketing.com';
+const EMAIL_FROM_NAME = 'Jose Rivas | JRZ Marketing';
+
+async function sendEmail(contactId, subject, html) {
+  await axios.post(
+    'https://services.leadconnectorhq.com/conversations/messages',
+    { type: 'Email', contactId, subject, html, emailFrom: EMAIL_FROM, emailFromName: EMAIL_FROM_NAME },
+    { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
+  );
+}
 
 // ─── Cloudinary credentials ────────────────────────────────
 const CLOUDINARY_CLOUD      = 'dbsuw1mfm';
@@ -977,11 +987,7 @@ async function sendHotLeadAlertEmail(contactName, foundPhone, foundEmail, channe
 </body></html>`;
 
   try {
-    await axios.post(
-      'https://services.leadconnectorhq.com/conversations/messages',
-      { type: 'Email', contactId: OWNER_CONTACT_ID, subject, html },
-      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
-    );
+    await sendEmail(OWNER_CONTACT_ID, subject, html);
     console.log('Hot lead alert email sent to Jose.');
   } catch (err) {
     console.error('Failed to send hot lead alert:', err?.response?.data || err.message);
@@ -1079,11 +1085,7 @@ async function sendThankYouEmail(contactId, contactName) {
 </body></html>`;
 
   try {
-    await axios.post(
-      'https://services.leadconnectorhq.com/conversations/messages',
-      { type: 'Email', contactId, subject, html },
-      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
-    );
+    await sendEmail(contactId, subject, html);
     console.log(`Thank-you email sent to contact ${contactId}.`);
   } catch (err) {
     console.error('Failed to send thank-you email:', err?.response?.data || err.message);
@@ -1472,16 +1474,7 @@ async function sendWarmDM(contactId, triggerType, context = {}) {
 
   // Send via GHL conversations API
   try {
-    await axios.post(
-      'https://services.leadconnectorhq.com/conversations/messages',
-      {
-        type: 'Email',
-        contactId,
-        html: `<p>${dmText}</p>`,
-        subject: '👋 Hola desde JRZ Marketing',
-      },
-      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
-    );
+    await sendEmail(contactId, '👋 Hola desde JRZ Marketing', `<p>${dmText}</p>`);
     console.log(`[WarmDM] ✅ Sent ${triggerType} DM to contact ${contactId}`);
     await createOpportunity(contactId, contactName, PIPELINE_STAGES.newLead);
     await tagContact(contactId, ['nurture-sequence']);
@@ -1548,16 +1541,7 @@ Reglas:
 
       // Send via GHL
       try {
-        await axios.post(
-          'https://services.leadconnectorhq.com/conversations/messages',
-          {
-            type: 'Email',
-            contactId: contact.id,
-            html: `<p>${outboundMsg}</p><p style="color:#666;font-size:12px">Jose Rivas · JRZ Marketing · Bilingüe: English / Español · jrzmarketing.com · (407) 844-6376</p>`,
-            subject: `${name}, ¿estás capturando todos tus clientes potenciales?`,
-          },
-          { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
-        );
+        await sendEmail(contact.id, `${name}, ¿estás capturando todos tus clientes potenciales?`, `<p>${outboundMsg}</p><p style="color:#666;font-size:12px">Jose Rivas · JRZ Marketing · Bilingüe: English / Español · jrzmarketing.com · (407) 844-6376</p>`);
 
         // Move from outbound_pending → outbound_sent + add to pipeline
         await axios.post(
@@ -2338,11 +2322,7 @@ Escribe el insight en español. Solo el párrafo, sin títulos.`,
 </div></div></body></html>`;
 
   try {
-    await axios.post(
-      'https://services.leadconnectorhq.com/conversations/messages',
-      { type: 'Email', contactId: OWNER_CONTACT_ID, subject, html },
-      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
-    );
+    await sendEmail(OWNER_CONTACT_ID, subject, html);
     console.log('[Social] Weekly summary email sent to Jose.');
   } catch (err) {
     console.error('[Social] Failed to send weekly summary:', err?.response?.data || err.message);
@@ -2810,11 +2790,7 @@ async function sendLeadScoreAlert(contactId, contactName, score, channel, foundP
 </body></html>`;
 
   try {
-    await axios.post(
-      'https://services.leadconnectorhq.com/conversations/messages',
-      { type: 'Email', contactId: OWNER_CONTACT_ID, subject, html },
-      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
-    );
+    await sendEmail(OWNER_CONTACT_ID, subject, html);
     console.log(`[LeadScore] Alert sent for ${contactName} (${score}/10)`);
   } catch (err) {
     console.error('[LeadScore] Failed to send alert:', err?.response?.data || err.message);
@@ -2945,11 +2921,7 @@ async function sendClientOnboarding(contactId, contactName, businessName, loginE
 </body></html>`;
 
   try {
-    await axios.post(
-      'https://services.leadconnectorhq.com/conversations/messages',
-      { type: 'Email', contactId, subject, html },
-      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
-    );
+    await sendEmail(contactId, subject, html);
     console.log(`[Onboarding] Welcome email sent to ${contactName} (${contactId})`);
   } catch (err) {
     console.error('[Onboarding] Failed to send welcome email:', err?.response?.data || err.message);
@@ -3071,11 +3043,7 @@ async function generateAndSendProposal(contactId, contactName, businessType, ema
 </div></div>
 </body></html>`;
 
-    await axios.post(
-      'https://services.leadconnectorhq.com/conversations/messages',
-      { type: 'Email', contactId, subject, html },
-      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
-    );
+    await sendEmail(contactId, subject, html);
     console.log(`[Proposal] Sent proposal to ${contactName} (${contactId})`);
   } catch (err) {
     console.error('[Proposal] Failed:', err?.response?.data || err.message);
@@ -3278,11 +3246,7 @@ async function sendMonthlyClientReports() {
 </div></div>
 </body></html>`;
 
-        await axios.post(
-          'https://services.leadconnectorhq.com/conversations/messages',
-          { type: 'Email', contactId: client.id, subject, html },
-          { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
-        );
+        await sendEmail(client.id, subject, html);
         console.log(`[MonthlyReport] Sent to ${contactName} (${client.id})`);
       } catch (err) {
         console.error(`[MonthlyReport] Failed for client ${client.id}:`, err.message);
@@ -3422,11 +3386,7 @@ async function sendSubAccountCheckInEmails() {
 </div></div>
 </body></html>`;
 
-        await axios.post(
-          'https://services.leadconnectorhq.com/conversations/messages',
-          { type: 'Email', contactId: client.id, subject, html },
-          { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
-        );
+        await sendEmail(client.id, subject, html);
         sent++;
         console.log(`[SubCheckIn] Sent to ${contactName} (${client.id})`);
         await new Promise(r => setTimeout(r, 500)); // rate limit
@@ -3553,11 +3513,7 @@ async function runCompetitorMonitoring() {
 </div></div>
 </body></html>`;
 
-    await axios.post(
-      'https://services.leadconnectorhq.com/conversations/messages',
-      { type: 'Email', contactId: OWNER_CONTACT_ID, subject, html },
-      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
-    );
+    await sendEmail(OWNER_CONTACT_ID, subject, html);
     console.log('[Competitor] Weekly radar email sent to Jose.');
   } catch (err) {
     console.error('[Competitor] Error:', err.message);
