@@ -11,8 +11,9 @@ const app = express();
 app.use(express.json());
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const GHL_API_KEY = process.env.GHL_API_KEY;
-const NEWS_API_KEY = process.env.NEWS_API_KEY || 'dff54f64e9eb4087aa7c215a1c674644';
+const GHL_API_KEY   = process.env.GHL_API_KEY;
+const NEWS_API_KEY  = process.env.NEWS_API_KEY  || 'dff54f64e9eb4087aa7c215a1c674644';
+const APOLLO_API_KEY = process.env.APOLLO_API_KEY || 'pHTTmBc8ljBQFxaa0YcUQQ';
 const BOOKING_URL = 'https://jrzmarketing.com/contact-us';
 const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
 
@@ -2105,6 +2106,91 @@ app.get('/', (_req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
+// APOLLO ENRICHMENT — runs Monday 9am EST
+// Finds GHL contacts tagged needs_email, hits Apollo People
+// Match API to get their email, updates GHL, swaps tag to
+// outbound_pending so the bot picks them up at 10am.
+// Free plan = 50 credits/month → limit 50 per run.
+// ═══════════════════════════════════════════════════════════
+
+async function enrichProspectEmails() {
+  console.log('[Apollo] Starting email enrichment...');
+  try {
+    const res = await axios.get(
+      `https://services.leadconnectorhq.com/contacts/?locationId=${GHL_LOCATION_ID}&tags=needs_email&limit=50`,
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' } }
+    );
+    const contacts = res.data?.contacts || [];
+    if (!contacts.length) {
+      console.log('[Apollo] No contacts need enrichment.');
+      return { enriched: 0 };
+    }
+
+    let enriched = 0;
+    for (const contact of contacts) {
+      const firstName = contact.firstName || '';
+      const lastName  = contact.lastName  || '';
+      const domain    = contact.website?.replace(/https?:\/\//, '').split('/')[0] || '';
+      const company   = contact.companyName || '';
+
+      if (!firstName || (!domain && !company)) continue;
+
+      try {
+        const apollo = await axios.post(
+          'https://api.apollo.io/api/v1/people/match',
+          { api_key: APOLLO_API_KEY, first_name: firstName, last_name: lastName, domain, organization_name: company },
+          { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' } }
+        );
+
+        const email = apollo.data?.person?.email;
+        if (!email || email.includes('email_not_found')) {
+          console.log(`[Apollo] No email found for ${firstName} ${lastName}`);
+          continue;
+        }
+
+        // Update GHL contact with real email + swap tags
+        await axios.put(
+          `https://services.leadconnectorhq.com/contacts/${contact.id}`,
+          { email },
+          { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+        );
+        await axios.post(
+          `https://services.leadconnectorhq.com/contacts/${contact.id}/tags`,
+          { tags: ['outbound_pending'] },
+          { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+        );
+        await axios.delete(
+          `https://services.leadconnectorhq.com/contacts/${contact.id}/tags`,
+          { data: { tags: ['needs_email'] }, headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+        );
+
+        enriched++;
+        console.log(`[Apollo] ✅ Enriched ${firstName} ${lastName} → ${email}`);
+        await new Promise(r => setTimeout(r, 1000)); // gentle rate limit
+      } catch (err) {
+        console.error(`[Apollo] ❌ Failed for ${firstName} ${lastName}:`, err?.response?.data || err.message);
+      }
+    }
+
+    console.log(`[Apollo] Done — ${enriched}/${contacts.length} emails found`);
+    return { enriched, total: contacts.length };
+  } catch (err) {
+    console.error('[Apollo] ❌ Enrichment run failed:', err.message);
+    return { enriched: 0, error: err.message };
+  }
+}
+
+// Manual trigger: POST /cron/enrich-prospects
+app.post('/cron/enrich-prospects', async (_req, res) => {
+  try {
+    const result = await enrichProspectEmails();
+    res.json({ status: 'ok', ...result });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
 // INTERNAL CRON — checks every 2 minutes
 //  7:00am EST  daily      → Carousel post + blog
 //  7:05am EST  Monday     → Weekly analytics analysis + summary email
@@ -2117,6 +2203,7 @@ let lastReelDate     = null;
 let lastStoryDate    = null;
 let lastSummaryDate  = null;
 let lastOutboundDate = null;
+let lastEnrichDate   = null;
 
 setInterval(async () => {
   try {
@@ -2140,6 +2227,12 @@ setInterval(async () => {
       const days     = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
       const weekPosts = CAROUSEL_SCRIPTS.slice(0, 7).map((s, i) => ({ day: days[i], title: s.title, success: true }));
       await sendWeeklySummaryEmail(weekPosts);
+    }
+
+    // 9:00am Monday — Apollo email enrichment (free plan: 50 credits/month)
+    if (hour === 9 && minute < 5 && dayOfWeek === 1 && lastEnrichDate !== today) {
+      lastEnrichDate = today;
+      await enrichProspectEmails();
     }
 
     // 10:00am Mon–Fri — outbound prospecting
