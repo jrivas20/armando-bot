@@ -2827,16 +2827,18 @@ async function sendLeadScoreAlert(contactId, contactName, score, channel, foundP
 
 const onboardedContacts = new Set();
 
-async function sendClientOnboarding(contactId, contactName, email) {
-  const firstName = (contactName || 'Cliente').split(' ')[0];
-  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
-  const subject = `¡Bienvenido a JRZ Marketing, ${firstName}! 🚀`;
+async function sendClientOnboarding(contactId, contactName, businessName, loginEmail) {
+  const firstName  = (contactName || 'Cliente').split(' ')[0];
+  const logoUrl    = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  const appStoreUrl   = 'https://apps.apple.com/us/app/lead-connector/id1564153400';
+  const playStoreUrl  = 'https://play.google.com/store/apps/details?id=com.gohighlevel.mobileapp';
+  const subject    = `Tu sistema de marketing está listo, ${firstName} 🚀`;
   const html = `<!DOCTYPE html>
 <html lang="es" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bienvenido a JRZ Marketing</title>
+  <title>Tu sistema está listo</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -2845,28 +2847,35 @@ async function sendClientOnboarding(contactId, contactName, email) {
     .email-container { max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
     .email-header { background:#0a0a0a; padding:32px 40px; text-align:center; }
     .email-header img { height:48px; width:auto; }
-    .week-badge { background:#0a0a0a; padding:0 40px 24px; text-align:center; }
-    .week-badge span { display:inline-block; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:6px 16px; border-radius:100px; }
+    .badge-wrap { background:#0a0a0a; padding:0 40px 24px; text-align:center; }
+    .badge { display:inline-block; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:6px 16px; border-radius:100px; }
     .email-hero { background:#0a0a0a; padding:40px 40px 48px; border-bottom:3px solid #ffffff; }
-    .email-hero h1 { font-size:28px; font-weight:800; color:#ffffff; line-height:1.2; letter-spacing:-0.02em; margin-bottom:16px; }
+    .email-hero h1 { font-size:28px; font-weight:800; color:#ffffff; line-height:1.2; letter-spacing:-0.02em; margin-bottom:12px; }
     .email-hero p { font-size:15px; color:rgba(255,255,255,0.55); line-height:1.7; }
     .email-body { padding:40px 40px 32px; }
     .email-body p { font-size:15px; color:#333333; line-height:1.8; margin-bottom:20px; }
     .email-body strong { color:#0a0a0a; font-weight:700; }
+    .login-box { background:#0a0a0a; border-radius:12px; padding:28px 32px; margin:24px 0; }
+    .login-box p { color:rgba(255,255,255,0.6); font-size:13px; margin-bottom:6px; }
+    .login-box .val { color:#ffffff; font-size:15px; font-weight:600; margin-bottom:16px; }
+    .login-box .val:last-child { margin-bottom:0; }
     .steps { margin:24px 0; }
     .step { display:flex; align-items:flex-start; padding:16px 0; border-bottom:1px solid #f0f0f0; }
     .step:last-child { border-bottom:none; }
-    .step-num { background:#0a0a0a; color:#ffffff; font-size:13px; font-weight:800; min-width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:16px; margin-top:2px; }
+    .step-num { background:#0a0a0a; color:#ffffff; font-size:13px; font-weight:800; min-width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:16px; flex-shrink:0; margin-top:2px; }
     .step-text { font-size:15px; color:#333333; line-height:1.6; }
     .step-text strong { color:#0a0a0a; }
-    .team-card { background:#f9f9f9; border-radius:12px; padding:24px; margin:24px 0; }
-    .team-member { font-size:14px; color:#333333; padding:8px 0; border-bottom:1px solid #eeeeee; }
-    .team-member:last-child { border-bottom:none; }
-    .team-member strong { color:#0a0a0a; font-weight:700; }
+    .setup-grid { background:#f9f9f9; border-radius:12px; padding:24px; margin:24px 0; }
+    .setup-item { font-size:14px; color:#333333; padding:8px 0; border-bottom:1px solid #eeeeee; display:flex; align-items:center; gap:10px; }
+    .setup-item:last-child { border-bottom:none; }
+    .check { color:#0a0a0a; font-weight:700; }
+    .app-row { display:flex; gap:12px; justify-content:center; margin:16px 0; }
+    .app-btn { display:inline-block; background:#f4f4f4; border:1px solid #e0e0e0; color:#0a0a0a !important; font-size:13px; font-weight:600; text-decoration:none; padding:10px 20px; border-radius:8px; }
     .divider { height:1px; background:#f0f0f0; margin:32px 40px; }
     .cta-section { padding:0 40px 40px; text-align:center; }
     .cta-label { font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#999999; margin-bottom:16px; }
-    .cta-button { display:inline-block; background:#0a0a0a; color:#ffffff !important; font-size:15px; font-weight:700; text-decoration:none; padding:16px 40px; border-radius:10px; }
+    .cta-button { display:inline-block; background:#0a0a0a; color:#ffffff !important; font-size:15px; font-weight:700; text-decoration:none; padding:16px 40px; border-radius:10px; margin-bottom:12px; }
+    .cta-note { font-size:12px; color:#aaaaaa; }
     .signature { padding:32px 40px; background:#f9f9f9; border-top:1px solid #eeeeee; }
     .signature-name { font-size:16px; font-weight:700; color:#0a0a0a; margin-bottom:4px; }
     .signature-title { font-size:13px; color:#777777; }
@@ -2878,40 +2887,62 @@ async function sendClientOnboarding(contactId, contactName, email) {
 <body>
 <div class="email-wrapper"><div class="email-container">
   <div class="email-header"><img src="${logoUrl}" alt="JRZ Marketing" /></div>
-  <div class="week-badge"><span>Bienvenido a la familia JRZ</span></div>
+  <div class="badge-wrap"><span class="badge">Sub-cuenta activa &middot; ${businessName || 'Tu negocio'}</span></div>
   <div class="email-hero">
-    <h1>${firstName},<br />bienvenido a bordo. 🚀</h1>
-    <p>Estamos emocionados de trabajar contigo. Esto es solo el comienzo.</p>
+    <h1>${firstName}, tu sistema<br />está listo. ✅</h1>
+    <p>Tu CRM, automatizaciones y pipeline de ventas están configurados y listos para captar clientes desde hoy.</p>
   </div>
   <div class="email-body">
     <p>Hola <strong>${firstName}</strong>,</p>
-    <p>Soy Jose Rivas, fundador de JRZ Marketing. Personalmente quiero darte la bienvenida a nuestra familia. Tomaste una gran decisión y vamos a asegurarnos de que valga cada peso invertido.</p>
-    <p><strong>¿Qué pasa ahora? Aquí los próximos 3 pasos:</strong></p>
+    <p>Tu sub-cuenta en nuestro sistema de marketing está activa. Aquí están tus credenciales de acceso:</p>
+
+    <div class="login-box">
+      <p>Plataforma</p>
+      <div class="val">app.gohighlevel.com</div>
+      <p>Email de acceso</p>
+      <div class="val">${loginEmail || email || 'Tu email registrado'}</div>
+      <p>Contraseña temporal</p>
+      <div class="val">Te llegará un email separado de GoHighLevel para crear tu contraseña.</div>
+    </div>
+
+    <p><strong>¿Qué está configurado en tu sistema?</strong></p>
+    <div class="setup-grid">
+      <div class="setup-item"><span class="check">✓</span> CRM con tu pipeline de ventas organizado</div>
+      <div class="setup-item"><span class="check">✓</span> Chatbot de respuesta automática a leads 24/7</div>
+      <div class="setup-item"><span class="check">✓</span> Secuencia de emails de seguimiento (13 emails / 6 meses)</div>
+      <div class="setup-item"><span class="check">✓</span> Calendario de citas integrado</div>
+      <div class="setup-item"><span class="check">✓</span> Dashboard de reportes semanales</div>
+      <div class="setup-item"><span class="check">✓</span> Integración con redes sociales</div>
+    </div>
+
+    <p><strong>Primeros 3 pasos que debes hacer:</strong></p>
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Llamada de estrategia</strong> — En los próximos días agendamos una sesión para entender tu negocio a fondo y definir el plan de ataque.</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Configuración del sistema</strong> — Nuestro equipo conecta tu CRM, automatizaciones, canales de redes sociales y todo lo necesario para arrancar.</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Primeros resultados en 30 días</strong> — Verás tu presencia digital activa, leads llegando y el sistema trabajando para ti.</div></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Inicia sesión</strong> en app.gohighlevel.com con tu email y configura tu contraseña.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Descarga la app</strong> "Lead Connector" en tu teléfono para gestionar leads desde donde estés.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Agenda tu llamada de onboarding</strong> — en 30 minutos te mostramos cómo usar todo el sistema.</div></div>
     </div>
-    <p><strong>¿Qué esperar este primer mes?</strong></p>
-    <p>Contenido publicándose todos los días en tus redes, sistema de respuesta automática a leads, tu pipeline de ventas organizado y reportes semanales de lo que está funcionando.</p>
-    <p><strong>Tu equipo:</strong></p>
-    <div class="team-card">
-      <div class="team-member"><strong>Jose Rivas</strong> — CEO & Estratega Principal</div>
-      <div class="team-member"><strong>Armando Rivas</strong> — Community Manager (IA) 24/7</div>
+
+    <p style="text-align:center;"><strong>Descarga la app móvil:</strong></p>
+    <div class="app-row">
+      <a href="${appStoreUrl}" class="app-btn">📱 App Store (iPhone)</a>
+      <a href="${playStoreUrl}" class="app-btn">🤖 Google Play (Android)</a>
     </div>
+
+    <p>¿Tienes preguntas? Responde este email o escríbenos directamente. Estamos aquí para que tu sistema funcione al 100%.</p>
   </div>
   <div class="divider"></div>
   <div class="cta-section">
-    <p class="cta-label">Agenda tu llamada de inicio</p>
-    <a href="${BOOKING_URL}" class="cta-button">Ver mi calendario &rarr;</a>
+    <p class="cta-label">Siguiente paso</p>
+    <a href="${BOOKING_URL}" class="cta-button">Agenda tu llamada de onboarding &rarr;</a>
+    <p class="cta-note">30 minutos &middot; Te mostramos todo en vivo</p>
   </div>
   <div class="signature">
     <div class="signature-name">Jose Rivas</div>
-    <div class="signature-title">CEO &middot; JRZ Marketing</div>
+    <div class="signature-title">CEO &middot; JRZ Marketing &middot; (407) 844-6376</div>
   </div>
   <div class="email-footer">
     <img src="${logoUrl}" alt="JRZ Marketing" />
-    <p class="footer-copy">&copy; 2026 JRZ Marketing. Orlando, Florida.<br />Bienvenido a la familia.</p>
+    <p class="footer-copy">&copy; 2026 JRZ Marketing. Orlando, Florida.<br />jrzmarketing.com</p>
   </div>
 </div></div>
 </body></html>`;
@@ -2932,13 +2963,14 @@ app.post('/webhook/new-client', async (req, res) => {
   res.json({ ok: true });
   try {
     const payload = req.body;
-    const contactId = payload.contactId || payload.contact_id || payload.contact?.id || payload.customData?.contactId || '';
+    const contactId   = payload.contactId || payload.contact_id || payload.contact?.id || payload.customData?.contactId || '';
     const contactName = payload.fullName || payload.full_name || payload.contactName || payload.firstName || payload.first_name || payload.customData?.fullName || '';
-    const email = payload.email || payload.contact?.email || payload.customData?.email || '';
+    const businessName = payload.businessName || payload.companyName || payload.customData?.businessName || '';
+    const loginEmail  = payload.email || payload.contact?.email || payload.customData?.email || '';
     if (!contactId) { console.log('[Onboarding] Missing contactId, skipping.'); return; }
     if (onboardedContacts.has(contactId)) { console.log(`[Onboarding] Already onboarded ${contactId}, skipping.`); return; }
     onboardedContacts.add(contactId);
-    await sendClientOnboarding(contactId, contactName, email);
+    await sendClientOnboarding(contactId, contactName, businessName, loginEmail);
   } catch (err) {
     console.error('[Onboarding] Webhook error:', err.message);
   }
