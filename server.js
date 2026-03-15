@@ -44,9 +44,9 @@ const SOCIAL_ACCOUNTS = {
   linkedinJose: '69571db227f36db5a4c941a7_d7iUPfamAaPlSBNj6IhT_rzdo30Vn11_profile',
   linkedinJRZ:  '69571db227f36db5a4c941a7_d7iUPfamAaPlSBNj6IhT_59796032_page',
   google:       '69571da123b2d16f33f435a2_d7iUPfamAaPlSBNj6IhT_9708635617980992827',
-  youtube:      '69571dd027f36d280fc94983_d7iUPfamAaPlSBNj6IhT_UCz-cQ8MvL74r83op8SvuSHw_profile',
-  // TikTok: connect at GHL → Social Planner → Connect Account → TikTok, then paste the account ID here
-  tiktok:       process.env.TIKTOK_ACCOUNT_ID || null,
+  youtube:        '69571dd027f36d280fc94983_d7iUPfamAaPlSBNj6IhT_UCz-cQ8MvL74r83op8SvuSHw_profile',
+  tiktokJose:     '69b64eeeed8b7690d62b17e3_d7iUPfamAaPlSBNj6IhT_000KlsWW3XktDcaqlWJLYjd9wZcGgB2K2R0_profile',
+  tiktokJRZ:      '69b64e80794ff7350b7c5681_d7iUPfamAaPlSBNj6IhT_000BpU3LiTvQhmVRbhj0ztTBOYETOcE1k5J_business',
 };
 
 // Facebook, LinkedIn, YouTube, Google Business accept text-only posts
@@ -61,14 +61,15 @@ const TEXT_POST_ACCOUNTS = [
 // Instagram carousel accounts — always posts with images
 const INSTAGRAM_ACCOUNTS = [SOCIAL_ACCOUNTS.instagram];
 
-// 4pm daily Reel accounts — all video-capable platforms
+// 4pm daily Reel accounts — all 7 video-capable platforms
 const REEL_ACCOUNTS = [
   SOCIAL_ACCOUNTS.instagram,
   SOCIAL_ACCOUNTS.facebook,
   SOCIAL_ACCOUNTS.youtube,
   SOCIAL_ACCOUNTS.linkedinJose,
   SOCIAL_ACCOUNTS.linkedinJRZ,
-  ...(SOCIAL_ACCOUNTS.tiktok ? [SOCIAL_ACCOUNTS.tiktok] : []),
+  SOCIAL_ACCOUNTS.tiktokJose,
+  SOCIAL_ACCOUNTS.tiktokJRZ,
 ];
 
 // ─── Cloudinary Carousel Images — 7 days × 4 slides ────────────────────────
@@ -1741,6 +1742,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
   console.log(`7am  EST → Carousel post (Instagram + Facebook + LinkedIn + YouTube + Google)`);
-  console.log(`4pm  EST → 15s Reel     (Instagram + Facebook + LinkedIn + YouTube + TikTok)`);
+  console.log(`4pm  EST → 15s Reel     (Instagram + Facebook + LinkedIn x2 + YouTube + TikTok x2)`);
   console.log(`6:30pm EST → Story      (Instagram + Facebook)`);
 });
