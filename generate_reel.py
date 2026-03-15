@@ -135,6 +135,8 @@ scenes = [
 ]
 
 # ── Render ────────────────────────────────────────────────────────────────────
+# Scene 1 starts at FULL opacity on frame 0 — logo + hook visible immediately
+# in every feed thumbnail. Fades only happen between scenes after that.
 FADE  = 12
 white = blank()
 frames = []
@@ -144,16 +146,26 @@ def blend(a, b, t):
         (np.array(a, float) * (1 - t) + np.array(b, float) * t).astype(np.uint8)
     )
 
-for scene, secs in scenes:
+for idx, (scene, secs) in enumerate(scenes):
+    arr   = np.array(scene)
     total = secs * FPS
-    hold  = total - FADE * 2
-    for i in range(FADE):
-        frames.append(np.array(blend(white, scene, i / FADE)))
-    arr = np.array(scene)
-    for _ in range(hold):
-        frames.append(arr)
-    for i in range(FADE):
-        frames.append(np.array(blend(scene, white, i / FADE)))
+
+    if idx == 0:
+        # First scene: no fade-in — starts visible at 0:00
+        hold = total - FADE  # only fade-out at end
+        for _ in range(hold):
+            frames.append(arr)
+        for i in range(FADE):
+            frames.append(np.array(blend(scene, white, i / FADE)))
+    else:
+        # Subsequent scenes: fade in from white, hold, fade out to white
+        hold = total - FADE * 2
+        for i in range(FADE):
+            frames.append(np.array(blend(white, scene, i / FADE)))
+        for _ in range(hold):
+            frames.append(arr)
+        for i in range(FADE):
+            frames.append(np.array(blend(scene, white, i / FADE)))
 
 import imageio
 writer = imageio.get_writer(out_mp4, fps=FPS, quality=9, macro_block_size=1)
