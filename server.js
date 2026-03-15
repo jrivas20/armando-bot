@@ -1364,7 +1364,7 @@ async function createReelFromSlides(slideUrls, dayIdx, opts = {}) {
 }
 
 // Schedule a post via GHL Social Media API
-// Pass media = [{ url, type: 'photo' }] array for Instagram image posts
+// Pass media = [{ url, type: 'image' }] array for Instagram image posts
 async function schedulePost({ caption, accountIds, type = 'post', scheduleDate, media }) {
   const body = {
     accountIds,
@@ -1572,7 +1572,7 @@ async function runDailyPost() {
   const dayOfWeek = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'short' });
   const dayIdx = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(dayOfWeek.substring(0, 3));
   const todayImages = CAROUSEL_IMAGES[dayIdx >= 0 ? dayIdx : new Date().getDay()];
-  const instagramMedia = todayImages.map(url => ({ url, type: 'photo' }));
+  const instagramMedia = todayImages.map(url => ({ url, type: 'image/png' }));
 
   // ── Social post — Facebook, LinkedIn, YouTube, Google (text only) ──
   let socialResult = { success: false };
