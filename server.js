@@ -692,7 +692,7 @@ async function getConversationHistory(conversationId) {
       `https://services.leadconnectorhq.com/conversations/${conversationId}/messages`,
       {
         headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15' },
-        params: { limit: 20 },
+        params: { limit: 50 },
       }
     );
     return res.data?.messages || [];
@@ -707,9 +707,13 @@ function extractContactInfo(messages) {
   const emailRegex = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
   let foundPhone = null;
   let foundEmail = null;
-  const inboundMessages = messages.filter(m => m.direction === 'inbound');
-  for (const msg of inboundMessages) {
+  // Scan ALL messages — inbound first (most reliable), then outbound as fallback
+  // (Armando's replies often echo back "tienes su teléfono (XXX)" which we can use)
+  const inbound  = messages.filter(m => m.direction === 'inbound');
+  const outbound = messages.filter(m => m.direction === 'outbound');
+  for (const msg of [...inbound, ...outbound]) {
     const body = msg.body || msg.message || '';
+    if (!body) continue;
     if (!foundPhone) { const m = body.match(phoneRegex); if (m) foundPhone = m[0].trim(); }
     if (!foundEmail) { const m = body.match(emailRegex); if (m) foundEmail = m[0].trim(); }
     if (foundPhone && foundEmail) break;
@@ -789,9 +793,12 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   } else if (!alreadyHavePhone && alreadyHaveEmail) {
     // Has email, needs phone — use A/B closing style
     stageInstruction = `Tienes su email (${foundEmail}) pero falta el TELÉFONO. Pídelo directamente — el equipo necesita llamarles. Luego aplica: ${closingInstruction}`;
+  } else if (historyCount === 2) {
+    // Second message, still no info — ask for phone one more time with A/B style
+    stageInstruction = `Segundo mensaje — todavía sin teléfono ni email. Responde en una oración y pide el teléfono directamente. Aplica: ${closingInstruction}`;
   } else {
-    // Nothing yet — use A/B closing style to move them
-    stageInstruction = `Mensaje #${historyCount} — todavía sin teléfono ni email. Responde brevemente a lo que dijeron. Luego aplica esta técnica de cierre: ${closingInstruction}`;
+    // Message 3+ — stop asking questions. Drop the booking link directly and close.
+    stageInstruction = `Mensaje #${historyCount} — NO sigas pidiendo datos por mensaje. Ya es momento de cerrar directamente. Responde brevemente y manda el link para que agenden solos: "${BOOKING_URL}" — dilo de forma natural y con energía. Ej: "Mira, lo mejor es que lo agendemos directo — aquí tienes el link para la llamada gratis: ${BOOKING_URL} ¿Cuándo te viene bien?" o similar. Sin preguntar más por teléfono ni email por mensaje.`;
   }
 
   const systemWithContext = `${ARMANDO_PROMPT}
@@ -1388,7 +1395,14 @@ Responde SOLO con un JSON válido con esta estructura:
 // OPPORTUNITIES — Add contacts to Marketing Pipeline in GHL
 // ═══════════════════════════════════════════════════════════
 
+const opportunityCreatedContacts = new Set();
+
 async function createOpportunity(contactId, contactName, stageId) {
+  // Skip silently if we already created one this session
+  if (opportunityCreatedContacts.has(contactId)) {
+    console.log(`[Opportunity] Skipping — already created for ${contactId}`);
+    return;
+  }
   try {
     await axios.post(
       'https://services.leadconnectorhq.com/opportunities/',
@@ -1403,9 +1417,17 @@ async function createOpportunity(contactId, contactName, stageId) {
       },
       { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
     );
+    opportunityCreatedContacts.add(contactId);
     console.log(`[Opportunity] ✅ Added ${contactName} (${contactId}) → stage ${stageId}`);
   } catch (err) {
-    console.error(`[Opportunity] ❌ Failed for ${contactId}:`, err?.response?.data || err.message);
+    const status = err?.response?.status;
+    const msg = err?.response?.data?.message || '';
+    if (status === 400 && msg.toLowerCase().includes('duplicate')) {
+      opportunityCreatedContacts.add(contactId); // mark so we don't try again
+      console.log(`[Opportunity] Already exists for ${contactId} — skipping.`);
+    } else {
+      console.error(`[Opportunity] ❌ Failed for ${contactId}:`, err?.response?.data || err.message);
+    }
   }
 }
 
