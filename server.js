@@ -37,7 +37,6 @@ const SOCIAL_ACCOUNTS = {
   youtube:      '69571dd027f36d280fc94983_d7iUPfamAaPlSBNj6IhT_UCz-cQ8MvL74r83op8SvuSHw_profile',
 };
 
-// Instagram requires image/video — post separately when images are available
 // Facebook, LinkedIn, YouTube, Google Business accept text-only posts
 const TEXT_POST_ACCOUNTS = [
   SOCIAL_ACCOUNTS.facebook,
@@ -47,7 +46,57 @@ const TEXT_POST_ACCOUNTS = [
   SOCIAL_ACCOUNTS.google,
 ];
 
-// To include Instagram, add SOCIAL_ACCOUNTS.instagram + attach image media
+// Instagram carousel accounts — always posts with images
+const INSTAGRAM_ACCOUNTS = [SOCIAL_ACCOUNTS.instagram];
+
+// ─── Cloudinary Carousel Images — 7 days × 4 slides ────────────────────────
+// URLs without version = always serve latest uploaded image (overwrite weekly)
+// Mapping: JS getDay() 0=Sun → day7, 1=Mon → day1, ..., 6=Sat → day6
+const CLOUDINARY_BASE = 'https://res.cloudinary.com/dbsuw1mfm/image/upload/jrz';
+const CAROUSEL_IMAGES = {
+  0: [ // Sunday
+    `${CLOUDINARY_BASE}/day7_slide1.png`,
+    `${CLOUDINARY_BASE}/day7_slide2.png`,
+    `${CLOUDINARY_BASE}/day7_slide3.png`,
+    `${CLOUDINARY_BASE}/day7_slide4.png`,
+  ],
+  1: [ // Monday
+    `${CLOUDINARY_BASE}/day1_slide1.png`,
+    `${CLOUDINARY_BASE}/day1_slide2.png`,
+    `${CLOUDINARY_BASE}/day1_slide3.png`,
+    `${CLOUDINARY_BASE}/day1_slide4.png`,
+  ],
+  2: [ // Tuesday
+    `${CLOUDINARY_BASE}/day2_slide1.png`,
+    `${CLOUDINARY_BASE}/day2_slide2.png`,
+    `${CLOUDINARY_BASE}/day2_slide3.png`,
+    `${CLOUDINARY_BASE}/day2_slide4.png`,
+  ],
+  3: [ // Wednesday
+    `${CLOUDINARY_BASE}/day3_slide1.png`,
+    `${CLOUDINARY_BASE}/day3_slide2.png`,
+    `${CLOUDINARY_BASE}/day3_slide3.png`,
+    `${CLOUDINARY_BASE}/day3_slide4.png`,
+  ],
+  4: [ // Thursday
+    `${CLOUDINARY_BASE}/day4_slide1.png`,
+    `${CLOUDINARY_BASE}/day4_slide2.png`,
+    `${CLOUDINARY_BASE}/day4_slide3.png`,
+    `${CLOUDINARY_BASE}/day4_slide4.png`,
+  ],
+  5: [ // Friday
+    `${CLOUDINARY_BASE}/day5_slide1.png`,
+    `${CLOUDINARY_BASE}/day5_slide2.png`,
+    `${CLOUDINARY_BASE}/day5_slide3.png`,
+    `${CLOUDINARY_BASE}/day5_slide4.png`,
+  ],
+  6: [ // Saturday
+    `${CLOUDINARY_BASE}/day6_slide1.png`,
+    `${CLOUDINARY_BASE}/day6_slide2.png`,
+    `${CLOUDINARY_BASE}/day6_slide3.png`,
+    `${CLOUDINARY_BASE}/day6_slide4.png`,
+  ],
+};
 
 // Stories: Instagram + Facebook only
 const STORY_ACCOUNTS = [
@@ -911,18 +960,21 @@ async function sendThankYouEmail(contactId, contactName) {
 // ═══════════════════════════════════════════════════════════
 
 // Schedule a post via GHL Social Media API
-async function schedulePost({ caption, accountIds, type = 'post', scheduleDate }) {
+// Pass media = [{ url, type: 'photo' }] array for Instagram image posts
+async function schedulePost({ caption, accountIds, type = 'post', scheduleDate, media }) {
+  const body = {
+    accountIds,
+    type,
+    userId: GHL_USER_ID,
+    status: 'scheduled',
+    summary: caption,
+    scheduleDate: scheduleDate.toISOString(),
+    scheduleTimeUpdated: true,
+  };
+  if (media && media.length) body.media = media;
   const res = await axios.post(
     `https://services.leadconnectorhq.com/social-media-posting/${GHL_LOCATION_ID}/posts`,
-    {
-      accountIds,
-      type,
-      userId: GHL_USER_ID,
-      status: 'scheduled',
-      summary: caption,
-      scheduleDate: scheduleDate.toISOString(),
-      scheduleTimeUpdated: true,
-    },
+    body,
     {
       headers: {
         Authorization: `Bearer ${GHL_API_KEY}`,
@@ -1112,26 +1164,49 @@ async function runDailyPost() {
     postTime.setDate(postTime.getDate() + 1);
   }
 
-  // ── Social post (Facebook, LinkedIn, YouTube, Google — text OK) ──
+  // ── Get today's carousel images from Cloudinary ──
+  const dayOfWeek = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'short' });
+  const dayIdx = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(dayOfWeek.substring(0, 3));
+  const todayImages = CAROUSEL_IMAGES[dayIdx >= 0 ? dayIdx : new Date().getDay()];
+  const instagramMedia = todayImages.map(url => ({ url, type: 'photo' }));
+
+  // ── Social post — Facebook, LinkedIn, YouTube, Google (text only) ──
   let socialResult = { success: false };
   try {
     const result = await schedulePost({
       caption,
-      accountIds: TEXT_POST_ACCOUNTS, // Instagram excluded (needs image)
+      accountIds: TEXT_POST_ACCOUNTS,
       type: 'post',
       scheduleDate: postTime,
     });
-    console.log(`[Social] ✅ Post scheduled for ${postTime.toISOString()} — "${title}"`);
+    console.log(`[Social] ✅ Text post scheduled for ${postTime.toISOString()} — "${title}"`);
     socialResult = { success: true, title, scheduledFor: postTime.toISOString(), result };
   } catch (err) {
-    console.error('[Social] ❌ Failed to schedule post:', err?.response?.data || err.message);
+    console.error('[Social] ❌ Failed to schedule text post:', err?.response?.data || err.message);
     socialResult = { success: false, error: err.message };
+  }
+
+  // ── Instagram post — carousel images from Cloudinary ──
+  let instagramResult = { success: false };
+  try {
+    const result = await schedulePost({
+      caption,
+      accountIds: INSTAGRAM_ACCOUNTS,
+      type: 'post',
+      scheduleDate: postTime,
+      media: instagramMedia,
+    });
+    console.log(`[Social] ✅ Instagram carousel scheduled for ${postTime.toISOString()} — "${title}"`);
+    instagramResult = { success: true, title, scheduledFor: postTime.toISOString(), slides: todayImages.length, result };
+  } catch (err) {
+    console.error('[Social] ❌ Failed to schedule Instagram carousel:', err?.response?.data || err.message);
+    instagramResult = { success: false, error: err.message };
   }
 
   // ── Blog post (English, published same day) ──
   const blogResult = await createDailyBlog(title, caption);
 
-  return { social: socialResult, blog: blogResult };
+  return { social: socialResult, instagram: instagramResult, blog: blogResult };
 }
 
 // Schedule today's story at 7pm EST
