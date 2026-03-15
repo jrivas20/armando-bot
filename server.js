@@ -1803,15 +1803,102 @@ async function runDailyReel() {
 }
 
 // Send weekly content summary email to Jose every Monday
+async function getGHLContactCountByTag(tag) {
+  try {
+    const res = await axios.get(
+      `https://services.leadconnectorhq.com/contacts/?locationId=${GHL_LOCATION_ID}&tags=${tag}&limit=1`,
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' } }
+    );
+    return res.data?.total || res.data?.contacts?.length || 0;
+  } catch { return 0; }
+}
+
+async function getGHLOpportunityCountByStage(stageId) {
+  try {
+    const res = await axios.get(
+      `https://services.leadconnectorhq.com/opportunities/search?location_id=${GHL_LOCATION_ID}&pipeline_id=${MARKETING_PIPELINE_ID}&pipeline_stage_id=${stageId}&limit=1`,
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' } }
+    );
+    return res.data?.meta?.total || 0;
+  } catch { return 0; }
+}
+
 async function sendWeeklySummaryEmail(weekPosts) {
-  const subject = `📅 JRZ Marketing — Resumen de contenido semanal (semana del ${new Date().toLocaleDateString('es-ES')})`;
+  const subject = `📊 JRZ Marketing — Reporte Semanal: Resultados + IA Insights (${new Date().toLocaleDateString('es-ES')})`;
   const logoUrl = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663415013329/cScWYsLVftXscDEx.png';
+
+  // Pull all stats in parallel
+  const [
+    socialStats,
+    contentStrategy,
+    outboundSent,
+    outboundPending,
+    needsEmail,
+    hotLeads,
+    qualifiedLeads,
+    interested,
+    newLeads,
+    hotOpp,
+    bookingOpp,
+  ] = await Promise.all([
+    getWeeklyStats().catch(() => null),
+    loadContentStrategy().catch(() => null),
+    getGHLContactCountByTag('outbound_sent'),
+    getGHLContactCountByTag('outbound_pending'),
+    getGHLContactCountByTag('needs_email'),
+    getGHLContactCountByTag('hot-lead'),
+    getGHLContactCountByTag('qualified-lead'),
+    getGHLContactCountByTag('armando-interested'),
+    getGHLOpportunityCountByStage(PIPELINE_STAGES.newLead),
+    getGHLOpportunityCountByStage(PIPELINE_STAGES.hotLead),
+    getGHLOpportunityCountByStage(PIPELINE_STAGES.booking),
+  ]);
+
+  const breakdown = socialStats?.breakdowns || {};
+  const eng       = breakdown?.engagement || {};
+  const impressions = breakdown?.impressions?.total || 0;
+  const reach       = breakdown?.reach?.total || 0;
+  const followers   = breakdown?.followers?.total || 0;
+  const igLikes     = eng?.instagram?.likes || 0;
+  const igComments  = eng?.instagram?.comments || 0;
+
+  // Ask Claude to write a strategic weekly commentary
+  let aiInsight = '';
+  try {
+    const insightMsg = await anthropic.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 400,
+      messages: [{
+        role: 'user',
+        content: `Eres el analista estratégico de JRZ Marketing. Basado en estos datos de la semana, escribe UN párrafo corto (3-4 oraciones) con el insight más importante y UNA recomendación concreta para la próxima semana. Sé directo, como un COO hablando con el CEO.
+
+Datos:
+- Impresiones sociales: ${impressions} | Alcance: ${reach} | Nuevos seguidores: ${followers}
+- Instagram: ${igLikes} likes, ${igComments} comentarios
+- Outbound emails enviados esta semana: ${outboundSent}
+- Pipeline — New Lead: ${newLeads} | Hot Lead: ${hotOpp} | Con cita: ${bookingOpp}
+- Leads interesados (DM): ${interested} | Calificados: ${qualifiedLeads} | Hot: ${hotLeads}
+- Estrategia previa: ${contentStrategy?.weeklyNotes || 'Primera semana'}
+
+Escribe el insight en español. Solo el párrafo, sin títulos.`,
+      }],
+    });
+    aiInsight = insightMsg.content[0].text.trim();
+  } catch { aiInsight = 'Análisis no disponible esta semana.'; }
+
   const postRows = (weekPosts || []).map(p => `
     <tr>
       <td style="padding:10px 16px; border-bottom:1px solid #f0f0f0; font-size:13px; color:#333; font-weight:600;">${p.day}</td>
       <td style="padding:10px 16px; border-bottom:1px solid #f0f0f0; font-size:13px; color:#555;">${p.title || 'AI-generated'}</td>
-      <td style="padding:10px 16px; border-bottom:1px solid #f0f0f0; font-size:13px; color:${p.success ? '#16a34a' : '#dc2626'}; font-weight:700;">${p.success ? '✅ Programado' : '❌ Error'}</td>
+      <td style="padding:10px 16px; border-bottom:1px solid #f0f0f0; font-size:13px; color:${p.success ? '#16a34a' : '#dc2626'}; font-weight:700;">${p.success ? '✅ Posted' : '❌ Error'}</td>
     </tr>`).join('');
+
+  const statBox = (label, value, sub = '') => `
+    <td style="width:25%;padding:20px 16px;text-align:center;border-right:1px solid #f0f0f0;">
+      <div style="font-size:28px;font-weight:800;color:#0a0a0a;line-height:1;">${value}</div>
+      <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.08em;margin-top:6px;">${label}</div>
+      ${sub ? `<div style="font-size:11px;color:#bbb;margin-top:3px;">${sub}</div>` : ''}
+    </td>`;
 
   const html = `<!DOCTYPE html>
 <html lang="es">
@@ -1822,70 +1909,130 @@ async function sendWeeklySummaryEmail(weekPosts) {
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Inter',sans-serif; background:#f4f4f4; color:#0a0a0a; }
     .wrap { padding:40px 20px; }
-    .container { max-width:600px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
-    .header { background:#0a0a0a; padding:32px 40px; text-align:center; }
-    .header img { height:44px; }
-    .badge { background:#0a0a0a; padding:0 40px 20px; text-align:center; }
-    .badge span { display:inline-block; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:6px 16px; border-radius:100px; }
-    .hero { background:#0a0a0a; padding:32px 40px 40px; border-bottom:3px solid #fff; }
-    .hero h1 { font-size:24px; font-weight:800; color:#fff; line-height:1.2; margin-bottom:12px; }
-    .hero p { font-size:14px; color:rgba(255,255,255,0.5); }
-    .body { padding:32px 40px; }
-    .body p { font-size:15px; color:#333; line-height:1.8; margin-bottom:20px; }
-    table { width:100%; border-collapse:collapse; border-radius:12px; overflow:hidden; background:#f9f9f9; }
-    th { background:#0a0a0a; color:#fff; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:12px 16px; text-align:left; }
-    .size-guide { background:#f0f7ff; border-left:4px solid #0a0a0a; padding:16px 20px; border-radius:0 8px 8px 0; margin:24px 0; }
-    .size-guide h3 { font-size:13px; font-weight:700; color:#0a0a0a; margin-bottom:8px; }
-    .size-guide p { font-size:12px; color:#555; line-height:1.7; }
+    .container { max-width:620px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+    .header { background:#0a0a0a; padding:28px 40px; text-align:center; }
+    .header img { height:40px; }
+    .hero { background:#0a0a0a; padding:28px 40px 36px; border-bottom:3px solid #fff; }
+    .hero h1 { font-size:22px; font-weight:800; color:#fff; line-height:1.3; margin-bottom:8px; }
+    .hero p { font-size:13px; color:rgba(255,255,255,0.45); }
+    .section { padding:28px 40px; border-bottom:1px solid #f0f0f0; }
+    .section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#999; margin-bottom:16px; }
+    .stat-row { width:100%; border-collapse:collapse; background:#f9f9f9; border-radius:12px; overflow:hidden; }
+    .insight-box { background:#f0f7ff; border-left:4px solid #0a0a0a; padding:16px 20px; border-radius:0 8px 8px 0; font-size:14px; color:#333; line-height:1.7; }
+    .pipeline-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+    .pill { display:inline-block; padding:5px 14px; border-radius:100px; font-size:12px; font-weight:700; }
+    .pill-new { background:#e0f2fe; color:#0369a1; }
+    .pill-hot { background:#fef2f2; color:#dc2626; }
+    .pill-booked { background:#f0fdf4; color:#16a34a; }
+    table.posts { width:100%; border-collapse:collapse; }
+    table.posts th { background:#0a0a0a; color:#fff; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:10px 14px; text-align:left; }
+    table.posts td { padding:9px 14px; border-bottom:1px solid #f0f0f0; font-size:13px; color:#444; }
+    .machine-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f5f5f5; font-size:13px; color:#333; }
+    .machine-row:last-child { border-bottom:none; }
+    .dot { width:8px; height:8px; border-radius:50%; background:#16a34a; flex-shrink:0; }
     .footer { background:#0a0a0a; padding:24px 40px; text-align:center; }
-    .footer img { height:24px; opacity:0.6; margin-bottom:12px; }
+    .footer img { height:24px; opacity:0.6; margin-bottom:10px; }
     .footer p { font-size:11px; color:rgba(255,255,255,0.2); }
   </style>
 </head>
 <body><div class="wrap"><div class="container">
+
   <div class="header"><img src="${logoUrl}" alt="JRZ Marketing"></div>
-  <div class="badge"><span>📅 Resumen Semanal — Contenido Programado</span></div>
+
   <div class="hero">
-    <h1>Tu semana está lista.<br>Armando programó todo. 🤖</h1>
-    <p>Aquí el resumen de posts y stories programados para esta semana.</p>
+    <h1>Reporte semanal — JRZ Marketing<br>Semana del ${new Date().toLocaleDateString('es-ES', { weekday:'long', month:'long', day:'numeric' })}</h1>
+    <p>Generado automáticamente por Armando AI · Cada lunes 7am EST</p>
   </div>
-  <div class="body">
-    <p>Jose, esto es lo que está programado para publicarse automáticamente esta semana en Instagram, Facebook, LinkedIn, YouTube y Google Business:</p>
-    <table>
-      <thead><tr><th>Día</th><th>Contenido</th><th>Estado</th></tr></thead>
-      <tbody>${postRows || '<tr><td colspan="3" style="padding:16px;text-align:center;color:#999;">Sin datos esta semana</td></tr>'}</tbody>
+
+  <!-- MACHINE STATUS -->
+  <div class="section">
+    <div class="section-title">⚙️ Máquina — Estado esta semana</div>
+    <div class="machine-row"><div class="dot"></div><strong>Contenido social:</strong>&nbsp;7 días × 3 formatos (carrusel, reel, story) → Instagram, Facebook, LinkedIn, YouTube, TikTok, Google Business</div>
+    <div class="machine-row"><div class="dot"></div><strong>Outbound:</strong>&nbsp;${outboundSent} emails personalizados enviados esta semana (Mon–Fri)</div>
+    <div class="machine-row"><div class="dot"></div><strong>Apollo enrichment:</strong>&nbsp;${needsEmail} contactos en cola esperando email (enriquecimiento lunes 9am)</div>
+    <div class="machine-row"><div class="dot"></div><strong>Armando DM bot:</strong>&nbsp;24/7 activo — responde comentarios, follows, y DMs inbound</div>
+    <div class="machine-row"><div class="dot"></div><strong>Pipeline GHL:</strong>&nbsp;Oportunidades creadas automáticamente en cada outreach e interacción</div>
+  </div>
+
+  <!-- SOCIAL STATS -->
+  <div class="section">
+    <div class="section-title">📱 Redes sociales — Esta semana</div>
+    <table class="stat-row">
+      <tr>
+        ${statBox('Impresiones', impressions.toLocaleString())}
+        ${statBox('Alcance', reach.toLocaleString())}
+        ${statBox('Likes IG', igLikes.toLocaleString())}
+        ${statBox('Comentarios IG', igComments.toLocaleString(), 'instagram')}
+      </tr>
     </table>
+    <p style="font-size:12px;color:#999;margin-top:10px;">Plataformas activas: Instagram · Facebook · LinkedIn (×2) · YouTube · TikTok (×2) · Google Business</p>
+  </div>
 
-    <div class="size-guide" style="margin-top:28px;">
-      <h3>📐 Guía de tamaños para imágenes (cuando agregues fotos en GHL)</h3>
-      <p>
-        <strong>Instagram Feed:</strong> 1080×1080px (cuadrado) · 1080×1350px (4:5 retrato)<br>
-        <strong>Instagram Story:</strong> 1080×1920px<br>
-        <strong>Facebook Post:</strong> 1200×630px (horizontal) · 1080×1080px (cuadrado)<br>
-        <strong>LinkedIn:</strong> 1200×627px (horizontal) · 1080×1080px (cuadrado)<br>
-        <strong>YouTube Community:</strong> 1280×720px<br>
-        <strong>Google Business:</strong> 720×540px mínimo
-      </p>
-    </div>
-
-    <div class="size-guide" style="margin-top:16px; background:#fff8e1; border-left-color:#f59e0b;">
-      <h3>📝 Límites de caracteres por plataforma</h3>
-      <p>
-        Instagram: 2,200 chars · Facebook: sin límite práctico · LinkedIn: 3,000 chars<br>
-        YouTube Community: 500 chars · Google Business: 1,500 chars<br>
-        <strong>⚠️ Nota:</strong> Para carruseles con imágenes — agrégalas directamente en GHL Planner.
-      </p>
-    </div>
-
-    <div class="size-guide" style="margin-top:16px; background:#f0fdf4; border-left-color:#16a34a;">
-      <h3>🎵 Nota sobre música (Spotify)</h3>
-      <p>Instagram y Facebook permiten agregar música de su biblioteca nativa al publicar Reels/Stories. Esto no se puede hacer por API — agrégala directamente en la app cuando publiques o edita el post en GHL antes de que salga.</p>
+  <!-- OUTBOUND + PIPELINE -->
+  <div class="section">
+    <div class="section-title">📧 Outbound + Pipeline</div>
+    <table class="stat-row">
+      <tr>
+        ${statBox('Emails enviados', outboundSent, 'esta semana')}
+        ${statBox('En pipeline', newLeads + hotOpp + bookingOpp, 'total activo')}
+        ${statBox('Hot leads', hotLeads, 'calificados')}
+        ${statBox('Con cita', bookingOpp, 'agendada')}
+      </tr>
+    </table>
+    <div style="margin-top:16px;">
+      <div style="font-size:12px;font-weight:700;color:#666;margin-bottom:8px;">Marketing Pipeline — GHL</div>
+      <span class="pill pill-new">New Lead: ${newLeads}</span>&nbsp;
+      <span class="pill pill-hot">Hot Lead: ${hotOpp}</span>&nbsp;
+      <span class="pill pill-booked">Booking: ${bookingOpp}</span>
     </div>
   </div>
+
+  <!-- DM ACTIVITY -->
+  <div class="section">
+    <div class="section-title">💬 Armando — Actividad de DMs</div>
+    <table class="stat-row">
+      <tr>
+        ${statBox('Interesados', interested, 'respondieron')}
+        ${statBox('Calificados', qualifiedLeads, 'dieron info')}
+        ${statBox('Hot leads', hotLeads, 'phone + email')}
+        ${statBox('En espera', outboundPending, 'outbound pending')}
+      </tr>
+    </table>
+  </div>
+
+  <!-- AI INSIGHT -->
+  <div class="section">
+    <div class="section-title">🧠 Armando AI — Insight de la semana</div>
+    <div class="insight-box">${aiInsight}</div>
+    ${contentStrategy?.bestTopics ? `<p style="font-size:12px;color:#999;margin-top:12px;"><strong>Temas que más funcionan:</strong> ${contentStrategy.bestTopics.join(' · ')}</p>` : ''}
+    ${contentStrategy?.weeklyNotes ? `<p style="font-size:12px;color:#999;margin-top:4px;"><strong>Nota estratégica:</strong> ${contentStrategy.weeklyNotes}</p>` : ''}
+  </div>
+
+  <!-- CONTENT POSTED -->
+  <div class="section">
+    <div class="section-title">📅 Contenido publicado esta semana</div>
+    <table class="posts">
+      <thead><tr><th>Día</th><th>Contenido</th><th>Estado</th></tr></thead>
+      <tbody>${postRows || '<tr><td colspan="3" style="padding:14px;text-align:center;color:#bbb;">Sin datos</td></tr>'}</tbody>
+    </table>
+  </div>
+
+  <!-- NEXT WEEK FOCUS -->
+  <div class="section" style="border-bottom:none;">
+    <div class="section-title">🎯 Foco para la próxima semana</div>
+    <p style="font-size:14px;color:#333;line-height:1.8;">
+      1. Revisar pipeline en GHL — mover hot leads hacia cita agendada<br>
+      2. Apollo enriquece contactos lunes 9am → outbound corre a las 10am<br>
+      3. Si hay un cliente con resultado esta semana → capturarlo como caso de éxito para contenido
+    </p>
+    <p style="font-size:12px;color:#999;margin-top:12px;"><strong>KPI principal:</strong> Consultas agendadas esta semana → <strong>${bookingOpp}</strong></p>
+  </div>
+
   <div class="footer">
     <img src="${logoUrl}" alt="JRZ Marketing">
-    <p>&copy; 2026 JRZ Marketing · Automatización de contenido por Armando AI</p>
+    <p>&copy; 2026 JRZ Marketing · Reporte generado por Armando AI cada lunes 7am EST</p>
   </div>
+
 </div></div></body></html>`;
 
   try {
