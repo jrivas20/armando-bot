@@ -1185,6 +1185,7 @@ async function sendWarmDM(contactId, triggerType, context = {}) {
     );
     console.log(`[WarmDM] ✅ Sent ${triggerType} DM to contact ${contactId}`);
     await createOpportunity(contactId, contactName, PIPELINE_STAGES.newLead);
+    await tagContact(contactId, ['nurture-sequence']);
   } catch (err) {
     console.error('[WarmDM] ❌ Failed to send DM:', err?.response?.data || err.message);
   }
@@ -1270,6 +1271,7 @@ Reglas:
           { data: { tags: ['outbound_pending'] }, headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
         );
         await createOpportunity(contact.id, `${name} — ${business}`, PIPELINE_STAGES.newLead);
+        await tagContact(contact.id, ['nurture-sequence']);
 
         sent++;
         console.log(`[Outbound] ✅ Sent to ${name} (${business})`);
@@ -2310,6 +2312,7 @@ async function enrichProspectEmails() {
           `https://services.leadconnectorhq.com/contacts/${contact.id}/tags`,
           { data: { tags: ['needs_email'] }, headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
         );
+        await tagContact(contact.id, ['nurture-sequence']);
 
         enriched++;
         console.log(`[Apollo] ✅ Enriched ${firstName} ${lastName} → ${email}`);
