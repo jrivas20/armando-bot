@@ -1367,48 +1367,116 @@ async function runDailyStory() {
   }
 }
 
-// Post a 15-second Reel every day at 4pm EST across all video platforms
-// Uses first 3 carousel slides (hook + content + tip) at 5s each = 15s
+// Generate viral hook content via Claude for today's Reel
+async function generateViralReelContent(topic) {
+  const msg = await anthropic.messages.create({
+    model: 'claude-opus-4-6',
+    max_tokens: 600,
+    messages: [{
+      role: 'user',
+      content: `Crea contenido viral en ESPAÑOL para un Reel de marketing de 15 segundos para JRZ Marketing (agencia de IA y automatización en Orlando, FL).
+
+Tema del día: "${topic}"
+
+Devuelve SOLO un JSON válido con esta estructura exacta:
+{
+  "hook": "2-4 PALABRAS EN MAYÚSCULAS (frase impactante, pregunta o dato)",
+  "hook_sub": "1-2 líneas que amplíen el hook\\nseparadas por \\\\n",
+  "content": ["→ punto 1", "→ punto 2", "→ punto 3", "→ punto 4"],
+  "climax1": "2-3 PALABRAS IMPACTO",
+  "climax2": "REMATE EN MAYÚSCULAS.",
+  "climax_sub": "frase de cierre poderosa"
+}
+
+Reglas: gancho que detenga el scroll, estilo directo, sin hashtags en el JSON.`,
+    }],
+  });
+  return JSON.parse(msg.content[0].text.trim());
+}
+
+// Build viral text Reel using generate_reel.py → upload to Cloudinary
+async function buildViralReel(content, dayIdx) {
+  const outPath = `/tmp/jrz_viral_reel_${dayIdx}.mp4`;
+  try {
+    const jsonArg = JSON.stringify(content).replace(/'/g, "\\'");
+    const result  = execSync(
+      `python3 ${path.join(__dirname, 'generate_reel.py')} '${jsonArg}' '${outPath}'`,
+      { timeout: 120000, encoding: 'utf8' }
+    ).trim();
+
+    if (!result.startsWith('OK:')) throw new Error(`Script error: ${result}`);
+
+    // Upload to Cloudinary
+    const publicId  = `jrz/viral_reel_day${dayIdx}`;
+    const timestamp = Math.floor(Date.now() / 1000);
+    const sigStr    = `overwrite=true&public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
+    const signature = crypto.createHash('sha1').update(sigStr).digest('hex');
+
+    const form = new FormData();
+    form.append('file',      fs.createReadStream(outPath));
+    form.append('public_id', publicId);
+    form.append('timestamp', String(timestamp));
+    form.append('api_key',   CLOUDINARY_API_KEY);
+    form.append('signature', signature);
+    form.append('overwrite', 'true');
+
+    await axios.post(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/video/upload`,
+      form,
+      { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 120000 }
+    );
+
+    try { fs.unlinkSync(outPath); } catch (_) {}
+    return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/video/upload/jrz/viral_reel_day${dayIdx}.mp4`;
+  } catch (err) {
+    console.error('[Reel] ❌ buildViralReel failed:', err.message);
+    return null;
+  }
+}
+
+// Post a 15-second viral hook Reel at 4pm EST across all video platforms
 async function runDailyReel() {
-  console.log('[Reel] Running daily 4pm Reel scheduler...');
+  console.log('[Reel] Running daily 4pm viral Reel...');
 
   const dayOfWeek = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'short' });
   const dayIdx    = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(dayOfWeek.substring(0, 3));
   const safeIdx   = dayIdx >= 0 ? dayIdx : new Date().getDay();
-  const slideUrls = CAROUSEL_IMAGES[safeIdx];
 
-  // Schedule for 4pm EST (20:00 UTC during EDT / 21:00 UTC during EST)
+  // Schedule for 4pm EST (20:00 UTC during EDT)
   const reelTime = new Date();
   reelTime.setUTCHours(20, 0, 0, 0);
   if (reelTime < new Date()) reelTime.setDate(reelTime.getDate() + 1);
 
-  // Build 15-second Reel (3 slides × 5s) and upload to Cloudinary
-  const reelUrl = await createReelFromSlides(slideUrls, safeIdx, {
-    maxSlides: 3,
-    slideDuration: 5,
-    publicIdSuffix: '_short',
-  });
-
-  if (!reelUrl) {
-    console.error('[Reel] ❌ Reel creation failed — skipping 4pm post');
-    return { success: false, error: 'Reel creation failed' };
-  }
-
-  // Pick caption from today's carousel script (same content, already in Spanish)
+  // Get today's topic from carousel script
   const { script } = getTodaysScript();
 
+  // Generate viral hook content via Claude
+  let content;
   try {
-    const result = await schedulePost({
+    content = await generateViralReelContent(script.title);
+    console.log('[Reel] ✅ Viral content generated:', content.hook);
+  } catch (err) {
+    console.error('[Reel] ❌ Content generation failed:', err.message);
+    return { success: false, error: 'Content generation failed' };
+  }
+
+  // Build the video
+  const reelUrl = await buildViralReel(content, safeIdx);
+  if (!reelUrl) return { success: false, error: 'Video build failed' };
+
+  // Post to all platforms
+  try {
+    await schedulePost({
       caption: script.caption,
       accountIds: REEL_ACCOUNTS,
       type: 'post',
       scheduleDate: reelTime,
       media: [{ url: reelUrl, type: 'video' }],
     });
-    console.log(`[Reel] ✅ 15s Reel scheduled for ${reelTime.toISOString()} on ${REEL_ACCOUNTS.length} platforms`);
-    return { success: true, reelUrl, scheduledFor: reelTime.toISOString(), platforms: REEL_ACCOUNTS.length, result };
+    console.log(`[Reel] ✅ Viral Reel scheduled for ${reelTime.toISOString()} — ${REEL_ACCOUNTS.length} platforms`);
+    return { success: true, reelUrl, hook: content.hook, scheduledFor: reelTime.toISOString() };
   } catch (err) {
-    console.error('[Reel] ❌ Failed to schedule Reel post:', err?.response?.data || err.message);
+    console.error('[Reel] ❌ Failed to schedule Reel:', err?.response?.data || err.message);
     return { success: false, error: err.message };
   }
 }
