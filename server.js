@@ -31,6 +31,14 @@ const GMAIL_ADDRESS        = 'info@jrzmarketing.com';
 let   googleAccessToken    = null;
 let   googleTokenExpiry    = 0;
 
+// ── Google Calendar constants ───────────────────────────────
+const BOOKING_TZ         = 'America/New_York';
+const BOOKING_START_HOUR = 7;   // 7am EST
+const BOOKING_END_HOUR   = 21;  // 9pm EST
+const BOOKING_DURATION   = 15;  // minutes
+let   jrzCalendarId      = null; // cached after first lookup
+const pendingBookingSlots = new Map(); // contactId → [slot, slot, slot]
+
 // ── Bland.ai voice calls ───────────────────────────────────
 const BLAND_API_KEY     = process.env.BLAND_API_KEY;
 const BLAND_WEBHOOK_URL = 'https://armando-bot-1.onrender.com/webhook/bland';
@@ -837,9 +845,25 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
     stageInstruction = `Mensaje #${historyCount} — NO pidas más teléfono ni email por mensaje. Cierra directo con el link: manda "${BOOKING_URL}" de forma natural y con energía. Algo como "Mira, lo mejor es que lo agendemos directo — aquí la llamada gratis: ${BOOKING_URL}" y listo. Sin más preguntas.`;
   }
 
-  // TCPA compliance — only offer a call, never auto-call
-  const callOfferInstruction = hasBoth && !blandConsentAsked.has(contactId) && !blandCallsSent.has(contactId)
-    ? `\nLLAMADA: Ya tienes su teléfono y email. Al final de tu respuesta, pregunta de forma natural y breve si quieren que les llames ahora: "¿Te llamo ahora para platicarlo rápido?" (en español) o "Want me to give you a quick call right now?" (en inglés). Solo una vez.`
+  // TCPA compliance — offer calendar slots, never auto-call
+  let callOfferInstruction = '';
+  if (hasBoth && !blandConsentAsked.has(contactId) && !blandCallsSent.has(contactId)) {
+    try {
+      const slots = await getAvailableSlots(3);
+      if (slots.length > 0) {
+        pendingBookingSlots.set(contactId, slots);
+        const slotList = slots.map((s, i) => `${i + 1}. ${formatSlot(s)}`).join('\n');
+        callOfferInstruction = `\nAGENDA: Ya tienes su teléfono y email. Ofrece agendar directamente con Jose — incluye estas opciones disponibles de forma natural:\n${slotList}\nPídeles que respondan con 1, 2 o 3 para confirmar. Solo ofrece esto una vez.`;
+      }
+    } catch (err) {
+      console.error('[Calendar] Slot fetch failed:', err.message);
+      callOfferInstruction = `\nLLAMADA: Ya tienes su teléfono y email. Pregunta brevemente si quieren que les llames ahora para platicarlo rápido.`;
+    }
+  }
+  // Detect if contact is choosing a previously offered slot
+  const pendingSlots = pendingBookingSlots.get(contactId);
+  const slotChoiceInstruction = pendingSlots
+    ? `\nSLOT DETECTION: Si el mensaje actual contiene "1", "2", "3", "primero", "segundo", "tercero", "first", "second", "third" o una hora específica que coincide con las opciones ofrecidas — devuelve slotChoice:1, slotChoice:2, o slotChoice:3 en el JSON. Si no están eligiendo un slot, devuelve slotChoice:0.`
     : '';
 
   const systemWithContext = `${ARMANDO_PROMPT}
@@ -885,15 +909,16 @@ ${detectObjection(incomingMessage) ? `⚠️ OBJECIÓN DETECTADA: "${detectObjec
 Respuestas que han convertido antes:
 ${((objectionMemory[detectObjection(incomingMessage)] || {}).bestResponses || []).slice(0, 2).join('\n') || 'Sin datos aún — usa tu mejor criterio. Empatiza primero, luego redirige.'}` : ''}
 
-TU TAREA PARA ESTE MENSAJE: ${stageInstruction}${callOfferInstruction}
+TU TAREA PARA ESTE MENSAJE: ${stageInstruction}${callOfferInstruction}${slotChoiceInstruction}
 
 Responde SOLO en este formato JSON exacto (sin texto extra):
-{"reply":"...","leadQuality":"none|interested|qualified|hot","sentiment":"positive|neutral|annoyed","shouldEngage":true,"wantsCall":false,"businessType":"tipo de negocio detectado o vacío","painPoints":["pain point detectado"],"interests":["interés detectado"]}
+{"reply":"...","leadQuality":"none|interested|qualified|hot","sentiment":"positive|neutral|annoyed","shouldEngage":true,"wantsCall":false,"slotChoice":0,"businessType":"tipo de negocio detectado o vacío","painPoints":["pain point detectado"],"interests":["interés detectado"]}
 
 shouldEngage: true si el mensaje tiene intención de negocio o es un primer contacto legítimo. false si es claramente una conversación personal/casual que no tiene que ver con marketing.
 leadQuality: none=desinteresado, interested=enganchado/sin info, qualified=teléfono O email, hot=AMBOS
 sentiment: positive=emocionado/amigable, neutral=normal, annoyed=frustrado/impaciente
-wantsCall: true ONLY if the person explicitly said yes to a call offer (sí, yes, dale, claro, ok, llámame, call me). false otherwise.`;
+wantsCall: true ONLY if the person explicitly said yes to a call offer (sí, yes, dale, claro, ok, llámame, call me). false otherwise.
+slotChoice: 1, 2, or 3 if person is picking a calendar slot. 0 if not.`;
 
   const messagesForClaude = [...claudeHistory, { role: 'user', content: incomingMessage }];
 
@@ -930,6 +955,7 @@ wantsCall: true ONLY if the person explicitly said yes to a call offer (sí, yes
         sentiment: parsed.sentiment || 'neutral',
         shouldEngage: parsed.shouldEngage !== false,
         wantsCall: parsed.wantsCall === true,
+        slotChoice: parsed.slotChoice || 0,
         foundPhone,
         foundEmail,
         contactMemory: updatedMemory,
@@ -3142,7 +3168,7 @@ app.post('/webhook', async (req, res) => {
       }
     }
 
-    const { reply, leadQuality, sentiment, shouldEngage, wantsCall, foundPhone, foundEmail, contactMemory: cMem, competitorInsights: cInsights, compPainPoints: cPain } = await getArmandoReply(
+    const { reply, leadQuality, sentiment, shouldEngage, wantsCall, slotChoice, foundPhone, foundEmail, contactMemory: cMem, competitorInsights: cInsights, compPainPoints: cPain } = await getArmandoReply(
       messageBody, contactName, contactId, conversationId, sendType
     );
     const msgCount = contactMessageCount.get(contactId) || 1;
@@ -3202,9 +3228,30 @@ app.post('/webhook', async (req, res) => {
     }
 
     // TCPA compliance — only call after explicit consent in DM
-    if (hasBothData && foundPhone) blandConsentAsked.add(contactId); // mark offer was made
+    if (hasBothData && foundPhone) blandConsentAsked.add(contactId);
     if (wantsCall && foundPhone && !blandCallsSent.has(contactId)) {
       triggerBlandCall(contactId, contactName, foundPhone, cMem || {}); // fire-and-forget
+    }
+
+    // Google Calendar booking — fires when contact picks a slot (1, 2, or 3)
+    if (slotChoice > 0) {
+      const slots = pendingBookingSlots.get(contactId);
+      const chosen = slots?.[slotChoice - 1];
+      if (chosen) {
+        try {
+          await createCalendarEvent(contactName, foundEmail, chosen);
+          pendingBookingSlots.delete(contactId);
+          await tagContact(contactId, ['calendar-booked', 'armando-booked']);
+          await createOpportunity(contactId, contactName, PIPELINE_STAGES.booking);
+          logWeeklyWin(contactId, reply, 'calendar_booked');
+          // Send confirmation DM
+          const confirmMsg = `✅ ¡Listo! Agendé tu llamada con Jose para el ${formatSlot(chosen)}. Recibirás una invitación de Google Calendar en tu email. ¡Nos vemos entonces! 🙌`;
+          await sendGHLReply(contactId, confirmMsg, sendType);
+          console.log(`[Calendar] ✅ Booked for ${contactName} at ${formatSlot(chosen)}`);
+        } catch (err) {
+          console.error('[Calendar] Booking failed:', err.message);
+        }
+      }
     }
 
     if (shouldAutoReply) {
@@ -4317,6 +4364,83 @@ app.post('/cron/review-mining', async (_req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
+// GOOGLE CALENDAR — Armando books directly into JRZ Calendar
+// Every day 7am–9pm EST, 15-min slots
+// ═══════════════════════════════════════════════════════════
+
+async function getJRZCalendarId() {
+  if (jrzCalendarId) return jrzCalendarId;
+  const token = await getGoogleAccessToken();
+  const res   = await axios.get('https://www.googleapis.com/calendar/v3/users/me/calendarList', { headers: { Authorization: `Bearer ${token}` } });
+  const cal   = (res.data.items || []).find(c => c.summary && (c.summary.includes('JRZ') || c.summary === 'JRZ Calendar'));
+  jrzCalendarId = cal ? cal.id : 'primary';
+  console.log(`[Calendar] Using calendar: ${jrzCalendarId}`);
+  return jrzCalendarId;
+}
+
+async function getAvailableSlots(daysAhead = 3) {
+  const token  = await getGoogleAccessToken();
+  const calId  = await getJRZCalendarId();
+  const slots  = [];
+  const nowEST = new Date(new Date().toLocaleString('en-US', { timeZone: BOOKING_TZ }));
+
+  for (let d = 0; d <= daysAhead && slots.length < 3; d++) {
+    const dayStart = new Date(nowEST);
+    dayStart.setDate(dayStart.getDate() + d);
+    dayStart.setHours(BOOKING_START_HOUR, 0, 0, 0);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setHours(BOOKING_END_HOUR, 0, 0, 0);
+
+    // Today: start from next 30-min boundary + 1hr buffer
+    if (d === 0) {
+      const buffer = new Date(nowEST.getTime() + 60 * 60 * 1000);
+      buffer.setMinutes(Math.ceil(buffer.getMinutes() / 30) * 30, 0, 0);
+      if (buffer > dayStart) dayStart.setTime(buffer.getTime());
+    }
+    if (dayStart >= dayEnd) continue;
+
+    const freeBusy = await axios.post('https://www.googleapis.com/calendar/v3/freeBusy', {
+      timeMin: dayStart.toISOString(), timeMax: dayEnd.toISOString(),
+      timeZone: BOOKING_TZ, items: [{ id: calId }],
+    }, { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } });
+
+    const busy = (freeBusy.data.calendars?.[calId]?.busy || []).map(b => ({ start: new Date(b.start), end: new Date(b.end) }));
+
+    let cursor = new Date(dayStart);
+    while (cursor < dayEnd && slots.length < 3) {
+      const slotEnd = new Date(cursor.getTime() + BOOKING_DURATION * 60 * 1000);
+      const isBusy  = busy.some(b => cursor < b.end && slotEnd > b.start);
+      if (!isBusy) slots.push({ start: new Date(cursor), end: slotEnd });
+      cursor = new Date(cursor.getTime() + 30 * 60 * 1000);
+    }
+  }
+  return slots;
+}
+
+function formatSlot(slot) {
+  return slot.start.toLocaleString('en-US', { timeZone: BOOKING_TZ, weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) + ' EST';
+}
+
+async function createCalendarEvent(contactName, contactEmail, slot) {
+  const token = await getGoogleAccessToken();
+  const calId = await getJRZCalendarId();
+  const event = {
+    summary:     `📞 15-min Strategy Call — ${contactName}`,
+    description: `Free 15-min strategy call booked by Armando (JRZ Marketing AI).\nContact: ${contactName}\nEmail: ${contactEmail || 'N/A'}`,
+    start: { dateTime: slot.start.toISOString(), timeZone: BOOKING_TZ },
+    end:   { dateTime: slot.end.toISOString(),   timeZone: BOOKING_TZ },
+    attendees: contactEmail ? [{ email: contactEmail }] : [],
+    reminders: { useDefault: false, overrides: [{ method: 'email', minutes: 60 }, { method: 'popup', minutes: 15 }] },
+  };
+  const res = await axios.post(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events?sendUpdates=all`,
+    event, { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+  );
+  console.log(`[Calendar] ✅ Booked: ${contactName} at ${formatSlot(slot)}`);
+  return res.data;
+}
+
+// ═══════════════════════════════════════════════════════════
 // GMAIL — Armando monitors info@jrzmarketing.com
 // Runs every 10 minutes — classifies, replies, creates GHL contacts
 // ═══════════════════════════════════════════════════════════
@@ -4455,6 +4579,13 @@ async function runGmailCheck() {
     }
   } catch (err) { console.error('[Gmail] Check failed:', err?.response?.data || err.message); }
 }
+
+app.get('/cron/calendar-slots', async (_req, res) => {
+  try {
+    const slots = await getAvailableSlots(3);
+    res.json({ total: slots.length, slots: slots.map((s, i) => ({ option: i + 1, time: formatSlot(s), iso: s.start.toISOString() })) });
+  } catch (err) { res.status(500).json({ error: err?.response?.data || err.message }); }
+});
 
 app.post('/cron/gmail-check', async (_req, res) => {
   try { await runGmailCheck(); res.json({ status: 'ok' }); }
