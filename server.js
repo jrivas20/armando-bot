@@ -26,7 +26,8 @@ const ELEVENLABS_VOICE_ID = 'SIpDYvpsUzCaJ0WmnSA8'; // Joseph Corona — warm, p
 // ── Bland.ai voice calls ───────────────────────────────────
 const BLAND_API_KEY     = process.env.BLAND_API_KEY;
 const BLAND_WEBHOOK_URL = 'https://armando-bot-1.onrender.com/webhook/bland';
-const blandCallsSent    = new Set(); // prevent double-calling same contact
+const blandCallsSent       = new Set(); // prevent double-calling same contact
+const blandConsentAsked    = new Set(); // contacts who were offered a call
 
 async function sendEmail(contactId, subject, html) {
   await axios.post(
@@ -828,6 +829,11 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
     stageInstruction = `Mensaje #${historyCount} — NO pidas más teléfono ni email por mensaje. Cierra directo con el link: manda "${BOOKING_URL}" de forma natural y con energía. Algo como "Mira, lo mejor es que lo agendemos directo — aquí la llamada gratis: ${BOOKING_URL}" y listo. Sin más preguntas.`;
   }
 
+  // TCPA compliance — only offer a call, never auto-call
+  const callOfferInstruction = hasBoth && !blandConsentAsked.has(contactId) && !blandCallsSent.has(contactId)
+    ? `\nLLAMADA: Ya tienes su teléfono y email. Al final de tu respuesta, pregunta de forma natural y breve si quieren que les llames ahora: "¿Te llamo ahora para platicarlo rápido?" (en español) o "Want me to give you a quick call right now?" (en inglés). Solo una vez.`
+    : '';
+
   const systemWithContext = `${ARMANDO_PROMPT}
 
 --- CONTEXTO ACTUAL (solo para ti, no lo menciones) ---
@@ -871,14 +877,15 @@ ${detectObjection(incomingMessage) ? `⚠️ OBJECIÓN DETECTADA: "${detectObjec
 Respuestas que han convertido antes:
 ${((objectionMemory[detectObjection(incomingMessage)] || {}).bestResponses || []).slice(0, 2).join('\n') || 'Sin datos aún — usa tu mejor criterio. Empatiza primero, luego redirige.'}` : ''}
 
-TU TAREA PARA ESTE MENSAJE: ${stageInstruction}
+TU TAREA PARA ESTE MENSAJE: ${stageInstruction}${callOfferInstruction}
 
 Responde SOLO en este formato JSON exacto (sin texto extra):
-{"reply":"...","leadQuality":"none|interested|qualified|hot","sentiment":"positive|neutral|annoyed","shouldEngage":true,"businessType":"tipo de negocio detectado o vacío","painPoints":["pain point detectado"],"interests":["interés detectado"]}
+{"reply":"...","leadQuality":"none|interested|qualified|hot","sentiment":"positive|neutral|annoyed","shouldEngage":true,"wantsCall":false,"businessType":"tipo de negocio detectado o vacío","painPoints":["pain point detectado"],"interests":["interés detectado"]}
 
 shouldEngage: true si el mensaje tiene intención de negocio o es un primer contacto legítimo. false si es claramente una conversación personal/casual que no tiene que ver con marketing.
 leadQuality: none=desinteresado, interested=enganchado/sin info, qualified=teléfono O email, hot=AMBOS
-sentiment: positive=emocionado/amigable, neutral=normal, annoyed=frustrado/impaciente`;
+sentiment: positive=emocionado/amigable, neutral=normal, annoyed=frustrado/impaciente
+wantsCall: true ONLY if the person explicitly said yes to a call offer (sí, yes, dale, claro, ok, llámame, call me). false otherwise.`;
 
   const messagesForClaude = [...claudeHistory, { role: 'user', content: incomingMessage }];
 
@@ -914,6 +921,7 @@ sentiment: positive=emocionado/amigable, neutral=normal, annoyed=frustrado/impac
         leadQuality: parsed.leadQuality || 'none',
         sentiment: parsed.sentiment || 'neutral',
         shouldEngage: parsed.shouldEngage !== false,
+        wantsCall: parsed.wantsCall === true,
         foundPhone,
         foundEmail,
         contactMemory: updatedMemory,
@@ -3126,7 +3134,7 @@ app.post('/webhook', async (req, res) => {
       }
     }
 
-    const { reply, leadQuality, sentiment, shouldEngage, foundPhone, foundEmail, contactMemory: cMem, competitorInsights: cInsights, compPainPoints: cPain } = await getArmandoReply(
+    const { reply, leadQuality, sentiment, shouldEngage, wantsCall, foundPhone, foundEmail, contactMemory: cMem, competitorInsights: cInsights, compPainPoints: cPain } = await getArmandoReply(
       messageBody, contactName, contactId, conversationId, sendType
     );
     const msgCount = contactMessageCount.get(contactId) || 1;
@@ -3185,8 +3193,9 @@ app.post('/webhook', async (req, res) => {
       await sendLeadScoreAlert(contactId, contactName, leadScore, sendType, foundPhone, foundEmail);
     }
 
-    // Trigger Bland.ai outbound call when hot lead shares phone number
-    if (hasBothData && foundPhone && !blandCallsSent.has(contactId)) {
+    // TCPA compliance — only call after explicit consent in DM
+    if (hasBothData && foundPhone) blandConsentAsked.add(contactId); // mark offer was made
+    if (wantsCall && foundPhone && !blandCallsSent.has(contactId)) {
       triggerBlandCall(contactId, contactName, foundPhone, cMem || {}); // fire-and-forget
     }
 
