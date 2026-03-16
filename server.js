@@ -19,6 +19,10 @@ const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
 const EMAIL_FROM      = 'info@email.jrzmarketing.com';
 const EMAIL_FROM_NAME = 'Jose Rivas | JRZ Marketing';
 
+// ── ElevenLabs voice ──────────────────────────────────────
+const ELEVENLABS_API_KEY  = process.env.ELEVENLABS_API_KEY  || 'sk_801eaf82b6ec4893bdfa9b93ae75dc16abf1eade79b63a72';
+const ELEVENLABS_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'SIpDYvpsUzCaJ0WmnSA8'; // Joseph Corona
+
 async function sendEmail(contactId, subject, html) {
   await axios.post(
     'https://services.leadconnectorhq.com/conversations/messages',
@@ -876,6 +880,24 @@ async function sendGHLReply(contactId, message, sendType) {
     { type: sendType, contactId, message },
     { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
   );
+}
+
+// Send an audio file as a voice note attachment in DM (GHL attachment API)
+async function sendGHLVoiceNote(contactId, audioUrl, sendType) {
+  try {
+    await axios.post(
+      'https://services.leadconnectorhq.com/conversations/messages',
+      { type: sendType, contactId, attachments: [audioUrl] },
+      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
+    );
+    console.log('[DM Voice] ✅ Voice note attachment sent');
+    return true;
+  } catch (err) {
+    // Fallback: send as a clickable link if attachment isn't supported
+    console.warn('[DM Voice] Attachment failed, sending link fallback:', err?.response?.data || err.message);
+    await sendGHLReply(contactId, `🎧 Escúchame: ${audioUrl}`, sendType);
+    return false;
+  }
 }
 
 async function tagContact(contactId, tags) {
@@ -2001,26 +2023,205 @@ Reglas: gancho que detenga el scroll en los primeros 2 segundos, estilo directo,
   return JSON.parse(msg.content[0].text.trim());
 }
 
-// Build viral text Reel using generate_reel.py → upload to Cloudinary
-async function buildViralReel(content, dayIdx) {
-  const outPath = `/tmp/jrz_viral_reel_${dayIdx}.mp4`;
+// ── Build a natural voiceover script from reel content ───────────────────────
+function buildVoiceoverScript(content) {
+  const lines = [];
+
+  // Hook — question/statement
+  const hook = (content.hook + ' ' + (content.hook_sub || '')).replace(/\n/g, ' ').trim();
+  lines.push(hook);
+
+  // Content bullets — strip arrow symbols, read naturally
+  if (Array.isArray(content.content)) {
+    content.content.slice(0, 3).forEach(function (b) {
+      lines.push(b.replace(/^[→\-•]\s*/, '').trim());
+    });
+  }
+
+  // Climax
+  const climax = ((content.climax1 || '') + ' ' + (content.climax2 || '') + '. ' + (content.climax_sub || '')).trim();
+  if (climax) lines.push(climax);
+
+  // CTA
+  lines.push('Agenda tu consulta gratis en jrzmarketing.com');
+
+  return lines.join('. ');
+}
+
+// ── Call ElevenLabs TTS → save MP3 ───────────────────────────────────────────
+async function generateElevenLabsAudio(text, audioPath) {
   try {
-    const jsonArg = JSON.stringify(content).replace(/'/g, "\\'");
-    const result  = execSync(
-      `python3 ${path.join(__dirname, 'generate_reel.py')} '${jsonArg}' '${outPath}'`,
+    const response = await axios.post(
+      `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,
+      {
+        text,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: { stability: 0.45, similarity_boost: 0.80, style: 0.35, use_speaker_boost: true }
+      },
+      {
+        headers: {
+          'xi-api-key':   ELEVENLABS_API_KEY,
+          'Content-Type': 'application/json',
+          'Accept':       'audio/mpeg'
+        },
+        responseType: 'arraybuffer',
+        timeout: 30000
+      }
+    );
+    fs.writeFileSync(audioPath, Buffer.from(response.data));
+    console.log('[Voice] ✅ ElevenLabs audio generated:', audioPath);
+    return true;
+  } catch (err) {
+    console.error('[Voice] ❌ ElevenLabs failed:', err?.response?.status, err.message);
+    return false;
+  }
+}
+
+// ── Generate voice note for DM reply and return Cloudinary URL ───────────────
+async function generateDMVoiceNote(text, contactId) {
+  const audioPath = `/tmp/jrz_dm_voice_${contactId}_${Date.now()}.mp3`;
+  try {
+    const ok = await generateElevenLabsAudio(text, audioPath);
+    if (!ok) return null;
+
+    // Upload MP3 to Cloudinary
+    const timestamp  = Math.floor(Date.now() / 1000);
+    const publicId   = `jrz/dm_voice_${contactId}_${timestamp}`;
+    const sigStr     = `public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
+    const signature  = crypto.createHash('sha1').update(sigStr).digest('hex');
+
+    const form = new FormData();
+    form.append('file',       fs.createReadStream(audioPath));
+    form.append('api_key',    CLOUDINARY_API_KEY);
+    form.append('timestamp',  String(timestamp));
+    form.append('public_id',  publicId);
+    form.append('signature',  signature);
+    form.append('resource_type', 'video'); // Cloudinary uses "video" for audio
+
+    const upload = await axios.post(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/video/upload`,
+      form,
+      { headers: form.getHeaders(), timeout: 30000 }
+    );
+    console.log('[DM Voice] ✅ Audio uploaded:', upload.data.secure_url);
+    return upload.data.secure_url;
+  } catch (err) {
+    console.error('[DM Voice] ❌ Voice note failed:', err.message);
+    return null;
+  } finally {
+    try { fs.unlinkSync(audioPath); } catch (_) {}
+  }
+}
+
+// ── Merge video + audio with ffmpeg ──────────────────────────────────────────
+function mergeAudioVideo(videoPath, audioPath, outPath) {
+  try {
+    execSync(
+      `ffmpeg -y -i "${videoPath}" -i "${audioPath}" -c:v copy -c:a aac -shortest -map 0:v:0 -map 1:a:0 "${outPath}"`,
+      { timeout: 60000, encoding: 'utf8' }
+    );
+    console.log('[Voice] ✅ Audio merged into video:', outPath);
+    return true;
+  } catch (err) {
+    console.error('[Voice] ❌ ffmpeg merge failed:', err.message);
+    return false;
+  }
+}
+
+// Canva template base (permanent Cloudinary URL)
+const CANVA_TEMPLATE_URL = 'https://res.cloudinary.com/dbsuw1mfm/video/upload/v1773637191/jrz/reel_template_base.mp4';
+const CANVA_TEMPLATE_PATH = '/tmp/jrz_canva_template.mp4';
+
+// Download Canva template once and cache it locally
+async function ensureTemplate() {
+  if (fs.existsSync(CANVA_TEMPLATE_PATH)) return true;
+  try {
+    const res = await axios.get(CANVA_TEMPLATE_URL, { responseType: 'arraybuffer', timeout: 60000 });
+    fs.writeFileSync(CANVA_TEMPLATE_PATH, Buffer.from(res.data));
+    console.log('[Template] ✅ Canva template cached locally');
+    return true;
+  } catch (err) {
+    console.error('[Template] ❌ Failed to download template:', err.message);
+    return false;
+  }
+}
+
+// Escape text for ffmpeg drawtext (no single quotes)
+function ffmpegEscape(str) {
+  return (str || '').replace(/'/g, "\u2019").replace(/:/g, "\\:").replace(/\[/g, "\\[").replace(/\]/g, "\\]");
+}
+
+// Wrap long text into multiple lines (~28 chars per line)
+function wrapText(str, maxLen) {
+  const words = str.split(' ');
+  const lines = [];
+  let line = '';
+  for (const word of words) {
+    if ((line + ' ' + word).trim().length > maxLen) { lines.push(line.trim()); line = word; }
+    else line = (line + ' ' + word).trim();
+  }
+  if (line) lines.push(line.trim());
+  return lines.join('\n');
+}
+
+// Build viral Reel: Canva template + ffmpeg text overlay + ElevenLabs voice
+async function buildViralReel(content, dayIdx) {
+  const templatePath = CANVA_TEMPLATE_PATH;
+  const textPath     = `/tmp/jrz_viral_reel_text_${dayIdx}.mp4`;
+  const audioPath    = `/tmp/jrz_voice_${dayIdx}.mp3`;
+  const finalPath    = `/tmp/jrz_viral_reel_${dayIdx}.mp4`;
+
+  try {
+    // Step 1 — Ensure Canva template is available
+    const ready = await ensureTemplate();
+    if (!ready) throw new Error('Template unavailable');
+
+    // Step 2 — Build text strings
+    const hook    = ffmpegEscape(wrapText((content.hook || '').replace(/[🔥💥🚀✅⚡🎯💰]/g, '').trim(), 26));
+    const sub     = ffmpegEscape(wrapText((content.hook_sub || content.climax1 || '').replace(/[🔥💥🚀✅⚡🎯💰]/g, '').trim(), 30));
+    const bullets = Array.isArray(content.content)
+      ? content.content.slice(0, 3).map(b => ffmpegEscape(b.replace(/^[→\-•]\s*/, '').replace(/[🔥💥🚀✅⚡🎯💰]/g, '').trim())).join('\n')
+      : '';
+    const cta     = ffmpegEscape('jrzmarketing.com — Consulta Gratis');
+
+    // Step 3 — Overlay text on Canva template with ffmpeg drawtext
+    const drawFilters = [
+      // Hook — large bold white text, upper third
+      `drawtext=text='${hook}':fontsize=68:fontcolor=white:x=(w-text_w)/2:y=h*0.12:line_spacing=10:font=Liberation Sans Bold:shadowcolor=black:shadowx=3:shadowy=3`,
+      // Sub-hook — medium platinum, just below hook
+      `drawtext=text='${sub}':fontsize=42:fontcolor=#8A9BA8:x=(w-text_w)/2:y=h*0.38:line_spacing=8:font=Liberation Sans Bold:shadowcolor=black:shadowx=2:shadowy=2`,
+      // Bullets — white, middle
+      `drawtext=text='${bullets}':fontsize=38:fontcolor=white:x=(w-text_w)/2:y=h*0.54:line_spacing=14:font=Liberation Sans:shadowcolor=black:shadowx=2:shadowy=2`,
+      // CTA — bottom platinum
+      `drawtext=text='${cta}':fontsize=34:fontcolor=#8A9BA8:x=(w-text_w)/2:y=h*0.88:font=Liberation Sans Bold:shadowcolor=black:shadowx=2:shadowy=2`,
+    ].join(',');
+
+    execSync(
+      `ffmpeg -y -i "${templatePath}" -vf "${drawFilters}" -c:v libx264 -preset fast -crf 22 -c:a copy "${textPath}"`,
       { timeout: 120000, encoding: 'utf8' }
-    ).trim();
+    );
+    console.log('[Reel] ✅ Text overlaid on Canva template');
 
-    if (!result.startsWith('OK:')) throw new Error(`Script error: ${result}`);
+    // Step 4 — Generate Joseph Corona voiceover
+    const voiceScript = buildVoiceoverScript(content);
+    console.log('[Voice] Script:', voiceScript);
+    const hasAudio = await generateElevenLabsAudio(voiceScript, audioPath);
 
-    // Upload to Cloudinary
+    // Step 5 — Merge audio + video
+    let uploadPath = textPath;
+    if (hasAudio) {
+      const merged = mergeAudioVideo(textPath, audioPath, finalPath);
+      if (merged) uploadPath = finalPath;
+    }
+
+    // Step 6 — Upload to Cloudinary
     const publicId  = `jrz/viral_reel_day${dayIdx}`;
     const timestamp = Math.floor(Date.now() / 1000);
     const sigStr    = `overwrite=true&public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
     const signature = crypto.createHash('sha1').update(sigStr).digest('hex');
 
     const form = new FormData();
-    form.append('file',      fs.createReadStream(outPath));
+    form.append('file',      fs.createReadStream(uploadPath));
     form.append('public_id', publicId);
     form.append('timestamp', String(timestamp));
     form.append('api_key',   CLOUDINARY_API_KEY);
@@ -2033,8 +2234,11 @@ async function buildViralReel(content, dayIdx) {
       { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 120000 }
     );
 
-    try { fs.unlinkSync(outPath); } catch (_) {}
+    [textPath, audioPath, finalPath].forEach(f => { try { fs.unlinkSync(f); } catch (_) {} });
+
+    console.log(`[Reel] ✅ Canva reel uploaded ${hasAudio ? 'with Joseph Corona voice' : '(silent fallback)'}`);
     return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/video/upload/jrz/viral_reel_day${dayIdx}.mp4`;
+
   } catch (err) {
     console.error('[Reel] ❌ buildViralReel failed:', err.message);
     return null;
@@ -2233,7 +2437,7 @@ Escribe el insight en español. Solo el párrafo, sin títulos.`,
   <!-- MACHINE STATUS -->
   <div class="section">
     <div class="section-title">⚙️ Máquina — Estado esta semana</div>
-    <div class="machine-row"><div class="dot"></div><strong>Contenido social:</strong>&nbsp;7 días × 3 formatos (carrusel, reel, story) → Instagram, Facebook, LinkedIn, YouTube, TikTok, Google Business</div>
+    <div class="machine-row"><div class="dot"></div><strong>Contenido social:</strong>&nbsp;7 días × carrusel + story · Lun/Mié/Vie × reel con voz (Joseph Corona) → Instagram, Facebook, LinkedIn, YouTube, TikTok, Google Business</div>
     <div class="machine-row"><div class="dot"></div><strong>Outbound:</strong>&nbsp;${outboundSent} emails personalizados enviados esta semana (Mon–Fri)</div>
     <div class="machine-row"><div class="dot"></div><strong>Apollo enrichment:</strong>&nbsp;${needsEmail} contactos en cola esperando email (enriquecimiento lunes 9am)</div>
     <div class="machine-row"><div class="dot"></div><strong>Armando DM bot:</strong>&nbsp;24/7 activo — responde comentarios, follows, y DMs inbound</div>
@@ -2469,6 +2673,14 @@ app.post('/webhook', async (req, res) => {
       await sendGHLReply(contactId, reply, sendType);
       if (messageId) repliedMessageIds.add(messageId);
       console.log('Armando reply sent successfully.');
+
+      // Send voice note after text reply (IG DMs and SMS only)
+      if (sendType === 'IG' || sendType === 'FB' || sendType === 'SMS') {
+        const voiceUrl = await generateDMVoiceNote(reply, contactId);
+        if (voiceUrl) {
+          await sendGHLVoiceNote(contactId, voiceUrl, sendType);
+        }
+      }
     } else {
       console.log('[Armando] Silent mode — tagging/pipeline done, no auto-reply sent.');
     }
@@ -2521,6 +2733,17 @@ app.post('/cron/daily-post', async (_req, res) => {
     res.json({ status: 'ok', ...result });
   } catch (err) {
     console.error('/cron/daily-post error:', err.message);
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// Manual trigger: POST /cron/run-reel  — test the Canva reel right now
+app.post('/cron/run-reel', async (_req, res) => {
+  try {
+    const result = await runDailyReel();
+    res.json({ status: 'ok', ...result });
+  } catch (err) {
+    console.error('/cron/run-reel error:', err.message);
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
@@ -3658,8 +3881,9 @@ setInterval(async () => {
       await runClientCheckIns();
     }
 
-    // 4:00pm — viral Reel
-    if (hour === 16 && minute < 5 && lastReelDate !== today) {
+    // 4:00pm Mon/Wed/Fri — viral Reel (12 per month)
+    const isReelDay = dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5;
+    if (hour === 16 && minute < 5 && isReelDay && lastReelDate !== today) {
       lastReelDate = today;
       await runDailyReel();
     }
@@ -3681,7 +3905,7 @@ app.listen(PORT, () => {
   console.log(`7:00am  EST daily     → Carousel + Blog`);
   console.log(`7:05am  EST Monday    → Weekly analytics self-learning + email`);
   console.log(`10:00am EST Mon-Fri   → Outbound prospecting (15 contacts/day)`);
-  console.log(`4:00pm  EST daily     → 15s Viral Reel (7 platforms)`);
+  console.log(`4:00pm  EST Mon/Wed/Fri → 15s Viral Reel w/ voice (7 platforms, ~12/month)`);
   console.log(`6:30pm  EST daily     → Story (Instagram + Facebook)`);
   console.log(`24/7                  → Armando warm DMs on comments/follows`);
 });

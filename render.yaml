@@ -12,3 +12,7 @@ services:
         sync: false
       - key: GHL_LOCATION_ID
         value: d7iUPfamAaPlSBNj6IhT
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        value: SIpDYvpsUzCaJ0WmnSA8
