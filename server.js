@@ -23,6 +23,11 @@ const EMAIL_FROM_NAME = 'Jose Rivas | JRZ Marketing';
 const ELEVENLABS_API_KEY  = process.env.ELEVENLABS_API_KEY;
 const ELEVENLABS_VOICE_ID = 'SIpDYvpsUzCaJ0WmnSA8'; // Joseph Corona — warm, professional Latino voice
 
+// ── Bland.ai voice calls ───────────────────────────────────
+const BLAND_API_KEY     = process.env.BLAND_API_KEY;
+const BLAND_WEBHOOK_URL = 'https://armando-bot-1.onrender.com/webhook/bland';
+const blandCallsSent    = new Set(); // prevent double-calling same contact
+
 async function sendEmail(contactId, subject, html) {
   await axios.post(
     'https://services.leadconnectorhq.com/conversations/messages',
@@ -934,6 +939,109 @@ async function sendGHLReply(contactId, message, sendType) {
 async function sendGHLVoiceNote(contactId, audioUrl, sendType) {
   await sendGHLReply(contactId, `🎧 Toca para escucharme: ${audioUrl}`, sendType);
   console.log('[DM Voice] ✅ Voice link sent to', contactId);
+}
+
+// ═══════════════════════════════════════════════════════════
+// BLAND.AI — OUTBOUND VOICE CALLS
+// Armando calls hot leads within 2 minutes of phone capture
+// ═══════════════════════════════════════════════════════════
+
+async function triggerBlandCall(contactId, contactName, phoneNumber, contactMemory = {}) {
+  if (!BLAND_API_KEY) { console.log('[Bland] No API key — skipping call'); return; }
+  if (blandCallsSent.has(contactId)) { console.log('[Bland] Already called', contactId); return; }
+  blandCallsSent.add(contactId);
+
+  const businessType = contactMemory.businessType || 'business';
+  const painPoints   = (contactMemory.painPoints || []).slice(0, 2).join(' and ');
+  const firstName    = (contactName || '').split(' ')[0] || 'there';
+
+  const task = `You are Armando, the friendly bilingual community manager for JRZ Marketing in Orlando, Florida. You just had a great conversation with ${firstName} over social media DM about their ${businessType}${painPoints ? ` — they mentioned challenges with ${painPoints}` : ''}.
+
+Your ONLY goal on this call: have a warm 60-90 second conversation and book a FREE 15-minute strategy call with Jose Rivas, the founder of JRZ Marketing.
+
+Rules:
+- Start with: "Hi, is this ${firstName}? This is Armando from JRZ Marketing — we were just chatting on Instagram!"
+- If they speak Spanish, switch to Spanish naturally and stay in Spanish
+- Be warm, conversational, human — NOT robotic or scripted
+- Reference their specific situation from the DM if relevant
+- Mention the free 15-min call with Jose naturally: "Jose does a free 15-minute strategy session — no pitch, just real advice for your business"
+- If they say yes → confirm they'll get a booking link by text/DM right after this call
+- Keep it under 2 minutes — you are just following up on the DM, not doing a full pitch
+- If they don't answer or go to voicemail → leave a brief friendly voicemail and end the call
+- Never be pushy. If they say not interested → be gracious, say "No problem at all, have a great day!"`;
+
+  try {
+    const res = await axios.post('https://api.bland.ai/v1/calls', {
+      phone_number: phoneNumber,
+      task,
+      voice:              'ryan',
+      language:           'auto',  // auto-detects English/Spanish
+      webhook:            BLAND_WEBHOOK_URL,
+      max_duration:       3,       // 3 min max — keeps it focused
+      wait_for_greeting:  true,
+      reduce_latency:     true,
+      record:             true,
+      metadata:           { contactId, contactName, source: 'armando_hot_lead' },
+    }, {
+      headers: { authorization: BLAND_API_KEY, 'Content-Type': 'application/json' },
+    });
+    console.log(`[Bland] ✅ Call triggered for ${contactName} (${phoneNumber}) — call_id: ${res.data?.call_id}`);
+    return res.data?.call_id;
+  } catch (err) {
+    console.error('[Bland] Call failed:', err?.response?.data || err.message);
+    blandCallsSent.delete(contactId); // allow retry on error
+    return null;
+  }
+}
+
+async function parseBlandTranscript(payload) {
+  const contactId   = payload.metadata?.contactId;
+  const contactName = payload.metadata?.contactName || 'Unknown';
+  if (!contactId) return;
+
+  const transcript = payload.concatenated_transcript || '';
+  const summary    = payload.summary || '';
+  const callLength = payload.call_length || 0;
+  const endedBy    = payload.call_ended_by || '';
+
+  console.log(`[Bland] Post-call for ${contactName} — ${callLength}s, ended by ${endedBy}`);
+
+  try {
+    // Ask Claude to parse the outcome
+    const msg = await anthropic.messages.create({
+      model:      'claude-haiku-4-5-20251001',
+      max_tokens: 200,
+      messages:   [{ role: 'user', content: `Parse this sales call transcript and return ONLY valid JSON: {"booked": true/false, "interested": true/false, "objection": "price|timing|competition|none", "sentiment": "positive|neutral|negative", "keyPoint": "one sentence summary"}\n\nTranscript:\n${transcript.slice(0, 2000)}\n\nSummary: ${summary}` }],
+    });
+    const parsed = JSON.parse(msg.content[0].text.match(/\{[\s\S]*\}/)[0]);
+
+    // Update contact memory with call outcome
+    const mem = await loadContactMemory(contactId);
+    mem.lastCallOutcome  = parsed.keyPoint;
+    mem.callBooked       = parsed.booked;
+    mem.callSentiment    = parsed.sentiment;
+    mem.lastCallAt       = new Date().toISOString();
+    saveContactMemory(contactId, mem);
+
+    // Tag + pipeline update
+    if (parsed.booked) {
+      await tagContact(contactId, ['call-booked', 'armando-called']);
+      await createOpportunity(contactId, contactName, PIPELINE_STAGES.booking);
+      logWeeklyWin(contactId, summary, 'call_booked');
+      console.log(`[Bland] ✅ ${contactName} BOOKED on the call!`);
+    } else if (parsed.interested) {
+      await tagContact(contactId, ['call-interested', 'armando-called']);
+    } else {
+      await tagContact(contactId, ['call-no-show-or-declined', 'armando-called']);
+    }
+
+    if (parsed.objection && parsed.objection !== 'none') {
+      logObjectionResponse(parsed.objection, summary, contactId);
+    }
+  } catch (err) {
+    console.error('[Bland] Transcript parsing failed:', err.message);
+    tagContact(contactId, ['armando-called']); // at minimum tag it
+  }
 }
 
 async function tagContact(contactId, tags) {
@@ -3076,6 +3184,11 @@ app.post('/webhook', async (req, res) => {
       await sendLeadScoreAlert(contactId, contactName, leadScore, sendType, foundPhone, foundEmail);
     }
 
+    // Trigger Bland.ai outbound call when hot lead shares phone number
+    if (hasBothData && foundPhone && !blandCallsSent.has(contactId)) {
+      triggerBlandCall(contactId, contactName, foundPhone, cMem || {}); // fire-and-forget
+    }
+
     if (shouldAutoReply) {
       await sendGHLReply(contactId, reply, sendType);
       if (messageId) repliedMessageIds.add(messageId);
@@ -4182,6 +4295,16 @@ app.post('/cron/review-mining', async (_req, res) => {
     res.json({ status: 'ok' });
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// ── Bland.ai post-call webhook ────────────────────────────────────────────────
+app.post('/webhook/bland', async (req, res) => {
+  res.json({ ok: true }); // respond fast
+  try {
+    await parseBlandTranscript(req.body);
+  } catch (err) {
+    console.error('[Bland] Webhook error:', err.message);
   }
 });
 

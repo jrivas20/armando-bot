@@ -16,3 +16,5 @@ services:
         sync: false
       - key: SERPAPI_KEY
         sync: false
+      - key: BLAND_API_KEY
+        sync: false
