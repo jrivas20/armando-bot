@@ -2058,45 +2058,57 @@ async function generateElevenLabsAudio(text, audioPath) {
 }
 
 // ── Build a smart, human voice script — continuation of the text reply ───────
-async function buildDMVoiceScript(textReply, contactName) {
+async function buildDMVoiceScript(textReply, contactName, originalMessage) {
   const nowEST  = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
   const hour    = nowEST.getHours();
   const timeStr = hour < 12 ? 'esta mañana' : hour < 17 ? 'esta tarde' : 'esta noche';
   const name    = (contactName || '').split(' ')[0] || '';
 
-  const prompt = `Eres Armando Rivas, 22 años, venezolano, Community Manager de JRZ Marketing en Orlando.
-Acabas de responder este mensaje de texto a ${name || 'un prospecto'}: "${textReply}"
-Ahora vas a grabar un mensaje de VOZ que es la CONTINUACIÓN natural de ese texto — no repitas lo mismo.
+  const prompt = `Eres Armando Rivas, 22 años, venezolano, Community Manager de JRZ Marketing en Orlando, Florida.
+Tienes voz — este texto se va a convertir en audio con tu voz real. Habla como si estuvieras grabando un voice note de WhatsApp o Instagram.
 
-El mensaje de voz debe:
-- Sonar 100% humano, cálido, como si de verdad lo estuvieras grabando ${timeStr}
-- Mencionar la hora del día de forma natural (${timeStr})
-- Explicar BREVEMENTE lo que hace JRZ Marketing: captamos clientes, automatizamos el marketing, creamos contenido viral, todo en un sistema completo
-- Mencionar que Jose (el dueño) hace consultas gratuitas de 15 minutos — sin compromiso
-- Cerrar con urgencia suave — que agenden HOY porque los cupos son limitados
-- MÁXIMO 65 palabras — tiene que sonar en menos de 30 segundos
-- En español natural venezolano/latino, sin emojis, sin hashtags
-- NO empieces con "Hola" — empieza diferente, más directo y humano
+CONTEXTO DE LA CONVERSACIÓN:
+- Lo que dijo el prospecto: "${originalMessage || 'nos contactó con interés'}"
+- Lo que ya le respondiste por texto: "${textReply}"
 
-Solo escribe el guión del mensaje de voz. Nada más.`;
+CONOCIMIENTO DE MERCADO (úsalo inteligentemente):
+- La mayoría de negocios latinos en EE.UU. tienen el mismo problema: invierten en redes, en anuncios, en diseñadores — y no ven resultados porque no tienen un SISTEMA.
+- La competencia (agencias genéricas) cobra caro, hace trabajo genérico, no habla su idioma, y no entiende la cultura latina.
+- JRZ Marketing es diferente: somos latinos, hablamos su idioma, y construimos un sistema completo — captación de clientes, automatización con IA, contenido viral, y seguimiento hasta cerrar la venta. Todo integrado.
+- Jose Rivas (el fundador) trabaja directamente con cada cliente en los primeros 30 días.
+- Resultado promedio de nuestros clientes: más leads, más cierres, más tiempo libre.
+
+REGLAS DEL MENSAJE DE VOZ:
+1. Es la CONTINUACIÓN del texto — no repitas lo mismo, profundiza
+2. Muéstrate HUMANO: empático, cálido, inteligente — no genérico
+3. Lee entre líneas lo que dijo el prospecto y responde a su NECESIDAD REAL, no solo a sus palabras
+4. Menciona la hora del día naturalmente (${timeStr}) — da sensación de presencia real
+5. Explica brevemente el PROCESO de JRZ: sistema completo, resultados medibles, acompañamiento real
+6. Cierra con UNA sola llamada a la acción: agendar la consulta gratuita de 15 min con Jose HOY
+7. Urgencia SUAVE — no presiones, convence con lógica y empatía
+8. MÁXIMO 70 palabras — menos de 30 segundos de audio
+9. Español latino natural — nada de formal, nada de robótico
+10. NO empieces con "Hola" ni "Mira" — empieza de forma única y humana cada vez
+11. Sin emojis, sin hashtags — es audio
+
+Escribe SOLO el guión. Sin explicaciones. Sin comillas al inicio o al final.`;
 
   try {
     const msg = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 150,
+      max_tokens: 200,
       messages: [{ role: 'user', content: prompt }]
     });
     return msg.content[0].text.trim();
   } catch (err) {
-    // Fallback script if Claude fails
-    return `Mira, ${timeStr} te escribo porque en JRZ Marketing hacemos exactamente eso — captamos clientes, automatizamos tu marketing y creamos contenido que vende, todo en un sistema completo. Jose hace una consulta gratis de 15 minutos, sin compromiso. Los cupos se llenan rápido, agéndala hoy.`;
+    return `${timeStr} te grabé este mensaje porque lo que me dijiste tiene solución. En JRZ construimos el sistema completo — captamos los clientes, automatizamos el seguimiento, y creamos el contenido. Todo integrado, todo medible. Jose hace una llamada gratuita de 15 minutos contigo, sin compromiso. Agéndala hoy, los espacios se llenan rápido.`;
   }
 }
 
 // ── Generate voice note for DM reply and return Cloudinary URL ───────────────
-async function generateDMVoiceNote(text, contactId, contactName) {
+async function generateDMVoiceNote(text, contactId, contactName, originalMessage) {
   const audioPath = `/tmp/jrz_dm_voice_${contactId}_${Date.now()}.mp3`;
-  const voiceScript = await buildDMVoiceScript(text, contactName);
+  const voiceScript = await buildDMVoiceScript(text, contactName, originalMessage);
   console.log('[DM Voice] Script:', voiceScript);
   try {
     const ok = await generateElevenLabsAudio(voiceScript, audioPath);
@@ -2694,7 +2706,7 @@ app.post('/webhook', async (req, res) => {
 
       // Send voice note after text reply (IG DMs and SMS only)
       if (sendType === 'IG' || sendType === 'FB' || sendType === 'SMS') {
-        const voiceUrl = await generateDMVoiceNote(reply, contactId, contactName);
+        const voiceUrl = await generateDMVoiceNote(reply, contactId, contactName, messageBody);
         if (voiceUrl) {
           await sendGHLVoiceNote(contactId, voiceUrl, sendType);
         }
