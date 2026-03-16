@@ -740,10 +740,12 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   contactMessageCount.set(contactId, count);
 
   // Load all memory stores in parallel
-  const [contactMemory, competitorInsights, compPainPoints] = await Promise.all([
+  const [contactMemory, competitorInsights, compPainPoints, armandoRules, objectionMemory] = await Promise.all([
     loadContactMemory(contactId),
     loadCompetitorInsights(),
     loadCompetitorPainPoints(),
+    loadArmandoRules(),
+    loadObjectionMemory(),
   ]);
 
   const hour = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false });
@@ -857,6 +859,13 @@ ${(competitorInsights.competitorWeaknesses || []).slice(0, 3).join(', ') || 'ser
 FRUSTRACIONES COMUNES CON OTRAS AGENCIAS (dirígelas de forma natural):
 ${(compPainPoints.painPoints || []).slice(0, 3).join(', ') || 'cobran caro sin resultados, no hablan español de verdad, desaparecen después de vender'}
 
+${(armandoRules.rules || []).length > 0 ? `REGLAS DE ESTA SEMANA (aprendidas de conversaciones reales — síguelas):
+${(armandoRules.rules || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}` : ''}
+
+${detectObjection(incomingMessage) ? `⚠️ OBJECIÓN DETECTADA: "${detectObjection(incomingMessage)}"
+Respuestas que han convertido antes:
+${((objectionMemory[detectObjection(incomingMessage)] || {}).bestResponses || []).slice(0, 2).join('\n') || 'Sin datos aún — usa tu mejor criterio. Empatiza primero, luego redirige.'}` : ''}
+
 TU TAREA PARA ESTE MENSAJE: ${stageInstruction}
 
 Responde SOLO en este formato JSON exacto (sin texto extra):
@@ -890,6 +899,11 @@ sentiment: positive=emocionado/amigable, neutral=normal, annoyed=frustrado/impac
         messageCount: (contactMemory.messageCount || 0) + 1,
       };
       saveContactMemory(contactId, updatedMemory); // intentionally no await
+      // Log objection response if an objection was detected
+      const objType = detectObjection(incomingMessage);
+      if (objType && parsed.reply) logObjectionResponse(objType, parsed.reply, contactId);
+      // Log weekly win when lead goes hot
+      if (parsed.leadQuality === 'hot' && parsed.reply) logWeeklyWin(contactId, parsed.reply, 'hot_lead');
       return {
         reply: parsed.reply,
         leadQuality: parsed.leadQuality || 'none',
@@ -1176,6 +1190,20 @@ const COMPETITOR_INS_PID   = 'jrz/competitor_insights';
 const COMPETITOR_PAIN_URL  = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/competitor_pain_points.json';
 const COMPETITOR_PAIN_PID  = 'jrz/competitor_pain_points';
 
+// ── Feature: Objection Memory ─────────────────────────────────────────────────
+const OBJECTION_MEMORY_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/objection_memory.json';
+const OBJECTION_MEMORY_PID = 'jrz/objection_memory';
+
+// ── Feature: Self-Updating Rules ─────────────────────────────────────────────
+const ARMANDO_RULES_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/armando_rules.json';
+const ARMANDO_RULES_PID = 'jrz/armando_rules';
+const WEEKLY_WINS_URL   = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/weekly_wins.json';
+const WEEKLY_WINS_PID   = 'jrz/weekly_wins';
+
+// ── Feature: Reel Attribution ─────────────────────────────────────────────────
+const REEL_LOG_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/reel_log.json';
+const REEL_LOG_PID = 'jrz/reel_log';
+
 // In-memory: contactId → variant letter assigned for this session
 const contactVariantMap = new Map();
 
@@ -1352,6 +1380,165 @@ async function loadCompetitorPainPoints() {
   } catch { return { painPoints: [], frustrations: [], updatedAt: null }; }
 }
 async function saveCompetitorPainPoints(data) { await saveCloudinaryJSON(COMPETITOR_PAIN_PID, data); }
+
+// ─── OBJECTION MEMORY ────────────────────────────────────────────────────────
+async function loadObjectionMemory() {
+  try {
+    const res = await axios.get(OBJECTION_MEMORY_URL, { timeout: 6000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch { return {}; }
+}
+async function saveObjectionMemory(data) { await saveCloudinaryJSON(OBJECTION_MEMORY_PID, data); }
+
+function detectObjection(message) {
+  const m = message.toLowerCase();
+  if (m.match(/muy caro|too expensive|precio alto|no tengo presupuesto|cuesta mucho|no puedo pagar|es mucho dinero/)) return 'too_expensive';
+  if (m.match(/ahora no|not now|después|luego|más adelante|ocupado|no es buen momento|busy|later/)) return 'not_now';
+  if (m.match(/ya tengo|ya trabajo con|tengo agencia|tengo alguien|already have/)) return 'already_have_agency';
+  if (m.match(/no tengo tiempo|sin tiempo|muy ocupado|no time/)) return 'no_time';
+  if (m.match(/solo mirando|just looking|solo información|solo info|just browsing/)) return 'just_looking';
+  return null;
+}
+
+async function logObjectionResponse(objectionType, response, contactId) {
+  try {
+    const mem = await loadObjectionMemory();
+    if (!mem[objectionType]) mem[objectionType] = { bestResponses: [], convertedCount: 0, pending: [] };
+    mem[objectionType].pending.push({ contactId, response, timestamp: new Date().toISOString(), outcome: 'pending' });
+    mem[objectionType].pending = mem[objectionType].pending.slice(-50); // keep last 50
+    await saveObjectionMemory(mem);
+  } catch (err) { console.error('[Objection] Log failed:', err.message); }
+}
+
+async function markObjectionConverted(contactId) {
+  try {
+    const mem = await loadObjectionMemory();
+    let changed = false;
+    for (const type of Object.keys(mem)) {
+      if (!mem[type].pending) continue;
+      for (const entry of mem[type].pending) {
+        if (entry.contactId === contactId && entry.outcome === 'pending') {
+          entry.outcome = 'converted';
+          mem[type].convertedCount = (mem[type].convertedCount || 0) + 1;
+          // Promote to bestResponses if not already there
+          if (!mem[type].bestResponses.includes(entry.response)) {
+            mem[type].bestResponses.unshift(entry.response);
+            mem[type].bestResponses = mem[type].bestResponses.slice(0, 5);
+          }
+          changed = true;
+        }
+      }
+    }
+    if (changed) await saveObjectionMemory(mem);
+  } catch (err) { console.error('[Objection] markConverted failed:', err.message); }
+}
+
+async function runObjectionLearning() {
+  try {
+    console.log('[Learning] Running objection pattern analysis...');
+    const mem = await loadObjectionMemory();
+    const summary = Object.entries(mem).map(([type, data]) => (
+      `${type}: ${data.convertedCount || 0} conversions, best responses: ${(data.bestResponses || []).slice(0, 2).join(' | ')}`
+    )).join('\n');
+    if (!summary) return;
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 400,
+      messages: [{ role: 'user', content: `You are analyzing objection handling data for a Spanish-speaking AI sales bot. Based on these results, return ONLY valid JSON: { "insights": "what's working", "newResponses": { "too_expensive": "one new counter", "not_now": "one new counter", "already_have_agency": "one new counter" } }\n\n${summary}` }],
+    });
+    const parsed = JSON.parse(msg.content[0].text.match(/\{[\s\S]*\}/)[0]);
+    // Inject new AI-generated responses into best responses
+    for (const [type, response] of Object.entries(parsed.newResponses || {})) {
+      if (!mem[type]) mem[type] = { bestResponses: [], convertedCount: 0, pending: [] };
+      if (response && !mem[type].bestResponses.includes(response)) {
+        mem[type].bestResponses.push(response);
+        mem[type].bestResponses = mem[type].bestResponses.slice(0, 5);
+      }
+    }
+    await saveObjectionMemory(mem);
+    console.log('[Learning] ✅ Objection patterns updated:', parsed.insights);
+  } catch (err) { console.error('[Learning] Objection learning failed:', err.message); }
+}
+
+// ─── SELF-UPDATING SYSTEM PROMPT ─────────────────────────────────────────────
+async function loadArmandoRules() {
+  try {
+    const res = await axios.get(ARMANDO_RULES_URL, { timeout: 6000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch { return { rules: [], updatedAt: null }; }
+}
+async function saveArmandoRules(data) { await saveCloudinaryJSON(ARMANDO_RULES_PID, data); }
+
+async function loadWeeklyWins() {
+  try {
+    const res = await axios.get(WEEKLY_WINS_URL, { timeout: 6000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch { return []; }
+}
+async function saveWeeklyWins(data) { await saveCloudinaryJSON(WEEKLY_WINS_PID, data); }
+
+async function logWeeklyWin(contactId, reply, outcome) {
+  try {
+    const wins = await loadWeeklyWins();
+    wins.push({ contactId, reply: reply.slice(0, 300), outcome, timestamp: new Date().toISOString() });
+    await saveWeeklyWins(wins.slice(-100)); // keep last 100 wins
+  } catch (err) { console.error('[Rules] logWeeklyWin failed:', err.message); }
+}
+
+async function runSelfUpdateRules() {
+  try {
+    console.log('[Rules] Running self-update of Armando\'s playbook...');
+    const [wins, engPatterns, objMem] = await Promise.all([
+      loadWeeklyWins(),
+      loadEngagementPatterns(),
+      loadObjectionMemory(),
+    ]);
+    const winSummary = wins.slice(-30).map(w => `[${w.outcome}] "${w.reply}"`).join('\n');
+    const engSummary = engPatterns.bestTopics ? `Best topics: ${engPatterns.bestTopics.join(', ')}. Best hook style: ${engPatterns.bestHookStyle}` : '';
+    const objSummary = Object.entries(objMem).map(([t, d]) => `${t}: ${d.convertedCount || 0} conversions`).join(', ');
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 600,
+      messages: [{ role: 'user', content: `You are improving the behavior rules for Armando, a Spanish-speaking AI sales bot for JRZ Marketing (Orlando, FL). Analyze this week's data and return ONLY valid JSON with exactly this structure:\n{"rules":["rule1","rule2","rule3","rule4","rule5"],"weeklyWins":${wins.length},"updatedAt":"${new Date().toISOString()}"}\n\nWins this week:\n${winSummary}\n\nEngagement: ${engSummary}\nObjections: ${objSummary}\n\nWrite 5 specific behavior rules in Spanish that will make Armando more effective next week. Rules should be actionable instructions like "Cuando alguien menciona precio, primero pregunta sobre su ROI antes de defender el costo".` }],
+    });
+    const parsed = JSON.parse(msg.content[0].text.match(/\{[\s\S]*\}/)[0]);
+    await saveArmandoRules(parsed);
+    // Clear weekly wins for next week
+    await saveWeeklyWins([]);
+    console.log('[Rules] ✅ Armando playbook updated with', parsed.rules?.length, 'new rules');
+  } catch (err) { console.error('[Rules] Self-update failed:', err.message); }
+}
+
+// ─── REEL ATTRIBUTION ─────────────────────────────────────────────────────────
+async function loadReelLog() {
+  try {
+    const res = await axios.get(REEL_LOG_URL, { timeout: 6000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch { return []; }
+}
+async function saveReelLog(data) { await saveCloudinaryJSON(REEL_LOG_PID, data); }
+
+async function logReelPost(hook, caption) {
+  try {
+    const log = await loadReelLog();
+    log.unshift({ hook, caption: caption?.slice(0, 200) || '', postedAt: new Date().toISOString(), dmCount: 0, attributedContacts: [] });
+    await saveReelLog(log.slice(0, 50)); // keep last 50 reels
+  } catch (err) { console.error('[Attribution] logReelPost failed:', err.message); }
+}
+
+async function checkReelAttribution(contactId) {
+  try {
+    const log = await loadReelLog();
+    const cutoff = Date.now() - 48 * 60 * 60 * 1000; // 48 hours ago
+    const recentReel = log.find(r => new Date(r.postedAt).getTime() > cutoff && !r.attributedContacts.includes(contactId));
+    if (!recentReel) return null;
+    // Update reel log — increment dmCount and add contactId
+    recentReel.dmCount = (recentReel.dmCount || 0) + 1;
+    recentReel.attributedContacts.push(contactId);
+    saveReelLog(log); // fire-and-forget
+    return recentReel.hook;
+  } catch { return null; }
+}
 
 async function runReviewMining() {
   try {
@@ -2495,6 +2682,7 @@ async function runDailyReel() {
       media: [{ url: reelUrl, type: 'video' }],
     });
     console.log(`[Reel] ✅ Viral Reel scheduled for ${reelTime.toISOString()} — ${REEL_ACCOUNTS.length} platforms`);
+    logReelPost(content.hook, script.caption); // fire-and-forget attribution tracking
     return { success: true, reelUrl, hook: content.hook, scheduledFor: reelTime.toISOString() };
   } catch (err) {
     console.error('[Reel] ❌ Failed to schedule Reel:', err?.response?.data || err.message);
@@ -2834,6 +3022,15 @@ app.post('/webhook', async (req, res) => {
     );
     const msgCount = contactMessageCount.get(contactId) || 1;
     console.log(`Armando reply (msg #${msgCount}, lead: ${leadQuality}, sentiment: ${sentiment}, engage: ${shouldEngage}, phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}):`, reply);
+
+    // Reel attribution — on first DM, check if a reel drove this lead
+    if (msgCount === 1) {
+      const reelHook = await checkReelAttribution(contactId);
+      if (reelHook) {
+        tagContact(contactId, ['reel-driven-lead']); // fire-and-forget
+        console.log(`[Attribution] Lead ${contactId} attributed to reel: "${reelHook.slice(0, 60)}"`);
+      }
+    }
 
     // 3. If Claude detects this is a personal/casual message not related to business → stay silent
     if (shouldAutoReply && !shouldEngage) {
@@ -3380,6 +3577,9 @@ app.post('/webhook/new-client', async (req, res) => {
     if (!contactId) { console.log('[Onboarding] Missing contactId, skipping.'); return; }
     if (onboardedContacts.has(contactId)) { console.log(`[Onboarding] Already onboarded ${contactId}, skipping.`); return; }
     onboardedContacts.add(contactId);
+    // Mark any pending objection responses as converted — this is a real booking
+    markObjectionConverted(contactId); // fire-and-forget
+    logWeeklyWin(contactId, 'booked', 'booking'); // fire-and-forget
     await sendClientOnboarding(contactId, contactName, businessName, loginEmail);
   } catch (err) {
     console.error('[Onboarding] Webhook error:', err.message);
@@ -3995,6 +4195,24 @@ app.post('/cron/engagement-learning', async (_req, res) => {
   }
 });
 
+app.post('/cron/objection-learning', async (_req, res) => {
+  try {
+    await runObjectionLearning();
+    res.json({ status: 'ok' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/cron/self-update-rules', async (_req, res) => {
+  try {
+    await runSelfUpdateRules();
+    res.json({ status: 'ok' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
 app.post('/cron/client-checkins', async (_req, res) => {
   try {
     await runClientCheckIns();
@@ -4094,6 +4312,8 @@ setInterval(async () => {
       await runEngagementLearning();
       await updateWinningVoicePatterns();
       await runReviewMining();
+      await runObjectionLearning();
+      await runSelfUpdateRules();
     }
 
     // 9:00am Monday — Apollo email enrichment (free plan: 50 credits/month)
