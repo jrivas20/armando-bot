@@ -2742,10 +2742,17 @@ app.post('/cron/run-reel', async (_req, res) => {
 
 // Debug: GET /test-voice — test OpenAI TTS live on Render
 app.get('/test-voice', async (_req, res) => {
-  const audioPath = '/tmp/test_voice_debug.mp3';
-  const ok = await generateElevenLabsAudio('Hola, soy Armando de JRZ Marketing.', audioPath);
-  try { fs.unlinkSync(audioPath); } catch (_) {}
-  res.json({ voice: OPENAI_TTS_VOICE, success: ok });
+  try {
+    const response = await axios.post(
+      'https://api.openai.com/v1/audio/speech',
+      { model: 'tts-1', input: 'Hola soy Armando.', voice: OPENAI_TTS_VOICE, response_format: 'mp3' },
+      { headers: { 'Authorization': `Bearer ${OPENAI_TTS_KEY}`, 'Content-Type': 'application/json' }, responseType: 'arraybuffer', timeout: 30000 }
+    );
+    res.json({ voice: OPENAI_TTS_VOICE, success: true, bytes: response.data.byteLength, keySet: !!OPENAI_TTS_KEY });
+  } catch (err) {
+    const body = err?.response?.data ? Buffer.from(err.response.data).toString('utf8') : err.message;
+    res.json({ voice: OPENAI_TTS_VOICE, success: false, status: err?.response?.status, error: body, keySet: !!OPENAI_TTS_KEY });
+  }
 });
 
 // Manual trigger: POST /cron/daily-story
