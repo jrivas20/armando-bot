@@ -2750,11 +2750,18 @@ app.post('/cron/run-reel', async (_req, res) => {
 
 // Debug: GET /test-voice — test ElevenLabs key + voice live on Render
 app.get('/test-voice', async (_req, res) => {
-  const keyPreview = ELEVENLABS_API_KEY ? `${ELEVENLABS_API_KEY.slice(0,8)}...${ELEVENLABS_API_KEY.slice(-4)}` : 'NOT SET';
-  const audioPath  = '/tmp/test_voice_debug.mp3';
-  const ok = await generateElevenLabsAudio('Hola soy Armando.', audioPath);
-  try { fs.unlinkSync(audioPath); } catch (_) {}
-  res.json({ key: keyPreview, voiceId: ELEVENLABS_VOICE_ID, success: ok });
+  const keyPreview = `${ELEVENLABS_API_KEY.slice(0,8)}...${ELEVENLABS_API_KEY.slice(-4)}`;
+  try {
+    const response = await axios.post(
+      `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,
+      { text: 'Hola soy Armando.', model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.45, similarity_boost: 0.80 } },
+      { headers: { 'xi-api-key': ELEVENLABS_API_KEY, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' }, responseType: 'arraybuffer', timeout: 30000 }
+    );
+    res.json({ key: keyPreview, voiceId: ELEVENLABS_VOICE_ID, success: true, bytes: response.data.byteLength });
+  } catch (err) {
+    const errBody = err?.response?.data ? Buffer.from(err.response.data).toString('utf8') : null;
+    res.json({ key: keyPreview, voiceId: ELEVENLABS_VOICE_ID, success: false, status: err?.response?.status, error: err.message, body: errBody });
+  }
 });
 
 // Manual trigger: POST /cron/daily-story
