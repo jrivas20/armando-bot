@@ -2057,11 +2057,49 @@ async function generateElevenLabsAudio(text, audioPath) {
   }
 }
 
-// ── Generate voice note for DM reply and return Cloudinary URL ───────────────
-async function generateDMVoiceNote(text, contactId) {
-  const audioPath = `/tmp/jrz_dm_voice_${contactId}_${Date.now()}.mp3`;
+// ── Build a smart, human voice script — continuation of the text reply ───────
+async function buildDMVoiceScript(textReply, contactName) {
+  const nowEST  = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const hour    = nowEST.getHours();
+  const timeStr = hour < 12 ? 'esta mañana' : hour < 17 ? 'esta tarde' : 'esta noche';
+  const name    = (contactName || '').split(' ')[0] || '';
+
+  const prompt = `Eres Armando Rivas, 22 años, venezolano, Community Manager de JRZ Marketing en Orlando.
+Acabas de responder este mensaje de texto a ${name || 'un prospecto'}: "${textReply}"
+Ahora vas a grabar un mensaje de VOZ que es la CONTINUACIÓN natural de ese texto — no repitas lo mismo.
+
+El mensaje de voz debe:
+- Sonar 100% humano, cálido, como si de verdad lo estuvieras grabando ${timeStr}
+- Mencionar la hora del día de forma natural (${timeStr})
+- Explicar BREVEMENTE lo que hace JRZ Marketing: captamos clientes, automatizamos el marketing, creamos contenido viral, todo en un sistema completo
+- Mencionar que Jose (el dueño) hace consultas gratuitas de 15 minutos — sin compromiso
+- Cerrar con urgencia suave — que agenden HOY porque los cupos son limitados
+- MÁXIMO 65 palabras — tiene que sonar en menos de 30 segundos
+- En español natural venezolano/latino, sin emojis, sin hashtags
+- NO empieces con "Hola" — empieza diferente, más directo y humano
+
+Solo escribe el guión del mensaje de voz. Nada más.`;
+
   try {
-    const ok = await generateElevenLabsAudio(text, audioPath);
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 150,
+      messages: [{ role: 'user', content: prompt }]
+    });
+    return msg.content[0].text.trim();
+  } catch (err) {
+    // Fallback script if Claude fails
+    return `Mira, ${timeStr} te escribo porque en JRZ Marketing hacemos exactamente eso — captamos clientes, automatizamos tu marketing y creamos contenido que vende, todo en un sistema completo. Jose hace una consulta gratis de 15 minutos, sin compromiso. Los cupos se llenan rápido, agéndala hoy.`;
+  }
+}
+
+// ── Generate voice note for DM reply and return Cloudinary URL ───────────────
+async function generateDMVoiceNote(text, contactId, contactName) {
+  const audioPath = `/tmp/jrz_dm_voice_${contactId}_${Date.now()}.mp3`;
+  const voiceScript = await buildDMVoiceScript(text, contactName);
+  console.log('[DM Voice] Script:', voiceScript);
+  try {
+    const ok = await generateElevenLabsAudio(voiceScript, audioPath);
     if (!ok) return null;
 
     // Upload MP3 to Cloudinary
@@ -2656,7 +2694,7 @@ app.post('/webhook', async (req, res) => {
 
       // Send voice note after text reply (IG DMs and SMS only)
       if (sendType === 'IG' || sendType === 'FB' || sendType === 'SMS') {
-        const voiceUrl = await generateDMVoiceNote(reply, contactId);
+        const voiceUrl = await generateDMVoiceNote(reply, contactId, contactName);
         if (voiceUrl) {
           await sendGHLVoiceNote(contactId, voiceUrl, sendType);
         }
