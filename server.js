@@ -2748,6 +2748,15 @@ app.post('/cron/run-reel', async (_req, res) => {
   }
 });
 
+// Debug: GET /test-voice — test ElevenLabs key + voice live on Render
+app.get('/test-voice', async (_req, res) => {
+  const keyPreview = ELEVENLABS_API_KEY ? `${ELEVENLABS_API_KEY.slice(0,8)}...${ELEVENLABS_API_KEY.slice(-4)}` : 'NOT SET';
+  const audioPath  = '/tmp/test_voice_debug.mp3';
+  const ok = await generateElevenLabsAudio('Hola soy Armando.', audioPath);
+  try { fs.unlinkSync(audioPath); } catch (_) {}
+  res.json({ key: keyPreview, voiceId: ELEVENLABS_VOICE_ID, success: ok });
+});
+
 // Manual trigger: POST /cron/daily-story
 app.post('/cron/daily-story', async (_req, res) => {
   try {
