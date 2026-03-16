@@ -20,8 +20,8 @@ const EMAIL_FROM      = 'info@email.jrzmarketing.com';
 const EMAIL_FROM_NAME = 'Jose Rivas | JRZ Marketing';
 
 // ── ElevenLabs voice ──────────────────────────────────────
-const ELEVENLABS_API_KEY  = process.env.ELEVENLABS_API_KEY  || 'sk_801eaf82b6ec4893bdfa9b93ae75dc16abf1eade79b63a72';
-const ELEVENLABS_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'SIpDYvpsUzCaJ0WmnSA8'; // Joseph Corona
+const ELEVENLABS_API_KEY  = process.env.ELEVENLABS_API_KEY  || 'sk_7aba3b0a1ea5caf40ec86d0d5f6db71ecd51d9eab063e078';
+const ELEVENLABS_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'IKne3meq5aSn9XLyUdCD'; // Charlie — Deep, Confident, Energetic
 
 async function sendEmail(contactId, subject, html) {
   await axios.post(
