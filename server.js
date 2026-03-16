@@ -1390,7 +1390,8 @@ async function saveABTestData(data) {
 async function saveCloudinaryJSON(publicId, data) {
   try {
     const ts     = Math.floor(Date.now() / 1000);
-    const sigStr = `overwrite=true&public_id=${publicId}&resource_type=raw&timestamp=${ts}${CLOUDINARY_API_SECRET}`;
+    // resource_type must NOT be included in the signature string per Cloudinary docs
+    const sigStr = `overwrite=true&public_id=${publicId}&timestamp=${ts}${CLOUDINARY_API_SECRET}`;
     const sig    = crypto.createHash('sha1').update(sigStr).digest('hex');
     const form   = new FormData();
     const buf    = Buffer.from(JSON.stringify(data, null, 2));
