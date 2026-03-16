@@ -882,22 +882,10 @@ async function sendGHLReply(contactId, message, sendType) {
   );
 }
 
-// Send an audio file as a voice note attachment in DM (GHL attachment API)
+// Send voice note as a tappable link in DM
 async function sendGHLVoiceNote(contactId, audioUrl, sendType) {
-  try {
-    await axios.post(
-      'https://services.leadconnectorhq.com/conversations/messages',
-      { type: sendType, contactId, attachments: [audioUrl] },
-      { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
-    );
-    console.log('[DM Voice] ✅ Voice note attachment sent');
-    return true;
-  } catch (err) {
-    // Fallback: send as a clickable link if attachment isn't supported
-    console.warn('[DM Voice] Attachment failed, sending link fallback:', err?.response?.data || err.message);
-    await sendGHLReply(contactId, `🎧 Escúchame: ${audioUrl}`, sendType);
-    return false;
-  }
+  await sendGHLReply(contactId, `🎧 Toca para escucharme: ${audioUrl}`, sendType);
+  console.log('[DM Voice] ✅ Voice link sent to', contactId);
 }
 
 async function tagContact(contactId, tags) {
