@@ -14,5 +14,5 @@ services:
         value: d7iUPfamAaPlSBNj6IhT
       - key: ELEVENLABS_API_KEY
         sync: false
-      - key: ELEVENLABS_API_KEY
+      - key: SERPAPI_KEY
         sync: false

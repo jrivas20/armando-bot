@@ -739,6 +739,13 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   const count = (contactMessageCount.get(contactId) || 0) + 1;
   contactMessageCount.set(contactId, count);
 
+  // Load all memory stores in parallel
+  const [contactMemory, competitorInsights, compPainPoints] = await Promise.all([
+    loadContactMemory(contactId),
+    loadCompetitorInsights(),
+    loadCompetitorPainPoints(),
+  ]);
+
   const hour = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false });
   const h = parseInt(hour);
   const timeGreeting   = h < 12 ? 'Buenos días'   : h < 18 ? 'Buenas tardes'   : 'Buenas noches';
@@ -836,10 +843,24 @@ Lee el mensaje y decide si esta persona tiene una intención de negocio real o e
 - Señales de negocio: curiosidad sobre servicios, preguntas sobre marketing, negocios propios, "cuánto cobran", "cómo funciona", "quiero info", reaccionar a un post de JRZ.
 - Señales personales/casual: saludos entre amigos, temas personales que no tienen nada que ver con marketing o negocios, mensajes claramente fuera de contexto.
 
+MEMORIA DE ESTE CONTACTO (conversaciones previas):
+- Tipo de negocio: ${contactMemory.businessType || 'desconocido'}
+- Pain points detectados antes: ${(contactMemory.painPoints || []).join(', ') || 'ninguno aún'}
+- Intereses detectados: ${(contactMemory.interests || []).join(', ') || 'ninguno aún'}
+- Mensajes históricos: ${contactMemory.messageCount || 0}
+- Estado: ${contactMemory.bookingStatus || 'none'}
+${contactMemory.messageCount > 0 ? '⚠️ Ya conoces a esta persona — NO te presentes de nuevo. Sigue la conversación naturalmente.' : ''}
+
+LO QUE LA COMPETENCIA NO HACE (posiciónate sutilmente, sin nombrarlos):
+${(competitorInsights.competitorWeaknesses || []).slice(0, 3).join(', ') || 'servicio bilingüe real, IA integrada, acompañamiento directo del fundador'}
+
+FRUSTRACIONES COMUNES CON OTRAS AGENCIAS (dirígelas de forma natural):
+${(compPainPoints.painPoints || []).slice(0, 3).join(', ') || 'cobran caro sin resultados, no hablan español de verdad, desaparecen después de vender'}
+
 TU TAREA PARA ESTE MENSAJE: ${stageInstruction}
 
 Responde SOLO en este formato JSON exacto (sin texto extra):
-{"reply":"...","leadQuality":"none|interested|qualified|hot","sentiment":"positive|neutral|annoyed","shouldEngage":true}
+{"reply":"...","leadQuality":"none|interested|qualified|hot","sentiment":"positive|neutral|annoyed","shouldEngage":true,"businessType":"tipo de negocio detectado o vacío","painPoints":["pain point detectado"],"interests":["interés detectado"]}
 
 shouldEngage: true si el mensaje tiene intención de negocio o es un primer contacto legítimo. false si es claramente una conversación personal/casual que no tiene que ver con marketing.
 leadQuality: none=desinteresado, interested=enganchado/sin info, qualified=teléfono O email, hot=AMBOS
@@ -859,18 +880,31 @@ sentiment: positive=emocionado/amigable, neutral=normal, annoyed=frustrado/impac
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
+      // Update and save contact memory (fire-and-forget)
+      const updatedMemory = {
+        ...contactMemory,
+        businessType: parsed.businessType || contactMemory.businessType || '',
+        painPoints:   [...new Set([...(contactMemory.painPoints || []), ...(parsed.painPoints || [])])].slice(0, 10),
+        interests:    [...new Set([...(contactMemory.interests || []),   ...(parsed.interests || [])])].slice(0, 10),
+        lastMessage:  incomingMessage,
+        messageCount: (contactMemory.messageCount || 0) + 1,
+      };
+      saveContactMemory(contactId, updatedMemory); // intentionally no await
       return {
         reply: parsed.reply,
         leadQuality: parsed.leadQuality || 'none',
         sentiment: parsed.sentiment || 'neutral',
-        shouldEngage: parsed.shouldEngage !== false, // default true unless explicitly false
+        shouldEngage: parsed.shouldEngage !== false,
         foundPhone,
         foundEmail,
+        contactMemory: updatedMemory,
+        competitorInsights,
+        compPainPoints,
       };
     }
-    return { reply: text, leadQuality: 'none', sentiment: 'neutral', shouldEngage: true, foundPhone, foundEmail };
+    return { reply: text, leadQuality: 'none', sentiment: 'neutral', shouldEngage: true, foundPhone, foundEmail, contactMemory, competitorInsights, compPainPoints };
   } catch {
-    return { reply: response.content[0].text, leadQuality: 'none', sentiment: 'neutral', shouldEngage: true, foundPhone, foundEmail };
+    return { reply: response.content[0].text, leadQuality: 'none', sentiment: 'neutral', shouldEngage: true, foundPhone, foundEmail, contactMemory, competitorInsights, compPainPoints };
   }
 }
 
@@ -1131,6 +1165,17 @@ const STRATEGY_PUB_ID = 'jrz/content_strategy';
 const AB_URL    = `https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/ab_closing_test.json`;
 const AB_PUB_ID = 'jrz/ab_closing_test';
 
+// ── Armando Learning System — 5 persistent memory stores ─────────────────────
+const CONTACT_MEMORY_BASE  = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/contact_memory_';
+const VOICE_FEEDBACK_URL   = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/voice_feedback.json';
+const VOICE_FEEDBACK_PID   = 'jrz/voice_feedback';
+const ENGAGEMENT_URL       = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/engagement_patterns.json';
+const ENGAGEMENT_PID       = 'jrz/engagement_patterns';
+const COMPETITOR_INS_URL   = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/competitor_insights.json';
+const COMPETITOR_INS_PID   = 'jrz/competitor_insights';
+const COMPETITOR_PAIN_URL  = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/competitor_pain_points.json';
+const COMPETITOR_PAIN_PID  = 'jrz/competitor_pain_points';
+
 // In-memory: contactId → variant letter assigned for this session
 const contactVariantMap = new Map();
 
@@ -1203,6 +1248,132 @@ async function saveABTestData(data) {
   } catch (err) {
     console.error('[AB] Failed to save test data:', err.message);
   }
+}
+
+// ─── Generic Cloudinary raw JSON save ────────────────────────────────────────
+async function saveCloudinaryJSON(publicId, data) {
+  try {
+    const ts     = Math.floor(Date.now() / 1000);
+    const sigStr = `overwrite=true&public_id=${publicId}&resource_type=raw&timestamp=${ts}${CLOUDINARY_API_SECRET}`;
+    const sig    = crypto.createHash('sha1').update(sigStr).digest('hex');
+    const form   = new FormData();
+    const buf    = Buffer.from(JSON.stringify(data, null, 2));
+    form.append('file', buf, { filename: `${publicId.split('/').pop()}.json`, contentType: 'application/json' });
+    form.append('public_id', publicId); form.append('resource_type', 'raw');
+    form.append('timestamp', String(ts)); form.append('api_key', CLOUDINARY_API_KEY);
+    form.append('signature', sig); form.append('overwrite', 'true');
+    await axios.post(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`, form, { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 30000 });
+  } catch (err) { console.error(`[Memory] Failed to save ${publicId}:`, err.message); }
+}
+
+// ─── 1. CONTACT MEMORY ───────────────────────────────────────────────────────
+async function loadContactMemory(contactId) {
+  try {
+    const res = await axios.get(`${CONTACT_MEMORY_BASE}${contactId}.json`, { timeout: 6000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch { return { businessType: '', painPoints: [], interests: [], lastMessage: '', messageCount: 0, bookingStatus: 'none' }; }
+}
+async function saveContactMemory(contactId, data) {
+  await saveCloudinaryJSON(`jrz/contact_memory_${contactId}`, data);
+}
+
+// ─── 2. VOICE FEEDBACK ───────────────────────────────────────────────────────
+async function loadVoiceFeedback() {
+  try {
+    const res = await axios.get(VOICE_FEEDBACK_URL, { timeout: 6000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch { return { bookings: [], winningPatterns: '', updatedAt: null }; }
+}
+async function saveVoiceFeedback(data) { await saveCloudinaryJSON(VOICE_FEEDBACK_PID, data); }
+
+async function updateWinningVoicePatterns() {
+  try {
+    const feedback = await loadVoiceFeedback();
+    if (feedback.bookings.length < 3) return;
+    const summary = feedback.bookings.slice(-30).map(b =>
+      `Negocio: ${b.businessType}, Pain points: ${(b.painPoints||[]).join(',')||'N/A'}, Mensajes antes de booking: ${b.messageCount}`
+    ).join('\n');
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001', max_tokens: 300,
+      messages: [{ role: 'user', content: `Analiza estos clientes que agendaron con JRZ Marketing:\n${summary}\n\nDevuelve JSON: {"topBusinessTypes":[],"topPainPoints":[],"voiceScriptRecommendation":"una sola oración sobre qué angle cierra mejor"}` }]
+    });
+    const parsed = JSON.parse(msg.content[0].text.match(/\{[\s\S]*\}/)[0]);
+    feedback.winningPatterns = `Negocios que más convierten: ${parsed.topBusinessTypes.join(', ')}. Pain points que cierran: ${parsed.topPainPoints.join(', ')}. ${parsed.voiceScriptRecommendation}`;
+    feedback.updatedAt = new Date().toISOString();
+    await saveVoiceFeedback(feedback);
+    console.log('[Learning] ✅ Voice patterns updated:', feedback.winningPatterns);
+  } catch (err) { console.error('[Learning] Voice pattern update failed:', err.message); }
+}
+
+// ─── 3. ENGAGEMENT PATTERNS ──────────────────────────────────────────────────
+async function loadEngagementPatterns() {
+  try {
+    const res = await axios.get(ENGAGEMENT_URL, { timeout: 6000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch { return { topHooks: [], contentAngles: [], emotionalTriggers: [], updatedAt: null }; }
+}
+async function saveEngagementPatterns(data) { await saveCloudinaryJSON(ENGAGEMENT_PID, data); }
+
+async function runEngagementLearning() {
+  try {
+    console.log('[Learning] Analyzing engagement patterns...');
+    const res = await axios.get(
+      `https://services.leadconnectorhq.com/social-media-posting/${GHL_LOCATION_ID}/posts`,
+      { params: { skip: 0, limit: 20, status: 'published' }, headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' }, timeout: 15000 }
+    );
+    const posts = (res.data?.posts || res.data?.data || []).filter(p => p.caption || p.description);
+    if (posts.length < 3) { console.log('[Learning] Not enough posts to analyze'); return; }
+    const topPosts = posts.slice(0, 10).map(p => p.caption || p.description || '').filter(Boolean).slice(0, 5).join('\n---\n');
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001', max_tokens: 400,
+      messages: [{ role: 'user', content: `Analiza estos posts de JRZ Marketing y extrae los patrones que hacen que enganchen:\n${topPosts}\n\nDevuelve JSON: {"topHooks":["frase gancho 1","frase gancho 2"],"contentAngles":["ángulo 1","ángulo 2"],"emotionalTriggers":["disparador 1","disparador 2"]}` }]
+    });
+    const parsed = JSON.parse(msg.content[0].text.match(/\{[\s\S]*\}/)[0]);
+    parsed.updatedAt = new Date().toISOString();
+    await saveEngagementPatterns(parsed);
+    console.log('[Learning] ✅ Engagement patterns saved');
+  } catch (err) { console.error('[Learning] Engagement analysis failed:', err.message); }
+}
+
+// ─── 4. COMPETITOR INSIGHTS ──────────────────────────────────────────────────
+async function loadCompetitorInsights() {
+  try {
+    const res = await axios.get(COMPETITOR_INS_URL, { timeout: 6000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch { return { competitorWeaknesses: [], contentAngles: [], opportunity: '', updatedAt: null }; }
+}
+async function saveCompetitorInsights(data) { await saveCloudinaryJSON(COMPETITOR_INS_PID, data); }
+
+// ─── 5. COMPETITOR PAIN POINTS (from reviews) ────────────────────────────────
+async function loadCompetitorPainPoints() {
+  try {
+    const res = await axios.get(COMPETITOR_PAIN_URL, { timeout: 6000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch { return { painPoints: [], frustrations: [], updatedAt: null }; }
+}
+async function saveCompetitorPainPoints(data) { await saveCloudinaryJSON(COMPETITOR_PAIN_PID, data); }
+
+async function runReviewMining() {
+  try {
+    console.log('[Learning] Mining competitor reviews...');
+    const SERPAPI_KEY = process.env.SERPAPI_KEY;
+    if (!SERPAPI_KEY) { console.log('[Learning] No SERPAPI_KEY — skipping review mining'); return; }
+    const res = await axios.get('https://serpapi.com/search.json', {
+      params: { engine: 'google_maps', q: 'marketing agency orlando florida', hl: 'en', gl: 'us', api_key: SERPAPI_KEY },
+      timeout: 15000
+    });
+    const results = res.data?.local_results || [];
+    const reviews = results.slice(0, 5).flatMap(r => (r.reviews || []).filter(rv => rv.rating <= 2).map(rv => rv.snippet)).filter(Boolean).slice(0, 15);
+    if (reviews.length === 0) { console.log('[Learning] No low-rated reviews found'); return; }
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001', max_tokens: 400,
+      messages: [{ role: 'user', content: `Estas son reseñas negativas (1-2 estrellas) de agencias de marketing en Orlando. Extrae los problemas más comunes que los clientes mencionan:\n${reviews.join('\n')}\n\nDevuelve JSON: {"painPoints":["problema 1","problema 2","problema 3"],"frustrations":["frustración 1","frustración 2"]}` }]
+    });
+    const parsed = JSON.parse(msg.content[0].text.match(/\{[\s\S]*\}/)[0]);
+    parsed.updatedAt = new Date().toISOString();
+    await saveCompetitorPainPoints(parsed);
+    console.log('[Learning] ✅ Competitor pain points saved:', parsed.painPoints);
+  } catch (err) { console.error('[Learning] Review mining failed:', err.message); }
 }
 
 // Weighted random variant assignment — winner gets more traffic over time
@@ -2058,11 +2229,12 @@ async function generateElevenLabsAudio(text, audioPath) {
 }
 
 // ── Build a smart, human voice script — continuation of the text reply ───────
-async function buildDMVoiceScript(textReply, contactName, originalMessage) {
+async function buildDMVoiceScript(textReply, contactName, originalMessage, contactMemory = {}, competitorInsights = {}, compPainPoints = {}) {
   const nowEST  = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
   const hour    = nowEST.getHours();
   const timeStr = hour < 12 ? 'esta mañana' : hour < 17 ? 'esta tarde' : 'esta noche';
-  const name    = (contactName || '').split(' ')[0] || '';
+
+  const [voiceFeedback, engPatterns] = await Promise.all([loadVoiceFeedback(), loadEngagementPatterns()]);
 
   const prompt = `Eres Armando Rivas, 22 años, venezolano, Community Manager de JRZ Marketing en Orlando, Florida.
 Tienes voz — este texto se va a convertir en audio con tu voz real. Habla como si estuvieras grabando un voice note de WhatsApp o Instagram.
@@ -2071,12 +2243,20 @@ CONTEXTO DE LA CONVERSACIÓN:
 - Lo que dijo el prospecto: "${originalMessage || 'nos contactó con interés'}"
 - Lo que ya le respondiste por texto: "${textReply}"
 
+CONOCIMIENTO DE ESTE PROSPECTO (memoria de conversaciones anteriores):
+- Tipo de negocio: ${contactMemory.businessType || 'desconocido'}
+- Sus pain points específicos: ${(contactMemory.painPoints || []).join(', ') || 'no identificados aún'}
+- Sus intereses: ${(contactMemory.interests || []).join(', ') || 'no identificados aún'}
+- Mensajes anteriores: ${contactMemory.messageCount || 0}
+${(contactMemory.messageCount || 0) > 0 ? '⚠️ Ya lo conoces — habla como si retomaran una conversación, no como si fuera la primera vez.' : ''}
+
 CONOCIMIENTO DE MERCADO (úsalo inteligentemente):
 - La mayoría de negocios latinos en EE.UU. tienen el mismo problema: invierten en redes, en anuncios, en diseñadores — y no ven resultados porque no tienen un SISTEMA.
-- La competencia (agencias genéricas) cobra caro, hace trabajo genérico, no habla su idioma, y no entiende la cultura latina.
-- JRZ Marketing es diferente: somos latinos, hablamos su idioma, y construimos un sistema completo — captación de clientes, automatización con IA, contenido viral, y seguimiento hasta cerrar la venta. Todo integrado.
-- Jose Rivas (el fundador) trabaja directamente con cada cliente en los primeros 30 días.
-- Resultado promedio de nuestros clientes: más leads, más cierres, más tiempo libre.
+- Lo que otras agencias NO hacen y JRZ sí: ${(competitorInsights.competitorWeaknesses || []).join(', ') || 'servicio bilingüe real, IA integrada, acompañamiento directo del fundador'}
+- Lo que clientes dicen de otras agencias: ${(compPainPoints.painPoints || []).slice(0, 2).join(', ') || 'cobran caro sin resultados, desaparecen después de vender'}
+- JRZ Marketing: sistema completo — captación, automatización con IA, contenido viral, seguimiento hasta cerrar. Jose trabaja directo con cada cliente los primeros 30 días.
+- Patrones ganadores (clientes que agendaron): ${voiceFeedback.winningPatterns || 'usar empatía y especificidad sobre su negocio'}
+- Hooks que funcionaron en contenido reciente: ${(engPatterns.topHooks || []).slice(0, 2).join(' | ') || 'preguntas directas sobre resultados'}
 
 REGLAS DEL MENSAJE DE VOZ:
 1. Es la CONTINUACIÓN del texto — no repitas lo mismo, profundiza
@@ -2106,9 +2286,9 @@ Escribe SOLO el guión. Sin explicaciones. Sin comillas al inicio o al final.`;
 }
 
 // ── Generate voice note for DM reply and return Cloudinary URL ───────────────
-async function generateDMVoiceNote(text, contactId, contactName, originalMessage) {
+async function generateDMVoiceNote(text, contactId, contactName, originalMessage, contactMemory = {}, competitorInsights = {}, compPainPoints = {}) {
   const audioPath = `/tmp/jrz_dm_voice_${contactId}_${Date.now()}.mp3`;
-  const voiceScript = await buildDMVoiceScript(text, contactName, originalMessage);
+  const voiceScript = await buildDMVoiceScript(text, contactName, originalMessage, contactMemory, competitorInsights, compPainPoints);
   console.log('[DM Voice] Script:', voiceScript);
   try {
     const ok = await generateElevenLabsAudio(voiceScript, audioPath);
@@ -2649,7 +2829,7 @@ app.post('/webhook', async (req, res) => {
       }
     }
 
-    const { reply, leadQuality, sentiment, shouldEngage, foundPhone, foundEmail } = await getArmandoReply(
+    const { reply, leadQuality, sentiment, shouldEngage, foundPhone, foundEmail, contactMemory: cMem, competitorInsights: cInsights, compPainPoints: cPain } = await getArmandoReply(
       messageBody, contactName, contactId, conversationId, sendType
     );
     const msgCount = contactMessageCount.get(contactId) || 1;
@@ -2706,7 +2886,7 @@ app.post('/webhook', async (req, res) => {
 
       // Send voice note after text reply (IG DMs and SMS only)
       if (sendType === 'IG' || sendType === 'FB' || sendType === 'SMS') {
-        const voiceUrl = await generateDMVoiceNote(reply, contactId, contactName, messageBody);
+        const voiceUrl = await generateDMVoiceNote(reply, contactId, contactName, messageBody, cMem || {}, cInsights || {}, cPain || {});
         if (voiceUrl) {
           await sendGHLVoiceNote(contactId, voiceUrl, sendType);
         }
@@ -3776,6 +3956,8 @@ async function runCompetitorMonitoring() {
 
     await sendEmail(OWNER_CONTACT_ID, subject, html);
     console.log('[Competitor] Weekly radar email sent to Jose.');
+    // Persist insights for Armando's voice scripts
+    await saveCompetitorInsights({ ...insights, updatedAt: new Date().toISOString() });
   } catch (err) {
     console.error('[Competitor] Error:', err.message);
   }
@@ -3788,6 +3970,25 @@ async function runCompetitorMonitoring() {
 app.post('/cron/competitor-monitoring', async (_req, res) => {
   try {
     await runCompetitorMonitoring();
+    res.json({ status: 'ok' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/cron/review-mining', async (_req, res) => {
+  try {
+    await runReviewMining();
+    res.json({ status: 'ok' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/cron/engagement-learning', async (_req, res) => {
+  try {
+    await runEngagementLearning();
+    await updateWinningVoicePatterns();
     res.json({ status: 'ok' });
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
@@ -3854,6 +4055,7 @@ let lastCheckInDate         = null;
 let lastMonthlyReportDate   = null;
 let lastCompetitorDate      = null;
 let lastSubCheckInDate      = null;
+let lastLearningDate        = null;
 
 setInterval(async () => {
   try {
@@ -3884,6 +4086,14 @@ setInterval(async () => {
     if (hour === 8 && minute < 5 && dayOfWeek === 1 && lastCompetitorDate !== today) {
       lastCompetitorDate = today;
       await runCompetitorMonitoring();
+    }
+
+    // 8:30am Monday — engagement learning + voice pattern optimization + review mining
+    if (hour === 8 && minute >= 30 && minute < 35 && dayOfWeek === 1 && lastLearningDate !== today) {
+      lastLearningDate = today;
+      await runEngagementLearning();
+      await updateWinningVoicePatterns();
+      await runReviewMining();
     }
 
     // 9:00am Monday — Apollo email enrichment (free plan: 50 credits/month)
