@@ -23,6 +23,14 @@ const EMAIL_FROM_NAME = 'Jose Rivas | JRZ Marketing';
 const ELEVENLABS_API_KEY  = process.env.ELEVENLABS_API_KEY;
 const ELEVENLABS_VOICE_ID = 'SIpDYvpsUzCaJ0WmnSA8'; // Joseph Corona — warm, professional Latino voice
 
+// ── Gmail integration ──────────────────────────────────────
+const GOOGLE_CLIENT_ID     = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN;
+const GMAIL_ADDRESS        = 'info@jrzmarketing.com';
+let   googleAccessToken    = null;
+let   googleTokenExpiry    = 0;
+
 // ── Bland.ai voice calls ───────────────────────────────────
 const BLAND_API_KEY     = process.env.BLAND_API_KEY;
 const BLAND_WEBHOOK_URL = 'https://armando-bot-1.onrender.com/webhook/bland';
@@ -4308,6 +4316,151 @@ app.post('/cron/review-mining', async (_req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════
+// GMAIL — Armando monitors info@jrzmarketing.com
+// Runs every 10 minutes — classifies, replies, creates GHL contacts
+// ═══════════════════════════════════════════════════════════
+
+async function getGoogleAccessToken() {
+  if (googleAccessToken && Date.now() < googleTokenExpiry - 60000) return googleAccessToken;
+  const res = await axios.post('https://oauth2.googleapis.com/token', {
+    client_id: GOOGLE_CLIENT_ID, client_secret: GOOGLE_CLIENT_SECRET,
+    refresh_token: GOOGLE_REFRESH_TOKEN, grant_type: 'refresh_token',
+  });
+  googleAccessToken = res.data.access_token;
+  googleTokenExpiry = Date.now() + (res.data.expires_in * 1000);
+  return googleAccessToken;
+}
+
+function parseEmailHeaders(headers) {
+  const get = (name) => (headers || []).find(h => h.name.toLowerCase() === name.toLowerCase())?.value || '';
+  return { from: get('From'), subject: get('Subject'), messageId: get('Message-ID'), references: get('References') };
+}
+
+function getEmailBody(payload) {
+  if (!payload) return '';
+  if (payload.mimeType === 'text/plain' && payload.body?.data)
+    return Buffer.from(payload.body.data, 'base64').toString('utf-8');
+  if (payload.parts) {
+    for (const part of payload.parts) {
+      if (part.mimeType === 'text/plain' && part.body?.data)
+        return Buffer.from(part.body.data, 'base64').toString('utf-8');
+    }
+    for (const part of payload.parts) {
+      if (part.mimeType === 'text/html' && part.body?.data)
+        return Buffer.from(part.body.data, 'base64').toString('utf-8').replace(/<[^>]*>/g, ' ');
+    }
+  }
+  return '';
+}
+
+function buildRawEmail(to, subject, body, inReplyTo, references) {
+  const lines = [
+    `From: Armando — JRZ Marketing <${GMAIL_ADDRESS}>`,
+    `To: ${to}`,
+    `Subject: ${subject.startsWith('Re:') ? subject : 'Re: ' + subject}`,
+    'MIME-Version: 1.0',
+    'Content-Type: text/plain; charset=utf-8',
+  ];
+  if (inReplyTo)  lines.push(`In-Reply-To: ${inReplyTo}`);
+  if (references) lines.push(`References: ${references} ${inReplyTo}`.trim());
+  lines.push('', body);
+  return Buffer.from(lines.join('\r\n')).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function sendGmailReply(threadId, to, subject, body, inReplyTo, references) {
+  const token = await getGoogleAccessToken();
+  const raw   = buildRawEmail(to, subject, body, inReplyTo, references);
+  await axios.post(
+    'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
+    { raw, threadId },
+    { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+  );
+}
+
+async function markEmailRead(emailId) {
+  const token = await getGoogleAccessToken();
+  await axios.post(
+    `https://gmail.googleapis.com/gmail/v1/users/me/messages/${emailId}/modify`,
+    { removeLabelIds: ['UNREAD'] },
+    { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+  );
+}
+
+async function processGmailEmail(emailId, token) {
+  const res     = await axios.get(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${emailId}?format=full`, { headers: { Authorization: `Bearer ${token}` } });
+  const email   = res.data;
+  const headers = parseEmailHeaders(email.payload?.headers);
+  const body    = getEmailBody(email.payload);
+
+  if (!headers.from || headers.from.includes(GMAIL_ADDRESS)) { await markEmailRead(emailId); return; }
+  if (!body.trim()) { await markEmailRead(emailId); return; }
+
+  console.log(`[Gmail] Processing: "${headers.subject}" from ${headers.from}`);
+
+  const msg = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001', max_tokens: 600,
+    messages: [{ role: 'user', content: `You are Armando, bilingual AI manager for JRZ Marketing (Orlando, FL). Analyze this email and return ONLY valid JSON:\n{"category":"lead|client|vendor|partnership|spam|other","language":"es|en","shouldReply":true,"reply":"warm reply max 120 words","contactName":"first name or empty","isUrgent":false,"summary":"one line for Jose"}\n\nFrom: ${headers.from}\nSubject: ${headers.subject}\nBody: ${body.slice(0, 1500)}\n\nCategories: lead=asking about JRZ services/pricing, client=existing client, vendor=selling to JRZ, partnership=collab offer, spam=bulk/unsolicited, other=everything else. Reply in same language as sender. Spam=shouldReply false.` }],
+  });
+  const parsed = JSON.parse(msg.content[0].text.match(/\{[\s\S]*\}/)[0]);
+
+  // Send reply
+  if (parsed.shouldReply && parsed.reply) {
+    await sendGmailReply(email.threadId, headers.from, headers.subject, parsed.reply, headers.messageId, headers.references);
+    console.log(`[Gmail] ✅ Replied to ${headers.from} (${parsed.category})`);
+  }
+
+  // Create GHL contact for leads
+  if (parsed.category === 'lead') {
+    const emailMatch = headers.from.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+    if (emailMatch) {
+      try {
+        await axios.post(
+          'https://services.leadconnectorhq.com/contacts/',
+          { locationId: GHL_LOCATION_ID, email: emailMatch[0], firstName: parsed.contactName || '', tags: ['email-lead', 'armando-gmail'], source: 'Gmail' },
+          { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+        );
+        console.log(`[Gmail] ✅ GHL contact created: ${emailMatch[0]}`);
+      } catch { /* contact may already exist */ }
+    }
+  }
+
+  // Alert Jose on urgent or partnership emails
+  if (parsed.isUrgent || parsed.category === 'partnership') {
+    await sendEmail(OWNER_CONTACT_ID,
+      `${parsed.isUrgent ? '🚨 Urgente' : '🤝 Partnership'} — ${headers.subject}`,
+      `<p><strong>De:</strong> ${headers.from}</p><p><strong>Categoría:</strong> ${parsed.category}</p><p><strong>Resumen:</strong> ${parsed.summary}</p><p><strong>Armando respondió:</strong> ${parsed.shouldReply ? parsed.reply : 'Sin respuesta'}</p>`
+    );
+  }
+
+  await markEmailRead(emailId);
+}
+
+async function runGmailCheck() {
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REFRESH_TOKEN) return;
+  try {
+    console.log('[Gmail] Checking inbox...');
+    const token   = await getGoogleAccessToken();
+    const cutoff  = Math.floor((Date.now() - 48 * 60 * 60 * 1000) / 1000);
+    const res     = await axios.get('https://gmail.googleapis.com/gmail/v1/users/me/messages', {
+      params:  { q: `is:unread in:inbox after:${cutoff}`, maxResults: 20 },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const messages = res.data.messages || [];
+    if (!messages.length) { console.log('[Gmail] No new emails'); return; }
+    console.log(`[Gmail] ${messages.length} unread emails found`);
+    for (const { id } of messages) {
+      try { await processGmailEmail(id, token); } catch (err) { console.error(`[Gmail] Failed ${id}:`, err.message); }
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  } catch (err) { console.error('[Gmail] Check failed:', err?.response?.data || err.message); }
+}
+
+app.post('/cron/gmail-check', async (_req, res) => {
+  try { await runGmailCheck(); res.json({ status: 'ok' }); }
+  catch (err) { res.status(500).json({ status: 'error', message: err.message }); }
+});
+
 // ── Bland.ai post-call webhook ────────────────────────────────────────────────
 app.post('/webhook/bland', async (req, res) => {
   res.json({ ok: true }); // respond fast
@@ -4494,6 +4647,9 @@ setInterval(async () => {
       lastStoryDate = today;
       await runDailyStory();
     }
+
+    // Every tick (every 2 min) — Gmail inbox check
+    await runGmailCheck();
 
   } catch (err) {
     console.error('[Cron] Internal scheduler error:', err.message);
