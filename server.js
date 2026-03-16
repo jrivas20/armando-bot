@@ -4461,6 +4461,39 @@ app.post('/cron/gmail-check', async (_req, res) => {
   catch (err) { res.status(500).json({ status: 'error', message: err.message }); }
 });
 
+// Dry-run: classify emails but don't reply or create contacts
+app.post('/cron/gmail-preview', async (_req, res) => {
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REFRESH_TOKEN) {
+    return res.status(400).json({ error: 'Google credentials not set' });
+  }
+  try {
+    const token  = await getGoogleAccessToken();
+    const cutoff = Math.floor((Date.now() - 48 * 60 * 60 * 1000) / 1000);
+    const r      = await axios.get('https://gmail.googleapis.com/gmail/v1/users/me/messages', {
+      params: { q: `is:unread in:inbox after:${cutoff}`, maxResults: 20 },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const messages = r.data.messages || [];
+    const results  = [];
+    for (const { id } of messages) {
+      const detail  = await axios.get(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=full`, { headers: { Authorization: `Bearer ${token}` } });
+      const headers = parseEmailHeaders(detail.data.payload?.headers);
+      const body    = getEmailBody(detail.data.payload);
+      if (!headers.from || headers.from.includes(GMAIL_ADDRESS) || !body.trim()) continue;
+      const msg = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001', max_tokens: 400,
+        messages: [{ role: 'user', content: `Classify this email for JRZ Marketing. Return ONLY valid JSON:\n{"category":"lead|client|vendor|partnership|spam|other","language":"es|en","shouldReply":true,"proposedReply":"what Armando would say (max 100 words)","contactName":"","isUrgent":false,"summary":"one line"}\n\nFrom: ${headers.from}\nSubject: ${headers.subject}\nBody: ${body.slice(0, 1000)}` }],
+      });
+      const parsed = JSON.parse(msg.content[0].text.match(/\{[\s\S]*\}/)[0]);
+      results.push({ from: headers.from, subject: headers.subject, ...parsed });
+      await new Promise(r => setTimeout(r, 800));
+    }
+    res.json({ total: results.length, emails: results });
+  } catch (err) {
+    res.status(500).json({ error: err?.response?.data || err.message });
+  }
+});
+
 // ── Bland.ai post-call webhook ────────────────────────────────────────────────
 app.post('/webhook/bland', async (req, res) => {
   res.json({ ok: true }); // respond fast
