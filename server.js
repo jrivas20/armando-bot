@@ -974,7 +974,7 @@ Rules:
     const res = await axios.post('https://api.bland.ai/v1/calls', {
       phone_number: phoneNumber,
       task,
-      voice:              'ryan',
+      voice:              '2f956520-a906-4f80-8da1-a518552652dc', // Joseph Corona clone
       language:           'auto',  // auto-detects English/Spanish
       webhook:            BLAND_WEBHOOK_URL,
       max_duration:       3,       // 3 min max — keeps it focused
