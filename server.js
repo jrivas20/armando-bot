@@ -19,9 +19,9 @@ const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
 const EMAIL_FROM      = 'info@email.jrzmarketing.com';
 const EMAIL_FROM_NAME = 'Jose Rivas | JRZ Marketing';
 
-// ── OpenAI TTS voice ──────────────────────────────────────
-const OPENAI_TTS_KEY  = process.env.OPENAI_TTS_KEY;
-const OPENAI_TTS_VOICE = 'onyx'; // Deep, authoritative — perfect for Armando
+// ── ElevenLabs voice ──────────────────────────────────────
+const ELEVENLABS_API_KEY  = process.env.ELEVENLABS_API_KEY;
+const ELEVENLABS_VOICE_ID = 'SIpDYvpsUzCaJ0WmnSA8'; // Joseph Corona — warm, professional Latino voice
 
 async function sendEmail(contactId, subject, html) {
   await axios.post(
@@ -2048,23 +2048,23 @@ function buildVoiceoverScript(content) {
   return lines.join('. ');
 }
 
-// ── OpenAI TTS → save MP3 ────────────────────────────────────────────────────
+// ── ElevenLabs TTS → save MP3 ────────────────────────────────────────────────
 async function generateElevenLabsAudio(text, audioPath) {
   try {
     const response = await axios.post(
-      'https://api.openai.com/v1/audio/speech',
-      { model: 'tts-1', input: text, voice: OPENAI_TTS_VOICE, response_format: 'mp3' },
+      `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,
+      { text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.45, similarity_boost: 0.80, style: 0.35, use_speaker_boost: true } },
       {
-        headers: { 'Authorization': `Bearer ${OPENAI_TTS_KEY}`, 'Content-Type': 'application/json' },
+        headers: { 'xi-api-key': ELEVENLABS_API_KEY, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
         responseType: 'arraybuffer',
         timeout: 30000
       }
     );
     fs.writeFileSync(audioPath, Buffer.from(response.data));
-    console.log('[Voice] ✅ OpenAI TTS audio generated:', audioPath);
+    console.log('[Voice] ✅ Joseph Corona audio generated:', audioPath);
     return true;
   } catch (err) {
-    console.error('[Voice] ❌ OpenAI TTS failed:', err?.response?.status, err.message);
+    console.error('[Voice] ❌ ElevenLabs failed:', err?.response?.status, err.message);
     return false;
   }
 }
@@ -2740,19 +2740,12 @@ app.post('/cron/run-reel', async (_req, res) => {
   }
 });
 
-// Debug: GET /test-voice — test OpenAI TTS live on Render
+// Debug: GET /test-voice — test ElevenLabs Joseph Corona live on Render
 app.get('/test-voice', async (_req, res) => {
-  try {
-    const response = await axios.post(
-      'https://api.openai.com/v1/audio/speech',
-      { model: 'tts-1', input: 'Hola soy Armando.', voice: OPENAI_TTS_VOICE, response_format: 'mp3' },
-      { headers: { 'Authorization': `Bearer ${OPENAI_TTS_KEY}`, 'Content-Type': 'application/json' }, responseType: 'arraybuffer', timeout: 30000 }
-    );
-    res.json({ voice: OPENAI_TTS_VOICE, success: true, bytes: response.data.byteLength, keySet: !!OPENAI_TTS_KEY });
-  } catch (err) {
-    const body = err?.response?.data ? Buffer.from(err.response.data).toString('utf8') : err.message;
-    res.json({ voice: OPENAI_TTS_VOICE, success: false, status: err?.response?.status, error: body, keySet: !!OPENAI_TTS_KEY });
-  }
+  const audioPath = '/tmp/test_voice_debug.mp3';
+  const ok = await generateElevenLabsAudio('Hola, soy Armando de JRZ Marketing.', audioPath);
+  try { fs.unlinkSync(audioPath); } catch (_) {}
+  res.json({ voice: 'Joseph Corona', keySet: !!ELEVENLABS_API_KEY, success: ok });
 });
 
 // Manual trigger: POST /cron/daily-story
