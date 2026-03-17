@@ -28,3 +28,5 @@ services:
         sync: false
       - key: PAGESPEED_API_KEY
         value: AIzaSyA2AGHiDC1CCRcWKK8KFQq0i02uzOUGqaM
+      - key: SEARCH_CONSOLE_API_KEY
+        value: AIzaSyB5bO7Qmy8B-rHoSDjRY3gCZr9tpvYBfaY

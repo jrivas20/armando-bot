@@ -6226,18 +6226,121 @@ async function getPageSpeedData(url) {
   }
 }
 
+// ─── Sofia: Google Search Console API ────────────────────
+
+let _googleAccessToken   = null;
+let _googleAccessExpires = 0;
+
+async function getGoogleAccessToken() {
+  if (_googleAccessToken && Date.now() < _googleAccessExpires) return _googleAccessToken;
+  const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN } = process.env;
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REFRESH_TOKEN) return null;
+  try {
+    const res = await axios.post('https://oauth2.googleapis.com/token', null, {
+      params: {
+        client_id:     GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        refresh_token: GOOGLE_REFRESH_TOKEN,
+        grant_type:    'refresh_token',
+      },
+      timeout: 10000,
+    });
+    _googleAccessToken   = res.data.access_token;
+    _googleAccessExpires = Date.now() + (res.data.expires_in - 60) * 1000;
+    return _googleAccessToken;
+  } catch (err) {
+    console.error('[Sofia] Google OAuth error:', err.response?.data?.error || err.message);
+    return null;
+  }
+}
+
+async function getSearchConsoleData(siteUrl) {
+  const token = await getGoogleAccessToken();
+  if (!token) return null;
+
+  const cleanUrl = siteUrl.startsWith('http') ? siteUrl : `https://${siteUrl}`;
+  // Search Console accepts either https://domain.com/ or sc-domain:domain.com
+  const encodedSite = encodeURIComponent(cleanUrl.replace(/\/$/, '') + '/');
+  const today       = new Date();
+  const endDate     = today.toISOString().split('T')[0];
+  const startDate   = new Date(today - 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; // last 28 days
+
+  try {
+    const [keywordsRes, pagesRes] = await Promise.all([
+      // Top 10 queries by clicks
+      axios.post(
+        `https://www.googleapis.com/webmasters/v3/sites/${encodedSite}/searchAnalytics/query`,
+        { startDate, endDate, dimensions: ['query'], rowLimit: 10, orderBy: [{ fieldName: 'clicks', sortOrder: 'DESCENDING' }] },
+        { headers: { Authorization: `Bearer ${token}` }, timeout: 15000 }
+      ),
+      // Top 5 pages by impressions
+      axios.post(
+        `https://www.googleapis.com/webmasters/v3/sites/${encodedSite}/searchAnalytics/query`,
+        { startDate, endDate, dimensions: ['page'], rowLimit: 5, orderBy: [{ fieldName: 'impressions', sortOrder: 'DESCENDING' }] },
+        { headers: { Authorization: `Bearer ${token}` }, timeout: 15000 }
+      ),
+    ]);
+
+    const rows      = keywordsRes.data?.rows || [];
+    const pageRows  = pagesRes.data?.rows   || [];
+
+    const totals = rows.reduce((acc, r) => ({
+      clicks:      acc.clicks      + (r.clicks      || 0),
+      impressions: acc.impressions + (r.impressions || 0),
+    }), { clicks: 0, impressions: 0 });
+
+    const avgPosition = rows.length
+      ? (rows.reduce((s, r) => s + (r.position || 0), 0) / rows.length).toFixed(1)
+      : null;
+    const avgCtr = totals.impressions
+      ? ((totals.clicks / totals.impressions) * 100).toFixed(2) + '%'
+      : null;
+
+    return {
+      period:      `${startDate} → ${endDate}`,
+      totalClicks: totals.clicks,
+      totalImpressions: totals.impressions,
+      avgPosition,
+      avgCtr,
+      topKeywords: rows.slice(0, 5).map(r => ({
+        keyword:     r.keys[0],
+        clicks:      r.clicks,
+        impressions: r.impressions,
+        ctr:         ((r.ctr || 0) * 100).toFixed(1) + '%',
+        position:    (r.position || 0).toFixed(1),
+      })),
+      topPages: pageRows.map(r => ({
+        page:        r.keys[0],
+        impressions: r.impressions,
+        clicks:      r.clicks,
+        position:    (r.position || 0).toFixed(1),
+      })),
+    };
+  } catch (err) {
+    const status = err.response?.status;
+    if (status === 403 || status === 404) {
+      // Site not verified in Search Console — normal, not an error
+      console.log(`[Sofia] Search Console: ${cleanUrl} not verified in GSC (${status})`);
+    } else {
+      console.error('[Sofia] Search Console error:', err.response?.data?.error?.message || err.message);
+    }
+    return null;
+  }
+}
+
 // ─── Sofia: Full SEO + PageSpeed + Mobile + Copy Audit ───
 
 async function runSofiaFullAudit(url, clientName, industry) {
   const base = await checkWebsite(url);
   if (!base) return null;
 
-  // Fetch HTML and PageSpeed in parallel
-  const [rawHtml, pageSpeed] = await Promise.all([
+  // Fetch HTML, PageSpeed, and Search Console in parallel
+  const [rawHtml, pageSpeed, searchConsole] = await Promise.all([
     base.up ? axios.get(url.startsWith('http') ? url : `https://${url}`, {
       timeout: 12000, headers: { 'User-Agent': 'Mozilla/5.0' }, validateStatus: () => true,
     }).then(r => typeof r.data === 'string' ? r.data : '').catch(() => '') : Promise.resolve(''),
     getPageSpeedData(url),
+    getSearchConsoleData(url),
   ]);
 
   const html = rawHtml;
@@ -6282,6 +6385,9 @@ async function runSofiaFullAudit(url, clientName, industry) {
       const psSummary = pageSpeed
         ? `Mobile Performance: ${pageSpeed.mobile.performance}/100, LCP: ${pageSpeed.mobile.lcp}, CLS: ${pageSpeed.mobile.cls}, SEO: ${pageSpeed.mobile.seo}/100`
         : 'PageSpeed: unavailable';
+      const gscSummary = searchConsole
+        ? `GSC (last 28 days): ${searchConsole.totalClicks} clicks, ${searchConsole.totalImpressions} impressions, avg position ${searchConsole.avgPosition}, CTR ${searchConsole.avgCtr}. Top keyword: "${searchConsole.topKeywords[0]?.keyword || 'none'}" (pos ${searchConsole.topKeywords[0]?.position || '?'})`
+        : 'Google Search Console: not verified or no data';
       const aiRes = await anthropic.messages.create({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 500,
@@ -6292,7 +6398,8 @@ H1: ${h1s[0] || 'missing'}
 Description: ${base.description || 'missing'}
 Has CTA: ${base.hasCTA} | Has Phone: ${base.hasPhone}
 ${psSummary}
-${pageSpeed?.mobile.opportunities?.length ? 'Top issues: ' + pageSpeed.mobile.opportunities.join(', ') : ''}
+${pageSpeed?.mobile.opportunities?.length ? 'PageSpeed issues: ' + pageSpeed.mobile.opportunities.join(', ') : ''}
+${gscSummary}
 
 Reply ONLY with JSON: {"headlineRewrite":"improved H1","ctaRewrite":"better CTA for their industry","descriptionRewrite":"improved meta description (max 155 chars)","topIssue":"single most important problem in one sentence"}` }],
       });
@@ -6300,7 +6407,7 @@ Reply ONLY with JSON: {"headlineRewrite":"improved H1","ctaRewrite":"better CTA 
     } catch { /* skip */ }
   }
 
-  return { ...base, h1s, h2Count: h2s, imgCount: imgs.length, altCount: alts, hasCanon, hasViewport: hasView, hasOG, score, grade, pageSpeed, copyAnalysis };
+  return { ...base, h1s, h2Count: h2s, imgCount: imgs.length, altCount: alts, hasCanon, hasViewport: hasView, hasOG, score, grade, pageSpeed, searchConsole, copyAnalysis };
 }
 
 // ─── Sofia: Monthly CRO Report ────────────────────────────
@@ -7197,6 +7304,19 @@ app.get('/sofia/pagespeed', async (req, res) => {
     if (!url) return res.status(400).json({ status: 'error', message: 'url required' });
     const data = await getPageSpeedData(url);
     if (!data) return res.status(503).json({ status: 'error', message: 'PageSpeed API unavailable or key missing' });
+    res.json({ status: 'ok', url, data });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// GET /sofia/search-console?url=https://example.com — test Search Console API directly
+app.get('/sofia/search-console', async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) return res.status(400).json({ status: 'error', message: 'url required' });
+    const data = await getSearchConsoleData(url);
+    if (!data) return res.status(503).json({ status: 'error', message: 'Site not verified in Search Console or OAuth not configured' });
     res.json({ status: 'ok', url, data });
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
