@@ -845,24 +845,30 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
     stageInstruction = `Mensaje #${historyCount} — NO pidas más teléfono ni email por mensaje. Cierra directo con el link: manda "${BOOKING_URL}" de forma natural y con energía. Algo como "Mira, lo mejor es que lo agendemos directo — aquí la llamada gratis: ${BOOKING_URL}" y listo. Sin más preguntas.`;
   }
 
-  // TCPA compliance — offer calendar slots, never auto-call
-  // Trigger from message 2+ or as soon as we have their phone
+  // Message 3 — offer calendar slots (book a time)
+  // Message 4 — ask if they want a live call right now (TCPA: consent only)
   let callOfferInstruction = '';
-  if ((historyCount >= 3 || alreadyHavePhone) && !blandConsentAsked.has(contactId) && !blandCallsSent.has(contactId)) {
+  const pendingSlots = pendingBookingSlots.get(contactId);
+
+  if (historyCount === 3 && !pendingSlots && !blandConsentAsked.has(contactId)) {
     try {
       const slots = await getAvailableSlots(3);
       if (slots.length > 0) {
         pendingBookingSlots.set(contactId, slots);
         const slotList = slots.map((s, i) => `${i + 1}. ${formatSlot(s)}`).join('\n');
-        callOfferInstruction = `\nAGENDA: Ya tienes su teléfono y email. Ofrece agendar directamente con Jose — incluye estas opciones disponibles de forma natural:\n${slotList}\nPídeles que respondan con 1, 2 o 3 para confirmar. Solo ofrece esto una vez.`;
+        callOfferInstruction = `\nAGENDA: Ofrece agendar una llamada gratuita de 15 minutos con Jose — incluye estas opciones disponibles de forma natural:\n${slotList}\nPídeles que respondan con 1, 2 o 3 para confirmar. Solo ofrece esto una vez.`;
       }
     } catch (err) {
       console.error('[Calendar] Slot fetch failed:', err.message);
-      callOfferInstruction = `\nLLAMADA: Ya tienes su teléfono y email. Pregunta brevemente si quieren que les llames ahora para platicarlo rápido.`;
     }
   }
-  // Detect if contact is choosing a previously offered slot
-  const pendingSlots = pendingBookingSlots.get(contactId);
+
+  if (historyCount === 4 && !blandConsentAsked.has(contactId) && !blandCallsSent.has(contactId)) {
+    blandConsentAsked.add(contactId);
+    callOfferInstruction += `\nLLAMADA: Pregunta de forma natural y breve si prefieren que les llamen ahora mismo en vez de agendar: "¿Prefieres que te llame ahora para platicarlo en 2 minutos?" (español) o "Would you prefer I call you right now instead?" (inglés). Solo una vez.`;
+  }
+
+  // Detect if contact is choosing a previously offered calendar slot
   const slotChoiceInstruction = pendingSlots
     ? `\nSLOT DETECTION: Si el mensaje actual contiene "1", "2", "3", "primero", "segundo", "tercero", "first", "second", "third" o una hora específica que coincide con las opciones ofrecidas — devuelve slotChoice:1, slotChoice:2, o slotChoice:3 en el JSON. Si no están eligiendo un slot, devuelve slotChoice:0.`
     : '';
