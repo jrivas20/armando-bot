@@ -5138,6 +5138,226 @@ app.get('/elena/clients', async (_req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
+// DIEGO — PROJECT MANAGER
+//   Scans all subaccounts every Monday
+//   Reports stalled deals, inactive accounts, pipeline health
+//   Emails Jose a full project status every Monday 9:15am EST
+// ═══════════════════════════════════════════════════════════
+
+const STALE_DAYS = 14; // flag deals with no activity for 14+ days
+
+async function getSubaccountOpportunities(locationId) {
+  try {
+    const res = await axios.get('https://services.leadconnectorhq.com/opportunities/search', {
+      headers: { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28' },
+      params: { location_id: locationId, status: 'open', limit: 100 },
+      timeout: 10000,
+    });
+    return res.data?.opportunities || [];
+  } catch { return []; }
+}
+
+async function runDiegoWeeklyReport() {
+  console.log('[Diego] Building weekly project report...');
+  const clients = await getElenaClients();
+  const now     = Date.now();
+  const staleCutoff = now - STALE_DAYS * 24 * 60 * 60 * 1000;
+
+  const accountSummaries = [];
+  let totalOpenDeals   = 0;
+  let totalPipelineVal = 0;
+  let stalledAccounts  = 0;
+  let inactiveAccounts = 0; // zero open deals + zero contacts added recently
+
+  for (const client of clients) {
+    try {
+      const opps = await getSubaccountOpportunities(client.locationId);
+      const openOpps  = opps.filter(o => o.status === 'open');
+      const stalled   = openOpps.filter(o => {
+        const last = new Date(o.updatedAt || o.dateUpdated || 0).getTime();
+        return last < staleCutoff;
+      });
+      const pipelineVal = openOpps.reduce((s, o) => s + (parseFloat(o.monetaryValue) || 0), 0);
+      const topDeal = openOpps.sort((a, b) => (parseFloat(b.monetaryValue) || 0) - (parseFloat(a.monetaryValue) || 0))[0];
+
+      totalOpenDeals   += openOpps.length;
+      totalPipelineVal += pipelineVal;
+      if (stalled.length > 0) stalledAccounts++;
+      if (openOpps.length === 0) inactiveAccounts++;
+
+      accountSummaries.push({
+        name:        client.name,
+        locationId:  client.locationId,
+        openOpps:    openOpps.length,
+        stalledOpps: stalled.length,
+        pipelineVal,
+        topDeal:     topDeal ? { name: topDeal.name, value: parseFloat(topDeal.monetaryValue) || 0 } : null,
+        needsAttention: stalled.length > 0 || openOpps.length === 0,
+      });
+
+      await new Promise(r => setTimeout(r, 800));
+    } catch (err) {
+      console.error(`[Diego] Error scanning ${client.name}:`, err.message);
+    }
+  }
+
+  // Sort: needs attention first, then by pipeline value
+  accountSummaries.sort((a, b) => {
+    if (a.needsAttention && !b.needsAttention) return -1;
+    if (!a.needsAttention && b.needsAttention) return 1;
+    return b.pipelineVal - a.pipelineVal;
+  });
+
+  // Claude generates the executive summary
+  const summaryData = accountSummaries.map(a =>
+    `${a.name}: ${a.openOpps} open deals ($${Math.round(a.pipelineVal).toLocaleString()} pipeline), ${a.stalledOpps} stalled`
+  ).join('\n');
+
+  let aiInsight = '';
+  try {
+    const aiRes = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      messages: [{ role: 'user', content: `Eres Diego, el Project Manager de JRZ Marketing. Basado en este resumen semanal de los 31 clientes, escribe UN párrafo ejecutivo corto (3-4 oraciones) con el insight más importante y una acción concreta para Jose esta semana. Habla directo, como un PM al CEO.\n\nDatos:\n- Cuentas totales: ${accountSummaries.length}\n- Deals abiertos: ${totalOpenDeals} (valor total: $${Math.round(totalPipelineVal).toLocaleString()})\n- Cuentas con deals estancados: ${stalledAccounts}\n- Cuentas sin actividad: ${inactiveAccounts}\n\nDetalle:\n${summaryData.slice(0, 1500)}\n\nEscribe solo el párrafo, en español.` }],
+    });
+    aiInsight = aiRes.content[0].text.trim();
+  } catch { aiInsight = 'Análisis no disponible esta semana.'; }
+
+  // Build HTML rows
+  const attentionRows = accountSummaries
+    .filter(a => a.needsAttention)
+    .map(a => `
+      <tr>
+        <td style="padding:12px 16px;font-size:14px;font-weight:600;color:#0a0a0a;border-bottom:1px solid #f0f0f0;">${a.name}</td>
+        <td style="padding:12px 16px;font-size:14px;color:#555;border-bottom:1px solid #f0f0f0;text-align:center;">${a.openOpps}</td>
+        <td style="padding:12px 16px;font-size:14px;border-bottom:1px solid #f0f0f0;text-align:center;">
+          ${a.stalledOpps > 0 ? `<span style="background:#fef2f2;color:#dc2626;font-weight:700;padding:3px 10px;border-radius:100px;font-size:12px;">${a.stalledOpps} stalled</span>` : '<span style="color:#bbb;font-size:12px;">no deals</span>'}
+        </td>
+        <td style="padding:12px 16px;font-size:14px;color:#555;border-bottom:1px solid #f0f0f0;">$${Math.round(a.pipelineVal).toLocaleString()}</td>
+        <td style="padding:12px 16px;font-size:13px;color:#888;border-bottom:1px solid #f0f0f0;">${a.topDeal ? a.topDeal.name.slice(0, 30) : '—'}</td>
+      </tr>`).join('');
+
+  const healthyRows = accountSummaries
+    .filter(a => !a.needsAttention)
+    .map(a => `
+      <tr>
+        <td style="padding:10px 16px;font-size:13px;color:#333;border-bottom:1px solid #f9f9f9;">${a.name}</td>
+        <td style="padding:10px 16px;font-size:13px;color:#555;border-bottom:1px solid #f9f9f9;text-align:center;">${a.openOpps}</td>
+        <td style="padding:10px 16px;font-size:13px;border-bottom:1px solid #f9f9f9;text-align:center;"><span style="color:#16a34a;font-weight:700;">✓ On track</span></td>
+        <td style="padding:10px 16px;font-size:13px;color:#555;border-bottom:1px solid #f9f9f9;">$${Math.round(a.pipelineVal).toLocaleString()}</td>
+        <td style="padding:10px 16px;font-size:13px;color:#888;border-bottom:1px solid #f9f9f9;">${a.topDeal ? a.topDeal.name.slice(0, 30) : '—'}</td>
+      </tr>`).join('');
+
+  const date = new Date().toLocaleDateString('es-ES', { timeZone: 'America/New_York', weekday: 'long', day: 'numeric', month: 'long' });
+  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+
+  const html = `<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diego — Reporte Semanal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',-apple-system,sans-serif; background:#f4f4f4; color:#0a0a0a; }
+    .wrap { padding:40px 20px; }
+    .card { max-width:680px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+    .hdr { background:#0a0a0a; padding:28px 40px; display:flex; align-items:center; justify-content:space-between; }
+    .hdr img { height:40px; }
+    .hdr-badge { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; padding:6px 14px; border-radius:100px; }
+    .hero { background:#0a0a0a; padding:32px 40px 40px; border-bottom:3px solid #fff; }
+    .hero h1 { font-size:24px; font-weight:800; color:#fff; margin-bottom:8px; }
+    .hero p { font-size:13px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.08em; }
+    .stats { display:flex; border-bottom:1px solid #f0f0f0; }
+    .stat { flex:1; padding:20px 16px; text-align:center; border-right:1px solid #f0f0f0; }
+    .stat:last-child { border-right:none; }
+    .stat-num { font-size:28px; font-weight:800; color:#0a0a0a; line-height:1; }
+    .stat-num.red { color:#dc2626; }
+    .stat-lbl { font-size:10px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:0.08em; margin-top:5px; }
+    .body { padding:32px 40px; }
+    .insight { background:#f9f9f9; border-left:4px solid #0a0a0a; border-radius:0 10px 10px 0; padding:20px 24px; margin-bottom:28px; font-size:14px; color:#333; line-height:1.8; }
+    .insight strong { color:#0a0a0a; display:block; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:#999; margin-bottom:8px; }
+    .section-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#999; margin:0 0 12px; }
+    .alert-box { background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:4px; margin-bottom:24px; overflow:hidden; }
+    .alert-label { background:#dc2626; color:#fff; font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:8px 16px; }
+    table { width:100%; border-collapse:collapse; }
+    .healthy-box { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:4px; overflow:hidden; }
+    .healthy-label { background:#16a34a; color:#fff; font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:8px 16px; }
+    .ftr { background:#0a0a0a; padding:24px 40px; display:flex; align-items:center; justify-content:space-between; }
+    .ftr img { height:24px; opacity:0.5; }
+    .ftr p { font-size:11px; color:rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+  <div class="hdr">
+    <img src="${logoUrl}" alt="JRZ Marketing" />
+    <span class="hdr-badge">Diego — PM Report</span>
+  </div>
+  <div class="hero">
+    <h1>Reporte Semanal de Proyectos</h1>
+    <p>${date}</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">${accountSummaries.length}</div><div class="stat-lbl">Clientes</div></div>
+    <div class="stat"><div class="stat-num">${totalOpenDeals}</div><div class="stat-lbl">Deals Abiertos</div></div>
+    <div class="stat"><div class="stat-num red">${stalledAccounts}</div><div class="stat-lbl">Estancados</div></div>
+    <div class="stat"><div class="stat-num">$${Math.round(totalPipelineVal / 1000)}k</div><div class="stat-lbl">Pipeline Total</div></div>
+  </div>
+  <div class="body">
+    <div class="insight"><strong>Insight de Diego</strong>${aiInsight}</div>
+    ${attentionRows ? `
+    <p class="section-title">⚠️ Necesitan atención (${accountSummaries.filter(a => a.needsAttention).length})</p>
+    <div class="alert-box">
+      <div class="alert-label">Acción requerida esta semana</div>
+      <table>
+        <thead><tr style="background:#fff5f5;">
+          <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Cliente</th>
+          <th style="padding:10px 16px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Deals</th>
+          <th style="padding:10px 16px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Estado</th>
+          <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Pipeline</th>
+          <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Top Deal</th>
+        </tr></thead>
+        <tbody>${attentionRows}</tbody>
+      </table>
+    </div>` : '<p style="color:#16a34a;font-weight:700;margin-bottom:24px;">✅ Todos los clientes están activos esta semana.</p>'}
+    ${healthyRows ? `
+    <p class="section-title" style="margin-top:24px;">✅ En buen estado (${accountSummaries.filter(a => !a.needsAttention).length})</p>
+    <div class="healthy-box">
+      <div class="healthy-label">Sin problemas esta semana</div>
+      <table>
+        <thead><tr style="background:#f0fdf4;">
+          <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Cliente</th>
+          <th style="padding:10px 16px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Deals</th>
+          <th style="padding:10px 16px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Estado</th>
+          <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Pipeline</th>
+          <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Top Deal</th>
+        </tr></thead>
+        <tbody>${healthyRows}</tbody>
+      </table>
+    </div>` : ''}
+  </div>
+  <div class="ftr">
+    <img src="${logoUrl}" alt="JRZ Marketing" />
+    <p>Diego — JRZ Marketing AI Project Manager</p>
+  </div>
+</div></div>
+</body></html>`;
+
+  await sendEmail(OWNER_CONTACT_ID, `📋 Diego: Reporte Semanal — ${accountSummaries.filter(a => a.needsAttention).length} cuentas necesitan atención`, html);
+  console.log(`[Diego] ✅ Weekly report sent. ${stalledAccounts} stalled, ${inactiveAccounts} inactive, $${Math.round(totalPipelineVal).toLocaleString()} total pipeline.`);
+}
+
+app.post('/diego/weekly-report', async (_req, res) => {
+  try {
+    runDiegoWeeklyReport();
+    res.json({ status: 'ok', message: 'Diego is building the weekly project report' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
 // INTERNAL CRON — checks every 2 minutes
 //  7:00am EST  daily      → Carousel post + blog
 //  7:05am EST  Monday     → Weekly analytics analysis + A/B test + summary email
@@ -5162,6 +5382,7 @@ let lastCompetitorDate      = null;
 let lastSubCheckInDate      = null;
 let lastLearningDate        = null;
 let lastElenaHealthDate     = null;
+let lastDiegoReportDate     = null;
 
 setInterval(async () => {
   try {
@@ -5208,6 +5429,12 @@ setInterval(async () => {
     if (hour === 8 && minute >= 35 && minute < 40 && dayOfWeek === 1 && lastElenaHealthDate !== today) {
       lastElenaHealthDate = today;
       elenaHealthCheck(); // non-blocking — hits 31 APIs
+    }
+
+    // 9:15am Monday — Diego: weekly project report
+    if (hour === 9 && minute >= 15 && minute < 20 && dayOfWeek === 1 && lastDiegoReportDate !== today) {
+      lastDiegoReportDate = today;
+      runDiegoWeeklyReport(); // non-blocking
     }
 
     // 9:00am Monday — Apollo email enrichment (free plan: 50 credits/month)
