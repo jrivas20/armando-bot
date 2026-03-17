@@ -760,16 +760,27 @@ TU PERSONALIDAD (esto es clave — no lo ignores):
 TU OBJETIVO:
 Agendar una llamada gratuita de estrategia con Jose. Eso es todo. Cada mensaje te acerca a eso, pero sin que se sienta como un script de ventas. La clave es que la persona sienta que habló con un ser humano de verdad que le quiere ayudar.
 
-FLUJO DE CAPTURA — REGLA NO NEGOCIABLE:
-Tu trabajo número uno es capturar TELÉFONO y EMAIL de cada persona. Sin esos datos, el equipo no puede hacer seguimiento. Captúralos sí o sí — con gracia, pero sin fallar.
+FLUJO DE 4 MENSAJES — CAPTURA, CALIFICACIÓN Y CIERRE:
+Tienes exactamente 4 mensajes para convertir esta conversación en un lead calificado. Cada mensaje tiene un trabajo específico. No improvises el orden.
 
-1. Mensaje 1: Saluda, preséntate, pide TELÉFONO. Solo teléfono.
-2. Tienen teléfono / no tienen email: Pide el EMAIL en el siguiente mensaje. Una oración. Natural.
-3. Mensajes 3-5 sin teléfono o email: En CADA mensaje, antes de cerrar, menciona el dato que falta UNA vez. ("oye, ¿me dejas tu número para que el equipo te contacte?" / "por cierto, ¿cuál es tu email?"). No ruegues — solo lo dices una vez por mensaje y listo.
-4. Mensaje 6+ sin info: Ya lo intentaste. Solo deja el link: ${BOOKING_URL} y continúa la conversación sin pedir más.
-5. Tienen ambos: Cierra — "perfecto, el equipo te contacta pronto. Aquí también puedes agendar directo: ${BOOKING_URL}". Listo.
+MENSAJE 1 — CAPTURA INMEDIATA:
+Saluda con energía real. Preséntate como Armando de JRZ Marketing en una frase. Reconoce lo que dijeron. Pide TELÉFONO y EMAIL juntos en UNA sola oración natural: "¿me dejas tu número y email para que el equipo te contacte directo?" Máximo 3 oraciones en total.
 
-REGLA CLAVE: Ningún mensaje termina sin haber mencionado el dato faltante (hasta mensaje 5). La captura es silenciosa pero constante.
+MENSAJE 2 — CALIFICACIÓN PROFUNDA:
+Este mensaje vale oro. Haz UNA sola pregunta que Jose necesita escuchar antes de la llamada. Elige según su industria y lo que detectas:
+• "¿Cuántos clientes nuevos estás consiguiendo por mes ahora mismo?"
+• "¿Qué has probado ya para crecer y qué resultado te dio?"
+• "¿Tu mayor reto es conseguir clientes nuevos o retener los que ya tienes?"
+• "¿Tienes presencia digital ya (web, redes) o estamos empezando desde cero?"
+Adapta la pregunta a su negocio específico — un restaurante no es lo mismo que una constructora. La respuesta le dirá a Jose exactamente cómo ayudarlos. Si todavía falta teléfono o email, pídelo brevemente al final de este mensaje.
+
+MENSAJE 3 — NOTA DE VOZ + LINK DROP:
+Tu texto aquí es CORTO — máximo 2 oraciones. Reconoce lo que te dijeron en el mensaje 2 en UNA oración que muestre que escuchaste. Luego aplica el cierre y termina con el link. La nota de voz personalizada ya va adjunta — ella hace el trabajo emocional. Tu texto es solo el anzuelo.
+
+MENSAJE 4 — ÚLTIMO MOVIMIENTO:
+Urgencia real pero sin presión: "Jose tiene pocos espacios esta semana." + link. Cálido, con intención. Si no agendan, respetas — no insistes más. Este es tu último push.
+
+REGLA DE ORO: Lee los patrones. Si alguien de restaurante respondió bien a "¿cuántos clientes por mes?", úsala de nuevo. Las mejores preguntas son las que generan respuestas largas — eso es señal de interés real.
 
 MANEJO DE OBJECIONES (natural, no memorizado):
 - "ya tengo alguien de marketing" → "Qué bien, eso ayuda. La mayoría de nuestros clientes también tenían — llegaron a nosotros buscando una segunda opinión. ¿En qué están enfocados ahorita?"
@@ -924,38 +935,58 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   const abVariant = await assignClosingVariant(contactId);
   const closingInstruction = CLOSING_VARIANTS[abVariant].instruction(BOOKING_URL);
 
-  // Stage instructions — never ask for info we already have
+  // ── 4-Message Lead Flow ─────────────────────────────────
   let stageInstruction = '';
-  if (historyCount === 1) {
-    // Message 1 — greet + ask for phone AND email
-    stageInstruction = hasBoth
-      ? `PRIMER MENSAJE — ya tienes teléfono (${foundPhone}) y email (${foundEmail}). Saluda con "${timeGreeting}", preséntate como Armando de JRZ Marketing, y ofrece agendar directamente: ${BOOKING_URL}. Sin pedir nada — ya lo tienes todo.`
-      : alreadyHavePhone
-        ? `PRIMER MENSAJE — ya tienes su teléfono (${foundPhone}). Saluda, preséntate, y pide solo el EMAIL en la misma oración.`
-        : alreadyHaveEmail
-          ? `PRIMER MENSAJE — ya tienes su email (${foundEmail}). Saluda, preséntate, y pide solo el TELÉFONO en la misma oración.`
-          : `PRIMER MENSAJE. Saluda con "${timeGreeting}" (o "${timeGreetingEN}" si escribió en inglés). Preséntate como Armando, Community Manager de JRZ Marketing. Reconoce lo que dijeron en UNA oración. Pide solo el TELÉFONO — "¿me dejas tu número para que el equipo te contacte?" Natural, directo, humano. NO pidas email todavía.`;
-  } else if (hasBoth) {
-    stageInstruction = `Ya tienes teléfono (${foundPhone}) y email (${foundEmail}). NO pidas más datos. Cierra calidamente — el equipo les contactará pronto. Muévelos al booking: ${BOOKING_URL}`;
-  } else if (alreadyHavePhone && !alreadyHaveEmail) {
-    stageInstruction = `Tienes su teléfono (${foundPhone}) pero falta el EMAIL. Pídelo en una sola oración. ${historyCount >= 3 ? `También manda el link directo: ${BOOKING_URL}` : ''}`;
-  } else if (!alreadyHavePhone && alreadyHaveEmail) {
-    stageInstruction = `Tienes su email (${foundEmail}) pero falta el TELÉFONO. Pídelo en una sola oración. ${historyCount >= 3 ? `También manda el link directo: ${BOOKING_URL}` : ''}`;
+
+  if (hasBoth) {
+    // Already have everything — just close and move to booking
+    stageInstruction = `✅ Ya tienes teléfono (${foundPhone}) y email (${foundEmail}). NO pidas más datos. Responde, cierra calidamente, y muévelos al booking: ${BOOKING_URL}`;
+
+  } else if (historyCount === 1) {
+    // MSG 1 — Greet + ask for BOTH phone and email together
+    stageInstruction = alreadyHavePhone
+      ? `MENSAJE 1 — ya tienes teléfono (${foundPhone}). Saluda con "${timeGreeting}", preséntate, pide EMAIL en la misma oración.`
+      : alreadyHaveEmail
+        ? `MENSAJE 1 — ya tienes email (${foundEmail}). Saluda con "${timeGreeting}", preséntate, pide TELÉFONO en la misma oración.`
+        : `MENSAJE 1. Saluda con "${timeGreeting}" (o "${timeGreetingEN}" si escribió en inglés). Preséntate como Armando, Community Manager de JRZ Marketing. Reconoce lo que dijeron en UNA oración. Pide TELÉFONO y EMAIL juntos: "¿me dejas tu número y email para que el equipo te contacte?" Máximo 3 oraciones.`;
+
   } else if (historyCount === 2) {
-    // Message 2 — ask for whichever is missing
-    if (!alreadyHavePhone) {
-      stageInstruction = `Segundo mensaje — todavía sin teléfono. Responde a lo que dijeron y pide su TELÉFONO de forma natural. Aplica también: ${closingInstruction}`;
-    } else {
-      stageInstruction = `Segundo mensaje — tienes teléfono (${foundPhone}), falta EMAIL. Responde y pide el email en una sola oración. Aplica también: ${closingInstruction}`;
-    }
-  } else if (historyCount <= 5 && (!alreadyHavePhone || !alreadyHaveEmail)) {
-    // Messages 3-5 — still missing info, keep asking naturally once per message
-    const missing = !alreadyHavePhone ? 'teléfono' : 'email';
-    const missingUpper = missing.toUpperCase();
-    stageInstruction = `Mensaje #${historyCount} — Todavía falta el ${missing}. Responde normalmente a lo que dicen, y antes de terminar el mensaje desliza UNA vez: pide su ${missing} de forma muy natural (ej: "oye, ¿me dejas tu ${missing}?" o "por cierto, ¿cuál es tu ${missing}?"). También incluye el link cuando encaje: ${BOOKING_URL}. Recuerda: solo pides ${missingUpper} — no los dos a la vez.`;
+    // MSG 2 — Deep qualifying question (the intelligence gather)
+    const stillMissing = !alreadyHavePhone && !alreadyHaveEmail
+      ? 'Todavía no tienes teléfono ni email — si no los dieron, pídelos de nuevo brevemente AL FINAL de este mensaje.'
+      : alreadyHavePhone && !alreadyHaveEmail
+        ? `Tienes teléfono (${foundPhone}) — pide el EMAIL brevemente al final.`
+        : !alreadyHavePhone && alreadyHaveEmail
+          ? `Tienes email (${foundEmail}) — pide el TELÉFONO brevemente al final.`
+          : '';
+    stageInstruction = `MENSAJE 2 — CALIFICACIÓN. Responde en 1 oración a lo que dijeron. Luego haz UNA sola pregunta de calificación profunda adaptada a su negocio/industria específica. Las mejores opciones según su contexto:
+• Si tiene negocio local (restaurante/barbería/gym): "¿Cuántos clientes nuevos estás consiguiendo por mes ahora mismo?"
+• Si tiene servicio/consultora: "¿Qué has probado ya para crecer y qué resultado te dio?"
+• Si es startup/emprendedor: "¿Tu mayor reto ahorita es conseguir clientes nuevos o retener los que tienes?"
+• Si no tiene presencia digital: "¿Tienes web y redes ya o estamos empezando desde cero?"
+Elige LA mejor para ellos — no copies, adapta. ${stillMissing}`;
+
+  } else if (historyCount === 3) {
+    // MSG 3 — SHORT text + voice note does the heavy lifting + link drop
+    const missingNote = !alreadyHavePhone
+      ? ` Si encaja, desliza "¿y me pasas tu número?" al final.`
+      : !alreadyHaveEmail
+        ? ` Si encaja, desliza "¿y me pasas tu email?" al final.`
+        : '';
+    stageInstruction = `MENSAJE 3 — CIERRE CON VOZ. TEXTO CORTO (máximo 2 oraciones). Primera oración: reconoce su respuesta del mensaje anterior en algo específico que dijeron (muestra que escuchaste de verdad). Segunda oración: aplica el cierre y deja el link: ${BOOKING_URL}. La nota de voz personalizada ya va adjunta — ella hace el trabajo emocional. Tu texto solo abre la puerta.${missingNote} Aplica: ${closingInstruction}`;
+
+  } else if (historyCount === 4) {
+    // MSG 4 — Final urgency push, then let go
+    const lastCapture = !alreadyHavePhone
+      ? ` Último intento: "¿me dejas tu número antes de que me vaya?"`
+      : !alreadyHaveEmail
+        ? ` Último intento: "¿y tu email para mandarte info?"`
+        : '';
+    stageInstruction = `MENSAJE 4 — ÚLTIMO MOVIMIENTO. Urgencia suave y real: menciona que Jose tiene pocos espacios disponibles esta semana. Manda el link: ${BOOKING_URL}. Cálido, con intención, pero sin ruego. Si no agendan, respetas — punto.${lastCapture}`;
+
   } else {
-    // Message 6+ — gave it 5 shots, now just drop the link naturally
-    stageInstruction = `Mensaje #${historyCount} — ya pediste info varias veces. Solo responde naturalmente. Si encaja menciona: "${BOOKING_URL}". No pidas más teléfono ni email.`;
+    // MSG 5+ — done selling, just be human
+    stageInstruction = `Mensaje #${historyCount} — ya hiciste los 4 movimientos. Responde naturalmente. No vendas. Si preguntan algo de JRZ, responde. Si encaja orgánicamente menciona el link, pero sin push.`;
   }
 
   // Message 3 — offer calendar slots (book a time)
@@ -1032,13 +1063,15 @@ ${((objectionMemory[detectObjection(incomingMessage)] || {}).bestResponses || []
 TU TAREA PARA ESTE MENSAJE: ${stageInstruction}${callOfferInstruction}${slotChoiceInstruction}
 
 Responde SOLO en este formato JSON exacto (sin texto extra):
-{"reply":"...","leadQuality":"none|interested|qualified|hot","sentiment":"positive|neutral|annoyed","shouldEngage":true,"wantsCall":false,"slotChoice":0,"businessType":"tipo de negocio detectado o vacío","painPoints":["pain point detectado"],"interests":["interés detectado"]}
+{"reply":"...","leadQuality":"none|interested|qualified|hot","sentiment":"positive|neutral|annoyed","shouldEngage":true,"wantsCall":false,"slotChoice":0,"businessType":"tipo de negocio detectado o vacío","painPoints":["pain point detectado"],"interests":["interés detectado"],"qualifyingQuestion":"la pregunta de calificación que usaste en msg 2, o vacío si no aplica","msgNumber":1}
 
-shouldEngage: true si el mensaje tiene intención de negocio o es un primer contacto legítimo. false si es claramente una conversación personal/casual que no tiene que ver con marketing.
-leadQuality: none=desinteresado, interested=enganchado/sin info, qualified=teléfono O email, hot=AMBOS
+shouldEngage: true si el mensaje tiene intención de negocio o es un primer contacto legítimo. false si es claramente conversación personal sin relación a marketing.
+leadQuality: none=desinteresado, interested=enganchado/sin info, qualified=teléfono O email, hot=AMBOS (teléfono Y email)
 sentiment: positive=emocionado/amigable, neutral=normal, annoyed=frustrado/impaciente
-wantsCall: true ONLY if the person explicitly said yes to a call offer (sí, yes, dale, claro, ok, llámame, call me). false otherwise.
-slotChoice: 1, 2, or 3 if person is picking a calendar slot. 0 if not.`;
+wantsCall: true ONLY if they explicitly said yes to a call (sí, yes, dale, claro, ok, llámame, call me). false otherwise.
+slotChoice: 1, 2, or 3 if person is picking a calendar slot. 0 if not.
+qualifyingQuestion: exact question you asked at message 2 (used for learning what converts). Empty string if not message 2.
+msgNumber: current message number in this conversation (${historyCount}).`;
 
   const messagesForClaude = [...claudeHistory, { role: 'user', content: incomingMessage }];
 
@@ -1069,6 +1102,15 @@ slotChoice: 1, 2, or 3 if person is picking a calendar slot. 0 if not.`;
       if (objType && parsed.reply) logObjectionResponse(objType, parsed.reply, contactId);
       // Log weekly win when lead goes hot
       if (parsed.leadQuality === 'hot' && parsed.reply) logWeeklyWin(contactId, parsed.reply, 'hot_lead');
+      // Save qualifying question to memory so learning system can track what converts
+      if (parsed.qualifyingQuestion && historyCount === 2) {
+        updatedMemory.qualifyingQuestion = parsed.qualifyingQuestion;
+        updatedMemory.qualifyingBusinessType = parsed.businessType || '';
+      }
+      // When lead goes hot, log which qualifying question worked for this business type
+      if (parsed.leadQuality === 'hot' && updatedMemory.qualifyingQuestion) {
+        logWeeklyWin(contactId, `Q2 que convirtió para ${updatedMemory.qualifyingBusinessType || 'negocio'}: "${updatedMemory.qualifyingQuestion}"`, 'qualifying_win');
+      }
       return {
         reply: parsed.reply,
         leadQuality: parsed.leadQuality || 'none',
@@ -1081,6 +1123,8 @@ slotChoice: 1, 2, or 3 if person is picking a calendar slot. 0 if not.`;
         contactMemory: updatedMemory,
         competitorInsights,
         compPainPoints,
+        qualifyingQuestion: parsed.qualifyingQuestion || '',
+        msgNumber: historyCount,
       };
     }
     return { reply: text, leadQuality: 'none', sentiment: 'neutral', shouldEngage: true, foundPhone, foundEmail, contactMemory, competitorInsights, compPainPoints };
