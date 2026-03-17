@@ -24,3 +24,5 @@ services:
         sync: false
       - key: GOOGLE_REFRESH_TOKEN
         sync: false
+      - key: GHL_AGENCY_KEY
+        sync: false

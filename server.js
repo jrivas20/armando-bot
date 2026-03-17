@@ -4709,11 +4709,441 @@ app.post('/cron/proposal', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
+// ELENA — CLIENT SUCCESS MANAGER
+//   Manages all 32 JRZ Marketing subaccounts
+//   Sends monthly reports, weekly health checks, win alerts
+//   Speaks Spanish to all clients (English only to Cooney Homes)
+// ═══════════════════════════════════════════════════════════
+
+const GHL_AGENCY_KEY = process.env.GHL_AGENCY_KEY || 'pit-7a8b4631-2249-4683-b15b-57a661400caa';
+
+// Known client overrides — language + industry per locationId
+// Elena fetches the live list from GHL, then applies these overrides.
+// New clients default to lang:'es', industry:'business' automatically.
+const ELENA_CLIENT_OVERRIDES = {
+  'OqnDdohCjhm3rUNFZUBv': { lang: 'es', industry: 'water damage restoration' },
+  'NEC2hjuIspTjO5SG4NdU': { lang: 'es', industry: 'life coach' },
+  'Gc4sUcLiRI2edddJ5Lfl': { lang: 'en', industry: 'real estate' },       // ← English only
+  'Aj3HgAvBCP0Sm8GiScnI': { lang: 'es', industry: 'credit repair' },
+  'zls4F5DY9IxGOSSBsgwX': { lang: 'es', industry: 'professional services' },
+  'DH2dCmWyzYaMuZ1WPytl': { lang: 'es', industry: 'business' },
+  '7NI6b2LQpOdU2QKvcGzN': { lang: 'es', industry: 'business' },
+  'EEu879tknB5Gilw2YipA': { lang: 'es', industry: 'tattoo studio' },
+  'EY2OdSbqpev9w7R1ZhTN': { lang: 'es', industry: 'auto detailing' },
+  'Emg5M7GZE7XmnHc7F5vy': { lang: 'es', industry: 'restaurant' },
+  'l4TKwBjrtTDjhH4w8Gwv': { lang: 'es', industry: 'video production' },
+  'bkYf2Jamt3Qe17gXEYcp': { lang: 'es', industry: 'fence installation' },
+  'uSJLhp7BCFFgEYR64nyA': { lang: 'es', industry: 'paver sealing' },
+  'OpdBPAp31zItOc5IIykL': { lang: 'es', industry: 'barbershop' },
+  'SiMc6HEKCwqXUW4ECvfp': { lang: 'es', industry: 'international business' },
+  'Q6FIvQ5WitCeq9wyXZ3L': { lang: 'es', industry: 'business' },
+  'LYYC7RNdczcwfObK6mCV': { lang: 'es', industry: 'studio' },
+  'fiXfZtPfXbcgg0AtLFi4': { lang: 'es', industry: 'optical/eyewear' },
+  'faGC7IoUzIj0yTBzLbJU': { lang: 'es', industry: 'sports training' },
+  'iipUT8kmVxJZzGBzvkZm': { lang: 'es', industry: 'railing installation' },
+  'BlyQAv719YyBg4TCPD0L': { lang: 'es', industry: 'med spa / skincare' },
+  '6FdG0APBuZ81P8X2H4zc': { lang: 'es', industry: 'storage rental' },
+  'VH3vK2wx24PqK5rX34I3': { lang: 'es', industry: 'business' },
+  'jqodqJJAvxuBRyiU27oh': { lang: 'es', industry: 'business' },
+  'd1VBgXk2TqHYwlTy85Pa': { lang: 'es', industry: 'fitness / gym' },
+  'S8XzcEfRd6IMx4mvfnSf': { lang: 'es', industry: 'restaurant' },
+  'rJKRuyayc6Z6twr9X20v': { lang: 'es', industry: 'restaurant' },
+  'Hen1RHBy8xX6tL8kTKFZ': { lang: 'es', industry: 'watch shop' },
+  'QWZPYWo1AgLpLjHTG6OA': { lang: 'es', industry: 'tattoo studio' },
+  'ktcIQNnu5PjI3agQysVr': { lang: 'es', industry: 'construction' },
+  'VWHZW08b0skUV7wcnG55': { lang: 'es', industry: 'accounting / tax' },
+};
+
+// Fetches live subaccount list from GHL Agency API.
+// New clients are included automatically — no code changes needed.
+async function getElenaClients() {
+  try {
+    const res = await axios.get('https://services.leadconnectorhq.com/locations/search', {
+      headers: { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28' },
+      params: { companyId: 'VMjVKN63tXxZxQ21jlC4', limit: 100 },
+      timeout: 15000,
+    });
+    const locations = res.data?.locations || res.data?.data || [];
+    return locations
+      .filter(loc => loc.id !== GHL_LOCATION_ID) // skip JRZ Marketing main account
+      .map(loc => {
+        const overrides = ELENA_CLIENT_OVERRIDES[loc.id] || {};
+        return {
+          name:       loc.name || loc.business?.name || 'Client',
+          locationId: loc.id,
+          lang:       overrides.lang     || 'es',
+          industry:   overrides.industry || 'business',
+        };
+      });
+  } catch (err) {
+    console.error('[Elena] Failed to fetch live client list:', err.message);
+    // Fallback: build from known overrides so Elena still works if API is down
+    return Object.entries(ELENA_CLIENT_OVERRIDES).map(([locationId, o]) => ({
+      name: locationId, locationId, lang: o.lang, industry: o.industry,
+    }));
+  }
+}
+
+// Elena's Cloudinary health snapshot (tracks monthly pipeline counts)
+const ELENA_SNAPSHOT_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/elena_health_snapshot.json';
+const ELENA_SNAPSHOT_PID = 'jrz/elena_health_snapshot';
+
+async function loadElenaSnapshot() {
+  try {
+    const res = await axios.get(ELENA_SNAPSHOT_URL + '?t=' + Date.now(), { timeout: 8000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch { return {}; }
+}
+
+async function saveElenaSnapshot(data) {
+  const ts  = Math.floor(Date.now() / 1000);
+  const sigStr = `overwrite=true&public_id=${ELENA_SNAPSHOT_PID}&timestamp=${ts}${CLOUDINARY_API_SECRET}`;
+  const sig = crypto.createHash('sha1').update(sigStr).digest('hex');
+  const form = new FormData();
+  const buf  = Buffer.from(JSON.stringify(data, null, 2));
+  form.append('file', buf, { filename: 'elena_health_snapshot.json', contentType: 'application/json' });
+  form.append('public_id', ELENA_SNAPSHOT_PID);
+  form.append('resource_type', 'raw');
+  form.append('timestamp', String(ts));
+  form.append('api_key', CLOUDINARY_API_KEY);
+  form.append('signature', sig);
+  form.append('overwrite', 'true');
+  await axios.post(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`, form, {
+    headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 30000
+  });
+}
+
+// Pull subaccount stats using agency API
+async function getSubaccountStats(locationId) {
+  const headers = { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28' };
+  const [locRes, oppRes, contactRes] = await Promise.allSettled([
+    axios.get(`https://services.leadconnectorhq.com/locations/${locationId}`, { headers, timeout: 10000 }),
+    axios.get(`https://services.leadconnectorhq.com/opportunities/search`, {
+      headers, params: { location_id: locationId, limit: 100 }, timeout: 10000
+    }),
+    axios.get(`https://services.leadconnectorhq.com/contacts/`, {
+      headers, params: { locationId, limit: 1 }, timeout: 10000
+    }),
+  ]);
+
+  const loc  = locRes.status === 'fulfilled' ? locRes.value.data?.location || locRes.value.data : {};
+  const opps = oppRes.status === 'fulfilled' ? oppRes.value.data?.opportunities || [] : [];
+  const totalContacts = contactRes.status === 'fulfilled'
+    ? (contactRes.value.data?.meta?.total || contactRes.value.data?.total || 0) : 0;
+
+  const wonOpps  = opps.filter(o => o.status === 'won');
+  const openOpps = opps.filter(o => o.status !== 'lost' && o.status !== 'won');
+  const totalValue = opps.reduce((s, o) => s + (parseFloat(o.monetaryValue) || 0), 0);
+  const wonValue   = wonOpps.reduce((s, o) => s + (parseFloat(o.monetaryValue) || 0), 0);
+
+  return {
+    email:          loc.email || loc.business?.email || null,
+    phone:          loc.phone || loc.business?.phone || null,
+    businessName:   loc.name || loc.business?.name || null,
+    totalContacts,
+    totalOpps:      opps.length,
+    openOpps:       openOpps.length,
+    wonOpps:        wonOpps.length,
+    totalValue,
+    wonValue,
+    recentWon:      wonOpps.slice(0, 3).map(o => ({ name: o.name, value: o.monetaryValue || 0 })),
+  };
+}
+
+// Elena sends a personalized monthly report to one client
+async function elenaSendClientReport(client, stats, month) {
+  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  const isEn = client.lang === 'en';
+
+  if (!stats.email) {
+    console.log(`[Elena] No email for ${client.name} — skipping`);
+    return false;
+  }
+
+  // Claude generates personalized insights
+  const aiPrompt = isEn
+    ? `You are Elena, JRZ Marketing's AI Client Success Manager. Generate a short monthly performance summary for client "${client.name}" (${client.industry}) for ${month}. Pipeline data: ${stats.openOpps} open opportunities, ${stats.wonOpps} won this month (value: $${stats.wonValue}), ${stats.totalContacts} total contacts. Return ONLY valid JSON: {"headline": "one encouraging headline", "wins": ["win1", "win2"], "focus": "what to focus on next month", "tip": "one specific marketing tip for their industry", "personalNote": "warm personal note from Jose to this specific client"}`
+    : `Eres Elena, la IA de éxito de clientes de JRZ Marketing. Genera un resumen mensual personalizado para el cliente "${client.name}" (${client.industry}) del mes de ${month}. Datos del pipeline: ${stats.openOpps} oportunidades abiertas, ${stats.wonOpps} ganadas este mes (valor: $${stats.wonValue}), ${stats.totalContacts} contactos totales. Responde SOLO con JSON válido: {"headline": "titular motivador", "wins": ["logro1", "logro2"], "focus": "en qué enfocarse el próximo mes", "tip": "un consejo de marketing específico para su industria", "personalNote": "nota personal cálida de Jose para este cliente específico"}`;
+
+  const aiRes = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 500,
+    messages: [{ role: 'user', content: aiPrompt }],
+  });
+  const report = JSON.parse(aiRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+  const winsHtml = (report.wins || []).map(w =>
+    `<li style="padding:10px 0 10px 28px;position:relative;border-bottom:1px solid #f0f0f0;font-size:15px;color:#333;"><span style="position:absolute;left:0;font-weight:700;color:#0a0a0a;">✓</span>${w}</li>`
+  ).join('');
+
+  const subject = isEn
+    ? `📊 Your Monthly Report — ${month} | JRZ Marketing`
+    : `📊 Tu Reporte Mensual — ${month} | JRZ Marketing`;
+
+  const html = `<!DOCTYPE html>
+<html lang="${isEn ? 'en' : 'es'}" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${subject}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background-color:#f4f4f4; color:#0a0a0a; }
+    .wrap { background:#f4f4f4; padding:40px 20px; }
+    .card { max-width:600px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+    .hdr { background:#0a0a0a; padding:32px 40px; text-align:center; }
+    .hdr img { height:48px; width:auto; }
+    .badge { background:#0a0a0a; padding:0 40px 24px; text-align:center; }
+    .badge span { display:inline-block; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:6px 16px; border-radius:100px; }
+    .hero { background:#0a0a0a; padding:40px 40px 48px; border-bottom:3px solid #fff; }
+    .hero h1 { font-size:26px; font-weight:800; color:#fff; line-height:1.2; margin-bottom:12px; }
+    .hero p { font-size:14px; color:rgba(255,255,255,0.55); line-height:1.7; }
+    .stats { display:flex; border-bottom:1px solid #f0f0f0; }
+    .stat { flex:1; padding:20px 16px; text-align:center; border-right:1px solid #f0f0f0; }
+    .stat:last-child { border-right:none; }
+    .stat-num { font-size:26px; font-weight:800; color:#0a0a0a; }
+    .stat-lbl { font-size:10px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:0.08em; margin-top:4px; }
+    .body { padding:36px 40px 28px; }
+    .body p { font-size:15px; color:#333; line-height:1.8; margin-bottom:18px; }
+    .section-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#999; margin:24px 0 10px; }
+    .wins { list-style:none; padding:0; margin:0 0 20px; }
+    .box { background:#f9f9f9; border-radius:12px; padding:20px 24px; margin-bottom:16px; font-size:15px; color:#333; line-height:1.7; }
+    .note { background:#0a0a0a; border-radius:12px; padding:24px; margin:20px 0; font-size:14px; color:rgba(255,255,255,0.8); line-height:1.7; font-style:italic; }
+    .cta { padding:0 40px 40px; text-align:center; }
+    .cta-btn { display:inline-block; background:#0a0a0a; color:#fff !important; font-size:15px; font-weight:700; text-decoration:none; padding:16px 40px; border-radius:10px; margin-top:16px; }
+    .sig { padding:28px 40px; background:#f9f9f9; border-top:1px solid #eee; }
+    .sig-name { font-size:15px; font-weight:700; color:#0a0a0a; margin-bottom:2px; }
+    .sig-title { font-size:12px; color:#777; }
+    .sig-elena { font-size:11px; color:#bbb; margin-top:4px; }
+    .ftr { background:#0a0a0a; padding:24px 40px; text-align:center; }
+    .ftr img { height:24px; opacity:0.6; margin-bottom:12px; }
+    .ftr p { font-size:11px; color:rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+  <div class="hdr"><img src="${logoUrl}" alt="JRZ Marketing" /></div>
+  <div class="badge"><span>${isEn ? `Monthly Report — ${month}` : `Reporte Mensual — ${month}`}</span></div>
+  <div class="hero">
+    <h1>${client.name}${isEn ? ',<br />here\'s your month.' : ',<br />así fue tu mes.'} 📊</h1>
+    <p>${report.headline}</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">${stats.totalContacts}</div><div class="stat-lbl">${isEn ? 'Contacts' : 'Contactos'}</div></div>
+    <div class="stat"><div class="stat-num">${stats.openOpps}</div><div class="stat-lbl">${isEn ? 'Open Opps' : 'Oportunidades'}</div></div>
+    <div class="stat"><div class="stat-num">${stats.wonOpps}</div><div class="stat-lbl">${isEn ? 'Won' : 'Ganadas'}</div></div>
+    <div class="stat"><div class="stat-num">$${Math.round(stats.wonValue).toLocaleString()}</div><div class="stat-lbl">${isEn ? 'Revenue' : 'Ingresos'}</div></div>
+  </div>
+  <div class="body">
+    <p>${isEn ? 'Hi' : 'Hola'} <strong>${client.name.split(' ')[0]}</strong>,</p>
+    <p>${isEn ? "Here's your monthly performance summary from JRZ Marketing. Here's what we accomplished together this month:" : 'Aquí está tu resumen mensual de resultados con JRZ Marketing. Esto es lo que logramos juntos este mes:'}</p>
+    <p class="section-title">${isEn ? 'This Month\'s Wins' : 'Logros del Mes'}</p>
+    <ul class="wins">${winsHtml}</ul>
+    <p class="section-title">${isEn ? 'Focus for Next Month' : 'Enfoque del Próximo Mes'}</p>
+    <div class="box">${report.focus}</div>
+    <p class="section-title">${isEn ? 'Marketing Tip' : 'Consejo de Marketing'}</p>
+    <div class="box">${report.tip}</div>
+    <div class="note">"${report.personalNote}"<br /><br />— Jose Rivas</div>
+  </div>
+  <div class="cta">
+    <p style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#999;">${isEn ? 'Questions? Let\'s talk.' : '¿Tienes preguntas?'}</p>
+    <a href="${BOOKING_URL}" class="cta-btn">${isEn ? 'Talk to the Team →' : 'Habla con el equipo →'}</a>
+  </div>
+  <div class="sig">
+    <div class="sig-name">Jose Rivas</div>
+    <div class="sig-title">CEO · JRZ Marketing</div>
+    <div class="sig-elena">Reporte generado por Elena — AI Client Success Manager</div>
+  </div>
+  <div class="ftr"><img src="${logoUrl}" alt="JRZ Marketing" /><p>© 2026 JRZ Marketing. Orlando, Florida.</p></div>
+</div></div>
+</body></html>`;
+
+  // Send email via GHL — find contact in main JRZ account by business name or create temporary
+  try {
+    // Search for this client's contact in the main JRZ location
+    const searchRes = await axios.get('https://services.leadconnectorhq.com/contacts/', {
+      headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' },
+      params: { locationId: GHL_LOCATION_ID, query: client.name, limit: 5 },
+    });
+    const contacts = searchRes.data?.contacts || [];
+    const match = contacts.find(c => c.email) || contacts[0];
+
+    if (match?.id) {
+      await sendEmail(match.id, subject, html);
+      console.log(`[Elena] ✅ Report sent to ${client.name} (contact: ${match.id})`);
+      return true;
+    } else {
+      // Fallback: send to the email on file for this subaccount
+      if (stats.email) {
+        // Use GHL email send to a direct email (create contact if needed)
+        console.log(`[Elena] No contact found for ${client.name} in main account — emailing ${stats.email} directly`);
+        // We'll upsert a contact and send
+        const upsertRes = await axios.post('https://services.leadconnectorhq.com/contacts/upsert', {
+          locationId: GHL_LOCATION_ID,
+          email: stats.email,
+          name: client.name,
+          tags: ['jrz-client', 'subaccount'],
+        }, { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } });
+        const newContactId = upsertRes.data?.contact?.id;
+        if (newContactId) {
+          await sendEmail(newContactId, subject, html);
+          console.log(`[Elena] ✅ Report sent (upserted) to ${client.name}`);
+          return true;
+        }
+      }
+    }
+  } catch (err) {
+    console.error(`[Elena] Email failed for ${client.name}:`, err.message);
+  }
+  return false;
+}
+
+// Elena's main monthly report run — all subaccounts (live from GHL)
+async function elenaMonthlyReports() {
+  console.log('[Elena] Starting monthly client reports for all subaccounts...');
+  const month = new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+  const clients = await getElenaClients();
+  let sent = 0, skipped = 0;
+
+  for (const client of clients) {
+    try {
+      const stats = await getSubaccountStats(client.locationId);
+      const ok = await elenaSendClientReport(client, stats, month);
+      if (ok) sent++; else skipped++;
+      await new Promise(r => setTimeout(r, 1500)); // rate limit
+    } catch (err) {
+      console.error(`[Elena] Error on ${client.name}:`, err.message);
+      skipped++;
+    }
+  }
+  console.log(`[Elena] Monthly reports done. Sent: ${sent}, Skipped: ${skipped}`);
+}
+
+// Elena's weekly health check — alert Jose if any subaccount pipeline drops
+async function elenaHealthCheck() {
+  console.log('[Elena] Running weekly health check on all subaccounts...');
+  const [snapshot, clients] = await Promise.all([loadElenaSnapshot(), getElenaClients()]);
+  const today = new Date().toISOString().split('T')[0];
+  const alerts = [];
+  const newSnapshot = { ...snapshot, lastRun: today };
+
+  for (const client of clients) {
+    try {
+      const stats = await getSubaccountStats(client.locationId);
+      const prev = snapshot[client.locationId] || {};
+
+      // Detect drops: open opps dropped by 3+ or contacts dropped
+      const oppDrop = (prev.openOpps || 0) - stats.openOpps;
+      const contactDrop = (prev.totalContacts || 0) - stats.totalContacts;
+
+      if (oppDrop >= 3 || contactDrop >= 20) {
+        alerts.push({
+          name: client.name,
+          locationId: client.locationId,
+          oppDrop,
+          contactDrop,
+          current: { openOpps: stats.openOpps, totalContacts: stats.totalContacts },
+          prev: { openOpps: prev.openOpps || 0, totalContacts: prev.totalContacts || 0 },
+        });
+      }
+
+      newSnapshot[client.locationId] = {
+        openOpps: stats.openOpps,
+        totalContacts: stats.totalContacts,
+        wonOpps: stats.wonOpps,
+        checkedAt: today,
+      };
+      await new Promise(r => setTimeout(r, 1000));
+    } catch (err) {
+      console.error(`[Elena] Health check failed for ${client.name}:`, err.message);
+    }
+  }
+
+  await saveElenaSnapshot(newSnapshot);
+
+  // If alerts found, email Jose
+  if (alerts.length > 0) {
+    const alertRows = alerts.map(a =>
+      `<tr style="border-bottom:1px solid #f0f0f0;">
+        <td style="padding:12px 16px;font-size:14px;font-weight:600;color:#0a0a0a;">${a.name}</td>
+        <td style="padding:12px 16px;font-size:14px;color:#dc2626;">−${a.oppDrop} opps</td>
+        <td style="padding:12px 16px;font-size:14px;color:#dc2626;">−${a.contactDrop} contacts</td>
+        <td style="padding:12px 16px;font-size:14px;color:#555;">${a.current.openOpps} open / ${a.current.totalContacts} contacts</td>
+      </tr>`
+    ).join('');
+
+    const html = `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#f4f4f4;padding:40px 20px;">
+<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;">
+  <div style="background:#0a0a0a;padding:28px 40px;text-align:center;">
+    <img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png" style="height:40px;" />
+  </div>
+  <div style="background:#dc2626;padding:24px 40px;">
+    <h1 style="color:#fff;font-size:22px;margin:0;">⚠️ Elena Health Alert</h1>
+    <p style="color:rgba(255,255,255,0.8);font-size:14px;margin:8px 0 0;">${alerts.length} client account(s) showing pipeline drops this week</p>
+  </div>
+  <div style="padding:32px 40px;">
+    <p style="font-size:15px;color:#333;margin-bottom:24px;">Jose, these accounts need your attention. Pipeline or contact counts dropped significantly:</p>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead><tr style="background:#f9f9f9;">
+        <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.08em;">Client</th>
+        <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.08em;">Opp Drop</th>
+        <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.08em;">Contact Drop</th>
+        <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.08em;">Current Status</th>
+      </tr></thead>
+      <tbody>${alertRows}</tbody>
+    </table>
+    <div style="background:#fff8f0;border:1px solid #fed7aa;border-radius:10px;padding:20px 24px;margin-top:24px;">
+      <p style="font-size:14px;color:#92400e;margin:0;"><strong>Recommended:</strong> Reach out to each flagged client this week. Elena will include them in the next monthly report with a recovery focus.</p>
+    </div>
+  </div>
+  <div style="background:#0a0a0a;padding:24px 40px;text-align:center;">
+    <p style="font-size:11px;color:rgba(255,255,255,0.3);">Elena — JRZ Marketing AI Client Success Manager</p>
+  </div>
+</div>
+</body></html>`;
+
+    await sendEmail(OWNER_CONTACT_ID, '⚠️ Elena: Client Health Alert — Action Needed', html);
+    console.log(`[Elena] Health alert sent to Jose — ${alerts.length} accounts flagged`);
+  } else {
+    console.log('[Elena] Health check done — all accounts healthy.');
+  }
+}
+
+// Manual endpoints for Elena
+app.post('/elena/monthly-reports', async (_req, res) => {
+  try {
+    elenaMonthlyReports(); // run async, don't await — takes time
+    res.json({ status: 'ok', message: 'Elena is generating monthly reports for all 32 subaccounts' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/elena/health-check', async (_req, res) => {
+  try {
+    elenaHealthCheck();
+    res.json({ status: 'ok', message: 'Elena is running health check on all subaccounts' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.get('/elena/clients', async (_req, res) => {
+  try {
+    const [snapshot, clients] = await Promise.all([loadElenaSnapshot(), getElenaClients()]);
+    const result = clients.map(c => ({ ...c, lastSnapshot: snapshot[c.locationId] || null }));
+    res.json({ count: result.length, clients: result });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
 // INTERNAL CRON — checks every 2 minutes
 //  7:00am EST  daily      → Carousel post + blog
 //  7:05am EST  Monday     → Weekly analytics analysis + A/B test + summary email
 //  8:00am EST  Monday     → Competitor monitoring
-//  9:00am EST  1st/month  → Monthly client reports
+//  8:35am EST  Monday     → Elena: weekly subaccount health check
+//  9:00am EST  1st/month  → Monthly client reports + Elena monthly reports
 //  9:00am EST  Monday     → Apollo email enrichment
 // 10:00am EST  Mon–Fri    → Outbound prospecting (15 contacts/day)
 // 10:30am EST  daily      → Client check-ins (30-day rolling)
@@ -4731,6 +5161,7 @@ let lastMonthlyReportDate   = null;
 let lastCompetitorDate      = null;
 let lastSubCheckInDate      = null;
 let lastLearningDate        = null;
+let lastElenaHealthDate     = null;
 
 setInterval(async () => {
   try {
@@ -4773,18 +5204,26 @@ setInterval(async () => {
       await runSelfUpdateRules();
     }
 
+    // 8:35am Monday — Elena: weekly subaccount health check
+    if (hour === 8 && minute >= 35 && minute < 40 && dayOfWeek === 1 && lastElenaHealthDate !== today) {
+      lastElenaHealthDate = today;
+      elenaHealthCheck(); // non-blocking — hits 31 APIs
+    }
+
     // 9:00am Monday — Apollo email enrichment (free plan: 50 credits/month)
     if (hour === 9 && minute < 5 && dayOfWeek === 1 && lastEnrichDate !== today) {
       lastEnrichDate = today;
       await enrichProspectEmails();
     }
 
-    // 1st of month, 9:00am — monthly client reports
+    // 1st of month, 9:00am — monthly client reports + Elena subaccount reports
     const dateOfMonth = nowEST.getDate();
     if (hour === 9 && minute < 5 && dateOfMonth === 1 && lastMonthlyReportDate !== today) {
       lastMonthlyReportDate = today;
       await sendMonthlyClientReports();
+      elenaMonthlyReports(); // non-blocking — sends 31 emails
     }
+
 
     // Last Friday of month, 10:00am — sub-account monthly check-in emails
     const isFriday = dayOfWeek === 5;
