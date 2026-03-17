@@ -5942,6 +5942,246 @@ app.post('/marco/trend-alert', async (_req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
+// SOFIA — WEB DESIGNER
+//   Weekly website health check every Monday 9:45am EST
+//   Checks status, speed, SSL, basic content for every client site
+//   Immediate alert if any site is down
+//   Monthly CRO suggestions per client
+// ═══════════════════════════════════════════════════════════
+
+async function checkWebsite(url) {
+  if (!url) return null;
+  const cleanUrl = url.startsWith('http') ? url : `https://${url}`;
+  const start = Date.now();
+  try {
+    const res = await axios.get(cleanUrl, {
+      timeout: 12000,
+      maxRedirects: 5,
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; JRZBot/1.0)' },
+      validateStatus: () => true, // don't throw on non-2xx
+    });
+    const responseTime = Date.now() - start;
+    const html = typeof res.data === 'string' ? res.data : '';
+
+    // Extract basic content signals
+    const titleMatch  = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    const descMatch   = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)/i);
+    const hasPhone    = /(\+1|tel:|phone|\(\d{3}\))[\s\-]?\d{3}[\s\-]?\d{4}/i.test(html);
+    const hasForm     = /<form[\s>]/i.test(html);
+    const hasCTA      = /(book now|contact us|get started|schedule|call us|free|agenda|contáctanos)/i.test(html);
+    const hasSSL      = cleanUrl.startsWith('https');
+
+    return {
+      url: cleanUrl,
+      up: res.status >= 200 && res.status < 400,
+      statusCode: res.status,
+      responseTime,
+      ssl: hasSSL,
+      title: titleMatch?.[1]?.trim().slice(0, 80) || null,
+      description: descMatch?.[1]?.trim().slice(0, 160) || null,
+      hasPhone,
+      hasForm,
+      hasCTA,
+      issues: [
+        !hasSSL && 'No SSL (http only)',
+        responseTime > 4000 && `Slow load (${(responseTime/1000).toFixed(1)}s)`,
+        !titleMatch && 'Missing page title',
+        !descMatch && 'Missing meta description',
+        !hasCTA && 'No clear CTA found',
+        !hasPhone && 'No phone number visible',
+      ].filter(Boolean),
+    };
+  } catch (err) {
+    return {
+      url: cleanUrl, up: false, statusCode: 0,
+      responseTime: Date.now() - start,
+      ssl: false, title: null, description: null,
+      hasPhone: false, hasForm: false, hasCTA: false,
+      issues: [`Site unreachable: ${err.message.slice(0, 60)}`],
+    };
+  }
+}
+
+async function runSofiaWeeklyCheck() {
+  console.log('[Sofia] Running weekly website health check...');
+  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  const dateStr = new Date().toLocaleDateString('es-ES', { timeZone: 'America/New_York', weekday: 'long', day: 'numeric', month: 'long' });
+
+  // Fetch all subaccounts + their website URLs from GHL location data
+  const clients   = await getElenaClients();
+  const siteResults = [];
+  const downAlerts  = [];
+
+  for (const client of clients) {
+    try {
+      // Get website URL from GHL location data
+      const locRes = await axios.get(`https://services.leadconnectorhq.com/locations/${client.locationId}`, {
+        headers: { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28' },
+        timeout: 8000,
+      });
+      const loc = locRes.data?.location || locRes.data;
+      const websiteUrl = loc?.website || loc?.business?.website || null;
+
+      if (!websiteUrl) {
+        siteResults.push({ name: client.name, url: null, check: null, industry: client.industry });
+        await new Promise(r => setTimeout(r, 400));
+        continue;
+      }
+
+      const check = await checkWebsite(websiteUrl);
+      siteResults.push({ name: client.name, url: websiteUrl, check, industry: client.industry });
+
+      if (check && !check.up) {
+        downAlerts.push({ name: client.name, url: websiteUrl, error: check.issues[0] || 'Site down' });
+      }
+
+      await new Promise(r => setTimeout(r, 800));
+    } catch (err) {
+      console.error(`[Sofia] Error checking ${client.name}:`, err.message);
+    }
+  }
+
+  // Send immediate alert if any site is down
+  if (downAlerts.length > 0) {
+    const downRows = downAlerts.map(d =>
+      `<tr><td style="padding:12px 16px;font-size:14px;font-weight:600;color:#0a0a0a;border-bottom:1px solid #fecaca;">${d.name}</td>
+       <td style="padding:12px 16px;font-size:13px;color:#555;border-bottom:1px solid #fecaca;">${d.url}</td>
+       <td style="padding:12px 16px;font-size:13px;color:#dc2626;border-bottom:1px solid #fecaca;">${d.error}</td></tr>`
+    ).join('');
+
+    const alertHtml = `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#f4f4f4;padding:32px 20px;">
+<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+  <div style="background:#0a0a0a;padding:22px 32px;"><img src="${logoUrl}" style="height:32px;"/></div>
+  <div style="background:#dc2626;padding:22px 32px;"><h1 style="color:#fff;font-size:20px;font-weight:800;">🚨 Sofia: ${downAlerts.length} Sitio(s) Caído(s)</h1><p style="color:rgba(255,255,255,0.8);font-size:13px;margin-top:6px;">Tus clientes no pueden recibir visitas ahora mismo</p></div>
+  <div style="padding:28px 32px;">
+    <table style="width:100%;border-collapse:collapse;border:1px solid #fecaca;border-radius:10px;overflow:hidden;">
+      <thead><tr style="background:#fef2f2;"><th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Cliente</th><th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">URL</th><th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Error</th></tr></thead>
+      <tbody>${downRows}</tbody>
+    </table>
+    <div style="background:#fff8f0;border:1px solid #fed7aa;border-radius:10px;padding:16px 20px;margin-top:20px;font-size:14px;color:#92400e;">⚡ <strong>Acción requerida:</strong> Contacta al cliente o revisa el hosting. Sofia seguirá monitoreando.</div>
+  </div>
+  <div style="background:#0a0a0a;padding:18px 32px;text-align:center;"><p style="font-size:11px;color:rgba(255,255,255,0.25);">Sofia — JRZ Marketing AI Web Designer</p></div>
+</div></body></html>`;
+    await sendEmail(OWNER_CONTACT_ID, `🚨 Sofia: ${downAlerts.length} Sitio(s) Caído(s) — Acción Requerida`, alertHtml);
+  }
+
+  // Build weekly health report
+  const checked  = siteResults.filter(s => s.check);
+  const noUrl    = siteResults.filter(s => !s.url);
+  const up       = checked.filter(s => s.check.up);
+  const down     = checked.filter(s => !s.check.up);
+  const slow     = up.filter(s => s.check.responseTime > 3000);
+  const avgSpeed = up.length ? Math.round(up.reduce((s, r) => s + r.check.responseTime, 0) / up.length) : 0;
+
+  // Claude CRO quick wins for sites with most issues
+  const needsCRO = up.filter(s => s.check.issues.length >= 2).slice(0, 5);
+  let croInsights = [];
+  if (needsCRO.length > 0) {
+    try {
+      const croData = needsCRO.map(s => `${s.name} (${s.industry}): ${s.check.issues.join(', ')}`).join('\n');
+      const aiRes = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 400,
+        messages: [{ role: 'user', content: `Eres Sofia, Web Designer de JRZ Marketing. Para cada sitio web con problemas, da UNA recomendación específica y accionable (máximo 15 palabras). Responde SOLO con JSON: [{"name": "client name", "fix": "recomendación concreta"}]\n\nSitios:\n${croData}` }],
+      });
+      croInsights = JSON.parse(aiRes.content[0].text.trim().match(/\[[\s\S]*\]/)[0]);
+    } catch { /* skip */ }
+  }
+
+  const speedColor = ms => ms < 2000 ? '#16a34a' : ms < 4000 ? '#d97706' : '#dc2626';
+  const statusBadge = s => s.check.up
+    ? `<span style="background:#f0fdf4;color:#16a34a;font-weight:700;font-size:11px;padding:2px 8px;border-radius:100px;">✓ UP</span>`
+    : `<span style="background:#fef2f2;color:#dc2626;font-weight:700;font-size:11px;padding:2px 8px;border-radius:100px;">✗ DOWN</span>`;
+
+  const siteRows = checked.map(s => {
+    const cro = croInsights.find(c => c.name === s.name);
+    return `<tr style="border-bottom:1px solid #f5f5f5;">
+      <td style="padding:11px 14px;font-size:13px;font-weight:600;color:#0a0a0a;">${s.name}</td>
+      <td style="padding:11px 14px;text-align:center;">${statusBadge(s)}</td>
+      <td style="padding:11px 14px;text-align:center;font-size:13px;font-weight:700;color:${speedColor(s.check.responseTime)};">${s.check.up ? `${(s.check.responseTime/1000).toFixed(1)}s` : '—'}</td>
+      <td style="padding:11px 14px;text-align:center;font-size:13px;">${s.check.ssl ? '🔒' : '⚠️'}</td>
+      <td style="padding:11px 14px;font-size:12px;color:${s.check.issues.length ? '#dc2626' : '#16a34a'};">${s.check.issues.length ? s.check.issues[0] : '✓ Sin problemas'}</td>
+      <td style="padding:11px 14px;font-size:12px;color:#888;font-style:italic;">${cro ? cro.fix : ''}</td>
+    </tr>`;
+  }).join('');
+
+  const noUrlRows = noUrl.map(s =>
+    `<tr style="border-bottom:1px solid #f9f9f9;"><td colspan="6" style="padding:9px 14px;font-size:13px;color:#bbb;">${s.name} — no website on file in GHL</td></tr>`
+  ).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="es"><head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:#f4f4f4; }
+    .wrap { padding:40px 20px; }
+    .card { max-width:720px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+    .hdr { background:#0a0a0a; padding:26px 36px; display:flex; align-items:center; justify-content:space-between; }
+    .hdr img { height:36px; }
+    .hdr span { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.45); font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; padding:5px 12px; border-radius:100px; }
+    .hero { background:#0a0a0a; padding:28px 36px 36px; border-bottom:3px solid #fff; }
+    .hero h1 { font-size:22px; font-weight:800; color:#fff; margin-bottom:6px; }
+    .hero p { font-size:12px; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.08em; }
+    .stats { display:flex; border-bottom:1px solid #f0f0f0; }
+    .stat { flex:1; padding:16px 12px; text-align:center; border-right:1px solid #f0f0f0; }
+    .stat:last-child { border-right:none; }
+    .stat-num { font-size:26px; font-weight:800; color:#0a0a0a; }
+    .stat-num.green { color:#16a34a; } .stat-num.red { color:#dc2626; } .stat-num.orange { color:#d97706; }
+    .stat-lbl { font-size:10px; font-weight:700; color:#bbb; text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; }
+    .body { padding:28px 36px 36px; }
+    .sec-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#999; margin-bottom:14px; }
+    table { width:100%; border-collapse:collapse; }
+    .ftr { background:#0a0a0a; padding:22px 36px; display:flex; align-items:center; justify-content:space-between; }
+    .ftr img { height:22px; opacity:0.45; }
+    .ftr p { font-size:11px; color:rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body><div class="wrap"><div class="card">
+  <div class="hdr"><img src="${logoUrl}"/><span>Sofia · Website Health</span></div>
+  <div class="hero">
+    <h1>Reporte de Salud de Sitios Web</h1>
+    <p>${dateStr}</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">${checked.length}</div><div class="stat-lbl">Sitios Revisados</div></div>
+    <div class="stat"><div class="stat-num green">${up.length}</div><div class="stat-lbl">En Línea</div></div>
+    <div class="stat"><div class="stat-num red">${down.length}</div><div class="stat-lbl">Caídos</div></div>
+    <div class="stat"><div class="stat-num orange">${slow.length}</div><div class="stat-lbl">Lentos (+3s)</div></div>
+    <div class="stat"><div class="stat-num">${avgSpeed ? `${(avgSpeed/1000).toFixed(1)}s` : '—'}</div><div class="stat-lbl">Vel. Promedio</div></div>
+  </div>
+  <div class="body">
+    <p class="sec-title">Estado de todos los sitios</p>
+    <table>
+      <thead><tr style="background:#f9f9f9;">
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Cliente</th>
+        <th style="padding:10px 14px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Estado</th>
+        <th style="padding:10px 14px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Velocidad</th>
+        <th style="padding:10px 14px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">SSL</th>
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Problema</th>
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Fix Rápido</th>
+      </tr></thead>
+      <tbody>${siteRows}${noUrlRows}</tbody>
+    </table>
+  </div>
+  <div class="ftr"><img src="${logoUrl}"/><p>Sofia — JRZ Marketing AI Web Designer</p></div>
+</div></div></body></html>`;
+
+  await sendEmail(OWNER_CONTACT_ID, `🌐 Sofia: Reporte Web — ${up.length}↑ online · ${down.length}↓ caídos · ${slow.length} lentos`, html);
+  console.log(`[Sofia] ✅ Weekly check done. Up: ${up.length}, Down: ${down.length}, Slow: ${slow.length}, No URL: ${noUrl.length}`);
+}
+
+app.post('/sofia/website-check', async (_req, res) => {
+  try {
+    runSofiaWeeklyCheck();
+    res.json({ status: 'ok', message: 'Sofia is checking all client websites' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
 // INTERNAL CRON — checks every 2 minutes
 //  7:00am EST  daily      → Carousel post + blog
 //  7:05am EST  Monday     → Weekly analytics analysis + A/B test + summary email
@@ -5971,6 +6211,7 @@ let lastDiegoReportDate     = null;
 let lastDiegoStandupDate    = null;
 let lastMarcoContentDate    = null;
 let lastMarcoTrendDate      = null;
+let lastSofiaCheckDate      = null;
 
 setInterval(async () => {
   try {
@@ -6035,6 +6276,12 @@ setInterval(async () => {
     if (hour === 10 && minute < 5 && dayOfWeek === 3 && lastMarcoTrendDate !== today) {
       lastMarcoTrendDate = today;
       runMarcoTrendAlert(); // non-blocking
+    }
+
+    // 9:45am Monday — Sofia: weekly website health check
+    if (hour === 9 && minute >= 45 && minute < 50 && dayOfWeek === 1 && lastSofiaCheckDate !== today) {
+      lastSofiaCheckDate = today;
+      runSofiaWeeklyCheck(); // non-blocking
     }
 
     // 9:15am Monday — Diego: weekly project report
