@@ -848,7 +848,7 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   // TCPA compliance — offer calendar slots, never auto-call
   // Trigger from message 2+ or as soon as we have their phone
   let callOfferInstruction = '';
-  if ((historyCount >= 2 || alreadyHavePhone) && !blandConsentAsked.has(contactId) && !blandCallsSent.has(contactId)) {
+  if ((historyCount >= 3 || alreadyHavePhone) && !blandConsentAsked.has(contactId) && !blandCallsSent.has(contactId)) {
     try {
       const slots = await getAvailableSlots(3);
       if (slots.length > 0) {
