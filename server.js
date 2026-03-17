@@ -6181,55 +6181,126 @@ app.post('/sofia/website-check', async (_req, res) => {
   }
 });
 
-// ─── Sofia: Full SEO + Mobile + Copy Audit ───────────────
+// ─── Sofia: Google PageSpeed Insights ────────────────────
+
+async function getPageSpeedData(url) {
+  const key = process.env.PAGESPEED_API_KEY;
+  if (!key) return null;
+  const cleanUrl = url.startsWith('http') ? url : `https://${url}`;
+  try {
+    const [mobile, desktop] = await Promise.all([
+      axios.get('https://www.googleapis.com/pagespeedonline/v5/runPagespeed', {
+        params: { url: cleanUrl, key, strategy: 'mobile', category: ['performance','seo','accessibility','best-practices'] },
+        timeout: 30000,
+      }),
+      axios.get('https://www.googleapis.com/pagespeedonline/v5/runPagespeed', {
+        params: { url: cleanUrl, key, strategy: 'desktop', category: ['performance','seo','accessibility','best-practices'] },
+        timeout: 30000,
+      }),
+    ]);
+
+    const extract = (data) => {
+      const cats  = data.data?.lighthouseResult?.categories || {};
+      const audits = data.data?.lighthouseResult?.audits || {};
+      return {
+        performance:    Math.round((cats.performance?.score || 0) * 100),
+        seo:            Math.round((cats.seo?.score || 0) * 100),
+        accessibility:  Math.round((cats.accessibility?.score || 0) * 100),
+        bestPractices:  Math.round((cats['best-practices']?.score || 0) * 100),
+        lcp:   audits['largest-contentful-paint']?.displayValue || null,
+        cls:   audits['cumulative-layout-shift']?.displayValue || null,
+        fid:   audits['total-blocking-time']?.displayValue || null,
+        fcp:   audits['first-contentful-paint']?.displayValue || null,
+        ttfb:  audits['server-response-time']?.displayValue || null,
+        opportunities: Object.values(audits)
+          .filter(a => a.details?.type === 'opportunity' && a.score !== null && a.score < 0.9)
+          .map(a => a.title)
+          .slice(0, 5),
+      };
+    };
+
+    return { mobile: extract(mobile), desktop: extract(desktop) };
+  } catch (err) {
+    console.error('[Sofia] PageSpeed API error:', err.response?.data?.error?.message || err.message);
+    return null;
+  }
+}
+
+// ─── Sofia: Full SEO + PageSpeed + Mobile + Copy Audit ───
 
 async function runSofiaFullAudit(url, clientName, industry) {
   const base = await checkWebsite(url);
   if (!base) return null;
 
-  const html = base.up ? await axios.get(url.startsWith('http') ? url : `https://${url}`, {
-    timeout: 12000, headers: { 'User-Agent': 'Mozilla/5.0' }, validateStatus: () => true,
-  }).then(r => typeof r.data === 'string' ? r.data : '').catch(() => '') : '';
+  // Fetch HTML and PageSpeed in parallel
+  const [rawHtml, pageSpeed] = await Promise.all([
+    base.up ? axios.get(url.startsWith('http') ? url : `https://${url}`, {
+      timeout: 12000, headers: { 'User-Agent': 'Mozilla/5.0' }, validateStatus: () => true,
+    }).then(r => typeof r.data === 'string' ? r.data : '').catch(() => '') : Promise.resolve(''),
+    getPageSpeedData(url),
+  ]);
+
+  const html = rawHtml;
 
   // SEO checks
-  const h1s     = (html.match(/<h1[^>]*>([^<]+)<\/h1>/gi) || []).map(h => h.replace(/<[^>]+>/g, '').trim());
-  const h2s     = (html.match(/<h2[^>]*>([^<]+)<\/h2>/gi) || []).length;
-  const imgs    = (html.match(/<img[^>]+>/gi) || []);
-  const alts    = imgs.filter(i => /alt=["'][^"']+["']/i.test(i)).length;
+  const h1s      = (html.match(/<h1[^>]*>([^<]+)<\/h1>/gi) || []).map(h => h.replace(/<[^>]+>/g, '').trim());
+  const h2s      = (html.match(/<h2[^>]*>([^<]+)<\/h2>/gi) || []).length;
+  const imgs     = (html.match(/<img[^>]+>/gi) || []);
+  const alts     = imgs.filter(i => /alt=["'][^"']+["']/i.test(i)).length;
   const hasCanon = /<link[^>]+rel=["']canonical["']/i.test(html);
   const hasView  = /<meta[^>]+name=["']viewport["']/i.test(html);
   const hasOG    = /<meta[^>]+property=["']og:/i.test(html);
 
-  // Score 0-100
+  // Score 0-100 — PageSpeed performance replaces our manual response time if available
   let score = 0;
-  if (base.up)                 score += 20;
-  if (base.ssl)                score += 10;
-  if (base.responseTime < 2000) score += 10; else if (base.responseTime < 4000) score += 5;
-  if (base.title)              score += 10;
-  if (base.description)        score += 10;
-  if (h1s.length === 1)        score += 10;
+  if (base.up)   score += 20;
+  if (base.ssl)  score += 10;
+  // Speed: use PageSpeed mobile performance score if available, else fallback to response time
+  if (pageSpeed) {
+    const perf = pageSpeed.mobile.performance;
+    if (perf >= 90) score += 15; else if (perf >= 70) score += 10; else if (perf >= 50) score += 5;
+  } else {
+    if (base.responseTime < 2000) score += 10; else if (base.responseTime < 4000) score += 5;
+  }
+  if (base.title)              score += 8;
+  if (base.description)        score += 8;
+  if (h1s.length === 1)        score += 8;
   if (h2s >= 2)                score += 5;
   if (imgs.length && alts === imgs.length) score += 5;
   if (hasCanon)                score += 5;
-  if (hasView)                 score += 5;
-  if (base.hasCTA)             score += 5;
-  if (base.hasPhone)           score += 5;
+  if (hasView)                 score += 4;
+  if (base.hasCTA)             score += 4;
+  if (base.hasPhone)           score += 4;
+  // Bonus from PageSpeed SEO score
+  if (pageSpeed && pageSpeed.mobile.seo >= 90) score += 4;
   const grade = score >= 85 ? 'A' : score >= 70 ? 'B' : score >= 50 ? 'C' : score >= 30 ? 'D' : 'F';
 
   // Claude: copy analysis + rewrites
   let copyAnalysis = null;
   if (base.up && (base.title || h1s.length)) {
     try {
+      const psSummary = pageSpeed
+        ? `Mobile Performance: ${pageSpeed.mobile.performance}/100, LCP: ${pageSpeed.mobile.lcp}, CLS: ${pageSpeed.mobile.cls}, SEO: ${pageSpeed.mobile.seo}/100`
+        : 'PageSpeed: unavailable';
       const aiRes = await anthropic.messages.create({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        messages: [{ role: 'user', content: `Eres Sofia, Web Designer de JRZ Marketing. Analiza la copy de este sitio web para "${clientName}" (${industry}) y sugiere mejoras concretas.\n\nTitle: ${base.title || 'missing'}\nH1: ${h1s[0] || 'missing'}\nDescription: ${base.description || 'missing'}\nTiene CTA: ${base.hasCTA}\nTiene teléfono: ${base.hasPhone}\n\nResponde SOLO con JSON: {"headlineRewrite": "versión mejorada del H1", "ctaRewrite": "mejor CTA para su industria", "descriptionRewrite": "meta description mejorada (max 155 chars)", "topIssue": "el problema más importante de la copy en una oración"}` }],
+        max_tokens: 500,
+        messages: [{ role: 'user', content: `You are Sofia, Web Designer at JRZ Marketing. Analyze this website for "${clientName}" (${industry}).
+
+Title: ${base.title || 'missing'}
+H1: ${h1s[0] || 'missing'}
+Description: ${base.description || 'missing'}
+Has CTA: ${base.hasCTA} | Has Phone: ${base.hasPhone}
+${psSummary}
+${pageSpeed?.mobile.opportunities?.length ? 'Top issues: ' + pageSpeed.mobile.opportunities.join(', ') : ''}
+
+Reply ONLY with JSON: {"headlineRewrite":"improved H1","ctaRewrite":"better CTA for their industry","descriptionRewrite":"improved meta description (max 155 chars)","topIssue":"single most important problem in one sentence"}` }],
       });
       copyAnalysis = JSON.parse(aiRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
     } catch { /* skip */ }
   }
 
-  return { ...base, h1s, h2Count: h2s, imgCount: imgs.length, altCount: alts, hasCanon, hasViewport: hasView, hasOG, score, grade, copyAnalysis };
+  return { ...base, h1s, h2Count: h2s, imgCount: imgs.length, altCount: alts, hasCanon, hasViewport: hasView, hasOG, score, grade, pageSpeed, copyAnalysis };
 }
 
 // ─── Sofia: Monthly CRO Report ────────────────────────────
@@ -6266,15 +6337,19 @@ async function runSofiaCROReport() {
   const gradeBg    = { A: '#f0fdf4', B: '#f0fdf4', C: '#fff8f0', D: '#fff4ee', F: '#fef2f2', 'N/A': '#f9f9f9' };
 
   const rows = results.sort((a, b) => (a.score || 0) - (b.score || 0)).map(r => {
-    if (r.noSite) return `<tr style="border-bottom:1px solid #f9f9f9;"><td style="padding:10px 14px;font-size:13px;color:#0a0a0a;">${r.name}</td><td colspan="5" style="padding:10px 14px;font-size:12px;color:#bbb;">Sin sitio web registrado en GHL</td></tr>`;
+    if (r.noSite) return `<tr style="border-bottom:1px solid #f9f9f9;"><td style="padding:10px 14px;font-size:13px;color:#0a0a0a;">${r.name}</td><td colspan="7" style="padding:10px 14px;font-size:12px;color:#bbb;">No website on file</td></tr>`;
     const copy = r.copyAnalysis;
+    const ps   = r.pageSpeed?.mobile;
+    const perfColor = ps ? (ps.performance >= 90 ? '#16a34a' : ps.performance >= 70 ? '#d97706' : '#dc2626') : '#bbb';
+    const seoColor  = ps ? (ps.seo >= 90 ? '#16a34a' : ps.seo >= 70 ? '#d97706' : '#dc2626') : '#bbb';
     return `<tr style="border-bottom:1px solid #f5f5f5;">
       <td style="padding:11px 14px;font-size:13px;font-weight:600;color:#0a0a0a;">${r.name}</td>
       <td style="padding:11px 14px;text-align:center;"><span style="background:${gradeBg[r.grade]};color:${gradeColor[r.grade]};font-weight:800;font-size:14px;padding:2px 10px;border-radius:8px;">${r.grade}</span></td>
       <td style="padding:11px 14px;text-align:center;font-size:13px;color:#555;">${r.score}/100</td>
-      <td style="padding:11px 14px;font-size:12px;color:#dc2626;">${r.issues?.[0] || (r.grade === 'A' ? '✓' : '—')}</td>
-      <td style="padding:11px 14px;font-size:12px;color:#555;font-style:italic;">${copy?.topIssue || '—'}</td>
-      <td style="padding:11px 14px;font-size:12px;color:#0a0a0a;">${copy?.headlineRewrite ? `"${copy.headlineRewrite.slice(0,50)}..."` : '—'}</td>
+      <td style="padding:11px 14px;text-align:center;font-size:13px;font-weight:700;color:${perfColor};">${ps ? ps.performance : '—'}</td>
+      <td style="padding:11px 14px;text-align:center;font-size:12px;color:#666;">${ps ? `LCP ${ps.lcp || '?'} · CLS ${ps.cls || '?'}` : '—'}</td>
+      <td style="padding:11px 14px;text-align:center;font-size:13px;font-weight:700;color:${seoColor};">${ps ? ps.seo : '—'}</td>
+      <td style="padding:11px 14px;font-size:12px;color:#555;font-style:italic;">${copy?.topIssue || ps?.opportunities?.[0] || '—'}</td>
     </tr>`;
   }).join('');
 
@@ -6316,12 +6391,13 @@ async function runSofiaCROReport() {
     <p class="sec-title">Todos los clientes — ordenados por score (peor → mejor)</p>
     <table>
       <thead><tr style="background:#f9f9f9;">
-        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Cliente</th>
-        <th style="padding:10px 14px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Nota</th>
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Client</th>
+        <th style="padding:10px 14px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Grade</th>
         <th style="padding:10px 14px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Score</th>
-        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Problema #1</th>
-        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Copy Issue</th>
-        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Headline Sugerido</th>
+        <th style="padding:10px 14px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">⚡ Perf</th>
+        <th style="padding:10px 14px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Core Web Vitals</th>
+        <th style="padding:10px 14px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">🔍 SEO</th>
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Top Issue</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -7114,7 +7190,20 @@ Write a 4-6 sentence competitive analysis for Jose (agency owner). Focus on: whe
   }
 });
 
-// GET /sofia/uptime — manual trigger for uptime monitor
+// GET /sofia/pagespeed?url=https://example.com — test PageSpeed API directly
+app.get('/sofia/pagespeed', async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) return res.status(400).json({ status: 'error', message: 'url required' });
+    const data = await getPageSpeedData(url);
+    if (!data) return res.status(503).json({ status: 'error', message: 'PageSpeed API unavailable or key missing' });
+    res.json({ status: 'ok', url, data });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// POST /sofia/uptime-check — manual trigger for uptime monitor
 app.post('/sofia/uptime-check', async (_req, res) => {
   runSofiaUptimeMonitor();
   res.json({ status: 'ok', message: 'Sofia uptime monitor running' });
