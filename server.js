@@ -45,6 +45,76 @@ const BLAND_WEBHOOK_URL = 'https://armando-bot-1.onrender.com/webhook/bland';
 const blandCallsSent       = new Set(); // prevent double-calling same contact
 const blandConsentAsked    = new Set(); // contacts who were offered a call
 
+// ═══════════════════════════════════════════════════════════
+// JRZ AI OFFICE — ACTIVITY & STATUS SYSTEM
+// ═══════════════════════════════════════════════════════════
+const OFFICE_LOG  = [];   // last 100 entries, newest first
+const OFFICE_CHAT = [];   // inter-agent messages, last 50
+const OFFICE_KPI  = { dmsHandled: 0, leadsCapture: 0, postsPublished: 0, sitesMonitored: 0, dealsTracked: 0, emailsSent: 0 };
+
+const AGENT_STATUS = {
+  armando:  { status: 'idle', task: 'Monitoring DMs & comments', lastSeen: null },
+  elena:    { status: 'idle', task: 'Standing by',                lastSeen: null },
+  diego:    { status: 'idle', task: 'Standing by',                lastSeen: null },
+  marco:    { status: 'idle', task: 'Standing by',                lastSeen: null },
+  sofia:    { status: 'idle', task: 'Monitoring client sites',    lastSeen: null },
+  isabella: { status: 'idle', task: 'Standing by',                lastSeen: null },
+};
+
+const SUB_AGENTS = {
+  armando:  [
+    { name: 'DM Responder',    icon: '💬', desc: 'Handles all inbound DMs 24/7' },
+    { name: 'Lead Scorer',     icon: '🎯', desc: 'Qualifies and tags every lead' },
+    { name: 'Voice Note Bot',  icon: '🎙️', desc: 'Sends Bland.ai voice follow-ups' },
+  ],
+  elena: [
+    { name: 'Health Monitor',  icon: '❤️',  desc: 'Weekly subaccount health checks' },
+    { name: 'Report Writer',   icon: '📊', desc: 'Monthly client reports' },
+    { name: 'Check-in Sender', icon: '📨', desc: '30-day rolling client check-ins' },
+  ],
+  diego: [
+    { name: 'Standup Bot',     icon: '☀️', desc: 'Daily pipeline standup email' },
+    { name: 'Report Builder',  icon: '📋', desc: 'Weekly deal health report' },
+    { name: 'Scorecard',       icon: '🏅', desc: 'Monthly client grading (A–F)' },
+  ],
+  marco: [
+    { name: 'Content Briefer', icon: '✍️', desc: 'Weekly save-optimized content strategy' },
+    { name: 'Trend Watcher',   icon: '🔥', desc: 'Mid-week viral trend alerts' },
+    { name: 'Caption Engine',  icon: '📝', desc: 'Emotional hooks & save-trigger captions' },
+  ],
+  sofia: [
+    { name: 'Uptime Monitor',  icon: '🌐', desc: 'Checks all client sites every 6h' },
+    { name: 'CRO Auditor',     icon: '🔍', desc: 'Monthly conversion rate audit' },
+    { name: 'Page Builder',    icon: '🏗️', desc: 'Builds AI landing pages for clients' },
+  ],
+  isabella: [
+    { name: 'Email Crafter',   icon: '💌', desc: 'Writes nurture email sequences' },
+    { name: 'A/B Tester',      icon: '⚗️', desc: 'Tracks closing variant performance' },
+    { name: 'Data Enricher',   icon: '🔎', desc: 'Apollo email enrichment pipeline' },
+  ],
+};
+
+function logActivity(agent, type, message, meta = {}) {
+  const entry = { id: `${Date.now()}-${Math.random().toString(36).slice(2,6)}`, ts: new Date().toISOString(), agent, type, message, meta };
+  OFFICE_LOG.unshift(entry);
+  if (OFFICE_LOG.length > 100) OFFICE_LOG.length = 100;
+  if (AGENT_STATUS[agent]) AGENT_STATUS[agent].lastSeen = entry.ts;
+}
+function agentChat(from, to, message) {
+  OFFICE_CHAT.unshift({ ts: new Date().toISOString(), from, to, message });
+  if (OFFICE_CHAT.length > 50) OFFICE_CHAT.length = 50;
+  logActivity(from, 'collab', `→ ${to.charAt(0).toUpperCase() + to.slice(1)}: ${message}`);
+}
+function setAgentBusy(agent, task) {
+  if (AGENT_STATUS[agent]) { AGENT_STATUS[agent].status = 'working'; AGENT_STATUS[agent].task = task; AGENT_STATUS[agent].lastSeen = new Date().toISOString(); }
+}
+function setAgentIdle(agent, task) {
+  if (AGENT_STATUS[agent]) { AGENT_STATUS[agent].status = 'idle'; AGENT_STATUS[agent].task = task || 'Standing by'; AGENT_STATUS[agent].lastSeen = new Date().toISOString(); }
+}
+function setAgentAlert(agent, task) {
+  if (AGENT_STATUS[agent]) { AGENT_STATUS[agent].status = 'alert'; AGENT_STATUS[agent].task = task; AGENT_STATUS[agent].lastSeen = new Date().toISOString(); }
+}
+
 async function sendEmail(contactId, subject, html) {
   await axios.post(
     'https://services.leadconnectorhq.com/conversations/messages',
@@ -2244,21 +2314,21 @@ async function generateNewsCaption() {
       max_tokens: 600,
       messages: [{
         role: 'user',
-        content: `Eres el Social Media Manager de JRZ Marketing (agencia de marketing digital y automatización con IA en Orlando, FL). José Rivas es el CEO — su misión es ser EL GURÚ de IA y automatización para emprendedores latinos.
+        content: `You are Marco, Content Director at JRZ Marketing. José Rivas is the CEO — AI & automation expert for Latino entrepreneurs in Orlando, FL. Audience: 53% men, 25-34, small Latino business owners.
 
-Noticias trending hoy sobre IA y negocios:
+Today's trending news:
 ${headlines}
 
-Escribe un post VIRAL en español para Instagram/Facebook/LinkedIn (máx 1,800 caracteres) que:
-- Use UN dato o ángulo de las noticias como GANCHO en la primera línea
-- Eduque sobre cómo la IA/automatización ayuda a negocios latinos
-- Posicione a José como experto que ya está implementando esto
-- Tenga estructura de carrusel: punto 1, punto 2, punto 3... (usa emojis numerados)
-- Termine con pregunta que genere COMENTARIOS
-- Incluya un CTA sutil al final: "Agenda gratis → ${BOOKING_URL}"
-- Termine con 8-10 hashtags relevantes
+CAPTION ENGINE RULES (apply all):
+1. HOOK (first line): Use the Who/What/How framework — answer in one line: WHO is this for? WHAT is it about? HOW does it help them? Use a pattern interrupt, contrarian angle, or curiosity gap. Make it impossible to scroll past.
+2. EMOTIONAL STORYTELLING: Write at grade 6-7 readability. Sound human and reflective — NOT robotic or salesy. Use conversational language with subtle authority.
+3. STRUCTURE for saves (carousel format): Step-by-step blueprint OR checklist OR myth vs truth OR before/after transformation. High educational density = people save it to use later.
+4. SAVE TRIGGER: Include one line that explicitly tells them to save (e.g. "Guarda esto para cuando lo necesites" or "Save this — you'll thank me later").
+5. COMMENT TRIGGER: End with a question that creates genuine discussion.
+6. CTA: Natural, not pushy — "Agenda gratis → ${BOOKING_URL}"
+7. HASHTAGS: 8-10 niche-relevant tags at the end.
 
-Solo el texto del post. Sin explicaciones.`,
+Write the full Spanish post (max 1,800 chars). Post text only, no explanations.`,
       }],
     });
 
@@ -2355,6 +2425,8 @@ Format: Return ONLY the HTML body content (no <html>, <head>, or <body> tags). S
 // Schedule today's carousel post on all platforms at 8am EST + publish daily blog
 async function runDailyPost() {
   console.log('[Social] Running daily post scheduler...');
+  setAgentBusy('marco', 'Publishing daily carousel + blog post');
+  logActivity('marco', 'action', 'Daily post cycle started — selecting content & generating captions');
 
   // Pick content: pre-written scripts cycle first, then NewsAPI + Claude
   const { script } = getTodaysScript();
@@ -2507,21 +2579,28 @@ ESTRATEGIA APRENDIDA (basada en datos reales de tu audiencia):
     max_tokens: 600,
     messages: [{
       role: 'user',
-      content: `Crea contenido viral en ESPAÑOL para un Reel de marketing de 15 segundos para JRZ Marketing (agencia de IA y automatización en Orlando, FL).
+      content: `You are Marco, Content Director at JRZ Marketing. Create a HIGH-RETENTION 15-second Instagram Reel script in SPANISH for José Rivas (AI & automation expert for Latino entrepreneurs, Orlando FL).
 ${strategyContext}
-Tema del día: "${topic}"
+Topic: "${topic}"
 
-Devuelve SOLO un JSON válido con esta estructura exacta:
+HIGH-RETENTION SCRIPT BUILDER RULES:
+1. CHOOSE THE BEST FRAMEWORK for this topic: AIDA (Attention-Interest-Desire-Action), PAS (Problem-Agitate-Solution), Open Loop (start a story you complete at the end), Story-Bridge-Offer, Before-After-Bridge, or 4U (Urgent-Unique-Ultra-specific-Useful). Pick the one that maximizes completion rate for this specific topic.
+2. HOOK: First 2 seconds must stop the scroll. Use Who/What/How — instantly communicate who it's for, what it's about, how it helps. Pattern interrupt or contrarian angle preferred over clever phrasing.
+3. CREATE TENSION before delivering value — build curiosity that sustains attention until the final line.
+4. STRUCTURE creates completion. Completion drives distribution. Every word must pull the viewer forward.
+
+Return ONLY valid JSON:
 {
-  "hook": "2-4 PALABRAS EN MAYÚSCULAS (frase impactante, pregunta o dato)",
-  "hook_sub": "1-2 líneas que amplíen el hook\\nseparadas por \\\\n",
-  "content": ["→  punto 1", "→  punto 2", "→  punto 3"],
-  "climax1": "2-3 PALABRAS IMPACTO",
-  "climax2": "REMATE EN MAYÚSCULAS.",
-  "climax_sub": "frase de cierre poderosa"
+  "framework": "name of chosen framework and ONE sentence why you chose it",
+  "hook": "2-4 WORDS IN CAPS (pattern interrupt or contrarian angle)",
+  "hook_sub": "1-2 lines expanding the hook\\nsecond line if needed",
+  "content": ["→  point 1 (tension builds)", "→  point 2 (value appears)", "→  point 3 (payoff)"],
+  "climax1": "2-3 IMPACT WORDS",
+  "climax2": "FINAL PUNCHLINE IN CAPS.",
+  "climax_sub": "powerful closing line that makes them want to share"
 }
 
-Reglas: gancho que detenga el scroll en los primeros 2 segundos, estilo directo, sin hashtags en el JSON.`,
+No hashtags in JSON. Direct style. Every line earns the next.`,
     }],
   });
   return JSON.parse(msg.content[0].text.trim());
@@ -3367,6 +3446,272 @@ app.post('/cron/weekly-summary', async (req, res) => {
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
   }
+});
+
+/// ─── JRZ AI Office Dashboard ──────────────────────────────
+
+app.get('/office/status', (_req, res) => {
+  res.json({
+    ts: new Date().toISOString(),
+    kpi: OFFICE_KPI,
+    agents: Object.fromEntries(
+      Object.entries(AGENT_STATUS).map(([k, v]) => [k, { ...v, subAgents: SUB_AGENTS[k] || [] }])
+    ),
+    feed: OFFICE_LOG.slice(0, 40),
+    chat: OFFICE_CHAT.slice(0, 20),
+  });
+});
+
+app.get('/office', (_req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  const AGENT_META = {
+    armando:  { label: 'Armando',  role: 'Community Manager & Closer',    initials: 'AR', color: '#7c3aed' },
+    elena:    { label: 'Elena',    role: 'Client Success Manager',         initials: 'EL', color: '#0891b2' },
+    diego:    { label: 'Diego',    role: 'Project Manager',                initials: 'DI', color: '#d97706' },
+    marco:    { label: 'Marco',    role: 'Content Director',               initials: 'MA', color: '#16a34a' },
+    sofia:    { label: 'Sofia',    role: 'Web Designer & SEO Auditor',     initials: 'SO', color: '#8A9BA8' },
+    isabella: { label: 'Isabella', role: 'Conversion & Ads Strategist',    initials: 'IS', color: '#db2777' },
+  };
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>JRZ Marketing HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#080a0f;color:#e2e8f0;font-family:'Montserrat',sans-serif;height:100vh;overflow:hidden;}
+.office{display:grid;grid-template-columns:1fr 340px;grid-template-rows:auto auto 1fr;height:100vh;gap:0;}
+/* HEADER */
+.hdr{grid-column:1/-1;background:#0c0f1a;border-bottom:1px solid #1a2540;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-left{display:flex;align-items:center;gap:16px;}
+.hdr-logo{height:32px;object-fit:contain;filter:brightness(0) invert(1);opacity:0.9;}
+.hdr-title{font-size:16px;font-weight:900;color:#fff;letter-spacing:0.04em;}
+.hdr-sub{font-size:10px;color:#475569;letter-spacing:0.12em;text-transform:uppercase;margin-top:1px;}
+.live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse-green 2s infinite;}
+.hdr-time{font-size:12px;color:#475569;font-weight:600;}
+/* KPI BAR */
+.kpi-bar{grid-column:1/-1;background:#0c0f1a;border-bottom:1px solid #1a2540;padding:10px 24px;display:flex;gap:8px;}
+.kpi{flex:1;background:#111827;border:1px solid #1e2d45;border-radius:10px;padding:10px 14px;text-align:center;}
+.kpi-val{font-size:22px;font-weight:900;color:#8A9BA8;line-height:1;}
+.kpi-lbl{font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;}
+/* MAIN AREA */
+.main{overflow-y:auto;padding:20px 24px;background:#080a0f;}
+.main::-webkit-scrollbar{width:4px;} .main::-webkit-scrollbar-thumb{background:#1e2d45;border-radius:4px;}
+/* AGENT GRID */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+/* AGENT CARD */
+.card{background:#0c0f1a;border:1px solid #1a2540;border-radius:16px;padding:18px;transition:border-color .3s,box-shadow .3s;cursor:default;}
+.card.working{border-color:#1a3a6b;box-shadow:0 0 24px rgba(37,99,168,0.2);}
+.card.alert{border-color:#7f1d1d;box-shadow:0 0 24px rgba(220,38,38,0.15);}
+.card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;flex-shrink:0;}
+.card-info{flex:1;min-width:0;}
+.card-name{font-size:14px;font-weight:800;color:#f1f5f9;}
+.card-role{font-size:10px;color:#475569;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.status-row{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-idle{background:#374151;}
+.dot-working{background:#22c55e;animation:pulse-green 1.5s infinite;}
+.dot-alert{background:#ef4444;animation:pulse-red .8s infinite;}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4);}50%{box-shadow:0 0 0 5px rgba(34,197,94,0);}}
+@keyframes pulse-red{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4);}50%{box-shadow:0 0 0 5px rgba(239,68,68,0);}}
+.status-text{font-size:11px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.task-text{font-size:11px;color:#64748b;line-height:1.4;min-height:28px;margin-bottom:12px;}
+.chips{display:flex;flex-wrap:wrap;gap:5px;}
+.chip{font-size:9px;background:#111827;border:1px solid #1e2d45;color:#64748b;border-radius:100px;padding:3px 8px;white-space:nowrap;}
+.chip-icon{margin-right:3px;}
+/* SIDEBAR */
+.sidebar{background:#0c0f1a;border-left:1px solid #1a2540;display:flex;flex-direction:column;overflow:hidden;}
+.sidebar-top{flex:1;overflow:hidden;display:flex;flex-direction:column;border-bottom:1px solid #1a2540;}
+.sidebar-bot{height:220px;display:flex;flex-direction:column;}
+.s-hdr{padding:12px 16px;border-bottom:1px solid #111827;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;gap:8px;}
+.s-hdr .ct{background:#1e2d45;color:#8A9BA8;font-size:9px;padding:2px 7px;border-radius:100px;font-weight:700;}
+.feed-list{flex:1;overflow-y:auto;padding:8px 0;}
+.feed-list::-webkit-scrollbar{width:3px;} .feed-list::-webkit-scrollbar-thumb{background:#1e2d45;}
+.feed-item{padding:8px 14px;border-left:3px solid #1e2d45;margin:2px 0;animation:fadeIn .4s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.fi-top{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.fi-agent{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;}
+.fi-time{font-size:9px;color:#374151;margin-left:auto;}
+.fi-msg{font-size:11px;color:#94a3b8;line-height:1.4;}
+.chat-list{flex:1;overflow-y:auto;padding:6px 0;}
+.chat-list::-webkit-scrollbar{width:3px;} .chat-list::-webkit-scrollbar-thumb{background:#1e2d45;}
+.chat-item{padding:7px 14px;margin:1px 0;}
+.ci-top{display:flex;align-items:center;gap:4px;margin-bottom:2px;}
+.ci-from{font-size:9px;font-weight:800;text-transform:uppercase;}
+.ci-arrow{font-size:9px;color:#374151;}
+.ci-to{font-size:9px;font-weight:700;color:#475569;text-transform:uppercase;}
+.ci-time{font-size:9px;color:#374151;margin-left:auto;}
+.ci-msg{font-size:10px;color:#64748b;line-height:1.4;}
+/* TYPE COLORS */
+.t-success{background:rgba(22,163,74,.06);}
+.t-alert{background:rgba(239,68,68,.06);}
+.t-collab{background:rgba(26,58,107,.12);}
+.t-info{background:transparent;}
+.t-action{background:transparent;}
+</style>
+</head>
+<body>
+<div class="office">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-left">
+    <img class="hdr-logo" src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png" alt="JRZ"/>
+    <div>
+      <div class="hdr-title">JRZ Marketing HQ</div>
+      <div class="hdr-sub">AI Team Operations Center</div>
+    </div>
+    <div class="live-dot"></div>
+  </div>
+  <div class="hdr-time" id="clock"></div>
+</div>
+
+<!-- KPI BAR -->
+<div class="kpi-bar">
+  <div class="kpi"><div class="kpi-val" id="k-dms">0</div><div class="kpi-lbl">DMs Handled</div></div>
+  <div class="kpi"><div class="kpi-val" id="k-leads">0</div><div class="kpi-lbl">Leads Captured</div></div>
+  <div class="kpi"><div class="kpi-val" id="k-posts">0</div><div class="kpi-lbl">Posts Published</div></div>
+  <div class="kpi"><div class="kpi-val" id="k-sites">0</div><div class="kpi-lbl">Sites Monitored</div></div>
+  <div class="kpi"><div class="kpi-val" id="k-deals">0</div><div class="kpi-lbl">Deals Tracked</div></div>
+  <div class="kpi"><div class="kpi-val" id="k-emails">0</div><div class="kpi-lbl">Emails Sent</div></div>
+</div>
+
+<!-- MAIN: AGENT GRID -->
+<div class="main">
+  <div class="grid" id="agent-grid">
+    ${Object.entries(AGENT_META).map(([id, m]) => `
+    <div class="card" id="card-${id}" data-agent="${id}">
+      <div class="card-top">
+        <div class="avatar" style="background:linear-gradient(135deg,${m.color}cc,${m.color})">${m.initials}</div>
+        <div class="card-info">
+          <div class="card-name">${m.label}</div>
+          <div class="card-role">${m.role}</div>
+        </div>
+      </div>
+      <div class="status-row">
+        <div class="dot dot-idle" id="dot-${id}"></div>
+        <div class="status-text" id="status-${id}">Idle</div>
+      </div>
+      <div class="task-text" id="task-${id}">Standing by...</div>
+      <div class="chips" id="chips-${id}">
+        ${(SUB_AGENTS[id] || []).map(sa => `<div class="chip"><span class="chip-icon">${sa.icon}</span>${sa.name}</div>`).join('')}
+      </div>
+    </div>`).join('')}
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="s-hdr">Live Activity <span class="ct" id="feed-count">0</span></div>
+    <div class="feed-list" id="feed-list"></div>
+  </div>
+  <div class="sidebar-bot">
+    <div class="s-hdr">Agent Chat <span class="ct" id="chat-count">0</span></div>
+    <div class="chat-list" id="chat-list"></div>
+  </div>
+</div>
+
+</div><!-- /office -->
+
+<script>
+const AGENT_COLORS = ${JSON.stringify(Object.fromEntries(Object.entries(AGENT_META).map(([k,v]) => [k, v.color])))};
+const TYPE_ICON = { success:'✅', alert:'🚨', collab:'💬', info:'ℹ️', action:'⚡' };
+
+function timeAgo(ts) {
+  const s = Math.floor((Date.now() - new Date(ts)) / 1000);
+  if (s < 60) return s + 's ago';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + 'm ago';
+  return Math.floor(m/60) + 'h ago';
+}
+
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, weekday: 'short', month: 'short', day: 'numeric' }) + ' EST';
+}
+
+function updateKPIs(kpi) {
+  document.getElementById('k-dms').textContent    = kpi.dmsHandled;
+  document.getElementById('k-leads').textContent  = kpi.leadsCapture;
+  document.getElementById('k-posts').textContent  = kpi.postsPublished;
+  document.getElementById('k-sites').textContent  = kpi.sitesMonitored;
+  document.getElementById('k-deals').textContent  = kpi.dealsTracked;
+  document.getElementById('k-emails').textContent = kpi.emailsSent;
+}
+
+function updateAgents(agents) {
+  Object.entries(agents).forEach(([id, a]) => {
+    const card   = document.getElementById('card-' + id);
+    const dot    = document.getElementById('dot-' + id);
+    const status = document.getElementById('status-' + id);
+    const task   = document.getElementById('task-' + id);
+    if (!card) return;
+    card.className = 'card ' + (a.status || 'idle');
+    dot.className  = 'dot dot-' + (a.status || 'idle');
+    status.textContent = a.status === 'working' ? '● Working' : a.status === 'alert' ? '⚠ Alert' : '○ Idle';
+    status.style.color = a.status === 'working' ? '#22c55e' : a.status === 'alert' ? '#ef4444' : '#475569';
+    task.textContent = a.task || 'Standing by...';
+  });
+}
+
+let lastFeedId = null, lastChatTs = null;
+
+function renderFeed(feed) {
+  const list = document.getElementById('feed-list');
+  document.getElementById('feed-count').textContent = feed.length;
+  const html = feed.map(f => {
+    const color = AGENT_COLORS[f.agent] || '#475569';
+    return \`<div class="feed-item t-\${f.type}" style="border-left-color:\${color}">
+      <div class="fi-top">
+        <span class="fi-agent" style="color:\${color}">\${f.agent}</span>
+        <span style="font-size:9px;color:#374151">\${TYPE_ICON[f.type]||'•'}</span>
+        <span class="fi-time">\${timeAgo(f.ts)}</span>
+      </div>
+      <div class="fi-msg">\${f.message}</div>
+    </div>\`;
+  }).join('');
+  if (feed[0]?.id !== lastFeedId) { list.innerHTML = html; lastFeedId = feed[0]?.id; }
+}
+
+function renderChat(chat) {
+  const list = document.getElementById('chat-list');
+  document.getElementById('chat-count').textContent = chat.length;
+  const html = chat.map(c => {
+    const fc = AGENT_COLORS[c.from] || '#475569';
+    const tc = AGENT_COLORS[c.to]   || '#475569';
+    return \`<div class="chat-item">
+      <div class="ci-top">
+        <span class="ci-from" style="color:\${fc}">\${c.from}</span>
+        <span class="ci-arrow">→</span>
+        <span class="ci-to" style="color:\${tc}">\${c.to}</span>
+        <span class="ci-time">\${timeAgo(c.ts)}</span>
+      </div>
+      <div class="ci-msg">\${c.message}</div>
+    </div>\`;
+  }).join('');
+  if (chat[0]?.ts !== lastChatTs) { list.innerHTML = html; lastChatTs = chat[0]?.ts; }
+}
+
+async function refresh() {
+  try {
+    const r = await fetch('/office/status');
+    const d = await r.json();
+    updateKPIs(d.kpi);
+    updateAgents(d.agents);
+    renderFeed(d.feed);
+    renderChat(d.chat);
+  } catch(e) { console.warn('Office poll failed', e); }
+}
+
+setInterval(updateClock, 1000);
+setInterval(refresh, 5000);
+updateClock();
+refresh();
+</script>
+</body></html>`);
 });
 
 // Status check: GET /social/status
@@ -5536,6 +5881,8 @@ async function runDiegoScorecard() {
 
 async function runDiegoStandup() {
   console.log('[Diego] Building daily standup...');
+  setAgentBusy('diego', 'Building daily pipeline standup');
+  logActivity('diego', 'action', 'Daily standup started — scanning pipeline across all accounts');
   const clients  = await getElenaClients();
   const yesterday = Date.now() - 24 * 60 * 60 * 1000;
   const staleCut  = Date.now() - 14 * 24 * 60 * 60 * 1000;
@@ -5643,6 +5990,12 @@ async function runDiegoStandup() {
 
   await sendEmail(OWNER_CONTACT_ID, `☀️ Diego: Buenos días — ${dayName} ${dateStr}`, html);
   console.log('[Diego] ✅ Daily standup sent.');
+  OFFICE_KPI.dealsTracked = totalOpen;
+  logActivity('diego', 'success', `Standup sent — ${totalOpen} open deals, ${closedYesterday.length} closed yesterday, ${stalledTop.length} stalled`);
+  if (stalledTop.length) {
+    agentChat('diego', 'armando', `${stalledTop.length} stalled deal(s) today: ${stalledTop.slice(0,2).map(s=>s.name||'client').join(', ')}. Recommend a warm outreach DM to re-engage.`);
+  }
+  setAgentIdle('diego', `Standup sent · ${totalOpen} deals tracked`);
 }
 
 app.post('/diego/standup', async (_req, res) => {
@@ -5672,6 +6025,8 @@ app.post('/diego/scorecard', async (_req, res) => {
 
 async function runMarcoContentBrief() {
   console.log('[Marco] Building weekly content brief...');
+  setAgentBusy('marco', 'Building weekly save-optimized content brief');
+  logActivity('marco', 'action', 'Weekly content brief started — pulling social stats + news trends');
   const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
   const dateStr = new Date().toLocaleDateString('es-ES', { timeZone: 'America/New_York', weekday: 'long', day: 'numeric', month: 'long' });
 
@@ -5711,34 +6066,55 @@ Días con mejor rendimiento: ${JSON.stringify(strategy.bestDays || {})}`;
   const aiRes = await anthropic.messages.create({
     model: 'claude-opus-4-6',
     max_tokens: 1200,
-    messages: [{ role: 'user', content: `Eres Marco, el Director de Contenido de JRZ Marketing. Jose Rivas es el fundador — un experto en IA y automatización para negocios latinos en Orlando, FL. Su audiencia es 53% hombres, 25-34 años, dueños de pequeños negocios latinos.
+    messages: [{ role: 'user', content: `You are Marco, Content Director at JRZ Marketing. José Rivas is the founder — AI & automation expert for Latino entrepreneurs, Orlando FL. Audience: 53% men, 25-34, Latino small business owners.
 
-Datos de rendimiento de la semana pasada:
+LAST WEEK PERFORMANCE:
 ${perfSummary}
 
-Noticias y tendencias actuales:
+CURRENT TRENDS & NEWS:
 ${articleSummary}
 
-Genera un brief de contenido completo. Responde SOLO con JSON válido:
+You are a senior Instagram content strategist AND behavioral analyst. Apply all 6 frameworks:
+
+CONTENT STRATEGY ARCHITECT: Define the week's content across 4 pillars — Education (how-to, frameworks), Authority (José's expertise & results), Engagement (stories, relatability), Conversion (offers, CTAs). Map each idea to the awareness→trust→authority→conversion journey. Structured sequencing, not random posting.
+
+RESEARCH ENGINE (Content Intelligence Layer): Reverse-engineer what's working in the AI/marketing niche right now. Identify recurring hook structures, emotional triggers, psychological drivers behind saves/shares, and content gaps competitors are missing. Suggest strategic opportunities.
+
+SAVE-OPTIMIZED CAROUSEL GENERATOR: Every carousel idea must maximize saves AND shares. Use structured formats: step-by-step blueprints, checklists, myths vs truth, before/after, case studies. High educational density = people save to use later. Saves = algorithm signal.
+
+HOOK GENERATOR (Who/What/How Framework): Every hook must answer in the first line: WHO is this for? WHAT is it about? HOW does it help? Use pattern interrupts, contrarian angles, curiosity gaps, outcome-driven framing. No vague or clever phrasing — immediate psychological pull.
+
+CAPTION ENGINE: Each caption_start uses emotional storytelling, grade 6-7 readability, includes a save trigger and comment trigger.
+
+HIGH-RETENTION SCRIPT BUILDER: For reels, choose the right framework (AIDA/PAS/Open Loop/Story-Bridge-Offer/Before-After-Bridge/4U) based on the topic.
+
+Return ONLY valid JSON:
 {
-  "weekInsight": "2-3 oraciones: qué pasó la semana pasada y por qué",
-  "topPlatform": "qué plataforma ganó esta semana y por qué",
+  "weekInsight": "2-3 sentences: what happened last week and why (behavioral analysis)",
+  "topPlatform": "which platform won and why",
+  "contentPillars": {
+    "education": "this week's education angle",
+    "authority": "this week's authority angle",
+    "engagement": "this week's engagement angle",
+    "conversion": "this week's conversion angle"
+  },
+  "competitorGap": "one strategic opportunity competitors are missing right now",
   "trending": [
-    {"topic": "tema trending 1", "angle": "ángulo específico para JRZ", "urgency": "alta/media"},
-    {"topic": "tema trending 2", "angle": "ángulo específico para JRZ", "urgency": "alta/media"},
-    {"topic": "tema trending 3", "angle": "ángulo específico para JRZ", "urgency": "alta/media"}
+    {"topic": "trending topic 1", "angle": "specific JRZ angle", "urgency": "high/medium", "emotionalTrigger": "what psychological driver to use"},
+    {"topic": "trending topic 2", "angle": "specific JRZ angle", "urgency": "high/medium", "emotionalTrigger": "what psychological driver to use"},
+    {"topic": "trending topic 3", "angle": "specific JRZ angle", "urgency": "high/medium", "emotionalTrigger": "what psychological driver to use"}
   ],
   "contentIdeas": [
-    {"hook": "hook viral para el post", "format": "carrusel/reel/historia", "platform": "plataforma principal", "caption_start": "primeras 2 oraciones del caption", "cta": "call to action"},
-    {"hook": "hook viral para el post", "format": "carrusel/reel/historia", "platform": "plataforma principal", "caption_start": "primeras 2 oraciones del caption", "cta": "call to action"},
-    {"hook": "hook viral para el post", "format": "carrusel/reel/historia", "platform": "plataforma principal", "caption_start": "primeras 2 oraciones del caption", "cta": "call to action"},
-    {"hook": "hook viral para el post", "format": "carrusel/reel/historia", "platform": "plataforma principal", "caption_start": "primeras 2 oraciones del caption", "cta": "call to action"},
-    {"hook": "hook viral para el post", "format": "carrusel/reel/historia", "platform": "plataforma principal", "caption_start": "primeras 2 oraciones del caption", "cta": "call to action"}
+    {"hook": "Who/What/How hook — stops the scroll instantly", "format": "carousel/reel/story", "carouselStructure": "blueprint/checklist/myth-vs-truth/before-after/case-study", "retentionFramework": "AIDA/PAS/Open Loop/etc (for reels)", "platform": "primary platform", "pillar": "education/authority/engagement/conversion", "caption_start": "First 2 sentences using emotional storytelling with save trigger", "saveTrigger": "exact line that triggers a save", "commentTrigger": "question that sparks comments", "cta": "natural call to action"},
+    {"hook": "Who/What/How hook", "format": "carousel/reel/story", "carouselStructure": "blueprint/checklist/myth-vs-truth/before-after/case-study", "retentionFramework": "framework name", "platform": "platform", "pillar": "pillar", "caption_start": "emotional opening", "saveTrigger": "save line", "commentTrigger": "comment question", "cta": "cta"},
+    {"hook": "Who/What/How hook", "format": "carousel/reel/story", "carouselStructure": "blueprint/checklist/myth-vs-truth/before-after/case-study", "retentionFramework": "framework name", "platform": "platform", "pillar": "pillar", "caption_start": "emotional opening", "saveTrigger": "save line", "commentTrigger": "comment question", "cta": "cta"},
+    {"hook": "Who/What/How hook", "format": "carousel/reel/story", "carouselStructure": "blueprint/checklist/myth-vs-truth/before-after/case-study", "retentionFramework": "framework name", "platform": "platform", "pillar": "pillar", "caption_start": "emotional opening", "saveTrigger": "save line", "commentTrigger": "comment question", "cta": "cta"},
+    {"hook": "Who/What/How hook", "format": "carousel/reel/story", "carouselStructure": "blueprint/checklist/myth-vs-truth/before-after/case-study", "retentionFramework": "framework name", "platform": "platform", "pillar": "pillar", "caption_start": "emotional opening", "saveTrigger": "save line", "commentTrigger": "comment question", "cta": "cta"}
   ],
-  "hashtags": ["hashtag1", "hashtag2", "hashtag3", "hashtag4", "hashtag5", "hashtag6", "hashtag7", "hashtag8"],
-  "bestDayThisWeek": "mejor día para postear esta semana y por qué",
-  "avoidThisWeek": "qué evitar en el contenido esta semana",
-  "marcoNote": "nota directa de Marco a Jose — máximo 2 oraciones, como un CD hablando con el CEO"
+  "hashtags": ["hashtag1","hashtag2","hashtag3","hashtag4","hashtag5","hashtag6","hashtag7","hashtag8"],
+  "bestDayThisWeek": "best day to post and why",
+  "avoidThisWeek": "what to avoid in content this week",
+  "marcoNote": "direct note from Marco to José — max 2 sentences, CD to CEO"
 }` }],
   });
 
@@ -5854,6 +6230,10 @@ Genera un brief de contenido completo. Responde SOLO con JSON válido:
 
   await sendEmail(OWNER_CONTACT_ID, `🎯 Marco: Brief de Contenido — ${dateStr}`, html);
   console.log('[Marco] ✅ Weekly content brief sent.');
+  OFFICE_KPI.postsPublished++;
+  logActivity('marco', 'success', `Weekly content brief delivered — ${(brief.contentIdeas || []).length} save-optimized ideas across ${Object.keys(brief.contentPillars || {}).length} pillars`);
+  agentChat('marco', 'sofia', `New content brief ready. Competitor gap this week: ${brief.competitorGap || 'check brief'}. Consider updating landing pages to match this week's conversion angle.`);
+  setAgentIdle('marco', 'Brief sent — monitoring trends');
 }
 
 async function runMarcoTrendAlert() {
@@ -7097,8 +7477,11 @@ const sofiaDowntimeState = {}; // { locationId: { url, downSince, alertedAt } }
 
 async function runSofiaUptimeMonitor() {
   console.log('[Sofia] Running 6-hour uptime check...');
+  setAgentBusy('sofia', 'Running 6-hour uptime check on all client sites');
+  logActivity('sofia', 'info', 'Uptime monitor started — checking all client sites');
   try {
     const clients = await getElenaClients();
+    OFFICE_KPI.sitesMonitored = clients.length;
     const downtimeAlerts = [];
 
     await Promise.all(clients.map(async (client) => {
@@ -7138,7 +7521,17 @@ async function runSofiaUptimeMonitor() {
       }
     }));
 
-    if (!downtimeAlerts.length) { console.log('[Sofia] All monitored sites are up.'); return; }
+    if (!downtimeAlerts.length) {
+      console.log('[Sofia] All monitored sites are up.');
+      logActivity('sofia', 'success', `All ${clients.length} client sites are up and responding`);
+      setAgentIdle('sofia', `All ${clients.length} sites healthy`);
+      return;
+    }
+    downtimeAlerts.forEach(a => {
+      logActivity('sofia', 'alert', `Site ${a.type === 'slow' ? 'SLOW' : 'DOWN'}: ${a.name} — ${a.url}`, { url: a.url });
+    });
+    agentChat('sofia', 'elena', `${downtimeAlerts.length} client site(s) are down or slow: ${downtimeAlerts.map(a=>a.name).join(', ')}. Client outreach may be needed.`);
+    setAgentAlert('sofia', `${downtimeAlerts.length} site(s) down — alert sent`);
 
     const rows = downtimeAlerts.map(a =>
       a.type === 'slow'
