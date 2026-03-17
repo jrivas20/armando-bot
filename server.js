@@ -6335,96 +6335,466 @@ async function runSofiaCROReport() {
 
 // ─── Sofia: GHL Landing Page Creator ─────────────────────
 
-function buildLandingHTML(clientName, phone, email, industry, locationId) {
-  const industryMap = {
-    restaurant: { tagline: 'Auténtica comida, sabores que enamoran', cta: 'Haz tu reservación', service1: 'Menú variado', service2: 'Ambiente único', service3: 'Atención personalizada' },
-    barbershop: { tagline: 'El mejor corte de tu vida, garantizado', cta: 'Reserva tu cita', service1: 'Cortes modernos', service2: 'Afeitado clásico', service3: 'Tratamientos capilares' },
-    'tattoo studio': { tagline: 'Arte permanente, calidad sin igual', cta: 'Agenda tu consulta', service1: 'Diseño personalizado', service2: 'Artistas certificados', service3: 'Ambiente seguro y limpio' },
-    'auto detailing': { tagline: 'Tu carro como nuevo, cada vez', cta: 'Agenda tu servicio', service1: 'Detailing completo', service2: 'Protección de pintura', service3: 'Interior profundo' },
-    'fitness / gym': { tagline: 'Transforma tu cuerpo, transforma tu vida', cta: 'Empieza hoy gratis', service1: 'Entrenamiento personalizado', service2: 'Clases grupales', service3: 'Nutrición y plan de dieta' },
-    'med spa / skincare': { tagline: 'Cuida tu piel, invierte en ti', cta: 'Reserva tu consulta', service1: 'Tratamientos faciales', service2: 'Rejuvenecimiento', service3: 'Cuidado corporal' },
-    'real estate': { tagline: 'Tu próxima casa te está esperando', cta: 'Habla con un agente', service1: 'Compra y venta', service2: 'Evaluación gratuita', service3: 'Financiamiento' },
-    'credit repair': { tagline: 'Repara tu crédito, abre nuevas puertas', cta: 'Consulta gratis', service1: 'Disputa de errores', service2: 'Plan personalizado', service3: 'Resultados garantizados' },
-    construction: { tagline: 'Construimos tus sueños con calidad', cta: 'Pide tu presupuesto', service1: 'Remodelación', service2: 'Construcción nueva', service3: 'Diseño de interiores' },
-  };
-  const t = industryMap[industry] || { tagline: 'Servicio profesional de calidad', cta: 'Contáctanos hoy', service1: 'Servicio premium', service2: 'Atención personalizada', service3: 'Resultados garantizados' };
+// ─── Sofia: AI Content Generator for Landing Pages ───────
+async function generateLandingContent(clientName, industry, city) {
+  try {
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 2000,
+      messages: [{
+        role: 'user',
+        content: `Create professional landing page content for "${clientName}", a ${industry} company in ${city}, FL.
+Return ONLY valid JSON — no markdown, no explanation:
+{
+  "heroTitle": "Powerful 6-8 word headline",
+  "heroSubtitle": "One compelling sentence value proposition",
+  "ctaText": "Action-oriented CTA button text",
+  "tagline": "Short company tagline under 8 words",
+  "aboutText": "2-3 sentences describing the company's mission, experience, and commitment to ${city} community.",
+  "stats": [{"num":"500+","label":"Jobs Completed"},{"num":"15+","label":"Years Experience"},{"num":"98%","label":"Satisfaction Rate"}],
+  "services": [
+    {"name":"Primary Service Name","desc":"2 sentences describing this service and its benefits.","icon":"🔧"},
+    {"name":"Secondary Service Name","desc":"2 sentences describing this service and its benefits.","icon":"⚡"},
+    {"name":"Third Service Name","desc":"2 sentences describing this service and its benefits.","icon":"🏆"}
+  ],
+  "trustItems": ["Licensed & Certified","Fully Insured","24/7 Available","Free Estimates","5-Star Rated"],
+  "whyCards": [
+    {"title":"Why Reason 1","desc":"Short 1-sentence explanation."},
+    {"title":"Why Reason 2","desc":"Short 1-sentence explanation."},
+    {"title":"Why Reason 3","desc":"Short 1-sentence explanation."},
+    {"title":"Why Reason 4","desc":"Short 1-sentence explanation."}
+  ],
+  "processSteps": [
+    {"num":"01","title":"Step One","desc":"Short description of this step."},
+    {"num":"02","title":"Step Two","desc":"Short description of this step."},
+    {"num":"03","title":"Step Three","desc":"Short description of this step."},
+    {"num":"04","title":"Step Four","desc":"Short description of this step."}
+  ],
+  "reviews": [
+    {"name":"Maria G.","stars":5,"text":"Two sentences of glowing review about this ${industry} company."},
+    {"name":"John D.","stars":5,"text":"Two sentences of glowing review about this ${industry} company."},
+    {"name":"Ana R.","stars":5,"text":"Two sentences of glowing review about this ${industry} company."}
+  ],
+  "faqs": [
+    {"q":"Common question about ${industry}?","a":"Clear helpful answer."},
+    {"q":"Another common question?","a":"Clear helpful answer."},
+    {"q":"Pricing or timeline question?","a":"Clear helpful answer."},
+    {"q":"Service area or availability question?","a":"Clear helpful answer."}
+  ],
+  "areas": ["${city}","Orlando","Kissimmee","Sanford","Daytona Beach","Deltona","Lake Mary","Ocoee"]
+}`
+      }]
+    });
+    const raw = msg.content[0].text;
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON found in Claude response');
+    return JSON.parse(match[0]);
+  } catch (err) {
+    console.error('[Sofia] Content generation error:', err.message);
+    // Fallback defaults
+    return {
+      heroTitle: `${clientName} — Trusted ${industry} Experts`,
+      heroSubtitle: `Professional ${industry} services in ${city} and surrounding areas.`,
+      ctaText: 'Get Free Estimate',
+      tagline: `${city}'s Most Trusted ${industry}`,
+      aboutText: `${clientName} has been serving ${city} and the surrounding communities with top-quality ${industry} services. Our experienced team is committed to delivering exceptional results with every project.`,
+      stats: [{ num: '500+', label: 'Projects Done' }, { num: '10+', label: 'Years Experience' }, { num: '5★', label: 'Google Rating' }],
+      services: [
+        { name: 'Premium Service', desc: 'We deliver industry-leading quality with every job. Your satisfaction is our top priority.', icon: '🔧' },
+        { name: 'Expert Team', desc: 'Our certified professionals bring years of experience. We handle every detail with care.', icon: '⚡' },
+        { name: 'Fast Response', desc: 'We respond quickly and work efficiently. Get the help you need when you need it.', icon: '🏆' },
+      ],
+      trustItems: ['Licensed & Certified', 'Fully Insured', '24/7 Available', 'Free Estimates', '5-Star Rated'],
+      whyCards: [
+        { title: 'Local Experts', desc: 'Proudly serving the ' + city + ' area for over a decade.' },
+        { title: 'Transparent Pricing', desc: 'No hidden fees — honest quotes upfront.' },
+        { title: 'Guaranteed Work', desc: 'We stand behind every job we do.' },
+        { title: '24/7 Support', desc: 'Always available when you need us most.' },
+      ],
+      processSteps: [
+        { num: '01', title: 'Contact Us', desc: 'Call or fill out our form — we respond fast.' },
+        { num: '02', title: 'Free Assessment', desc: 'We evaluate your needs at no cost.' },
+        { num: '03', title: 'We Get to Work', desc: 'Our team handles everything professionally.' },
+        { num: '04', title: 'You Enjoy Results', desc: '100% satisfaction, guaranteed.' },
+      ],
+      reviews: [
+        { name: 'Maria G.', stars: 5, text: 'Incredible service from start to finish. Highly recommend!' },
+        { name: 'John D.', stars: 5, text: 'Fast, professional, and affordable. These guys are the best.' },
+        { name: 'Ana R.', stars: 5, text: 'I called them in an emergency and they were there within the hour. Amazing team.' },
+      ],
+      faqs: [
+        { q: 'Do you offer free estimates?', a: 'Yes! We offer free no-obligation estimates for all services.' },
+        { q: 'How quickly can you respond?', a: 'We typically respond within 1-2 hours and can schedule same-day service.' },
+        { q: 'Are you licensed and insured?', a: 'Absolutely. We are fully licensed and carry comprehensive insurance.' },
+        { q: 'What areas do you serve?', a: `We serve ${city} and surrounding Central Florida communities.` },
+      ],
+      areas: [city, 'Orlando', 'Kissimmee', 'Sanford', 'Daytona Beach', 'Deltona', 'Lake Mary', 'Ocoee'],
+    };
+  }
+}
+
+async function buildLandingHTML(clientName, phone, email, city, industry, logoUrl, formId) {
+  city   = city   || 'Orlando';
+  formId = formId || '5XhL0vWCuJ59HWHQoHGG';
+  const c = await generateLandingContent(clientName, industry, city);
+  const stars = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+  const phoneClean = (phone || '').replace(/\D/g, '');
+  const logoSrc = logoUrl || 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
 
   return `<!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>${clientName}</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Anton&display=swap');
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:#fff;color:#0a0a0a;}
-    nav{background:#0a0a0a;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;}
-    nav .logo{font-family:'Anton',sans-serif;font-size:22px;color:#fff;letter-spacing:0.05em;}
-    nav a{color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;font-weight:600;}
-    .hero{background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%);padding:80px 32px;text-align:center;}
-    .hero h1{font-family:'Anton',sans-serif;font-size:48px;color:#fff;line-height:1.1;margin-bottom:16px;letter-spacing:0.03em;}
-    .hero p{font-size:18px;color:rgba(255,255,255,0.6);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto;}
-    .cta-btn{display:inline-block;background:#8A9BA8;color:#fff;font-size:16px;font-weight:700;padding:18px 40px;border-radius:10px;text-decoration:none;letter-spacing:0.02em;}
-    .services{padding:64px 32px;max-width:900px;margin:0 auto;}
-    .services h2{font-size:28px;font-weight:800;text-align:center;margin-bottom:40px;}
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-    @media(max-width:600px){.grid{grid-template-columns:1fr;}.hero h1{font-size:32px;}}
-    .srv{background:#f9f9f9;border-radius:14px;padding:28px 24px;text-align:center;}
-    .srv .icon{font-size:32px;margin-bottom:12px;}
-    .srv h3{font-size:16px;font-weight:700;margin-bottom:8px;}
-    .srv p{font-size:14px;color:#666;line-height:1.5;}
-    .contact{background:#0a0a0a;padding:64px 32px;text-align:center;}
-    .contact h2{font-size:28px;font-weight:800;color:#fff;margin-bottom:8px;}
-    .contact p{font-size:15px;color:rgba(255,255,255,0.5);margin-bottom:32px;}
-    .contact form{max-width:420px;margin:0 auto;}
-    .contact input,.contact textarea{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:14px 16px;color:#fff;font-size:14px;margin-bottom:12px;font-family:'Inter',sans-serif;}
-    .contact textarea{height:100px;resize:none;}
-    .contact input::placeholder,.contact textarea::placeholder{color:rgba(255,255,255,0.3);}
-    .contact button{width:100%;background:#8A9BA8;color:#fff;font-size:15px;font-weight:700;padding:16px;border:none;border-radius:10px;cursor:pointer;}
-    .phone-bar{background:#8A9BA8;padding:16px 32px;text-align:center;}
-    .phone-bar a{color:#fff;font-size:18px;font-weight:800;text-decoration:none;letter-spacing:0.05em;}
-    footer{background:#050505;padding:24px 32px;text-align:center;font-size:12px;color:rgba(255,255,255,0.2);}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="${c.heroSubtitle}"/>
+<title>${clientName} | ${industry} in ${city}, FL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--blue-dark:#1a3a6b;--blue-mid:#2563a8;--blue-light:#3b82f6;--orange:#f97316;--gray-bg:#f8fafc;--gray-dark:#1e293b;--text:#374151;--white:#ffffff;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Open Sans',sans-serif;color:var(--text);background:#fff;}
+/* TOPBAR */
+.topbar{background:var(--blue-dark);padding:9px 24px;display:flex;align-items:center;justify-content:space-between;}
+.topbar-left{font-size:12px;color:rgba(255,255,255,0.75);letter-spacing:0.02em;}
+.topbar-right a{display:inline-flex;align-items:center;gap:6px;background:var(--orange);color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:20px;text-decoration:none;letter-spacing:0.03em;}
+/* NAVBAR */
+.navbar{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:70px;}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.nav-logo img{height:40px;object-fit:contain;}
+.nav-logo span{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:800;color:var(--blue-dark);}
+.nav-links{display:flex;gap:28px;}
+.nav-links a{font-size:13px;font-weight:600;color:var(--gray-dark);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--blue-mid);}
+.nav-cta a{background:var(--blue-dark);color:#fff;font-size:13px;font-weight:700;padding:10px 22px;border-radius:6px;text-decoration:none;white-space:nowrap;}
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--blue-dark) 0%,var(--blue-mid) 60%,#1d4ed8 100%);min-height:580px;display:flex;align-items:center;padding:60px 24px;}
+.hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:60px;align-items:center;}
+.hero-left{}
+.hero-eyebrow{display:inline-block;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.4);color:var(--orange);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:20px;}
+.hero h1{font-family:'Montserrat',sans-serif;font-size:46px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:16px;}
+.hero-sub{font-size:17px;color:rgba(255,255,255,0.8);line-height:1.6;margin-bottom:28px;max-width:480px;}
+.hero-badges{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:32px;}
+.hero-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.9);font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;}
+.hero-phone a{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);color:#fff;font-size:20px;font-weight:800;padding:14px 28px;border-radius:8px;text-decoration:none;font-family:'Montserrat',sans-serif;}
+/* FORM CARD */
+.form-card{background:#fff;border-radius:16px;padding:32px 28px;box-shadow:0 24px 60px rgba(0,0,0,0.25);}
+.form-card h3{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:800;color:var(--blue-dark);margin-bottom:6px;}
+.form-card p{font-size:13px;color:#6b7280;margin-bottom:20px;}
+.form-card iframe{width:100%;border:none;min-height:480px;border-radius:8px;}
+/* TRUST STRIP */
+.trust-strip{background:var(--blue-dark);padding:16px 24px;}
+.trust-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:center;flex-wrap:wrap;gap:24px;}
+.trust-item{display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;font-weight:600;}
+.trust-icon{width:28px;height:28px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+/* SECTIONS */
+.section{padding:80px 24px;}
+.section-inner{max-width:1200px;margin:0 auto;}
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--orange);margin-bottom:10px;}
+.section-title{font-family:'Montserrat',sans-serif;font-size:36px;font-weight:800;color:var(--blue-dark);line-height:1.2;margin-bottom:16px;}
+.section-sub{font-size:16px;color:#6b7280;max-width:600px;line-height:1.6;}
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+.about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:36px;}
+.stat-box{text-align:center;padding:24px 16px;background:var(--gray-bg);border-radius:12px;border-top:3px solid var(--orange);}
+.stat-num{font-family:'Montserrat',sans-serif;font-size:36px;font-weight:900;color:var(--blue-dark);}
+.stat-label{font-size:13px;color:#6b7280;margin-top:4px;}
+.about-img{background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));border-radius:16px;min-height:360px;display:flex;align-items:center;justify-content:center;}
+.about-img-inner{text-align:center;padding:40px;}
+.about-img-inner .big-icon{font-size:80px;margin-bottom:16px;display:block;}
+.about-img-inner p{color:rgba(255,255,255,0.8);font-size:15px;line-height:1.6;}
+/* SERVICES */
+.section-bg{background:var(--gray-bg);}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:48px;}
+.srv-card{background:#fff;border-radius:14px;padding:32px 28px;box-shadow:0 4px 20px rgba(0,0,0,0.06);border-top:4px solid var(--blue-mid);transition:transform .2s,box-shadow .2s;}
+.srv-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.1);}
+.srv-icon{width:52px;height:52px;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;}
+.srv-card h3{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:700;color:var(--blue-dark);margin-bottom:10px;}
+.srv-card p{font-size:14px;color:#6b7280;line-height:1.6;}
+/* WHY */
+.section-dark{background:var(--gray-dark);padding:80px 24px;}
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px;}
+.why-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px 24px;}
+.why-icon{font-size:28px;margin-bottom:14px;}
+.why-card h3{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:8px;}
+.why-card p{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.5;}
+/* PROCESS */
+.process-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin-top:48px;position:relative;}
+.process-steps::before{content:'';position:absolute;top:36px;left:calc(12.5% + 12px);right:calc(12.5% + 12px);height:2px;background:linear-gradient(90deg,var(--blue-mid),var(--orange));z-index:0;}
+.step{text-align:center;position:relative;z-index:1;}
+.step-num{width:72px;height:72px;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:22px;font-weight:900;color:#fff;margin:0 auto 20px;border:4px solid #fff;box-shadow:0 4px 16px rgba(37,99,168,0.3);}
+.step h3{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:700;color:var(--blue-dark);margin-bottom:8px;}
+.step p{font-size:13px;color:#6b7280;line-height:1.5;}
+/* REVIEWS */
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:48px;}
+.review-card{background:#fff;border-radius:14px;padding:28px 24px;box-shadow:0 4px 20px rgba(0,0,0,0.07);border-left:4px solid var(--orange);}
+.review-stars{color:var(--orange);font-size:18px;margin-bottom:12px;}
+.review-text{font-size:14px;color:#374151;line-height:1.7;font-style:italic;margin-bottom:16px;}
+.review-author{font-size:13px;font-weight:700;color:var(--blue-dark);}
+/* FAQ */
+.faq-list{margin-top:48px;max-width:800px;}
+.faq-item{border-bottom:1px solid #e5e7eb;padding:20px 0;}
+.faq-q{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--blue-dark);cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.faq-q::after{content:'+';font-size:22px;color:var(--orange);transition:transform .2s;}
+.faq-item.open .faq-q::after{content:'−';}
+.faq-a{font-size:14px;color:#6b7280;line-height:1.7;padding-top:12px;display:none;}
+.faq-item.open .faq-a{display:block;}
+/* AREAS */
+.areas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px;}
+.area-item{background:var(--gray-bg);border:1px solid #e5e7eb;border-radius:10px;padding:14px 18px;font-size:14px;font-weight:600;color:var(--blue-dark);display:flex;align-items:center;gap:8px;}
+.area-item::before{content:'📍';font-size:12px;}
+/* CTA BANNER */
+.cta-banner{background:linear-gradient(135deg,var(--orange) 0%,#ea580c 100%);padding:64px 24px;text-align:center;}
+.cta-banner h2{font-family:'Montserrat',sans-serif;font-size:36px;font-weight:900;color:#fff;margin-bottom:12px;}
+.cta-banner p{font-size:16px;color:rgba(255,255,255,0.85);margin-bottom:32px;}
+.cta-banner a{display:inline-block;background:#fff;color:var(--orange);font-size:16px;font-weight:800;padding:16px 40px;border-radius:8px;text-decoration:none;font-family:'Montserrat',sans-serif;}
+/* FOOTER */
+footer{background:var(--gray-dark);padding:48px 24px 24px;}
+.footer-inner{max-width:1200px;margin:0 auto;}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:40px;}
+.footer-brand img{height:36px;margin-bottom:12px;filter:brightness(0) invert(1);}
+.footer-brand p{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;margin-top:8px;}
+.footer-col h4{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:16px;}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none;margin-bottom:8px;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;display:flex;justify-content:space-between;align-items:center;}
+.footer-bottom p{font-size:12px;color:rgba(255,255,255,0.3);}
+/* MOBILE CALL BAR */
+.mobile-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--orange);}
+.mobile-bar a{display:flex;align-items:center;justify-content:center;gap:10px;color:#fff;font-size:16px;font-weight:800;padding:16px;text-decoration:none;font-family:'Montserrat',sans-serif;}
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;}
+  .about-grid,.footer-top{grid-template-columns:1fr;}
+  .services-grid,.why-grid,.reviews-grid,.areas-grid{grid-template-columns:1fr 1fr;}
+  .process-steps{grid-template-columns:1fr 1fr;}
+  .process-steps::before{display:none;}
+  .hero h1{font-size:32px;}
+  .section-title{font-size:28px;}
+}
+@media(max-width:600px){
+  .services-grid,.why-grid,.reviews-grid,.areas-grid,.process-steps{grid-template-columns:1fr;}
+  .nav-links{display:none;}
+  .mobile-bar{display:block;}
+  body{padding-bottom:60px;}
+  .topbar{display:none;}
+  .about-stats{grid-template-columns:1fr 1fr;}
+}
+</style>
 </head>
 <body>
-  <nav>
-    <div class="logo">${clientName}</div>
-    ${phone ? `<a href="tel:${phone}">${phone}</a>` : ''}
-  </nav>
-  <div class="hero">
-    <h1>${clientName}</h1>
-    <p>${t.tagline}</p>
-    <a href="#contact" class="cta-btn">${t.cta} →</a>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <span class="topbar-left">Serving ${city} & Central Florida · ${phone || 'Call for Free Estimate'}</span>
+  <div class="topbar-right"><a href="#contact">${c.ctaText} →</a></div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <img src="${logoSrc}" alt="${clientName}"/>
+    </div>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#about">About</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#faq">FAQ</a>
+      <a href="#areas">Areas</a>
+    </div>
+    <div class="nav-cta"><a href="#contact">${phone || c.ctaText}</a></div>
   </div>
-  ${phone ? `<div class="phone-bar"><a href="tel:${phone}">📞 Llámanos: ${phone}</a></div>` : ''}
-  <div class="services">
-    <h2>¿Por qué elegirnos?</h2>
-    <div class="grid">
-      <div class="srv"><div class="icon">⭐</div><h3>${t.service1}</h3><p>Calidad y experiencia en cada servicio que ofrecemos.</p></div>
-      <div class="srv"><div class="icon">🏆</div><h3>${t.service2}</h3><p>Nos destacamos por nuestros estándares de excelencia.</p></div>
-      <div class="srv"><div class="icon">💯</div><h3>${t.service3}</h3><p>Tu satisfacción es nuestra prioridad número uno.</p></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">#1 ${industry} in ${city}, FL</div>
+      <h1>${c.heroTitle}</h1>
+      <p class="hero-sub">${c.heroSubtitle}</p>
+      <div class="hero-badges">
+        ${c.trustItems.map(t => `<div class="hero-badge">✓ ${t}</div>`).join('\n        ')}
+      </div>
+      ${phone ? `<div class="hero-phone"><a href="tel:${phoneClean}">📞 ${phone}</a></div>` : ''}
+    </div>
+    <div class="form-card" id="contact">
+      <h3>Get Your Free Estimate</h3>
+      <p>No obligation · Fast response · Serving ${city}</p>
+      <iframe src="https://link.msgsndr.com/widget/form/${formId}" title="Contact Form" loading="lazy"></iframe>
     </div>
   </div>
-  <div class="contact" id="contact">
-    <h2>Contáctanos hoy</h2>
-    <p>Estamos listos para ayudarte. Escríbenos y te respondemos en minutos.</p>
-    <form onsubmit="return false;">
-      <input type="text" placeholder="Tu nombre" />
-      <input type="tel" placeholder="Tu teléfono" />
-      <input type="email" placeholder="Tu email" />
-      <textarea placeholder="¿Cómo podemos ayudarte?"></textarea>
-      <button type="submit">${t.cta} →</button>
-    </form>
+</section>
+
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+  <div class="trust-inner">
+    ${c.trustItems.map((t, i) => `<div class="trust-item"><div class="trust-icon">${['✓','★','⚡','🛡','📞'][i] || '✓'}</div><span>${t}</span></div>`).join('\n    ')}
   </div>
-  <footer>© 2026 ${clientName}. Powered by JRZ Marketing · jrzmarketing.com</footer>
+</div>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div>
+        <div class="section-label">About Us</div>
+        <h2 class="section-title">${c.tagline}</h2>
+        <p class="section-sub">${c.aboutText}</p>
+        <div class="about-stats">
+          ${c.stats.map(s => `<div class="stat-box"><div class="stat-num">${s.num}</div><div class="stat-label">${s.label}</div></div>`).join('\n          ')}
+        </div>
+      </div>
+      <div class="about-img">
+        <div class="about-img-inner">
+          <span class="big-icon">🏆</span>
+          <p>Trusted by hundreds of ${city} families and businesses</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section section-bg" id="services">
+  <div class="section-inner">
+    <div class="section-label">Our Services</div>
+    <h2 class="section-title">What We Do Best</h2>
+    <div class="services-grid">
+      ${c.services.map(s => `
+      <div class="srv-card">
+        <div class="srv-icon">${s.icon}</div>
+        <h3>${s.name}</h3>
+        <p>${s.desc}</p>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="section-dark">
+  <div class="section-inner">
+    <div class="section-label" style="color:var(--orange);">Why Choose Us</div>
+    <h2 class="section-title" style="color:#fff;">The ${clientName} Difference</h2>
+    <div class="why-grid">
+      ${c.whyCards.map((w, i) => `
+      <div class="why-card">
+        <div class="why-icon">${['🎯','💰','🛡️','📞'][i] || '⭐'}</div>
+        <h3>${w.title}</h3>
+        <p>${w.desc}</p>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="section" id="process">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:0;">
+      <div class="section-label" style="text-align:center;">How It Works</div>
+      <h2 class="section-title" style="text-align:center;">Simple Process, Exceptional Results</h2>
+    </div>
+    <div class="process-steps">
+      ${c.processSteps.map(s => `
+      <div class="step">
+        <div class="step-num">${s.num}</div>
+        <h3>${s.title}</h3>
+        <p>${s.desc}</p>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="section section-bg" id="reviews">
+  <div class="section-inner">
+    <div class="section-label">Client Reviews</div>
+    <h2 class="section-title">What Our Clients Say</h2>
+    <div class="reviews-grid">
+      ${c.reviews.map(r => `
+      <div class="review-card">
+        <div class="review-stars">${stars(r.stars)}</div>
+        <p class="review-text">"${r.text}"</p>
+        <div class="review-author">— ${r.name}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="section-inner">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <div class="faq-list">
+      ${c.faqs.map((f, i) => `
+      <div class="faq-item${i === 0 ? ' open' : ''}">
+        <div class="faq-q" onclick="toggleFaq(this.parentElement)">${f.q}</div>
+        <div class="faq-a">${f.a}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- SERVICE AREAS -->
+<section class="section section-bg" id="areas">
+  <div class="section-inner">
+    <div class="section-label">Service Areas</div>
+    <h2 class="section-title">Proudly Serving Central Florida</h2>
+    <div class="areas-grid">
+      ${c.areas.map(a => `<div class="area-item">${a}</div>`).join('\n      ')}
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner">
+  <h2>Ready to Get Started?</h2>
+  <p>Contact ${clientName} today — free estimates, fast response, guaranteed results.</p>
+  <a href="#contact">${c.ctaText} →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="${logoSrc}" alt="${clientName}"/>
+        <p>${c.tagline}<br/>Serving ${city} and Central Florida.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        ${c.services.map(s => `<a href="#services">${s.name}</a>`).join('\n        ')}
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        ${phone ? `<a href="tel:${phoneClean}">${phone}</a>` : ''}
+        ${email ? `<a href="mailto:${email}">${email}</a>` : ''}
+        <a href="#contact">Get Free Estimate</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 ${clientName}. All rights reserved.</p>
+      <p>Powered by <strong>JRZ Marketing</strong> · jrzmarketing.com</p>
+    </div>
+  </div>
+</footer>
+
+<!-- STICKY MOBILE CALL BAR -->
+${phone ? `<div class="mobile-bar"><a href="tel:${phoneClean}">📞 Call Now — ${phone}</a></div>` : ''}
+
+<script src="https://link.msgsndr.com/js/form_embed.js"></script>
+<script>
+function toggleFaq(el){el.classList.toggle('open');}
+</script>
 </body>
 </html>`;
 }
 
-async function createGHLLandingPage(locationId, clientName, industry, phone = '', email = '') {
+async function createGHLLandingPage(locationId, clientName, industry, phone = '', email = '', city = 'Orlando', logoUrl = '', formId = '5XhL0vWCuJ59HWHQoHGG') {
   const headers = { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' };
-  const pageHTML = buildLandingHTML(clientName, phone, email, industry, locationId);
+  console.log(`[Sofia] Generating professional landing page for ${clientName} (${industry}, ${city})...`);
+  const pageHTML = await buildLandingHTML(clientName, phone, email, city, industry, logoUrl, formId);
 
   // Create funnel in the subaccount
   const funnelRes = await axios.post('https://services.leadconnectorhq.com/funnels/', {
@@ -6539,22 +6909,107 @@ async function runSofiaOnboardingCheck() {
   }
 }
 
+// ─── Sofia: Continuous Uptime Monitor (every 6 hours) ────
+const sofiaDowntimeState = {}; // { locationId: { url, downSince, alertedAt } }
+
+async function runSofiaUptimeMonitor() {
+  console.log('[Sofia] Running 6-hour uptime check...');
+  try {
+    const clients = await getElenaClients();
+    const downtimeAlerts = [];
+
+    await Promise.all(clients.map(async (client) => {
+      const overrides = ELENA_CLIENT_OVERRIDES[client.locationId] || {};
+      const url = overrides.website;
+      if (!url) return;
+
+      try {
+        const start = Date.now();
+        const res = await axios.get(url, { timeout: 10000, validateStatus: () => true, maxRedirects: 5 });
+        const elapsed = Date.now() - start;
+        const isDown = res.status >= 500 || res.status === 0;
+        const isSlow = elapsed > 5000;
+
+        if (isDown) {
+          if (!sofiaDowntimeState[client.locationId]) {
+            sofiaDowntimeState[client.locationId] = { url, downSince: new Date().toISOString(), alertedAt: null };
+          }
+          const state = sofiaDowntimeState[client.locationId];
+          const now = Date.now();
+          // Alert only once per 6 hours per site
+          if (!state.alertedAt || now - new Date(state.alertedAt).getTime() > 6 * 60 * 60 * 1000) {
+            state.alertedAt = new Date().toISOString();
+            downtimeAlerts.push({ name: client.name, url, status: res.status, downSince: state.downSince });
+          }
+        } else if (isSlow) {
+          downtimeAlerts.push({ name: client.name, url, status: res.status, slowMs: elapsed, type: 'slow' });
+          delete sofiaDowntimeState[client.locationId];
+        } else {
+          delete sofiaDowntimeState[client.locationId]; // recovered
+        }
+      } catch {
+        if (!sofiaDowntimeState[client.locationId]) {
+          sofiaDowntimeState[client.locationId] = { url, downSince: new Date().toISOString(), alertedAt: null };
+          downtimeAlerts.push({ name: client.name, url, status: 'unreachable', downSince: sofiaDowntimeState[client.locationId].downSince });
+        }
+      }
+    }));
+
+    if (!downtimeAlerts.length) { console.log('[Sofia] All monitored sites are up.'); return; }
+
+    const rows = downtimeAlerts.map(a =>
+      a.type === 'slow'
+        ? `<tr><td style="padding:10px;font-weight:600;">${a.name}</td><td><a href="${a.url}">${a.url}</a></td><td style="color:#f59e0b;">⚠️ Slow (${(a.slowMs/1000).toFixed(1)}s)</td></tr>`
+        : `<tr><td style="padding:10px;font-weight:600;">${a.name}</td><td><a href="${a.url}">${a.url}</a></td><td style="color:#dc2626;">🔴 Down (HTTP ${a.status})</td></tr>`
+    ).join('');
+
+    const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;background:#fff;padding:32px;">
+<h2 style="color:#dc2626;">🚨 Sofia — Site Alert</h2>
+<p style="color:#666;margin-bottom:20px;">${downtimeAlerts.length} client site(s) need attention right now.</p>
+<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+<thead><tr style="background:#1a3a6b;color:#fff;"><th style="padding:12px;text-align:left;">Client</th><th>URL</th><th>Status</th></tr></thead>
+<tbody>${rows}</tbody></table>
+<p style="margin-top:20px;font-size:12px;color:#999;">Sofia checks all client sites every 6 hours — JRZ Marketing</p>
+</body></html>`;
+
+    await sendEmail(OWNER_CONTACT_ID, `🚨 Sofia: ${downtimeAlerts.length} Site(s) Down/Slow`, html);
+    console.log(`[Sofia] Uptime alert sent — ${downtimeAlerts.length} issues found`);
+  } catch (err) {
+    console.error('[Sofia] Uptime monitor error:', err.message);
+  }
+}
+
 // ─── Sofia endpoints ──────────────────────────────────────
 
 app.post('/sofia/build-page', async (req, res) => {
   try {
-    const { locationId, industry } = req.body;
+    const { locationId, industry, city, formId } = req.body;
     if (!locationId) return res.status(400).json({ status: 'error', message: 'locationId required' });
     const locRes = await axios.get(`https://services.leadconnectorhq.com/locations/${locationId}`, {
       headers: { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28' }, timeout: 8000,
     });
-    const loc  = locRes.data?.location || locRes.data;
-    const name = loc?.name || loc?.business?.name || 'Client';
-    const ind  = industry || ELENA_CLIENT_OVERRIDES[locationId]?.industry || 'business';
-    const result = await createGHLLandingPage(locationId, name, ind, loc?.phone || '', loc?.email || '');
+    const loc    = locRes.data?.location || locRes.data;
+    const name   = loc?.name || loc?.business?.name || 'Client';
+    const ind    = industry || ELENA_CLIENT_OVERRIDES[locationId]?.industry || 'business';
+    const locCity = city || loc?.city || 'Orlando';
+    const logo   = loc?.logoUrl || loc?.logo || '';
+    const result = await createGHLLandingPage(locationId, name, ind, loc?.phone || '', loc?.email || '', locCity, logo, formId);
     res.json({ status: 'ok', funnelId: result.funnelId, stepCreated: result.stepCreated, message: `Landing page created for ${name}` });
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// GET /sofia/preview-page?industry=water+damage+restoration&city=Orlando&name=Test+Co&phone=4078446376
+// Returns the full HTML directly in the browser for visual testing
+app.get('/sofia/preview-page', async (req, res) => {
+  try {
+    const { industry = 'water damage restoration', city = 'Orlando', name = 'Test Company', phone = '(407) 844-6376', email = '', formId } = req.query;
+    const html = await buildLandingHTML(name, phone, email, city, industry, '', formId);
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  } catch (err) {
+    res.status(500).send(`<pre>Error: ${err.message}</pre>`);
   }
 });
 
@@ -6585,6 +7040,84 @@ app.post('/sofia/full-audit', async (req, res) => {
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
   }
+});
+
+// POST /sofia/competitor-report — compare a client's site against top 3 local competitors
+// Body: { url, clientName, industry, city }
+app.post('/sofia/competitor-report', async (req, res) => {
+  try {
+    const { url, clientName, industry = 'business', city = 'Orlando' } = req.body;
+    if (!url || !clientName) return res.status(400).json({ status: 'error', message: 'url and clientName required' });
+
+    const SERPAPI_KEY = process.env.SERPAPI_KEY;
+    if (!SERPAPI_KEY) return res.status(503).json({ status: 'error', message: 'SERPAPI_KEY not configured' });
+
+    // Fetch top 3 organic competitor URLs
+    const serpRes = await axios.get('https://serpapi.com/search.json', {
+      params: { engine: 'google', q: `${industry} ${city} FL`, hl: 'en', gl: 'us', num: 10, api_key: SERPAPI_KEY },
+      timeout: 15000,
+    });
+    const organic = (serpRes.data?.organic_results || [])
+      .map(r => r.link)
+      .filter(l => l && !l.includes('yelp.com') && !l.includes('facebook.com') && !l.includes('google.com'))
+      .slice(0, 3);
+
+    // Audit client + competitors in parallel
+    const [clientAudit, ...competitorAudits] = await Promise.all([
+      runSofiaFullAudit(url, clientName, industry),
+      ...organic.map((u, i) => runSofiaFullAudit(u, `Competitor ${i + 1}`, industry).catch(() => null)),
+    ]);
+
+    // Claude comparison summary
+    const compData = competitorAudits.filter(Boolean).map((a, i) => ({
+      name: `Competitor ${i + 1}`,
+      url: organic[i],
+      score: a.score,
+      grade: a.grade,
+      title: a.title,
+      hasCTA: a.hasCTA,
+      hasPhone: a.hasPhone,
+      ssl: a.ssl,
+      speed: a.responseTime,
+    }));
+
+    const avgCompScore = compData.length ? Math.round(compData.reduce((s, c) => s + c.score, 0) / compData.length) : 0;
+    const clientScore  = clientAudit?.score || 0;
+
+    let aiSummary = '';
+    try {
+      const aiRes = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 500,
+        messages: [{ role: 'user', content: `You are Sofia, a web designer at JRZ Marketing. Compare these websites:
+
+Client: ${clientName} — Score: ${clientScore}/100, Grade: ${clientAudit?.grade}, SSL: ${clientAudit?.ssl}, Speed: ${clientAudit?.responseTime}ms, CTA: ${clientAudit?.hasCTA}
+
+Competitors:
+${compData.map(c => `${c.name} (${c.url}): Score ${c.score}/100, Speed ${c.speed}ms, CTA ${c.hasCTA}`).join('\n')}
+
+Write a 4-6 sentence competitive analysis for Jose (agency owner). Focus on: where client ranks, what competitors do better, and the top 3 actionable wins for ${clientName}. Be direct and specific.` }],
+      });
+      aiSummary = aiRes.content[0].text.trim();
+    } catch { aiSummary = `${clientName} scored ${clientScore}/100 vs competitor avg of ${avgCompScore}/100.`; }
+
+    res.json({
+      status: 'ok',
+      client: { name: clientName, url, score: clientScore, grade: clientAudit?.grade },
+      competitors: compData,
+      avgCompetitorScore: avgCompScore,
+      clientVsAvg: clientScore - avgCompScore,
+      analysis: aiSummary,
+    });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// GET /sofia/uptime — manual trigger for uptime monitor
+app.post('/sofia/uptime-check', async (_req, res) => {
+  runSofiaUptimeMonitor();
+  res.json({ status: 'ok', message: 'Sofia uptime monitor running' });
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -6618,8 +7151,8 @@ let lastDiegoStandupDate    = null;
 let lastMarcoContentDate    = null;
 let lastMarcoTrendDate      = null;
 let lastSofiaCheckDate      = null;
-let lastSofiaOnboardDate    = null;
 let lastSofiaCRODate        = null;
+let lastSofiaMonitorHour    = -1; // tracks last 6-hour slot (0, 6, 12, 18)
 
 setInterval(async () => {
   try {
@@ -6686,11 +7219,18 @@ setInterval(async () => {
       runMarcoTrendAlert(); // non-blocking
     }
 
-    // 9:45am Monday — Sofia: weekly website health check + onboarding scan
+    // 9:45am Monday — Sofia: weekly full website health check + onboarding scan
     if (hour === 9 && minute >= 45 && minute < 50 && dayOfWeek === 1 && lastSofiaCheckDate !== today) {
       lastSofiaCheckDate = today;
       runSofiaWeeklyCheck();    // non-blocking
       runSofiaOnboardingCheck(); // non-blocking — detects new clients
+    }
+
+    // Every 6 hours (0am, 6am, 12pm, 6pm) — Sofia: lightweight uptime monitor
+    const sixHourSlot = Math.floor(hour / 6);
+    if (minute < 3 && sixHourSlot !== lastSofiaMonitorHour) {
+      lastSofiaMonitorHour = sixHourSlot;
+      runSofiaUptimeMonitor(); // non-blocking — alerts Jose only if site goes down
     }
 
     // 1st of month, 9:55am — Sofia: monthly CRO report
