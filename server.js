@@ -6181,6 +6181,412 @@ app.post('/sofia/website-check', async (_req, res) => {
   }
 });
 
+// ─── Sofia: Full SEO + Mobile + Copy Audit ───────────────
+
+async function runSofiaFullAudit(url, clientName, industry) {
+  const base = await checkWebsite(url);
+  if (!base) return null;
+
+  const html = base.up ? await axios.get(url.startsWith('http') ? url : `https://${url}`, {
+    timeout: 12000, headers: { 'User-Agent': 'Mozilla/5.0' }, validateStatus: () => true,
+  }).then(r => typeof r.data === 'string' ? r.data : '').catch(() => '') : '';
+
+  // SEO checks
+  const h1s     = (html.match(/<h1[^>]*>([^<]+)<\/h1>/gi) || []).map(h => h.replace(/<[^>]+>/g, '').trim());
+  const h2s     = (html.match(/<h2[^>]*>([^<]+)<\/h2>/gi) || []).length;
+  const imgs    = (html.match(/<img[^>]+>/gi) || []);
+  const alts    = imgs.filter(i => /alt=["'][^"']+["']/i.test(i)).length;
+  const hasCanon = /<link[^>]+rel=["']canonical["']/i.test(html);
+  const hasView  = /<meta[^>]+name=["']viewport["']/i.test(html);
+  const hasOG    = /<meta[^>]+property=["']og:/i.test(html);
+
+  // Score 0-100
+  let score = 0;
+  if (base.up)                 score += 20;
+  if (base.ssl)                score += 10;
+  if (base.responseTime < 2000) score += 10; else if (base.responseTime < 4000) score += 5;
+  if (base.title)              score += 10;
+  if (base.description)        score += 10;
+  if (h1s.length === 1)        score += 10;
+  if (h2s >= 2)                score += 5;
+  if (imgs.length && alts === imgs.length) score += 5;
+  if (hasCanon)                score += 5;
+  if (hasView)                 score += 5;
+  if (base.hasCTA)             score += 5;
+  if (base.hasPhone)           score += 5;
+  const grade = score >= 85 ? 'A' : score >= 70 ? 'B' : score >= 50 ? 'C' : score >= 30 ? 'D' : 'F';
+
+  // Claude: copy analysis + rewrites
+  let copyAnalysis = null;
+  if (base.up && (base.title || h1s.length)) {
+    try {
+      const aiRes = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 400,
+        messages: [{ role: 'user', content: `Eres Sofia, Web Designer de JRZ Marketing. Analiza la copy de este sitio web para "${clientName}" (${industry}) y sugiere mejoras concretas.\n\nTitle: ${base.title || 'missing'}\nH1: ${h1s[0] || 'missing'}\nDescription: ${base.description || 'missing'}\nTiene CTA: ${base.hasCTA}\nTiene teléfono: ${base.hasPhone}\n\nResponde SOLO con JSON: {"headlineRewrite": "versión mejorada del H1", "ctaRewrite": "mejor CTA para su industria", "descriptionRewrite": "meta description mejorada (max 155 chars)", "topIssue": "el problema más importante de la copy en una oración"}` }],
+      });
+      copyAnalysis = JSON.parse(aiRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+    } catch { /* skip */ }
+  }
+
+  return { ...base, h1s, h2Count: h2s, imgCount: imgs.length, altCount: alts, hasCanon, hasViewport: hasView, hasOG, score, grade, copyAnalysis };
+}
+
+// ─── Sofia: Monthly CRO Report ────────────────────────────
+
+async function runSofiaCROReport() {
+  console.log('[Sofia] Building monthly CRO report...');
+  const logoUrl  = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  const month    = new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+  const clients  = await getElenaClients();
+  const results  = [];
+
+  for (const client of clients) {
+    try {
+      const locRes = await axios.get(`https://services.leadconnectorhq.com/locations/${client.locationId}`, {
+        headers: { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28' }, timeout: 8000,
+      });
+      const loc = locRes.data?.location || locRes.data;
+      const url = loc?.website || loc?.business?.website;
+      if (!url) { results.push({ name: client.name, url: null, score: null, grade: 'N/A', noSite: true }); continue; }
+
+      const audit = await runSofiaFullAudit(url, client.name, client.industry);
+      if (audit) results.push({ name: client.name, url, ...audit });
+      await new Promise(r => setTimeout(r, 1200));
+    } catch (err) {
+      console.error(`[Sofia CRO] Error for ${client.name}:`, err.message);
+    }
+  }
+
+  const graded  = results.filter(r => r.grade && r.grade !== 'N/A');
+  const noSite  = results.filter(r => r.noSite);
+  const avgScore = graded.length ? Math.round(graded.reduce((s, r) => s + r.score, 0) / graded.length) : 0;
+
+  const gradeColor = { A: '#16a34a', B: '#4ade80', C: '#d97706', D: '#f97316', F: '#dc2626', 'N/A': '#bbb' };
+  const gradeBg    = { A: '#f0fdf4', B: '#f0fdf4', C: '#fff8f0', D: '#fff4ee', F: '#fef2f2', 'N/A': '#f9f9f9' };
+
+  const rows = results.sort((a, b) => (a.score || 0) - (b.score || 0)).map(r => {
+    if (r.noSite) return `<tr style="border-bottom:1px solid #f9f9f9;"><td style="padding:10px 14px;font-size:13px;color:#0a0a0a;">${r.name}</td><td colspan="5" style="padding:10px 14px;font-size:12px;color:#bbb;">Sin sitio web registrado en GHL</td></tr>`;
+    const copy = r.copyAnalysis;
+    return `<tr style="border-bottom:1px solid #f5f5f5;">
+      <td style="padding:11px 14px;font-size:13px;font-weight:600;color:#0a0a0a;">${r.name}</td>
+      <td style="padding:11px 14px;text-align:center;"><span style="background:${gradeBg[r.grade]};color:${gradeColor[r.grade]};font-weight:800;font-size:14px;padding:2px 10px;border-radius:8px;">${r.grade}</span></td>
+      <td style="padding:11px 14px;text-align:center;font-size:13px;color:#555;">${r.score}/100</td>
+      <td style="padding:11px 14px;font-size:12px;color:#dc2626;">${r.issues?.[0] || (r.grade === 'A' ? '✓' : '—')}</td>
+      <td style="padding:11px 14px;font-size:12px;color:#555;font-style:italic;">${copy?.topIssue || '—'}</td>
+      <td style="padding:11px 14px;font-size:12px;color:#0a0a0a;">${copy?.headlineRewrite ? `"${copy.headlineRewrite.slice(0,50)}..."` : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="es"><head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:#f4f4f4; }
+    .wrap { padding:40px 20px; }
+    .card { max-width:760px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+    .hdr { background:#0a0a0a; padding:26px 36px; display:flex; align-items:center; justify-content:space-between; }
+    .hdr img { height:36px; } .hdr span { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.45); font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; padding:5px 12px; border-radius:100px; }
+    .hero { background:#0a0a0a; padding:28px 36px 36px; border-bottom:3px solid #fff; }
+    .hero h1 { font-size:22px; font-weight:800; color:#fff; margin-bottom:6px; }
+    .hero p { font-size:12px; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.08em; }
+    .stats { display:flex; border-bottom:1px solid #f0f0f0; }
+    .stat { flex:1; padding:16px 12px; text-align:center; border-right:1px solid #f0f0f0; } .stat:last-child { border-right:none; }
+    .stat-num { font-size:26px; font-weight:800; color:#0a0a0a; } .stat-lbl { font-size:10px; font-weight:700; color:#bbb; text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; }
+    .body { padding:28px 36px 36px; }
+    .sec-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#999; margin-bottom:14px; }
+    table { width:100%; border-collapse:collapse; }
+    .ftr { background:#0a0a0a; padding:22px 36px; display:flex; align-items:center; justify-content:space-between; }
+    .ftr img { height:22px; opacity:0.45; } .ftr p { font-size:11px; color:rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body><div class="wrap"><div class="card">
+  <div class="hdr"><img src="${logoUrl}"/><span>Sofia · CRO Report ${month}</span></div>
+  <div class="hero"><h1>Reporte CRO Mensual</h1><p>Conversión · SEO · Copy · Mobile — ${month}</p></div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">${graded.length}</div><div class="stat-lbl">Sitios Auditados</div></div>
+    <div class="stat"><div class="stat-num">${avgScore}</div><div class="stat-lbl">Score Promedio</div></div>
+    <div class="stat"><div class="stat-num" style="color:#16a34a;">${graded.filter(r=>r.grade==='A'||r.grade==='B').length}</div><div class="stat-lbl">A / B Grade</div></div>
+    <div class="stat"><div class="stat-num" style="color:#dc2626;">${graded.filter(r=>r.grade==='D'||r.grade==='F').length}</div><div class="stat-lbl">D / F Urgente</div></div>
+    <div class="stat"><div class="stat-num">${noSite.length}</div><div class="stat-lbl">Sin Sitio</div></div>
+  </div>
+  <div class="body">
+    <p class="sec-title">Todos los clientes — ordenados por score (peor → mejor)</p>
+    <table>
+      <thead><tr style="background:#f9f9f9;">
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Cliente</th>
+        <th style="padding:10px 14px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Nota</th>
+        <th style="padding:10px 14px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Score</th>
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Problema #1</th>
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Copy Issue</th>
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Headline Sugerido</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+  <div class="ftr"><img src="${logoUrl}"/><p>Sofia — JRZ Marketing AI Web Designer</p></div>
+</div></div></body></html>`;
+
+  await sendEmail(OWNER_CONTACT_ID, `🏆 Sofia: CRO Report ${month} — Score Promedio: ${avgScore}/100`, html);
+  console.log(`[Sofia] ✅ CRO report sent. Avg score: ${avgScore}. D/F sites: ${graded.filter(r=>r.grade==='D'||r.grade==='F').length}`);
+}
+
+// ─── Sofia: GHL Landing Page Creator ─────────────────────
+
+function buildLandingHTML(clientName, phone, email, industry, locationId) {
+  const industryMap = {
+    restaurant: { tagline: 'Auténtica comida, sabores que enamoran', cta: 'Haz tu reservación', service1: 'Menú variado', service2: 'Ambiente único', service3: 'Atención personalizada' },
+    barbershop: { tagline: 'El mejor corte de tu vida, garantizado', cta: 'Reserva tu cita', service1: 'Cortes modernos', service2: 'Afeitado clásico', service3: 'Tratamientos capilares' },
+    'tattoo studio': { tagline: 'Arte permanente, calidad sin igual', cta: 'Agenda tu consulta', service1: 'Diseño personalizado', service2: 'Artistas certificados', service3: 'Ambiente seguro y limpio' },
+    'auto detailing': { tagline: 'Tu carro como nuevo, cada vez', cta: 'Agenda tu servicio', service1: 'Detailing completo', service2: 'Protección de pintura', service3: 'Interior profundo' },
+    'fitness / gym': { tagline: 'Transforma tu cuerpo, transforma tu vida', cta: 'Empieza hoy gratis', service1: 'Entrenamiento personalizado', service2: 'Clases grupales', service3: 'Nutrición y plan de dieta' },
+    'med spa / skincare': { tagline: 'Cuida tu piel, invierte en ti', cta: 'Reserva tu consulta', service1: 'Tratamientos faciales', service2: 'Rejuvenecimiento', service3: 'Cuidado corporal' },
+    'real estate': { tagline: 'Tu próxima casa te está esperando', cta: 'Habla con un agente', service1: 'Compra y venta', service2: 'Evaluación gratuita', service3: 'Financiamiento' },
+    'credit repair': { tagline: 'Repara tu crédito, abre nuevas puertas', cta: 'Consulta gratis', service1: 'Disputa de errores', service2: 'Plan personalizado', service3: 'Resultados garantizados' },
+    construction: { tagline: 'Construimos tus sueños con calidad', cta: 'Pide tu presupuesto', service1: 'Remodelación', service2: 'Construcción nueva', service3: 'Diseño de interiores' },
+  };
+  const t = industryMap[industry] || { tagline: 'Servicio profesional de calidad', cta: 'Contáctanos hoy', service1: 'Servicio premium', service2: 'Atención personalizada', service3: 'Resultados garantizados' };
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>${clientName}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Anton&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:#fff;color:#0a0a0a;}
+    nav{background:#0a0a0a;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;}
+    nav .logo{font-family:'Anton',sans-serif;font-size:22px;color:#fff;letter-spacing:0.05em;}
+    nav a{color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;font-weight:600;}
+    .hero{background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%);padding:80px 32px;text-align:center;}
+    .hero h1{font-family:'Anton',sans-serif;font-size:48px;color:#fff;line-height:1.1;margin-bottom:16px;letter-spacing:0.03em;}
+    .hero p{font-size:18px;color:rgba(255,255,255,0.6);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto;}
+    .cta-btn{display:inline-block;background:#8A9BA8;color:#fff;font-size:16px;font-weight:700;padding:18px 40px;border-radius:10px;text-decoration:none;letter-spacing:0.02em;}
+    .services{padding:64px 32px;max-width:900px;margin:0 auto;}
+    .services h2{font-size:28px;font-weight:800;text-align:center;margin-bottom:40px;}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+    @media(max-width:600px){.grid{grid-template-columns:1fr;}.hero h1{font-size:32px;}}
+    .srv{background:#f9f9f9;border-radius:14px;padding:28px 24px;text-align:center;}
+    .srv .icon{font-size:32px;margin-bottom:12px;}
+    .srv h3{font-size:16px;font-weight:700;margin-bottom:8px;}
+    .srv p{font-size:14px;color:#666;line-height:1.5;}
+    .contact{background:#0a0a0a;padding:64px 32px;text-align:center;}
+    .contact h2{font-size:28px;font-weight:800;color:#fff;margin-bottom:8px;}
+    .contact p{font-size:15px;color:rgba(255,255,255,0.5);margin-bottom:32px;}
+    .contact form{max-width:420px;margin:0 auto;}
+    .contact input,.contact textarea{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:14px 16px;color:#fff;font-size:14px;margin-bottom:12px;font-family:'Inter',sans-serif;}
+    .contact textarea{height:100px;resize:none;}
+    .contact input::placeholder,.contact textarea::placeholder{color:rgba(255,255,255,0.3);}
+    .contact button{width:100%;background:#8A9BA8;color:#fff;font-size:15px;font-weight:700;padding:16px;border:none;border-radius:10px;cursor:pointer;}
+    .phone-bar{background:#8A9BA8;padding:16px 32px;text-align:center;}
+    .phone-bar a{color:#fff;font-size:18px;font-weight:800;text-decoration:none;letter-spacing:0.05em;}
+    footer{background:#050505;padding:24px 32px;text-align:center;font-size:12px;color:rgba(255,255,255,0.2);}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">${clientName}</div>
+    ${phone ? `<a href="tel:${phone}">${phone}</a>` : ''}
+  </nav>
+  <div class="hero">
+    <h1>${clientName}</h1>
+    <p>${t.tagline}</p>
+    <a href="#contact" class="cta-btn">${t.cta} →</a>
+  </div>
+  ${phone ? `<div class="phone-bar"><a href="tel:${phone}">📞 Llámanos: ${phone}</a></div>` : ''}
+  <div class="services">
+    <h2>¿Por qué elegirnos?</h2>
+    <div class="grid">
+      <div class="srv"><div class="icon">⭐</div><h3>${t.service1}</h3><p>Calidad y experiencia en cada servicio que ofrecemos.</p></div>
+      <div class="srv"><div class="icon">🏆</div><h3>${t.service2}</h3><p>Nos destacamos por nuestros estándares de excelencia.</p></div>
+      <div class="srv"><div class="icon">💯</div><h3>${t.service3}</h3><p>Tu satisfacción es nuestra prioridad número uno.</p></div>
+    </div>
+  </div>
+  <div class="contact" id="contact">
+    <h2>Contáctanos hoy</h2>
+    <p>Estamos listos para ayudarte. Escríbenos y te respondemos en minutos.</p>
+    <form onsubmit="return false;">
+      <input type="text" placeholder="Tu nombre" />
+      <input type="tel" placeholder="Tu teléfono" />
+      <input type="email" placeholder="Tu email" />
+      <textarea placeholder="¿Cómo podemos ayudarte?"></textarea>
+      <button type="submit">${t.cta} →</button>
+    </form>
+  </div>
+  <footer>© 2026 ${clientName}. Powered by JRZ Marketing · jrzmarketing.com</footer>
+</body>
+</html>`;
+}
+
+async function createGHLLandingPage(locationId, clientName, industry, phone = '', email = '') {
+  const headers = { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' };
+  const pageHTML = buildLandingHTML(clientName, phone, email, industry, locationId);
+
+  // Create funnel in the subaccount
+  const funnelRes = await axios.post('https://services.leadconnectorhq.com/funnels/', {
+    name: `${clientName} — Landing Page`,
+    type: 'funnel',
+    locationId,
+  }, { headers, timeout: 15000 });
+
+  const funnelId = funnelRes.data?.funnel?.id || funnelRes.data?.id;
+  if (!funnelId) throw new Error('Funnel creation returned no ID');
+
+  // Add a page step to the funnel
+  const stepRes = await axios.post(`https://services.leadconnectorhq.com/funnels/${funnelId}/steps`, {
+    name: 'Main Page',
+    type: 'optin_page',
+    sequence: 0,
+    pageContent: pageHTML,
+  }, { headers, timeout: 15000 }).catch(() => null); // non-fatal if step API differs
+
+  console.log(`[Sofia] Created GHL funnel for ${clientName}: ${funnelId}`);
+  return { funnelId, stepCreated: !!stepRes, pageHTML };
+}
+
+// ─── Sofia: New Client Onboarding Check ──────────────────
+
+const SOFIA_CLIENTS_SNAPSHOT_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/sofia_clients_snapshot.json';
+const SOFIA_CLIENTS_SNAPSHOT_PID = 'jrz/sofia_clients_snapshot';
+
+async function loadSofiaClientsSnapshot() {
+  try {
+    const res = await axios.get(SOFIA_CLIENTS_SNAPSHOT_URL + '?t=' + Date.now(), { timeout: 8000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch { return {}; }
+}
+
+async function saveSofiaClientsSnapshot(data) {
+  const ts  = Math.floor(Date.now() / 1000);
+  const sig = crypto.createHash('sha1').update(`overwrite=true&public_id=${SOFIA_CLIENTS_SNAPSHOT_PID}&timestamp=${ts}${CLOUDINARY_API_SECRET}`).digest('hex');
+  const form = new FormData();
+  form.append('file', Buffer.from(JSON.stringify(data, null, 2)), { filename: 'sofia_clients_snapshot.json', contentType: 'application/json' });
+  form.append('public_id', SOFIA_CLIENTS_SNAPSHOT_PID);
+  form.append('resource_type', 'raw');
+  form.append('timestamp', String(ts));
+  form.append('api_key', CLOUDINARY_API_KEY);
+  form.append('signature', sig);
+  form.append('overwrite', 'true');
+  await axios.post(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`, form, { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 30000 });
+}
+
+async function runSofiaOnboardingCheck() {
+  console.log('[Sofia] Running new client onboarding check...');
+  const [currentClients, prevSnapshot] = await Promise.all([getElenaClients(), loadSofiaClientsSnapshot()]);
+  const newClients = currentClients.filter(c => !prevSnapshot[c.locationId]);
+
+  // Save updated snapshot
+  const newSnap = { ...prevSnapshot };
+  currentClients.forEach(c => { if (!newSnap[c.locationId]) newSnap[c.locationId] = { addedAt: new Date().toISOString().split('T')[0] }; });
+  await saveSofiaClientsSnapshot(newSnap);
+
+  if (!newClients.length) { console.log('[Sofia] No new clients detected.'); return; }
+
+  console.log(`[Sofia] ${newClients.length} new client(s) detected: ${newClients.map(c => c.name).join(', ')}`);
+  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+
+  for (const client of newClients) {
+    try {
+      const locRes = await axios.get(`https://services.leadconnectorhq.com/locations/${client.locationId}`, {
+        headers: { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28' }, timeout: 8000,
+      });
+      const loc = locRes.data?.location || locRes.data;
+      const website = loc?.website || loc?.business?.website || null;
+      const phone   = loc?.phone   || loc?.business?.phone   || '';
+      const email   = loc?.email   || loc?.business?.email   || '';
+
+      const html = `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#f4f4f4;padding:32px 20px;">
+<div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+  <div style="background:#0a0a0a;padding:22px 32px;display:flex;align-items:center;justify-content:space-between;">
+    <img src="${logoUrl}" style="height:30px;"/>
+    <span style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.45);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:5px 12px;border-radius:100px;">Sofia · Nuevo Cliente</span>
+  </div>
+  <div style="background:#16a34a;padding:22px 32px;">
+    <h1 style="color:#fff;font-size:20px;font-weight:800;">🎉 Nuevo cliente detectado</h1>
+    <p style="color:rgba(255,255,255,0.85);font-size:14px;margin-top:6px;">${client.name} acaba de unirse a JRZ Marketing</p>
+  </div>
+  <div style="padding:28px 32px;">
+    <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+      <tr><td style="padding:8px 0;font-size:13px;color:#999;width:120px;">Nombre</td><td style="padding:8px 0;font-size:14px;font-weight:600;color:#0a0a0a;">${client.name}</td></tr>
+      <tr><td style="padding:8px 0;font-size:13px;color:#999;">Industria</td><td style="padding:8px 0;font-size:14px;color:#0a0a0a;">${client.industry}</td></tr>
+      <tr><td style="padding:8px 0;font-size:13px;color:#999;">Teléfono</td><td style="padding:8px 0;font-size:14px;color:#0a0a0a;">${phone || 'No registrado'}</td></tr>
+      <tr><td style="padding:8px 0;font-size:13px;color:#999;">Email</td><td style="padding:8px 0;font-size:14px;color:#0a0a0a;">${email || 'No registrado'}</td></tr>
+      <tr><td style="padding:8px 0;font-size:13px;color:#999;">Sitio web</td><td style="padding:8px 0;font-size:14px;color:${website ? '#16a34a' : '#dc2626'};">${website || '❌ Sin sitio web'}</td></tr>
+    </table>
+    ${!website ? `
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px 20px;">
+      <p style="font-size:14px;color:#991b1b;font-weight:600;margin-bottom:6px;">⚠️ Este cliente no tiene sitio web</p>
+      <p style="font-size:13px;color:#dc2626;">Ejecuta este comando para que Sofia les cree una landing page automáticamente:</p>
+      <code style="display:block;background:#fff;border:1px solid #fecaca;border-radius:6px;padding:10px;margin-top:10px;font-size:12px;color:#991b1b;">curl -X POST https://armando-bot-1.onrender.com/sofia/build-page -H "Content-Type: application/json" -d '{"locationId":"${client.locationId}","industry":"${client.industry}"}'</code>
+    </div>` : `
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px 20px;">
+      <p style="font-size:14px;color:#166534;">✅ Tiene sitio web: <a href="${website}" style="color:#16a34a;">${website}</a></p>
+      <p style="font-size:13px;color:#4ade80;margin-top:4px;">Sofia hará un audit completo en el próximo reporte semanal.</p>
+    </div>`}
+  </div>
+  <div style="background:#0a0a0a;padding:18px 32px;text-align:center;"><p style="font-size:11px;color:rgba(255,255,255,0.25);">Sofia — JRZ Marketing AI Web Designer</p></div>
+</div></body></html>`;
+
+      await sendEmail(OWNER_CONTACT_ID, `🎉 Sofia: Nuevo Cliente — ${client.name}${!website ? ' (Sin sitio web)' : ''}`, html);
+      console.log(`[Sofia] Onboarding alert sent for ${client.name}`);
+    } catch (err) {
+      console.error(`[Sofia] Onboarding error for ${client.name}:`, err.message);
+    }
+  }
+}
+
+// ─── Sofia endpoints ──────────────────────────────────────
+
+app.post('/sofia/build-page', async (req, res) => {
+  try {
+    const { locationId, industry } = req.body;
+    if (!locationId) return res.status(400).json({ status: 'error', message: 'locationId required' });
+    const locRes = await axios.get(`https://services.leadconnectorhq.com/locations/${locationId}`, {
+      headers: { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28' }, timeout: 8000,
+    });
+    const loc  = locRes.data?.location || locRes.data;
+    const name = loc?.name || loc?.business?.name || 'Client';
+    const ind  = industry || ELENA_CLIENT_OVERRIDES[locationId]?.industry || 'business';
+    const result = await createGHLLandingPage(locationId, name, ind, loc?.phone || '', loc?.email || '');
+    res.json({ status: 'ok', funnelId: result.funnelId, stepCreated: result.stepCreated, message: `Landing page created for ${name}` });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/sofia/cro-report', async (_req, res) => {
+  try {
+    runSofiaCROReport();
+    res.json({ status: 'ok', message: 'Sofia is building the monthly CRO report' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/sofia/onboarding-check', async (_req, res) => {
+  try {
+    runSofiaOnboardingCheck();
+    res.json({ status: 'ok', message: 'Sofia is checking for new clients' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/sofia/full-audit', async (req, res) => {
+  try {
+    const { url, clientName, industry } = req.body;
+    if (!url) return res.status(400).json({ status: 'error', message: 'url required' });
+    const audit = await runSofiaFullAudit(url, clientName || 'Client', industry || 'business');
+    res.json({ status: 'ok', audit });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
 // ═══════════════════════════════════════════════════════════
 // INTERNAL CRON — checks every 2 minutes
 //  7:00am EST  daily      → Carousel post + blog
@@ -6212,6 +6618,8 @@ let lastDiegoStandupDate    = null;
 let lastMarcoContentDate    = null;
 let lastMarcoTrendDate      = null;
 let lastSofiaCheckDate      = null;
+let lastSofiaOnboardDate    = null;
+let lastSofiaCRODate        = null;
 
 setInterval(async () => {
   try {
@@ -6278,10 +6686,17 @@ setInterval(async () => {
       runMarcoTrendAlert(); // non-blocking
     }
 
-    // 9:45am Monday — Sofia: weekly website health check
+    // 9:45am Monday — Sofia: weekly website health check + onboarding scan
     if (hour === 9 && minute >= 45 && minute < 50 && dayOfWeek === 1 && lastSofiaCheckDate !== today) {
       lastSofiaCheckDate = today;
-      runSofiaWeeklyCheck(); // non-blocking
+      runSofiaWeeklyCheck();    // non-blocking
+      runSofiaOnboardingCheck(); // non-blocking — detects new clients
+    }
+
+    // 1st of month, 9:55am — Sofia: monthly CRO report
+    if (hour === 9 && minute >= 55 && dateOfMonth === 1 && lastSofiaCRODate !== today) {
+      lastSofiaCRODate = today;
+      runSofiaCROReport(); // non-blocking
     }
 
     // 9:15am Monday — Diego: weekly project report
