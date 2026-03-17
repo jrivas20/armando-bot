@@ -52,6 +52,35 @@ const OFFICE_LOG  = [];   // last 100 entries, newest first
 const OFFICE_CHAT = [];   // inter-agent messages, last 50
 const OFFICE_KPI  = { dmsHandled: 0, leadsCapture: 0, postsPublished: 0, sitesMonitored: 0, dealsTracked: 0, emailsSent: 0 };
 
+const OFFICE_KPI_PID = 'jrz/office_kpi';
+const OFFICE_KPI_URL = `https://res.cloudinary.com/dbsuw1mfm/raw/upload/${OFFICE_KPI_PID}.json`;
+
+async function loadOfficeKPI() {
+  try {
+    const res = await axios.get(OFFICE_KPI_URL + '?t=' + Date.now(), { timeout: 8000 });
+    const saved = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+    Object.assign(OFFICE_KPI, saved);
+    console.log('[Office] KPIs restored:', JSON.stringify(OFFICE_KPI));
+  } catch { console.log('[Office] No saved KPIs found — starting fresh.'); }
+}
+
+async function saveOfficeKPI() {
+  try {
+    const ts  = Math.floor(Date.now() / 1000);
+    const sig = crypto.createHash('sha1').update(`overwrite=true&public_id=${OFFICE_KPI_PID}&timestamp=${ts}${CLOUDINARY_API_SECRET}`).digest('hex');
+    const form = new FormData();
+    form.append('file', Buffer.from(JSON.stringify(OFFICE_KPI)), { filename: 'office_kpi.json', contentType: 'application/json' });
+    form.append('public_id',    OFFICE_KPI_PID);
+    form.append('resource_type','raw');
+    form.append('timestamp',    String(ts));
+    form.append('api_key',      CLOUDINARY_API_KEY);
+    form.append('signature',    sig);
+    form.append('overwrite',    'true');
+    await axios.post(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`, form, { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 20000 });
+    console.log('[Office] KPIs saved to Cloudinary.');
+  } catch (err) { console.error('[Office] KPI save failed:', err.message); }
+}
+
 const AGENT_STATUS = {
   armando:  { status: 'idle', task: 'Monitoring DMs & comments', lastSeen: null },
   elena:    { status: 'idle', task: 'Standing by',                lastSeen: null },
@@ -7905,7 +7934,7 @@ setInterval(async () => {
 }, 2 * 60 * 1000); // Every 2 minutes
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
   console.log(`7:00am  EST daily     → Carousel + Blog`);
   console.log(`7:05am  EST Monday    → Weekly analytics self-learning + email`);
@@ -7913,4 +7942,15 @@ app.listen(PORT, () => {
   console.log(`4:00pm  EST Mon/Wed/Fri → 15s Viral Reel w/ voice (7 platforms, ~12/month)`);
   console.log(`6:30pm  EST daily     → Story (Instagram + Facebook)`);
   console.log(`24/7                  → Armando warm DMs on comments/follows`);
+  await loadOfficeKPI(); // restore KPIs from Cloudinary on every startup
+});
+
+// Save KPIs every 30 minutes so restarts lose at most 30 min of counts
+setInterval(saveOfficeKPI, 30 * 60 * 1000);
+
+// Save KPIs on graceful shutdown (Render sends SIGTERM before restarting)
+process.on('SIGTERM', async () => {
+  console.log('[Office] SIGTERM received — saving KPIs before shutdown...');
+  await saveOfficeKPI();
+  process.exit(0);
 });
