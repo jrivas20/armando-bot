@@ -5210,6 +5210,14 @@ async function getSubaccountStats(locationId) {
   const totalValue = opps.reduce((s, o) => s + (parseFloat(o.monetaryValue) || 0), 0);
   const wonValue   = wonOpps.reduce((s, o) => s + (parseFloat(o.monetaryValue) || 0), 0);
 
+  // Most recent activity across all open opportunities
+  const lastActivityAt = opps.length > 0
+    ? opps.reduce((latest, o) => {
+        const t = new Date(o.lastActivityAt || o.updatedAt || 0).getTime();
+        return t > latest ? t : latest;
+      }, 0)
+    : 0;
+
   return {
     email:          loc.email || loc.business?.email || null,
     phone:          loc.phone || loc.business?.phone || null,
@@ -5220,12 +5228,117 @@ async function getSubaccountStats(locationId) {
     wonOpps:        wonOpps.length,
     totalValue,
     wonValue,
+    lastActivityAt, // ms timestamp of most recent opp activity (0 = no opps)
     recentWon:      wonOpps.slice(0, 3).map(o => ({ name: o.name, value: o.monetaryValue || 0 })),
   };
 }
 
+// Score each client 0–100 and return A/B/C/D grade + churn risk label
+function getChurnRiskGrade(stats, prev) {
+  let score = 50;
+  const now = Date.now();
+  const daysSinceActivity = stats.lastActivityAt > 0
+    ? (now - stats.lastActivityAt) / (1000 * 60 * 60 * 24)
+    : 999;
+
+  // Won deals — strongest signal
+  if (stats.wonOpps > 0) score += 20;
+
+  // Pipeline depth
+  if (stats.openOpps >= 10) score += 20;
+  else if (stats.openOpps >= 5) score += 12;
+  else if (stats.openOpps === 0) score -= 20;
+
+  // Contact growth vs last snapshot
+  const contactGrowth = stats.totalContacts - (prev.totalContacts || 0);
+  if (contactGrowth > 10) score += 15;
+  else if (contactGrowth > 0) score += 5;
+  else if (contactGrowth < -10) score -= 15;
+
+  // Pipeline growth vs last snapshot
+  const oppGrowth = stats.openOpps - (prev.openOpps || 0);
+  if (oppGrowth > 3) score += 10;
+  else if (oppGrowth < -3) score -= 10;
+
+  // Activity recency
+  if (daysSinceActivity < 3)       score += 15;
+  else if (daysSinceActivity < 7)  score += 8;
+  else if (daysSinceActivity < 14) score += 0;
+  else if (daysSinceActivity < 30) score -= 10;
+  else                             score -= 25;
+
+  score = Math.max(0, Math.min(100, score));
+
+  let grade, color, label;
+  if (score >= 75)      { grade = 'A'; color = '#16a34a'; label = 'Healthy'; }
+  else if (score >= 50) { grade = 'B'; color = '#2563eb'; label = 'Stable'; }
+  else if (score >= 25) { grade = 'C'; color = '#d97706'; label = 'At Risk'; }
+  else                  { grade = 'D'; color = '#dc2626'; label = 'Churn Risk'; }
+
+  return { grade, score, color, label, daysSinceActivity: Math.round(daysSinceActivity) };
+}
+
+// Elena sends a welcome email to a brand-new client subaccount
+async function elenaSendWelcomeEmail(client, stats) {
+  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  const isEn = client.lang === 'en';
+  const firstName = client.name.split(' ')[0];
+  const subject = isEn
+    ? `👋 Welcome to JRZ Marketing, ${firstName}!`
+    : `👋 ¡Bienvenido a JRZ Marketing, ${firstName}!`;
+
+  const html = `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#f4f4f4;padding:40px 20px;">
+<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+  <div style="background:#0a0a0a;padding:32px 40px;text-align:center;"><img src="${logoUrl}" style="height:48px;" /></div>
+  <div style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%);padding:48px 40px;text-align:center;">
+    <div style="font-size:48px;margin-bottom:16px;">🎉</div>
+    <h1 style="color:#fff;font-size:28px;font-weight:800;margin:0 0 12px;">${isEn ? `Welcome, ${firstName}!` : `¡Bienvenido, ${firstName}!`}</h1>
+    <p style="color:rgba(255,255,255,0.6);font-size:15px;margin:0;">${isEn ? "We're excited to have you on board." : 'Estamos emocionados de tenerte con nosotros.'}</p>
+  </div>
+  <div style="padding:40px;">
+    <p style="font-size:15px;color:#333;line-height:1.8;margin:0 0 24px;">${isEn
+      ? `Hi <strong>${firstName}</strong>, I'm Elena — JRZ Marketing's AI Client Success Manager. I'll keep an eye on your account, send you monthly performance reports, and make sure you're getting the most out of our partnership.`
+      : `Hola <strong>${firstName}</strong>, soy Elena — la IA de éxito de clientes de JRZ Marketing. Estaré monitoreando tu cuenta, enviándote reportes mensuales de rendimiento y asegurándome de que aproveches al máximo nuestra asociación.`
+    }</p>
+    <div style="background:#f9f9f9;border-radius:12px;padding:24px;margin-bottom:24px;">
+      <p style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#999;margin:0 0 16px;">${isEn ? "What's set up for you" : 'Lo que está configurado para ti'}</p>
+      ${[
+        isEn ? '✅ Your GHL account is active and ready' : '✅ Tu cuenta GHL está activa y lista',
+        isEn ? '📊 Monthly performance reports (1st of every month)' : '📊 Reportes mensuales de rendimiento (1ro de cada mes)',
+        isEn ? '🔔 Weekly pipeline health monitoring' : '🔔 Monitoreo semanal del estado del pipeline',
+        isEn ? '💬 Direct access to Jose and the JRZ team' : '💬 Acceso directo a Jose y el equipo JRZ',
+      ].map(item => `<p style="font-size:14px;color:#333;margin:8px 0;">${item}</p>`).join('')}
+    </div>
+    <div style="text-align:center;margin-top:32px;">
+      <a href="${BOOKING_URL}" style="display:inline-block;background:#0a0a0a;color:#fff;font-size:15px;font-weight:700;text-decoration:none;padding:16px 40px;border-radius:10px;">${isEn ? 'Schedule Onboarding Call →' : 'Agendar Llamada de Bienvenida →'}</a>
+    </div>
+  </div>
+  <div style="background:#0a0a0a;padding:24px 40px;text-align:center;">
+    <p style="font-size:11px;color:rgba(255,255,255,0.3);">Elena — JRZ Marketing AI Client Success Manager</p>
+  </div>
+</div></body></html>`;
+
+  try {
+    if (!stats.email) return false;
+    const upsertRes = await axios.post('https://services.leadconnectorhq.com/contacts/upsert', {
+      locationId: GHL_LOCATION_ID, email: stats.email, name: client.name,
+      tags: ['jrz-client', 'subaccount', 'new-client'],
+    }, { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } });
+    const contactId = upsertRes.data?.contact?.id;
+    if (contactId) {
+      await sendEmail(contactId, subject, html);
+      console.log(`[Elena] 🎉 Welcome email sent to new client: ${client.name}`);
+      return true;
+    }
+  } catch (err) {
+    console.error(`[Elena] Welcome email failed for ${client.name}:`, err.message);
+  }
+  return false;
+}
+
 // Elena sends a personalized monthly report to one client
-async function elenaSendClientReport(client, stats, month) {
+// prevSnapshot: the client's row from last month's Cloudinary snapshot (for trend %)
+async function elenaSendClientReport(client, stats, month, prevSnapshot = {}) {
   const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
   const isEn = client.lang === 'en';
 
@@ -5234,14 +5347,35 @@ async function elenaSendClientReport(client, stats, month) {
     return false;
   }
 
-  // Claude generates personalized insights
+  // Compute % changes vs last snapshot
+  const pct = (curr, prev) => {
+    if (!prev || prev === 0) return null;
+    const p = Math.round(((curr - prev) / prev) * 100);
+    return p > 0 ? `+${p}%` : `${p}%`;
+  };
+  const trendContacts = pct(stats.totalContacts, prevSnapshot.totalContacts);
+  const trendOpps     = pct(stats.openOpps,      prevSnapshot.openOpps);
+  const trendWon      = pct(stats.wonOpps,        prevSnapshot.wonOpps);
+  const trendRevenue  = pct(stats.wonValue,       prevSnapshot.wonValue);
+
+  const trendBadge = (t) => {
+    if (!t) return '';
+    const up = t.startsWith('+');
+    return `<span style="font-size:11px;font-weight:700;color:${up ? '#16a34a' : '#dc2626'};margin-left:4px;">${t}</span>`;
+  };
+
+  // Churn risk grade for this client
+  const risk = getChurnRiskGrade(stats, prevSnapshot);
+
+  // Claude generates personalized insights — now includes trend context and grade
+  const trendContext = `Contact growth: ${trendContacts || 'N/A'}, Pipeline change: ${trendOpps || 'N/A'}, Won deals change: ${trendWon || 'N/A'}. Health grade: ${risk.grade} (${risk.label}).`;
   const aiPrompt = isEn
-    ? `You are Elena, JRZ Marketing's AI Client Success Manager. Generate a short monthly performance summary for client "${client.name}" (${client.industry}) for ${month}. Pipeline data: ${stats.openOpps} open opportunities, ${stats.wonOpps} won this month (value: $${stats.wonValue}), ${stats.totalContacts} total contacts. Return ONLY valid JSON: {"headline": "one encouraging headline", "wins": ["win1", "win2"], "focus": "what to focus on next month", "tip": "one specific marketing tip for their industry", "personalNote": "warm personal note from Jose to this specific client"}`
-    : `Eres Elena, la IA de éxito de clientes de JRZ Marketing. Genera un resumen mensual personalizado para el cliente "${client.name}" (${client.industry}) del mes de ${month}. Datos del pipeline: ${stats.openOpps} oportunidades abiertas, ${stats.wonOpps} ganadas este mes (valor: $${stats.wonValue}), ${stats.totalContacts} contactos totales. Responde SOLO con JSON válido: {"headline": "titular motivador", "wins": ["logro1", "logro2"], "focus": "en qué enfocarse el próximo mes", "tip": "un consejo de marketing específico para su industria", "personalNote": "nota personal cálida de Jose para este cliente específico"}`;
+    ? `You are Elena, JRZ Marketing's AI Client Success Manager. Generate a monthly performance summary for client "${client.name}" (${client.industry}) for ${month}. Pipeline: ${stats.openOpps} open opps, ${stats.wonOpps} won (value: $${stats.wonValue}), ${stats.totalContacts} contacts. Trends: ${trendContext} Return ONLY valid JSON: {"headline": "one encouraging headline referencing their trend", "wins": ["win1", "win2"], "focus": "what to focus on next month based on their grade", "tip": "one specific marketing tip for their industry", "personalNote": "warm personal note from Jose"}`
+    : `Eres Elena, la IA de éxito de clientes de JRZ Marketing. Genera un resumen mensual para el cliente "${client.name}" (${client.industry}) del mes de ${month}. Pipeline: ${stats.openOpps} oportunidades abiertas, ${stats.wonOpps} ganadas (valor: $${stats.wonValue}), ${stats.totalContacts} contactos. Tendencias: ${trendContext} Responde SOLO con JSON válido: {"headline": "titular motivador que mencione la tendencia", "wins": ["logro1", "logro2"], "focus": "en qué enfocarse según su calificación", "tip": "consejo de marketing específico para su industria", "personalNote": "nota personal cálida de Jose"}`;
 
   const aiRes = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 500,
+    max_tokens: 600,
     messages: [{ role: 'user', content: aiPrompt }],
   });
   const report = JSON.parse(aiRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
@@ -5300,12 +5434,15 @@ async function elenaSendClientReport(client, stats, month) {
   <div class="hero">
     <h1>${client.name}${isEn ? ',<br />here\'s your month.' : ',<br />así fue tu mes.'} 📊</h1>
     <p>${report.headline}</p>
+    <div style="margin-top:16px;display:inline-block;background:${risk.color};color:#fff;font-size:12px;font-weight:700;padding:6px 14px;border-radius:100px;letter-spacing:0.06em;">
+      ${isEn ? 'Health' : 'Salud'}: ${risk.grade} — ${risk.label}
+    </div>
   </div>
   <div class="stats">
-    <div class="stat"><div class="stat-num">${stats.totalContacts}</div><div class="stat-lbl">${isEn ? 'Contacts' : 'Contactos'}</div></div>
-    <div class="stat"><div class="stat-num">${stats.openOpps}</div><div class="stat-lbl">${isEn ? 'Open Opps' : 'Oportunidades'}</div></div>
-    <div class="stat"><div class="stat-num">${stats.wonOpps}</div><div class="stat-lbl">${isEn ? 'Won' : 'Ganadas'}</div></div>
-    <div class="stat"><div class="stat-num">$${Math.round(stats.wonValue).toLocaleString()}</div><div class="stat-lbl">${isEn ? 'Revenue' : 'Ingresos'}</div></div>
+    <div class="stat"><div class="stat-num">${stats.totalContacts}${trendBadge(trendContacts)}</div><div class="stat-lbl">${isEn ? 'Contacts' : 'Contactos'}</div></div>
+    <div class="stat"><div class="stat-num">${stats.openOpps}${trendBadge(trendOpps)}</div><div class="stat-lbl">${isEn ? 'Open Opps' : 'Oportunidades'}</div></div>
+    <div class="stat"><div class="stat-num">${stats.wonOpps}${trendBadge(trendWon)}</div><div class="stat-lbl">${isEn ? 'Won' : 'Ganadas'}</div></div>
+    <div class="stat"><div class="stat-num">$${Math.round(stats.wonValue).toLocaleString()}${trendBadge(trendRevenue)}</div><div class="stat-lbl">${isEn ? 'Revenue' : 'Ingresos'}</div></div>
   </div>
   <div class="body">
     <p>${isEn ? 'Hi' : 'Hola'} <strong>${client.name.split(' ')[0]}</strong>,</p>
@@ -5375,47 +5512,77 @@ async function elenaSendClientReport(client, stats, month) {
 async function elenaMonthlyReports() {
   console.log('[Elena] Starting monthly client reports for all subaccounts...');
   const month = new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' });
-  const clients = await getElenaClients();
+  const [snapshot, clients] = await Promise.all([loadElenaSnapshot(), getElenaClients()]);
   let sent = 0, skipped = 0;
 
   for (const client of clients) {
     try {
       const stats = await getSubaccountStats(client.locationId);
-      const ok = await elenaSendClientReport(client, stats, month);
+      const prevSnapshot = snapshot[client.locationId] || {};
+      const ok = await elenaSendClientReport(client, stats, month, prevSnapshot);
       if (ok) sent++; else skipped++;
-      await new Promise(r => setTimeout(r, 1500)); // rate limit
+      // Update snapshot with wonValue so next month has full trend data
+      snapshot[client.locationId] = {
+        ...prevSnapshot,
+        openOpps: stats.openOpps,
+        totalContacts: stats.totalContacts,
+        wonOpps: stats.wonOpps,
+        wonValue: stats.wonValue,
+        checkedAt: new Date().toISOString().split('T')[0],
+      };
+      await new Promise(r => setTimeout(r, 1500));
     } catch (err) {
       console.error(`[Elena] Error on ${client.name}:`, err.message);
       skipped++;
     }
   }
+  await saveElenaSnapshot(snapshot);
   console.log(`[Elena] Monthly reports done. Sent: ${sent}, Skipped: ${skipped}`);
 }
 
-// Elena's weekly health check — alert Jose if any subaccount pipeline drops
+// Elena's weekly health check — smarter triggers + new client detection + churn grades
 async function elenaHealthCheck() {
   console.log('[Elena] Running weekly health check on all subaccounts...');
   const [snapshot, clients] = await Promise.all([loadElenaSnapshot(), getElenaClients()]);
   const today = new Date().toISOString().split('T')[0];
   const alerts = [];
+  const newClients = [];
   const newSnapshot = { ...snapshot, lastRun: today };
 
   for (const client of clients) {
     try {
       const stats = await getSubaccountStats(client.locationId);
       const prev = snapshot[client.locationId] || {};
+      const isNewClient = !snapshot[client.locationId];
 
-      // Detect drops: open opps dropped by 3+ or contacts dropped
-      const oppDrop = (prev.openOpps || 0) - stats.openOpps;
+      // New client — send welcome email
+      if (isNewClient) {
+        newClients.push(client.name);
+        elenaSendWelcomeEmail(client, stats); // non-blocking
+      }
+
+      // Compute churn risk grade
+      const risk = getChurnRiskGrade(stats, prev);
+
+      // Flag if: grade C/D, pipeline drop ≥3, contact drop ≥20, or 14+ days silent
+      const oppDrop     = (prev.openOpps || 0) - stats.openOpps;
       const contactDrop = (prev.totalContacts || 0) - stats.totalContacts;
+      const isAtRisk    = risk.grade === 'C' || risk.grade === 'D';
+      const isInactive  = risk.daysSinceActivity >= 14;
+      const isStalled   = oppDrop >= 3 || contactDrop >= 20;
 
-      if (oppDrop >= 3 || contactDrop >= 20) {
+      if (isAtRisk || isStalled) {
         alerts.push({
           name: client.name,
-          locationId: client.locationId,
+          grade: risk.grade,
+          gradeColor: risk.color,
+          gradeLabel: risk.label,
+          score: risk.score,
           oppDrop,
           contactDrop,
-          current: { openOpps: stats.openOpps, totalContacts: stats.totalContacts },
+          daysSinceActivity: risk.daysSinceActivity,
+          isInactive,
+          current: { openOpps: stats.openOpps, totalContacts: stats.totalContacts, wonOpps: stats.wonOpps },
           prev: { openOpps: prev.openOpps || 0, totalContacts: prev.totalContacts || 0 },
         });
       }
@@ -5424,6 +5591,10 @@ async function elenaHealthCheck() {
         openOpps: stats.openOpps,
         totalContacts: stats.totalContacts,
         wonOpps: stats.wonOpps,
+        wonValue: stats.wonValue,
+        lastActivityAt: stats.lastActivityAt,
+        grade: risk.grade,
+        score: risk.score,
         checkedAt: today,
       };
       await new Promise(r => setTimeout(r, 1000));
@@ -5433,41 +5604,54 @@ async function elenaHealthCheck() {
   }
 
   await saveElenaSnapshot(newSnapshot);
+  if (newClients.length > 0) console.log(`[Elena] New clients detected: ${newClients.join(', ')}`);
 
-  // If alerts found, email Jose
-  if (alerts.length > 0) {
-    const alertRows = alerts.map(a =>
-      `<tr style="border-bottom:1px solid #f0f0f0;">
-        <td style="padding:12px 16px;font-size:14px;font-weight:600;color:#0a0a0a;">${a.name}</td>
-        <td style="padding:12px 16px;font-size:14px;color:#dc2626;">−${a.oppDrop} opps</td>
-        <td style="padding:12px 16px;font-size:14px;color:#dc2626;">−${a.contactDrop} contacts</td>
-        <td style="padding:12px 16px;font-size:14px;color:#555;">${a.current.openOpps} open / ${a.current.totalContacts} contacts</td>
-      </tr>`
-    ).join('');
+  if (alerts.length === 0) {
+    console.log('[Elena] Health check done — all accounts healthy.');
+    return;
+  }
 
-    const html = `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#f4f4f4;padding:40px 20px;">
-<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;">
+  // Build alert email with grades and activity columns
+  const alertRows = alerts.map(a => `
+    <tr style="border-bottom:1px solid #f0f0f0;">
+      <td style="padding:12px 16px;font-size:14px;font-weight:600;color:#0a0a0a;">${a.name}</td>
+      <td style="padding:12px 16px;text-align:center;">
+        <span style="display:inline-block;background:${a.gradeColor};color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:100px;">${a.grade}</span>
+        <div style="font-size:11px;color:#999;margin-top:3px;">${a.gradeLabel}</div>
+      </td>
+      <td style="padding:12px 16px;font-size:13px;color:${a.oppDrop > 0 ? '#dc2626' : '#555'};">${a.oppDrop > 0 ? `−${a.oppDrop}` : '—'}</td>
+      <td style="padding:12px 16px;font-size:13px;color:${a.contactDrop > 0 ? '#dc2626' : '#555'};">${a.contactDrop > 0 ? `−${a.contactDrop}` : '—'}</td>
+      <td style="padding:12px 16px;font-size:13px;color:${a.isInactive ? '#d97706' : '#555'};">${a.daysSinceActivity >= 999 ? 'No opps' : `${a.daysSinceActivity}d ago`}</td>
+      <td style="padding:12px 16px;font-size:13px;color:#555;">${a.current.openOpps} open / ${a.current.totalContacts} contacts</td>
+    </tr>`).join('');
+
+  const dGrades = alerts.filter(a => a.grade === 'D').length;
+  const html = `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#f4f4f4;padding:40px 20px;">
+<div style="max-width:680px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
   <div style="background:#0a0a0a;padding:28px 40px;text-align:center;">
     <img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png" style="height:40px;" />
   </div>
   <div style="background:#dc2626;padding:24px 40px;">
     <h1 style="color:#fff;font-size:22px;margin:0;">⚠️ Elena Health Alert</h1>
-    <p style="color:rgba(255,255,255,0.8);font-size:14px;margin:8px 0 0;">${alerts.length} client account(s) showing pipeline drops this week</p>
+    <p style="color:rgba(255,255,255,0.8);font-size:14px;margin:8px 0 0;">${alerts.length} account(s) flagged this week${dGrades > 0 ? ` — ${dGrades} at immediate churn risk` : ''}</p>
   </div>
   <div style="padding:32px 40px;">
-    <p style="font-size:15px;color:#333;margin-bottom:24px;">Jose, these accounts need your attention. Pipeline or contact counts dropped significantly:</p>
+    <p style="font-size:15px;color:#333;margin-bottom:24px;">Jose, these accounts need your attention:</p>
     <table style="width:100%;border-collapse:collapse;">
       <thead><tr style="background:#f9f9f9;">
         <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.08em;">Client</th>
+        <th style="padding:10px 16px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.08em;">Grade</th>
         <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.08em;">Opp Drop</th>
         <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.08em;">Contact Drop</th>
-        <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.08em;">Current Status</th>
+        <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.08em;">Last Activity</th>
+        <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.08em;">Status</th>
       </tr></thead>
       <tbody>${alertRows}</tbody>
     </table>
     <div style="background:#fff8f0;border:1px solid #fed7aa;border-radius:10px;padding:20px 24px;margin-top:24px;">
-      <p style="font-size:14px;color:#92400e;margin:0;"><strong>Recommended:</strong> Reach out to each flagged client this week. Elena will include them in the next monthly report with a recovery focus.</p>
+      <p style="font-size:14px;color:#92400e;margin:0;"><strong>Recommended:</strong> Grade D clients should be called this week. Grade C clients need a check-in message. Elena will flag these in next month's report.</p>
     </div>
+    ${newClients.length > 0 ? `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px 20px;margin-top:16px;"><p style="font-size:14px;color:#166534;margin:0;">🎉 <strong>New clients detected:</strong> ${newClients.join(', ')} — welcome emails sent automatically.</p></div>` : ''}
   </div>
   <div style="background:#0a0a0a;padding:24px 40px;text-align:center;">
     <p style="font-size:11px;color:rgba(255,255,255,0.3);">Elena — JRZ Marketing AI Client Success Manager</p>
@@ -5475,11 +5659,171 @@ async function elenaHealthCheck() {
 </div>
 </body></html>`;
 
-    await sendEmail(OWNER_CONTACT_ID, '⚠️ Elena: Client Health Alert — Action Needed', html);
-    console.log(`[Elena] Health alert sent to Jose — ${alerts.length} accounts flagged`);
-  } else {
-    console.log('[Elena] Health check done — all accounts healthy.');
+  await sendEmail(OWNER_CONTACT_ID, `⚠️ Elena: ${alerts.length} Accounts Need Attention (${dGrades} Churn Risk)`, html);
+  console.log(`[Elena] Health alert sent — ${alerts.length} flagged, ${dGrades} churn risk`);
+  logActivity('elena', `Health check: ${alerts.length} accounts flagged, ${dGrades} grade D`);
+}
+
+// Mid-month proactive check-in — reaches out to quiet/at-risk clients on the 15th
+async function elenaMidMonthCheckIn() {
+  console.log('[Elena] Running mid-month check-in...');
+  const [snapshot, clients] = await Promise.all([loadElenaSnapshot(), getElenaClients()]);
+  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  let sent = 0;
+
+  for (const client of clients) {
+    try {
+      const prev = snapshot[client.locationId];
+      if (!prev) continue; // skip brand-new clients (just got welcome email)
+
+      // Only reach out if grade C/D or 10+ days since activity
+      const isAtRisk = prev.grade === 'C' || prev.grade === 'D';
+      const daysSince = prev.lastActivityAt > 0
+        ? (Date.now() - prev.lastActivityAt) / (1000 * 60 * 60 * 24)
+        : 999;
+      const isQuiet = daysSince >= 10;
+
+      if (!isAtRisk && !isQuiet) continue;
+
+      // Fetch live stats to personalize message
+      const stats = await getSubaccountStats(client.locationId);
+      if (!stats.email) continue;
+
+      const isEn = client.lang === 'en';
+      const firstName = client.name.split(' ')[0];
+      const subject = isEn
+        ? `👋 Checking in — ${client.name}`
+        : `👋 Solo quería saber cómo vas — ${client.name}`;
+
+      const aiRes = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        messages: [{ role: 'user', content: isEn
+          ? `You are Elena, JRZ Marketing's AI Client Success Manager. Write a short, warm mid-month check-in message for client "${client.name}" (${client.industry}). They have ${stats.openOpps} open opportunities and ${stats.totalContacts} contacts. Grade: ${prev.grade || 'unknown'}. Keep it under 3 sentences, conversational, offer value. Return ONLY the message text.`
+          : `Eres Elena, la IA de JRZ Marketing. Escribe un mensaje corto y cálido de seguimiento de mediados de mes para el cliente "${client.name}" (${client.industry}). Tienen ${stats.openOpps} oportunidades abiertas y ${stats.totalContacts} contactos. Calificación: ${prev.grade || 'desconocida'}. Máximo 3 oraciones, conversacional, ofrece valor. Devuelve SOLO el texto del mensaje.`
+        }],
+      });
+      const messageText = aiRes.content[0].text.trim();
+
+      const html = `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#f4f4f4;padding:40px 20px;">
+<div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+  <div style="background:#0a0a0a;padding:24px 40px;text-align:center;"><img src="${logoUrl}" style="height:36px;" /></div>
+  <div style="padding:40px;">
+    <p style="font-size:16px;font-weight:700;color:#0a0a0a;margin:0 0 16px;">${isEn ? `Hey ${firstName} 👋` : `Hola ${firstName} 👋`}</p>
+    <p style="font-size:15px;color:#333;line-height:1.8;margin:0 0 24px;">${messageText}</p>
+    <div style="text-align:center;">
+      <a href="${BOOKING_URL}" style="display:inline-block;background:#0a0a0a;color:#fff;font-size:14px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;">${isEn ? "Let's connect →" : 'Conectemos →'}</a>
+    </div>
+    <p style="font-size:13px;color:#999;margin-top:24px;line-height:1.6;">— Jose Rivas<br /><span style="font-size:11px;">CEO · JRZ Marketing</span></p>
+  </div>
+  <div style="background:#0a0a0a;padding:20px 40px;text-align:center;">
+    <p style="font-size:11px;color:rgba(255,255,255,0.3);">Elena — JRZ Marketing AI Client Success Manager</p>
+  </div>
+</div></body></html>`;
+
+      const upsertRes = await axios.post('https://services.leadconnectorhq.com/contacts/upsert', {
+        locationId: GHL_LOCATION_ID, email: stats.email, name: client.name, tags: ['jrz-client'],
+      }, { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } });
+      const contactId = upsertRes.data?.contact?.id;
+      if (contactId) {
+        await sendEmail(contactId, subject, html);
+        sent++;
+        console.log(`[Elena] Mid-month check-in sent to ${client.name} (grade ${prev.grade})`);
+      }
+      await new Promise(r => setTimeout(r, 2000));
+    } catch (err) {
+      console.error(`[Elena] Mid-month check-in failed for ${client.name}:`, err.message);
+    }
   }
+  console.log(`[Elena] Mid-month check-in done — sent to ${sent} clients`);
+  logActivity('elena', `Mid-month check-in sent to ${sent} at-risk clients`);
+}
+
+// Quarterly deep-dive — 3-month trends + A/B/C grade + growth plan (Jan/Apr/Jul/Oct 1st)
+async function elenaQuarterlyReport() {
+  console.log('[Elena] Running quarterly deep-dive report...');
+  const [snapshot, clients] = await Promise.all([loadElenaSnapshot(), getElenaClients()]);
+  const now = new Date();
+  const quarter = Math.floor(now.getMonth() / 3) + 1;
+  const year = now.getFullYear();
+  const gradeCount = { A: 0, B: 0, C: 0, D: 0 };
+  const clientRows = [];
+
+  for (const client of clients) {
+    const prev = snapshot[client.locationId] || {};
+    const grade = prev.grade || 'B';
+    gradeCount[grade] = (gradeCount[grade] || 0) + 1;
+    clientRows.push({
+      name: client.name,
+      industry: client.industry,
+      grade,
+      score: prev.score || 50,
+      openOpps: prev.openOpps || 0,
+      totalContacts: prev.totalContacts || 0,
+      wonOpps: prev.wonOpps || 0,
+      wonValue: prev.wonValue || 0,
+    });
+  }
+
+  clientRows.sort((a, b) => a.score - b.score); // lowest scores first = most at risk
+
+  const aiRes = await anthropic.messages.create({
+    model: 'claude-opus-4-6',
+    max_tokens: 1000,
+    messages: [{ role: 'user', content: `You are Elena, JRZ Marketing's AI Client Success Manager. Generate a quarterly executive summary for Q${quarter} ${year}. Client breakdown: ${gradeCount.A} Grade A (Healthy), ${gradeCount.B} Grade B (Stable), ${gradeCount.C} Grade C (At Risk), ${gradeCount.D} Grade D (Churn Risk). Top 3 at-risk clients: ${clientRows.slice(0, 3).map(c => `${c.name} (${c.industry}, grade ${c.grade}, ${c.openOpps} opps)`).join('; ')}. Top 3 healthiest: ${clientRows.slice(-3).reverse().map(c => `${c.name} (${c.industry}, grade ${c.grade})`).join('; ')}. Return ONLY valid JSON: {"executiveSummary": "2-3 sentence overview of portfolio health", "quarterlyWins": ["win1","win2","win3"], "risksToAddress": ["risk1","risk2"], "growthOpportunities": ["opp1","opp2"], "q4Focus": "recommended strategic focus for next quarter", "joseNote": "direct note to Jose about what needs his personal attention"}` }],
+  });
+  const qReport = JSON.parse(aiRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+
+  const gradeBar = (g, color) => `<div style="display:inline-block;text-align:center;margin:0 8px;"><div style="background:${color};color:#fff;font-size:22px;font-weight:800;width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto;">${gradeCount[g]}</div><div style="font-size:11px;color:#999;margin-top:6px;text-transform:uppercase;letter-spacing:0.08em;">Grade ${g}</div></div>`;
+
+  const atRiskRows = clientRows.slice(0, 5).map(c =>
+    `<tr style="border-bottom:1px solid #f5f5f5;"><td style="padding:10px 16px;font-size:14px;font-weight:600;">${c.name}</td><td style="padding:10px 16px;font-size:12px;color:#777;">${c.industry}</td><td style="padding:10px 8px;text-align:center;"><span style="background:${c.grade==='D'?'#dc2626':c.grade==='C'?'#d97706':c.grade==='B'?'#2563eb':'#16a34a'};color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;">${c.grade}</span></td><td style="padding:10px 16px;font-size:13px;color:#555;">${c.openOpps} opps / ${c.totalContacts} contacts</td></tr>`
+  ).join('');
+
+  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  const html = `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#f4f4f4;padding:40px 20px;">
+<div style="max-width:680px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+  <div style="background:#0a0a0a;padding:32px 40px;text-align:center;"><img src="${logoUrl}" style="height:44px;" /></div>
+  <div style="background:linear-gradient(135deg,#0a0a0a,#1a1a2e);padding:40px;text-align:center;">
+    <div style="font-size:12px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Elena — Quarterly Report</div>
+    <h1 style="color:#fff;font-size:28px;font-weight:800;margin:0;">Q${quarter} ${year} — Client Portfolio</h1>
+    <p style="color:rgba(255,255,255,0.5);font-size:14px;margin:12px 0 0;">${clients.length} active accounts · ${gradeCount.A + gradeCount.B} healthy · ${gradeCount.C + gradeCount.D} need attention</p>
+  </div>
+  <div style="padding:32px 40px;text-align:center;border-bottom:1px solid #f0f0f0;">
+    ${gradeBar('A','#16a34a')}${gradeBar('B','#2563eb')}${gradeBar('C','#d97706')}${gradeBar('D','#dc2626')}
+  </div>
+  <div style="padding:32px 40px;">
+    <p style="font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;">${qReport.executiveSummary}</p>
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#999;margin:0 0 12px;">Quarterly Wins</p>
+    ${(qReport.quarterlyWins||[]).map(w=>`<div style="background:#f0fdf4;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:8px;font-size:14px;color:#166534;border-radius:0 8px 8px 0;">✓ ${w}</div>`).join('')}
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#999;margin:24px 0 12px;">Risks to Address</p>
+    ${(qReport.risksToAddress||[]).map(r=>`<div style="background:#fff7ed;border-left:3px solid #d97706;padding:12px 16px;margin-bottom:8px;font-size:14px;color:#92400e;border-radius:0 8px 8px 0;">⚠ ${r}</div>`).join('')}
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#999;margin:24px 0 12px;">Growth Opportunities</p>
+    ${(qReport.growthOpportunities||[]).map(o=>`<div style="background:#eff6ff;border-left:3px solid #2563eb;padding:12px 16px;margin-bottom:8px;font-size:14px;color:#1d4ed8;border-radius:0 8px 8px 0;">→ ${o}</div>`).join('')}
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#999;margin:24px 0 12px;">Top 5 Clients Needing Attention</p>
+    <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f9f9f9;">
+      <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Client</th>
+      <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Industry</th>
+      <th style="padding:10px 8px;text-align:center;font-size:11px;color:#999;text-transform:uppercase;">Grade</th>
+      <th style="padding:10px 16px;text-align:left;font-size:11px;color:#999;text-transform:uppercase;">Pipeline</th>
+    </tr></thead><tbody>${atRiskRows}</tbody></table>
+    <div style="background:#0a0a0a;border-radius:12px;padding:24px;margin-top:24px;">
+      <p style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin:0 0 10px;">Note to Jose</p>
+      <p style="font-size:14px;color:rgba(255,255,255,0.8);line-height:1.7;margin:0;">"${qReport.joseNote}"</p>
+    </div>
+    <div style="background:#f9f9f9;border-radius:12px;padding:20px 24px;margin-top:16px;">
+      <p style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#999;margin:0 0 8px;">Q${quarter + 1 > 4 ? 1 : quarter + 1} Focus</p>
+      <p style="font-size:14px;color:#333;margin:0;">${qReport.q4Focus}</p>
+    </div>
+  </div>
+  <div style="background:#0a0a0a;padding:24px 40px;text-align:center;">
+    <p style="font-size:11px;color:rgba(255,255,255,0.3);">Elena — JRZ Marketing AI Client Success Manager · Q${quarter} ${year} Report</p>
+  </div>
+</div></body></html>`;
+
+  await sendEmail(OWNER_CONTACT_ID, `📋 Elena: Q${quarter} ${year} Client Portfolio Report`, html);
+  console.log(`[Elena] Quarterly report sent — ${clients.length} accounts, ${gradeCount.C + gradeCount.D} at risk`);
+  logActivity('elena', `Q${quarter} quarterly report: ${gradeCount.A}A ${gradeCount.B}B ${gradeCount.C}C ${gradeCount.D}D`);
 }
 
 // Manual endpoints for Elena
@@ -5506,6 +5850,44 @@ app.get('/elena/clients', async (_req, res) => {
     const [snapshot, clients] = await Promise.all([loadElenaSnapshot(), getElenaClients()]);
     const result = clients.map(c => ({ ...c, lastSnapshot: snapshot[c.locationId] || null }));
     res.json({ count: result.length, clients: result });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/elena/mid-month-checkin', async (_req, res) => {
+  try {
+    elenaMidMonthCheckIn();
+    res.json({ status: 'ok', message: 'Elena is sending mid-month check-ins to at-risk clients' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.post('/elena/quarterly-report', async (_req, res) => {
+  try {
+    elenaQuarterlyReport();
+    res.json({ status: 'ok', message: 'Elena is generating the quarterly portfolio report' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+app.get('/elena/grades', async (_req, res) => {
+  try {
+    const [snapshot, clients] = await Promise.all([loadElenaSnapshot(), getElenaClients()]);
+    const grades = clients.map(c => {
+      const prev = snapshot[c.locationId] || {};
+      return {
+        name: c.name, industry: c.industry, locationId: c.locationId,
+        grade: prev.grade || '?', score: prev.score || null,
+        openOpps: prev.openOpps || 0, totalContacts: prev.totalContacts || 0,
+        checkedAt: prev.checkedAt || null,
+      };
+    }).sort((a, b) => (a.score || 50) - (b.score || 50));
+    const summary = { A: 0, B: 0, C: 0, D: 0, unknown: 0 };
+    grades.forEach(g => { summary[g.grade] ? summary[g.grade]++ : summary.unknown++; });
+    res.json({ summary, grades });
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
   }
@@ -7773,6 +8155,8 @@ let lastOutboundDate = null;
 let lastEnrichDate   = null;
 let lastCheckInDate         = null;
 let lastMonthlyReportDate   = null;
+let lastMidMonthCheckIn     = null;
+let lastQuarterlyReport     = null;
 let lastCompetitorDate      = null;
 let lastSubCheckInDate      = null;
 let lastLearningDate        = null;
@@ -7889,6 +8273,19 @@ setInterval(async () => {
       await sendMonthlyClientReports();
       elenaMonthlyReports();   // non-blocking
       runDiegoScorecard();     // non-blocking
+    }
+
+    // 15th of month, 10:00am — Elena: mid-month proactive check-in to at-risk clients
+    if (hour === 10 && minute < 5 && dateOfMonth === 15 && lastMidMonthCheckIn !== today) {
+      lastMidMonthCheckIn = today;
+      elenaMidMonthCheckIn(); // non-blocking
+    }
+
+    // 1st of Jan/Apr/Jul/Oct, 9:30am — Elena: quarterly deep-dive report
+    const isQuarterStart = [1, 4, 7, 10].includes(nowEST.getMonth() + 1) && dateOfMonth === 1;
+    if (hour === 9 && minute >= 30 && minute < 35 && isQuarterStart && lastQuarterlyReport !== today) {
+      lastQuarterlyReport = today;
+      elenaQuarterlyReport(); // non-blocking
     }
 
 
