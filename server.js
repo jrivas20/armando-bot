@@ -760,11 +760,16 @@ TU PERSONALIDAD (esto es clave — no lo ignores):
 TU OBJETIVO:
 Agendar una llamada gratuita de estrategia con Jose. Eso es todo. Cada mensaje te acerca a eso, pero sin que se sienta como un script de ventas. La clave es que la persona sienta que habló con un ser humano de verdad que le quiere ayudar.
 
-FLUJO NATURAL DE CONVERSACIÓN:
-1. Primer mensaje: Saluda con energía real (no robotica). Dile quién eres en una frase. Muestra que leíste lo que dijeron. Pide su número de teléfono de forma natural para que el equipo les llame.
-2. Tienen teléfono: Pide el email. Menciona el link de agenda también para que puedan hacerlo solos si prefieren.
-3. Tienen teléfono Y email: Cierra calidamente. El equipo les llama pronto. Listo.
-4. 3+ mensajes sin info: Manda el link directo y déjalo en sus manos. Sin insistir más.
+FLUJO DE CAPTURA — REGLA NO NEGOCIABLE:
+Tu trabajo número uno es capturar TELÉFONO y EMAIL de cada persona. Sin esos datos, el equipo no puede hacer seguimiento. Captúralos sí o sí — con gracia, pero sin fallar.
+
+1. Mensaje 1: Saluda, preséntate, pide TELÉFONO. Solo teléfono.
+2. Tienen teléfono / no tienen email: Pide el EMAIL en el siguiente mensaje. Una oración. Natural.
+3. Mensajes 3-5 sin teléfono o email: En CADA mensaje, antes de cerrar, menciona el dato que falta UNA vez. ("oye, ¿me dejas tu número para que el equipo te contacte?" / "por cierto, ¿cuál es tu email?"). No ruegues — solo lo dices una vez por mensaje y listo.
+4. Mensaje 6+ sin info: Ya lo intentaste. Solo deja el link: ${BOOKING_URL} y continúa la conversación sin pedir más.
+5. Tienen ambos: Cierra — "perfecto, el equipo te contacta pronto. Aquí también puedes agendar directo: ${BOOKING_URL}". Listo.
+
+REGLA CLAVE: Ningún mensaje termina sin haber mencionado el dato faltante (hasta mensaje 5). La captura es silenciosa pero constante.
 
 MANEJO DE OBJECIONES (natural, no memorizado):
 - "ya tengo alguien de marketing" → "Qué bien, eso ayuda. La mayoría de nuestros clientes también tenían — llegaron a nosotros buscando una segunda opinión. ¿En qué están enfocados ahorita?"
@@ -929,7 +934,7 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
         ? `PRIMER MENSAJE — ya tienes su teléfono (${foundPhone}). Saluda, preséntate, y pide solo el EMAIL en la misma oración.`
         : alreadyHaveEmail
           ? `PRIMER MENSAJE — ya tienes su email (${foundEmail}). Saluda, preséntate, y pide solo el TELÉFONO en la misma oración.`
-          : `PRIMER MENSAJE. Saluda con "${timeGreeting}" (o "${timeGreetingEN}" si escribió en inglés). Preséntate como Armando, Community Manager de JRZ Marketing. Reconoce lo que dijeron en UNA oración. Luego pide su TELÉFONO y EMAIL — diles que el equipo los contactará para agendar su llamada gratuita. Natural, directo, humano.`;
+          : `PRIMER MENSAJE. Saluda con "${timeGreeting}" (o "${timeGreetingEN}" si escribió en inglés). Preséntate como Armando, Community Manager de JRZ Marketing. Reconoce lo que dijeron en UNA oración. Pide solo el TELÉFONO — "¿me dejas tu número para que el equipo te contacte?" Natural, directo, humano. NO pidas email todavía.`;
   } else if (hasBoth) {
     stageInstruction = `Ya tienes teléfono (${foundPhone}) y email (${foundEmail}). NO pidas más datos. Cierra calidamente — el equipo les contactará pronto. Muévelos al booking: ${BOOKING_URL}`;
   } else if (alreadyHavePhone && !alreadyHaveEmail) {
@@ -937,11 +942,20 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   } else if (!alreadyHavePhone && alreadyHaveEmail) {
     stageInstruction = `Tienes su email (${foundEmail}) pero falta el TELÉFONO. Pídelo en una sola oración. ${historyCount >= 3 ? `También manda el link directo: ${BOOKING_URL}` : ''}`;
   } else if (historyCount === 2) {
-    // Message 2 — ask phone + email again + A/B closing style
-    stageInstruction = `Segundo mensaje — todavía sin teléfono ni email. Responde brevemente a lo que dijeron y vuelve a pedir TELÉFONO y EMAIL en la misma oración. Aplica también: ${closingInstruction}`;
+    // Message 2 — ask for whichever is missing
+    if (!alreadyHavePhone) {
+      stageInstruction = `Segundo mensaje — todavía sin teléfono. Responde a lo que dijeron y pide su TELÉFONO de forma natural. Aplica también: ${closingInstruction}`;
+    } else {
+      stageInstruction = `Segundo mensaje — tienes teléfono (${foundPhone}), falta EMAIL. Responde y pide el email en una sola oración. Aplica también: ${closingInstruction}`;
+    }
+  } else if (historyCount <= 5 && (!alreadyHavePhone || !alreadyHaveEmail)) {
+    // Messages 3-5 — still missing info, keep asking naturally once per message
+    const missing = !alreadyHavePhone ? 'teléfono' : 'email';
+    const missingUpper = missing.toUpperCase();
+    stageInstruction = `Mensaje #${historyCount} — Todavía falta el ${missing}. Responde normalmente a lo que dicen, y antes de terminar el mensaje desliza UNA vez: pide su ${missing} de forma muy natural (ej: "oye, ¿me dejas tu ${missing}?" o "por cierto, ¿cuál es tu ${missing}?"). También incluye el link cuando encaje: ${BOOKING_URL}. Recuerda: solo pides ${missingUpper} — no los dos a la vez.`;
   } else {
-    // Message 3+ — stop asking, drop the link directly
-    stageInstruction = `Mensaje #${historyCount} — NO pidas más teléfono ni email por mensaje. Cierra directo con el link: manda "${BOOKING_URL}" de forma natural y con energía. Algo como "Mira, lo mejor es que lo agendemos directo — aquí la llamada gratis: ${BOOKING_URL}" y listo. Sin más preguntas.`;
+    // Message 6+ — gave it 5 shots, now just drop the link naturally
+    stageInstruction = `Mensaje #${historyCount} — ya pediste info varias veces. Solo responde naturalmente. Si encaja menciona: "${BOOKING_URL}". No pidas más teléfono ni email.`;
   }
 
   // Message 3 — offer calendar slots (book a time)
@@ -7792,6 +7806,804 @@ async function createGHLLandingPage(locationId, clientName, industry, phone = ''
   return { funnelId, stepCreated: !!stepRes, pageHTML };
 }
 
+// ═══════════════════════════════════════════════════════════
+// SOFIA — MULTI-PAGE WEBSITE BUILDER
+// Builds: Home, About Us, Services, Contact Us, FAQ
+// All pages share nav + footer + design system
+// ═══════════════════════════════════════════════════════════
+
+// One Claude call generates all content for all 5 pages
+async function generateWebsiteContent(clientName, industry, city) {
+  const res = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 2000,
+    messages: [{ role: 'user', content: `Generate complete website content for a ${industry} business called "${clientName}" in ${city}. Return ONLY valid JSON:
+{
+  "tagline": "short powerful tagline (under 8 words)",
+  "heroHeadline": "compelling H1 (under 12 words)",
+  "heroSub": "hero subheadline (1 sentence, benefits-focused)",
+  "stats": [{"number":"150+","label":"Happy Clients"},{"number":"5★","label":"Average Rating"},{"number":"3yr","label":"Avg Retention"},{"number":"24/7","label":"Support"}],
+  "services": [
+    {"title":"Service Name","icon":"🎯","description":"2-sentence description","features":["Feature 1","Feature 2","Feature 3"]},
+    {"title":"Service Name","icon":"📈","description":"2-sentence description","features":["Feature 1","Feature 2","Feature 3"]},
+    {"title":"Service Name","icon":"🔥","description":"2-sentence description","features":["Feature 1","Feature 2","Feature 3"]},
+    {"title":"Service Name","icon":"⚡","description":"2-sentence description","features":["Feature 1","Feature 2","Feature 3"]},
+    {"title":"Service Name","icon":"🎨","description":"2-sentence description","features":["Feature 1","Feature 2","Feature 3"]},
+    {"title":"Service Name","icon":"📊","description":"2-sentence description","features":["Feature 1","Feature 2","Feature 3"]}
+  ],
+  "whyUs": [
+    {"title":"Reason 1","description":"2-sentence description"},
+    {"title":"Reason 2","description":"2-sentence description"},
+    {"title":"Reason 3","description":"2-sentence description"},
+    {"title":"Reason 4","description":"2-sentence description"}
+  ],
+  "testimonials": [
+    {"name":"Real Name","business":"Business Type","text":"Authentic testimonial 2-3 sentences","rating":5},
+    {"name":"Real Name","business":"Business Type","text":"Authentic testimonial 2-3 sentences","rating":5},
+    {"name":"Real Name","business":"Business Type","text":"Authentic testimonial 2-3 sentences","rating":5}
+  ],
+  "aboutStory": "3-4 sentence company story, first person, authentic",
+  "founderBio": "2-3 sentences about the founder/owner, their background and passion",
+  "values": [
+    {"icon":"🏆","title":"Value 1","description":"1 sentence"},
+    {"icon":"🤝","title":"Value 2","description":"1 sentence"},
+    {"icon":"💡","title":"Value 3","description":"1 sentence"},
+    {"icon":"❤️","title":"Value 4","description":"1 sentence"}
+  ],
+  "processSteps": [
+    {"step":"01","title":"Step Name","description":"1-2 sentences"},
+    {"step":"02","title":"Step Name","description":"1-2 sentences"},
+    {"step":"03","title":"Step Name","description":"1-2 sentences"},
+    {"step":"04","title":"Step Name","description":"1-2 sentences"}
+  ],
+  "faqs": [
+    {"q":"Question about pricing?","a":"Detailed answer 1-2 sentences."},
+    {"q":"How long does it take?","a":"Detailed answer 1-2 sentences."},
+    {"q":"Do you offer guarantees?","a":"Detailed answer 1-2 sentences."},
+    {"q":"What areas do you serve?","a":"Detailed answer mentioning ${city}."},
+    {"q":"How do I get started?","a":"Detailed answer 1-2 sentences."},
+    {"q":"What makes you different?","a":"Detailed answer 1-2 sentences."},
+    {"q":"Do you have financing?","a":"Detailed answer 1-2 sentences."},
+    {"q":"Are you licensed and insured?","a":"Detailed answer 1-2 sentences."},
+    {"q":"Can I see past work?","a":"Detailed answer 1-2 sentences."},
+    {"q":"What if I'm not satisfied?","a":"Detailed answer 1-2 sentences."}
+  ],
+  "areas": ["${city}","Area 2","Area 3","Area 4","Area 5","Area 6","Area 7","Area 8"],
+  "contactHours": "Mon–Fri 8am–6pm, Sat 9am–3pm",
+  "metaDescription": "SEO meta description under 160 chars"
+}` }],
+  });
+  return JSON.parse(res.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+}
+
+// Shared CSS design system + nav + footer used on every page
+function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase = '.') {
+  const navLinks = [
+    { label: 'Home',       href: siteBase || '/' },
+    { label: 'About Us',   href: (siteBase || '') + '/about-us' },
+    { label: 'Services',   href: (siteBase || '') + '/services' },
+    { label: 'FAQ',        href: (siteBase || '') + '/faq' },
+    { label: 'Contact',    href: (siteBase || '') + '/contact-us' },
+  ];
+  const navItems = navLinks.map(l =>
+    `<a href="${l.href}" class="nav-link">${l.label}</a>`
+  ).join('');
+
+  const styles = `
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600&display=swap');
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--black:#0a0a0a;--dark:#111827;--gray:#6b7280;--light:#f9fafb;--white:#ffffff;--orange:#f97316;--orange-dark:#ea6c0a;--radius:14px;--shadow:0 4px 24px rgba(0,0,0,0.08)}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',system-ui,sans-serif;color:var(--dark);background:var(--white);line-height:1.6}
+    h1,h2,h3,h4{font-family:'Montserrat',sans-serif;font-weight:800;line-height:1.15}
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%;display:block}
+    .container{max-width:1140px;margin:0 auto;padding:0 24px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;transition:all .2s;border:none}
+    .btn-primary{background:var(--orange);color:#fff}.btn-primary:hover{background:var(--orange-dark);transform:translateY(-1px)}
+    .btn-outline{background:transparent;color:var(--white);border:2px solid rgba(255,255,255,0.4)}.btn-outline:hover{background:rgba(255,255,255,0.1)}
+    .btn-dark{background:var(--black);color:#fff}.btn-dark:hover{background:#222;transform:translateY(-1px)}
+    .section{padding:80px 0}
+    .section-label{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--orange);margin-bottom:12px}
+    .section-title{font-size:clamp(28px,4vw,42px);color:var(--black);margin-bottom:16px}
+    .section-sub{font-size:17px;color:var(--gray);max-width:600px;line-height:1.7}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+    .card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:32px;border:1px solid #f0f0f0;transition:transform .2s,box-shadow .2s}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.12)}
+    .badge{display:inline-block;background:rgba(249,115,22,0.1);color:var(--orange);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:6px 14px;border-radius:100px}
+    .page-hero{background:var(--black);padding:80px 0 60px;text-align:center}
+    .page-hero h1{color:#fff;font-size:clamp(32px,5vw,52px);margin-bottom:16px}
+    .page-hero p{color:rgba(255,255,255,0.55);font-size:17px;max-width:560px;margin:0 auto}
+    .stars{color:#f59e0b;font-size:14px;letter-spacing:2px}
+    @media(max-width:768px){
+      .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+      .section{padding:56px 0}
+      .hide-mobile{display:none!important}
+      .nav-menu{display:none;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--black);padding:16px 24px;gap:8px;border-top:1px solid rgba(255,255,255,0.08)}
+      .nav-menu.open{display:flex}
+      .hamburger{display:flex!important}
+    }
+  `;
+
+  const logoHtml = logoUrl
+    ? `<img src="${logoUrl}" alt="${clientName}" style="height:40px;width:auto;">`
+    : `<span style="font-family:Montserrat,sans-serif;font-weight:900;font-size:18px;color:#fff;">${clientName}</span>`;
+
+  const nav = `
+<header style="position:sticky;top:0;z-index:999;background:var(--black);border-bottom:1px solid rgba(255,255,255,0.07);">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:68px;">
+    <a href="${navLinks[0].href}" style="display:flex;align-items:center;">${logoHtml}</a>
+    <nav class="nav-menu" id="navMenu" style="display:flex;align-items:center;gap:4px;">
+      ${navItems}
+    </nav>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <a href="${navLinks[4].href}" class="btn btn-primary" style="padding:10px 22px;font-size:14px;">Get Started</a>
+      <button class="hamburger" onclick="document.getElementById('navMenu').classList.toggle('open')" style="display:none;background:none;border:none;cursor:pointer;padding:4px;">
+        <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<style>
+  .nav-link{color:rgba(255,255,255,0.65);font-size:14px;font-weight:500;padding:8px 14px;border-radius:8px;transition:all .2s}
+  .nav-link:hover{color:#fff;background:rgba(255,255,255,0.08)}
+</style>`;
+
+  const footer = `
+<footer style="background:var(--black);padding:64px 0 32px;">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,0.08);">
+      <div>
+        ${logoHtml}
+        <p style="color:rgba(255,255,255,0.45);font-size:14px;line-height:1.8;margin:16px 0 20px;max-width:280px;">Professional ${industry} services in ${city} and surrounding areas.</p>
+        ${phone ? `<p style="color:#fff;font-size:15px;font-weight:600;">${phone}</p>` : ''}
+      </div>
+      <div>
+        <p style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;">Pages</p>
+        ${navLinks.map(l => `<a href="${l.href}" style="display:block;color:rgba(255,255,255,0.55);font-size:14px;margin-bottom:10px;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">${l.label}</a>`).join('')}
+      </div>
+      <div>
+        <p style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;">Services</p>
+        <p style="color:rgba(255,255,255,0.45);font-size:14px;line-height:2;">Available 24/7<br/>${city} & Surrounding<br/>Licensed & Insured<br/>Free Estimates</p>
+      </div>
+      <div>
+        <p style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;">Contact</p>
+        ${phone ? `<p style="color:rgba(255,255,255,0.55);font-size:14px;margin-bottom:8px;">📞 ${phone}</p>` : ''}
+        <p style="color:rgba(255,255,255,0.55);font-size:14px;margin-bottom:8px;">📍 ${city}, FL</p>
+        <a href="${navLinks[4].href}" class="btn btn-primary" style="margin-top:16px;padding:10px 20px;font-size:13px;">Get a Free Quote</a>
+      </div>
+    </div>
+    <div style="padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <p style="color:rgba(255,255,255,0.25);font-size:12px;">© ${new Date().getFullYear()} ${clientName}. All rights reserved.</p>
+      <p style="color:rgba(255,255,255,0.2);font-size:11px;">Website by <a href="https://jrzmarketing.com" style="color:var(--orange);">JRZ Marketing</a></p>
+    </div>
+  </div>
+</footer>`;
+
+  const scripts = `
+<script>
+  // Close nav on link click (mobile)
+  document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => {
+    document.getElementById('navMenu').classList.remove('open');
+  }));
+  // Highlight active nav link
+  const path = window.location.pathname;
+  document.querySelectorAll('.nav-link').forEach(l => {
+    if (l.getAttribute('href') === path || (path.endsWith(l.getAttribute('href').split('/').pop()) && l.getAttribute('href') !== '/')) {
+      l.style.color = '#fff'; l.style.background = 'rgba(249,115,22,0.15)'; l.style.color = 'var(--orange)';
+    }
+  });
+</script>`;
+
+  return { styles, nav, footer, scripts };
+}
+
+function wrapPage(title, metaDesc, industry, city, bodyHtml, layout) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="${metaDesc}">
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${metaDesc}">
+<title>${title}</title>
+<style>${layout.styles}</style>
+</head>
+<body>
+${layout.nav}
+${bodyHtml}
+${layout.footer}
+${layout.scripts}
+</body></html>`;
+}
+
+function buildHomePage(client, c, layout) {
+  const { name, phone, city, industry, formId } = client;
+  const serviceCards = c.services.slice(0, 3).map(s => `
+    <div class="card">
+      <div style="font-size:36px;margin-bottom:16px;">${s.icon}</div>
+      <h3 style="font-size:20px;margin-bottom:10px;">${s.title}</h3>
+      <p style="color:var(--gray);font-size:15px;line-height:1.7;margin-bottom:16px;">${s.description}</p>
+      <ul style="list-style:none;padding:0;">${s.features.map(f => `<li style="font-size:14px;color:var(--gray);padding:4px 0;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--orange);font-weight:700;">✓</span>${f}</li>`).join('')}</ul>
+    </div>`).join('');
+
+  const statItems = c.stats.map(s => `
+    <div style="text-align:center;">
+      <div style="font-size:36px;font-weight:900;font-family:Montserrat,sans-serif;color:var(--orange);">${s.number}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">${s.label}</div>
+    </div>`).join('');
+
+  const testimonialCards = c.testimonials.map(t => `
+    <div class="card">
+      <div class="stars">${'★'.repeat(t.rating)}</div>
+      <p style="font-size:15px;color:var(--dark);line-height:1.8;margin:14px 0 20px;font-style:italic;">"${t.text}"</p>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#f59e0b);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;">${t.name[0]}</div>
+        <div><div style="font-weight:600;font-size:15px;">${t.name}</div><div style="font-size:12px;color:var(--gray);">${t.business}</div></div>
+      </div>
+    </div>`).join('');
+
+  const whyItems = c.whyUs.map(w => `
+    <div style="display:flex;gap:20px;align-items:flex-start;">
+      <div style="width:48px;height:48px;border-radius:12px;background:rgba(249,115,22,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="20" height="20" fill="var(--orange)" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+      </div>
+      <div><h4 style="font-size:17px;margin-bottom:6px;">${w.title}</h4><p style="font-size:15px;color:var(--gray);line-height:1.7;">${w.description}</p></div>
+    </div>`).join('');
+
+  const body = `
+<section style="background:var(--black);padding:100px 0 80px;overflow:hidden;position:relative;">
+  <div style="position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(249,115,22,0.06) 0%,transparent 60%);pointer-events:none;"></div>
+  <div class="container" style="position:relative;">
+    <div style="max-width:720px;">
+      <div class="badge" style="margin-bottom:20px;">${city} ${industry}</div>
+      <h1 style="font-size:clamp(36px,6vw,64px);color:#fff;line-height:1.08;margin-bottom:20px;">${c.heroHeadline}</h1>
+      <p style="font-size:18px;color:rgba(255,255,255,0.55);line-height:1.75;margin-bottom:36px;max-width:560px;">${c.heroSub}</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <a href="${layout.nav.includes('/contact-us') ? '#contact' : '#'}" class="btn btn-primary" style="font-size:16px;padding:16px 36px;">Get a Free Quote →</a>
+        ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:16px;padding:16px 32px;">📞 ${phone}</a>` : ''}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--dark);padding:40px 0;">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">${statItems}</div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--light);">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:56px;">
+      <p class="section-label">What We Do</p>
+      <h2 class="section-title">Our Core Services</h2>
+      <p class="section-sub" style="margin:0 auto;">${c.tagline}</p>
+    </div>
+    <div class="grid-3">${serviceCards}</div>
+    <div style="text-align:center;margin-top:40px;">
+      <a href="${(client.siteBase||'')}/services" class="btn btn-dark">View All Services →</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="grid-2">
+      <div>
+        <p class="section-label">Why Choose Us</p>
+        <h2 class="section-title" style="margin-bottom:32px;">The ${name} Difference</h2>
+        <div style="display:flex;flex-direction:column;gap:28px;">${whyItems}</div>
+      </div>
+      <div style="background:var(--black);border-radius:20px;padding:48px;text-align:center;">
+        <div style="font-size:56px;margin-bottom:16px;">🏆</div>
+        <h3 style="color:#fff;font-size:26px;margin-bottom:12px;">Ready to Get Started?</h3>
+        <p style="color:rgba(255,255,255,0.5);font-size:15px;line-height:1.7;margin-bottom:28px;">Join hundreds of satisfied customers in ${city}. Get your free consultation today.</p>
+        <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="width:100%;justify-content:center;padding:16px;">Book Free Consultation →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--light);">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:56px;">
+      <p class="section-label">Client Stories</p>
+      <h2 class="section-title">What Our Clients Say</h2>
+    </div>
+    <div class="grid-3">${testimonialCards}</div>
+  </div>
+</section>
+
+<section style="background:var(--orange);padding:72px 0;">
+  <div class="container" style="text-align:center;">
+    <h2 style="font-size:clamp(28px,4vw,44px);color:#fff;margin-bottom:16px;">Ready for Results?</h2>
+    <p style="color:rgba(255,255,255,0.8);font-size:17px;margin-bottom:36px;">Get a free, no-obligation consultation with our ${industry} experts.</p>
+    <a href="${(client.siteBase||'')}/contact-us" class="btn" style="background:#fff;color:var(--orange);font-size:16px;padding:16px 40px;">Get Started Today →</a>
+  </div>
+</section>`;
+
+  return wrapPage(`${name} — ${city} ${industry}`, c.metaDescription, industry, city, body, layout);
+}
+
+function buildAboutPage(client, c, layout) {
+  const { name, phone, city, industry } = client;
+  const valueCards = c.values.map(v => `
+    <div class="card" style="text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">${v.icon}</div>
+      <h4 style="font-size:18px;margin-bottom:8px;">${v.title}</h4>
+      <p style="font-size:14px;color:var(--gray);line-height:1.7;">${v.description}</p>
+    </div>`).join('');
+
+  const processHtml = c.processSteps.map((s, i) => `
+    <div style="display:flex;gap:24px;align-items:flex-start;position:relative;">
+      ${i < c.processSteps.length - 1 ? '<div style="position:absolute;left:27px;top:56px;width:2px;height:calc(100% + 24px);background:linear-gradient(to bottom,var(--orange),rgba(249,115,22,0.1));"></div>' : ''}
+      <div style="width:54px;height:54px;border-radius:14px;background:var(--black);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span style="font-family:Montserrat,sans-serif;font-weight:900;font-size:16px;color:var(--orange);">${s.step}</span>
+      </div>
+      <div style="padding-bottom:32px;">
+        <h4 style="font-size:18px;margin-bottom:8px;">${s.title}</h4>
+        <p style="font-size:15px;color:var(--gray);line-height:1.7;">${s.description}</p>
+      </div>
+    </div>`).join('');
+
+  const body = `
+<section class="page-hero">
+  <div class="container">
+    <div class="badge" style="margin-bottom:16px;">About Us</div>
+    <h1>The Story Behind ${name}</h1>
+    <p>${c.tagline}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="grid-2">
+      <div>
+        <p class="section-label">Our Story</p>
+        <h2 class="section-title">Built on Trust.<br/>Driven by Results.</h2>
+        <p style="font-size:16px;color:var(--gray);line-height:1.8;margin:20px 0 28px;">${c.aboutStory}</p>
+        <div style="display:flex;gap:32px;flex-wrap:wrap;">
+          ${c.stats.slice(0,3).map(s => `<div><div style="font-size:28px;font-weight:900;font-family:Montserrat,sans-serif;color:var(--orange);">${s.number}</div><div style="font-size:12px;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">${s.label}</div></div>`).join('')}
+        </div>
+      </div>
+      <div style="background:var(--black);border-radius:20px;padding:48px;">
+        <div style="width:72px;height:72px;border-radius:20px;background:rgba(249,115,22,0.15);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:32px;">👤</div>
+        <h3 style="color:#fff;font-size:22px;margin-bottom:12px;">${name}</h3>
+        <p style="color:var(--orange);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;">Founder & Owner · ${city}</p>
+        <p style="color:rgba(255,255,255,0.55);font-size:15px;line-height:1.8;">${c.founderBio}</p>
+        ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-primary" style="margin-top:24px;width:100%;justify-content:center;">📞 ${phone}</a>` : ''}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--light);">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:56px;">
+      <p class="section-label">What We Stand For</p>
+      <h2 class="section-title">Our Core Values</h2>
+    </div>
+    <div class="grid-4">${valueCards}</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="grid-2">
+      <div>
+        <p class="section-label">How It Works</p>
+        <h2 class="section-title" style="margin-bottom:40px;">Our Proven Process</h2>
+        ${processHtml}
+      </div>
+      <div style="padding:48px;background:var(--light);border-radius:20px;">
+        <h3 style="font-size:26px;margin-bottom:16px;">Serving ${city} & Beyond</h3>
+        <p style="font-size:15px;color:var(--gray);line-height:1.8;margin-bottom:24px;">We proudly serve clients across the ${city} area and surrounding communities.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${c.areas.map(a => `<span style="background:#fff;border:1px solid #e5e7eb;border-radius:100px;padding:6px 16px;font-size:13px;font-weight:500;">${a}</span>`).join('')}
+        </div>
+        <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="margin-top:32px;">Work With Us →</a>
+      </div>
+    </div>
+  </div>
+</section>`;
+
+  return wrapPage(`About Us — ${name} | ${city} ${industry}`, `Learn about ${name}, a trusted ${industry} company in ${city}.`, industry, city, body, layout);
+}
+
+function buildServicesPage(client, c, layout) {
+  const { name, phone, city, industry } = client;
+  const allServiceCards = c.services.map(s => `
+    <div class="card">
+      <div style="font-size:40px;margin-bottom:16px;">${s.icon}</div>
+      <h3 style="font-size:20px;margin-bottom:10px;">${s.title}</h3>
+      <p style="font-size:15px;color:var(--gray);line-height:1.7;margin-bottom:20px;">${s.description}</p>
+      <ul style="list-style:none;padding:0;margin-bottom:24px;">${s.features.map(f => `<li style="font-size:14px;color:var(--dark);padding:6px 0;border-bottom:1px solid #f0f0f0;padding-left:20px;position:relative;"><span style="position:absolute;left:0;color:var(--orange);font-weight:700;">✓</span>${f}</li>`).join('')}</ul>
+      <a href="${(client.siteBase||'')}/contact-us" class="btn btn-dark" style="width:100%;justify-content:center;">Get a Quote</a>
+    </div>`).join('');
+
+  const processHtml = c.processSteps.map(s => `
+    <div style="text-align:center;padding:32px 24px;">
+      <div style="width:56px;height:56px;border-radius:16px;background:var(--orange);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><span style="font-family:Montserrat,sans-serif;font-weight:900;font-size:18px;color:#fff;">${s.step}</span></div>
+      <h4 style="font-size:17px;margin-bottom:8px;">${s.title}</h4>
+      <p style="font-size:14px;color:var(--gray);line-height:1.7;">${s.description}</p>
+    </div>`).join('');
+
+  const body = `
+<section class="page-hero">
+  <div class="container">
+    <div class="badge" style="margin-bottom:16px;">Services</div>
+    <h1>Everything We Offer</h1>
+    <p>Professional ${industry} solutions for ${city} and surrounding areas</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:56px;">
+      <p class="section-label">Complete Solutions</p>
+      <h2 class="section-title">Our Services</h2>
+      <p class="section-sub" style="margin:0 auto;">${c.tagline}</p>
+    </div>
+    <div class="grid-3">${allServiceCards}</div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--light);">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:48px;">
+      <p class="section-label">The Process</p>
+      <h2 class="section-title">How We Work</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;">
+      <div style="position:absolute;top:28px;left:12.5%;right:12.5%;height:2px;background:linear-gradient(to right,var(--orange),rgba(249,115,22,0.2));z-index:0;"></div>
+      ${processHtml}
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--black);padding:72px 0;">
+  <div class="container" style="text-align:center;">
+    <h2 style="color:#fff;font-size:clamp(26px,4vw,40px);margin-bottom:16px;">Not Sure Which Service You Need?</h2>
+    <p style="color:rgba(255,255,255,0.5);font-size:17px;margin-bottom:32px;">Call us or book a free consultation — we'll assess your situation and recommend the best solution.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="padding:16px 40px;font-size:16px;">Book Free Consultation →</a>
+      ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="padding:16px 32px;font-size:16px;">📞 ${phone}</a>` : ''}
+    </div>
+  </div>
+</section>`;
+
+  return wrapPage(`Services — ${name} | ${city} ${industry}`, `Explore all ${industry} services offered by ${name} in ${city}.`, industry, city, body, layout);
+}
+
+function buildContactPage(client, c, layout) {
+  const { name, phone, city, industry, formId } = client;
+  const body = `
+<section class="page-hero">
+  <div class="container">
+    <div class="badge" style="margin-bottom:16px;">Contact Us</div>
+    <h1>Let's Get Started</h1>
+    <p>Fill out the form or call us directly — we respond within 24 hours</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="grid-2" style="gap:56px;">
+      <div>
+        <p class="section-label">Send Us a Message</p>
+        <h2 class="section-title" style="margin-bottom:24px;">Get a Free Quote</h2>
+        <p style="color:var(--gray);font-size:16px;line-height:1.7;margin-bottom:32px;">Tell us about your project and we'll get back to you with a detailed, no-obligation quote.</p>
+        <div style="background:var(--light);border-radius:var(--radius);padding:32px;">
+          <iframe src="https://api.leadconnectorhq.com/widget/form/${formId}" style="width:100%;min-height:520px;border:none;" scrolling="no" id="msgsndr-form"></iframe>
+          <script src="https://link.msgsndr.com/js/form_embed.js"></script>
+        </div>
+      </div>
+      <div>
+        <p class="section-label">Contact Information</p>
+        <h2 class="section-title" style="margin-bottom:32px;">Reach Us Directly</h2>
+        <div style="display:flex;flex-direction:column;gap:20px;margin-bottom:40px;">
+          ${phone ? `<div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(249,115,22,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;">📞</div>
+            <div><p style="font-weight:600;font-size:16px;margin-bottom:4px;">Phone</p><a href="tel:${phone.replace(/\D/g,'')}" style="color:var(--gray);font-size:15px;">${phone}</a></div>
+          </div>` : ''}
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(249,115,22,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;">📍</div>
+            <div><p style="font-weight:600;font-size:16px;margin-bottom:4px;">Location</p><p style="color:var(--gray);font-size:15px;">${city}, Florida</p></div>
+          </div>
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(249,115,22,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;">🕐</div>
+            <div><p style="font-weight:600;font-size:16px;margin-bottom:4px;">Hours</p><p style="color:var(--gray);font-size:15px;">${c.contactHours}</p></div>
+          </div>
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(249,115,22,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;">⚡</div>
+            <div><p style="font-weight:600;font-size:16px;margin-bottom:4px;">Response Time</p><p style="color:var(--gray);font-size:15px;">We reply within 2 hours during business hours</p></div>
+          </div>
+        </div>
+        <div style="background:var(--black);border-radius:var(--radius);padding:28px;">
+          <h4 style="color:#fff;font-size:18px;margin-bottom:12px;">Service Areas</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">${c.areas.map(a => `<span style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-radius:100px;padding:5px 14px;font-size:13px;">${a}</span>`).join('')}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`;
+
+  return wrapPage(`Contact Us — ${name} | ${city}`, `Contact ${name} for ${industry} services in ${city}. Free quotes, fast response.`, industry, city, body, layout);
+}
+
+function buildFAQPage(client, c, layout) {
+  const { name, city, industry, phone } = client;
+  const faqItems = c.faqs.map((f, i) => `
+    <div style="border-bottom:1px solid #f0f0f0;">
+      <button onclick="toggleFaq(${i})" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:20px 0;background:none;border:none;cursor:pointer;text-align:left;">
+        <span style="font-family:Montserrat,sans-serif;font-weight:700;font-size:16px;color:var(--dark);padding-right:16px;">${f.q}</span>
+        <span id="faq-icon-${i}" style="color:var(--orange);font-size:24px;flex-shrink:0;transition:transform .2s;">+</span>
+      </button>
+      <div id="faq-body-${i}" style="display:none;padding:0 0 20px;">
+        <p style="font-size:15px;color:var(--gray);line-height:1.8;">${f.a}</p>
+      </div>
+    </div>`).join('');
+
+  const body = `
+<section class="page-hero">
+  <div class="container">
+    <div class="badge" style="margin-bottom:16px;">FAQ</div>
+    <h1>Frequently Asked Questions</h1>
+    <p>Everything you need to know about our ${industry} services in ${city}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div style="max-width:760px;margin:0 auto;">
+      <div style="background:var(--light);border-radius:14px;padding:16px 24px;display:flex;align-items:center;gap:12px;margin-bottom:40px;">
+        <span style="font-size:20px;">🔍</span>
+        <input type="text" placeholder="Search questions..." oninput="filterFaqs(this.value)" style="background:none;border:none;outline:none;font-size:15px;color:var(--dark);width:100%;" />
+      </div>
+      <div id="faq-list">${faqItems}</div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--light);padding:72px 0;">
+  <div class="container" style="text-align:center;">
+    <h2 style="font-size:clamp(26px,4vw,40px);margin-bottom:16px;">Still Have Questions?</h2>
+    <p style="color:var(--gray);font-size:17px;margin-bottom:32px;">We're happy to help. Reach out and we'll answer within a few hours.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="padding:16px 36px;">Contact Us →</a>
+      ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-dark" style="padding:16px 32px;">📞 ${phone}</a>` : ''}
+    </div>
+  </div>
+</section>
+
+<script>
+function toggleFaq(i) {
+  const body = document.getElementById('faq-body-' + i);
+  const icon = document.getElementById('faq-icon-' + i);
+  const open = body.style.display === 'block';
+  document.querySelectorAll('[id^="faq-body-"]').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('[id^="faq-icon-"]').forEach(el => { el.textContent = '+'; el.style.transform = ''; });
+  if (!open) { body.style.display = 'block'; icon.textContent = '×'; icon.style.transform = 'rotate(45deg)'; }
+}
+function filterFaqs(q) {
+  const term = q.toLowerCase();
+  document.querySelectorAll('[id^="faq-body-"]').forEach((el, i) => {
+    const row = el.closest ? el.parentElement : el.previousElementSibling?.parentElement;
+    if (row) row.style.display = (row.textContent.toLowerCase().includes(term) || !term) ? '' : 'none';
+  });
+}
+</script>`;
+
+  return wrapPage(`FAQ — ${name} | ${city} ${industry}`, `Common questions about ${name}'s ${industry} services in ${city}.`, industry, city, body, layout);
+}
+
+// Main orchestrator — generates all 5 pages
+async function buildWebsite(clientName, phone, email, city, industry, logoUrl = '', formId = GHL_FORM_ID, siteBase = '.') {
+  city = city || 'Orlando';
+  formId = formId || GHL_FORM_ID;
+  console.log(`[Sofia] Building 5-page website for ${clientName} (${industry}, ${city})...`);
+  const content = await generateWebsiteContent(clientName, industry, city);
+  const client = { name: clientName, phone, email, city, industry, logoUrl, formId, siteBase };
+  const layout = buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase);
+  return {
+    home:     buildHomePage(client, content, layout),
+    about:    buildAboutPage(client, content, layout),
+    services: buildServicesPage(client, content, layout),
+    contact:  buildContactPage(client, content, layout),
+    faq:      buildFAQPage(client, content, layout),
+    content, // expose for debugging
+  };
+}
+
+// Create GHL funnel with 5 linked page steps
+async function createGHLWebsite(locationId, clientName, industry, phone = '', email = '', city = 'Orlando', logoUrl = '', formId = GHL_FORM_ID) {
+  const headers = { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' };
+  console.log(`[Sofia] Creating GHL 5-page website for ${clientName}...`);
+
+  // Step 1: create funnel container
+  const funnelRes = await axios.post('https://services.leadconnectorhq.com/funnels/', {
+    name: `${clientName} — Website`,
+    type: 'funnel',
+    locationId,
+  }, { headers, timeout: 15000 });
+  const funnelId = funnelRes.data?.funnel?.id || funnelRes.data?.id;
+  if (!funnelId) throw new Error('GHL funnel creation returned no ID');
+
+  // Step 2: build all pages (we know funnelId now but not the base URL — use GHL path pattern)
+  const siteBase = ''; // relative nav links work within funnel
+  const pages = await buildWebsite(clientName, phone, email, city, industry, logoUrl, formId, siteBase);
+
+  // Step 3: add all 5 page steps
+  const pageSteps = [
+    { name: 'Home',       slug: 'home',       html: pages.home,     sequence: 0 },
+    { name: 'About Us',   slug: 'about-us',   html: pages.about,    sequence: 1 },
+    { name: 'Services',   slug: 'services',   html: pages.services, sequence: 2 },
+    { name: 'Contact Us', slug: 'contact-us', html: pages.contact,  sequence: 3 },
+    { name: 'FAQ',        slug: 'faq',        html: pages.faq,      sequence: 4 },
+  ];
+
+  const results = [];
+  for (const step of pageSteps) {
+    const stepRes = await axios.post(`https://services.leadconnectorhq.com/funnels/${funnelId}/steps`, {
+      name: step.name, type: 'optin_page', sequence: step.sequence, pageContent: step.html,
+    }, { headers, timeout: 15000 }).catch(e => ({ error: e.message }));
+    results.push({ page: step.name, created: !stepRes?.error, error: stepRes?.error });
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  console.log(`[Sofia] Website created: ${funnelId}. Pages: ${results.filter(r => r.created).length}/5`);
+  logActivity('sofia', `Built 5-page website for ${clientName}: ${funnelId}`);
+  return { funnelId, pages: results, locationId };
+}
+
+// ═══════════════════════════════════════════════════════════
+// SOFIA — LEAD FUNNEL BUILDER
+// Types: 'consultation' | 'quote' | 'lead-magnet'
+// ═══════════════════════════════════════════════════════════
+
+async function generateLeadFunnelContent(type, clientName, industry, city) {
+  const typeMap = {
+    consultation: 'free consultation booking',
+    quote: 'free estimate/quote request',
+    'lead-magnet': 'free guide/checklist download',
+  };
+  const res = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 800,
+    messages: [{ role: 'user', content: `Generate lead funnel content for a ${industry} business "${clientName}" in ${city}. Funnel type: ${typeMap[type] || type}. Return ONLY valid JSON:
+{
+  "optinHeadline": "compelling opt-in headline (action-oriented, under 12 words)",
+  "optinSub": "1-sentence value proposition",
+  "bulletPoints": ["Benefit 1","Benefit 2","Benefit 3","Benefit 4"],
+  "ctaText": "CTA button text (under 6 words)",
+  "socialProof": "short social proof line (e.g. '127 homeowners in ${city} already claimed this')",
+  "thankYouHeadline": "thank you page headline",
+  "thankYouSub": "next steps instruction",
+  "urgencyText": "urgency/scarcity line",
+  "leadMagnetTitle": "name of the free offer (e.g. 'Free Roof Inspection', 'Free SEO Audit')"
+}` }],
+  });
+  return JSON.parse(res.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+}
+
+async function buildLeadFunnelHTML(type, clientName, phone, city, industry, logoUrl = '', formId = GHL_FORM_ID) {
+  const c = await generateLeadFunnelContent(type, clientName, industry, city);
+  const logoHtml = logoUrl
+    ? `<img src="${logoUrl}" alt="${clientName}" style="height:44px;">`
+    : `<span style="font-family:Montserrat,sans-serif;font-weight:900;font-size:20px;color:#fff;">${clientName}</span>`;
+
+  const bullets = c.bulletPoints.map(b => `
+    <div style="display:flex;gap:12px;align-items:flex-start;">
+      <div style="width:24px;height:24px;border-radius:50%;background:rgba(249,115,22,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+        <span style="color:var(--orange);font-weight:700;font-size:13px;">✓</span>
+      </div>
+      <span style="font-size:16px;color:rgba(255,255,255,0.8);line-height:1.6;">${b}</span>
+    </div>`).join('');
+
+  const sharedStyles = `
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600&display=swap');
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--black:#0a0a0a;--orange:#f97316;--white:#fff}
+    body{font-family:'Inter',sans-serif;background:var(--black);color:#fff;min-height:100vh}
+    h1,h2{font-family:'Montserrat',sans-serif;font-weight:800}
+    .btn{display:inline-block;padding:18px 40px;border-radius:12px;font-weight:700;font-size:17px;cursor:pointer;transition:all .2s;text-decoration:none;border:none;text-align:center}
+    .btn-cta{background:var(--orange);color:#fff;width:100%}.btn-cta:hover{background:#ea6c0a;transform:translateY(-2px)}
+  `;
+
+  const optin = `<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${c.leadMagnetTitle} — ${clientName}</title>
+<style>${sharedStyles}</style>
+</head><body>
+<div style="min-height:100vh;display:grid;grid-template-rows:auto 1fr;background:linear-gradient(135deg,#0a0a0a 0%,#1a0a00 100%);">
+  <header style="padding:20px 32px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:center;">
+    ${logoHtml}
+  </header>
+  <main style="display:flex;align-items:center;justify-content:center;padding:40px 24px;">
+    <div style="max-width:960px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
+      <div>
+        <div style="display:inline-block;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.3);color:var(--orange);font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:7px 16px;border-radius:100px;margin-bottom:20px;">
+          ${city} ${industry}
+        </div>
+        <h1 style="font-size:clamp(32px,5vw,52px);line-height:1.1;margin-bottom:20px;">${c.optinHeadline}</h1>
+        <p style="font-size:17px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:32px;">${c.optinSub}</p>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px;">${bullets}</div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.3);">${c.socialProof}</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:40px;">
+        <p style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--orange);margin-bottom:8px;">FREE — No Obligation</p>
+        <h2 style="font-size:24px;margin-bottom:8px;">${c.leadMagnetTitle}</h2>
+        <p style="color:rgba(255,255,255,0.4);font-size:14px;margin-bottom:28px;">${c.urgencyText}</p>
+        <iframe src="https://api.leadconnectorhq.com/widget/form/${formId}" style="width:100%;min-height:380px;border:none;border-radius:12px;" scrolling="no"></iframe>
+        <script src="https://link.msgsndr.com/js/form_embed.js"></script>
+        ${phone ? `<p style="text-align:center;margin-top:20px;font-size:14px;color:rgba(255,255,255,0.3);">Or call us: <a href="tel:${phone.replace(/\D/g,'')}" style="color:var(--orange);font-weight:600;">${phone}</a></p>` : ''}
+      </div>
+    </div>
+  </main>
+</div>
+</body></html>`;
+
+  const thankYou = `<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Thank You — ${clientName}</title>
+<style>${sharedStyles}</style>
+</head><body>
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;background:linear-gradient(135deg,#0a0a0a,#0f1a0a);">
+  <header style="position:fixed;top:0;left:0;right:0;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:center;background:rgba(10,10,10,0.9);backdrop-filter:blur(8px);">${logoHtml}</header>
+  <div style="max-width:560px;margin:80px auto 0;">
+    <div style="width:80px;height:80px;border-radius:50%;background:rgba(34,197,94,0.15);border:2px solid rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-size:36px;">✅</div>
+    <div style="display:inline-block;background:rgba(34,197,94,0.1);color:#22c55e;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:100px;margin-bottom:20px;">Confirmed</div>
+    <h1 style="font-size:clamp(28px,5vw,48px);line-height:1.15;margin-bottom:16px;">${c.thankYouHeadline}</h1>
+    <p style="font-size:17px;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:36px;">${c.thankYouSub}</p>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px;margin-bottom:32px;">
+      <p style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:16px;">What Happens Next</p>
+      <div style="display:flex;flex-direction:column;gap:12px;text-align:left;">
+        <div style="display:flex;gap:12px;align-items:center;"><span style="width:28px;height:28px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">1</span><span style="font-size:15px;color:rgba(255,255,255,0.7);">We review your submission</span></div>
+        <div style="display:flex;gap:12px;align-items:center;"><span style="width:28px;height:28px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">2</span><span style="font-size:15px;color:rgba(255,255,255,0.7);">A specialist contacts you within 2 hours</span></div>
+        <div style="display:flex;gap:12px;align-items:center;"><span style="width:28px;height:28px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">3</span><span style="font-size:15px;color:rgba(255,255,255,0.7);">We schedule your free ${type === 'consultation' ? 'consultation' : 'appointment'}</span></div>
+      </div>
+    </div>
+    ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-cta">📞 Call Us Now: ${phone}</a>` : ''}
+  </div>
+</div>
+</body></html>`;
+
+  return { optin, thankYou, content: c };
+}
+
+async function createGHLLeadFunnel(locationId, clientName, industry, funnelType = 'consultation', phone = '', city = 'Orlando', logoUrl = '', formId = GHL_FORM_ID) {
+  const headers = { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' };
+  const typeLabel = { consultation: 'Free Consultation', quote: 'Free Quote', 'lead-magnet': 'Lead Magnet' }[funnelType] || funnelType;
+  console.log(`[Sofia] Building ${typeLabel} funnel for ${clientName}...`);
+
+  const { optin, thankYou, content: fc } = await buildLeadFunnelHTML(funnelType, clientName, phone, city, industry, logoUrl, formId);
+
+  const funnelRes = await axios.post('https://services.leadconnectorhq.com/funnels/', {
+    name: `${clientName} — ${typeLabel} Funnel`,
+    type: 'funnel', locationId,
+  }, { headers, timeout: 15000 });
+  const funnelId = funnelRes.data?.funnel?.id || funnelRes.data?.id;
+  if (!funnelId) throw new Error('Funnel creation returned no ID');
+
+  const steps = [
+    { name: typeLabel, type: 'optin_page', sequence: 0, pageContent: optin },
+    { name: 'Thank You', type: 'optin_page', sequence: 1, pageContent: thankYou },
+  ];
+  const results = [];
+  for (const step of steps) {
+    const r = await axios.post(`https://services.leadconnectorhq.com/funnels/${funnelId}/steps`, step, { headers, timeout: 15000 }).catch(e => ({ error: e.message }));
+    results.push({ page: step.name, created: !r?.error });
+    await new Promise(r2 => setTimeout(r2, 500));
+  }
+
+  console.log(`[Sofia] Lead funnel created: ${funnelId} (${typeLabel})`);
+  logActivity('sofia', `Built ${typeLabel} funnel for ${clientName}: ${funnelId}`);
+  return { funnelId, funnelType: typeLabel, leadMagnetTitle: fc.leadMagnetTitle, pages: results };
+}
+
 // ─── Sofia: New Client Onboarding Check ──────────────────
 
 const SOFIA_CLIENTS_SNAPSHOT_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/sofia_clients_snapshot.json';
@@ -7987,12 +8799,90 @@ app.post('/sofia/build-page', async (req, res) => {
   }
 });
 
-// GET /sofia/preview-page?industry=water+damage+restoration&city=Orlando&name=Test+Co&phone=4078446376
-// Returns the full HTML directly in the browser for visual testing
+// GET /sofia/preview-page — legacy single landing page preview
 app.get('/sofia/preview-page', async (req, res) => {
   try {
     const { industry = 'water damage restoration', city = 'Orlando', name = 'Test Company', phone = '(407) 844-6376', email = '', formId } = req.query;
     const html = await buildLandingHTML(name, phone, email, city, industry, '', formId);
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  } catch (err) {
+    res.status(500).send(`<pre>Error: ${err.message}</pre>`);
+  }
+});
+
+// POST /sofia/build-website — create full 5-page website in GHL for a subaccount
+app.post('/sofia/build-website', async (req, res) => {
+  try {
+    const { locationId, industry, city, formId } = req.body;
+    if (!locationId) return res.status(400).json({ status: 'error', message: 'locationId required' });
+    const locRes = await axios.get(`https://services.leadconnectorhq.com/locations/${locationId}`, {
+      headers: { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28' }, timeout: 8000,
+    });
+    const loc     = locRes.data?.location || locRes.data;
+    const name    = loc?.name || loc?.business?.name || 'Client';
+    const ind     = industry || ELENA_CLIENT_OVERRIDES[locationId]?.industry || 'business';
+    const locCity = city || loc?.city || 'Orlando';
+    const logo    = loc?.logoUrl || loc?.logo || '';
+    const phone   = loc?.phone || loc?.business?.phone || '';
+    const email   = loc?.email || loc?.business?.email || '';
+    createGHLWebsite(locationId, name, ind, phone, email, locCity, logo, formId); // non-blocking
+    res.json({ status: 'ok', message: `Sofia is building a 5-page website for ${name}. Check Render logs for funnelId.` });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// GET /sofia/preview-website?page=home&industry=roofing&city=Orlando&name=TestCo&phone=4071234567
+// Preview any of the 5 pages directly in the browser
+app.get('/sofia/preview-website', async (req, res) => {
+  try {
+    const {
+      page = 'home', industry = 'roofing', city = 'Orlando',
+      name = 'Test Company', phone = '(407) 123-4567', email = '', formId,
+    } = req.query;
+    const siteBase = '/sofia/preview-website';
+    const pages = await buildWebsite(name, phone, email, city, industry, '', formId || GHL_FORM_ID, siteBase);
+    const html = pages[page];
+    if (!html) return res.status(400).send(`<pre>Unknown page "${page}". Use: home, about, services, contact, faq</pre>`);
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  } catch (err) {
+    res.status(500).send(`<pre>Error: ${err.message}\n${err.stack}</pre>`);
+  }
+});
+
+// POST /sofia/build-funnel — create a lead gen funnel in GHL
+// Body: { locationId, funnelType: 'consultation'|'quote'|'lead-magnet', industry?, city? }
+app.post('/sofia/build-funnel', async (req, res) => {
+  try {
+    const { locationId, funnelType = 'consultation', industry, city, formId } = req.body;
+    if (!locationId) return res.status(400).json({ status: 'error', message: 'locationId required' });
+    const locRes = await axios.get(`https://services.leadconnectorhq.com/locations/${locationId}`, {
+      headers: { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28' }, timeout: 8000,
+    });
+    const loc     = locRes.data?.location || locRes.data;
+    const name    = loc?.name || loc?.business?.name || 'Client';
+    const ind     = industry || ELENA_CLIENT_OVERRIDES[locationId]?.industry || 'business';
+    const locCity = city || loc?.city || 'Orlando';
+    const logo    = loc?.logoUrl || loc?.logo || '';
+    const phone   = loc?.phone || loc?.business?.phone || '';
+    createGHLLeadFunnel(locationId, name, ind, funnelType, phone, locCity, logo, formId); // non-blocking
+    res.json({ status: 'ok', message: `Sofia is building a ${funnelType} funnel for ${name}. Check Render logs for funnelId.` });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// GET /sofia/preview-funnel?type=consultation&industry=roofing&city=Orlando&name=TestCo&phone=4071234567&step=optin
+app.get('/sofia/preview-funnel', async (req, res) => {
+  try {
+    const {
+      type = 'consultation', industry = 'roofing', city = 'Orlando',
+      name = 'Test Company', phone = '(407) 123-4567', step = 'optin',
+    } = req.query;
+    const { optin, thankYou } = await buildLeadFunnelHTML(type, name, phone, city, industry);
+    const html = step === 'thank-you' ? thankYou : optin;
     res.setHeader('Content-Type', 'text/html');
     res.send(html);
   } catch (err) {
