@@ -30,3 +30,11 @@ services:
         value: AIzaSyA2AGHiDC1CCRcWKK8KFQq0i02uzOUGqaM
       - key: SEARCH_CONSOLE_API_KEY
         value: AIzaSyB5bO7Qmy8B-rHoSDjRY3gCZr9tpvYBfaY
+      - key: GOOGLE_SA_EMAIL
+        value: jrz-seo-agent@jrz-marketing-os.iam.gserviceaccount.com
+      - key: GOOGLE_SA_PRIVATE_KEY
+        sync: false
+      - key: DATAFORSEO_LOGIN
+        value: info@jrzmarketing.com
+      - key: DATAFORSEO_PASSWORD
+        sync: false
