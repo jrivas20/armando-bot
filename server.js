@@ -45,30 +45,74 @@ const DATAFORSEO_PASSWORD = process.env.DATAFORSEO_PASSWORD || '';
 const DATAFORSEO_BASE     = 'https://api.dataforseo.com';
 
 // ── SEO-enabled sub-accounts ───────────────────────────────
+// Central Florida cities — rotated daily so every blog targets a different city.
+// 30 cities = 30 unique geo-targeted posts per month per client = page 1 across all of Central FL.
+const CENTRAL_FL_CITIES = [
+  'Orlando', 'Kissimmee', 'Winter Park', 'Winter Garden', 'Sanford',
+  'Lake Mary', 'Celebration', 'Windermere', 'Clermont', 'Apopka',
+  'Oviedo', 'Longwood', 'Altamonte Springs', 'Casselberry', 'Maitland',
+  'St. Cloud', 'Lake Nona', 'Dr. Phillips', 'Narcoossee', 'Hunters Creek',
+  'Deltona', 'Daytona Beach', 'Deland', 'Ocala', 'Leesburg',
+  'Osceola County', 'Orange County', 'Seminole County', 'Lake County', 'Polk County',
+];
+
+// Returns today's target city — cycles through CENTRAL_FL_CITIES so each day = new city
+function getTodaysCity() {
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  return CENTRAL_FL_CITIES[dayOfYear % CENTRAL_FL_CITIES.length];
+}
+
 // Add clients here to run daily blogs + weekly SEO plan for them.
-// domain = their website without https:// or trailing slash
-// lang   = 'en' or 'es'
-// industry = used as fallback for keyword generation if no DataForSEO data
 const SEO_CLIENTS = {
   'iipUT8kmVxJZzGBzvkZm': {
     name: 'Railing Max',
     domain: 'railingmax.com',
     lang: 'en',
-    industry: 'railing and fence installation',
-    voice: 'Straightforward, trustworthy contractor who takes pride in craftsmanship. Speaks to homeowners who want quality work done right the first time. No fluff — practical advice, real results.',
-    audience: 'Florida homeowners, property managers, and builders looking to upgrade their railings, fences, or gates for safety, curb appeal, or code compliance.',
-    topics: ['aluminum vs wrought iron railings', 'pool fence safety codes Florida', 'how to choose the right railing for your home', 'fence installation cost guide', 'HOA-approved fencing options', 'deck railing ideas for Florida homes', 'gate automation and security'],
-    cta: 'Get a free railing estimate at railingmax.com',
+    industry: 'railing, stair, and glass installation',
+    voice: 'Expert craftsman who knows railings inside and out. Straight-talking, no upselling — just real advice from someone who has installed thousands of railings across Florida. Homeowners trust him because he tells them what they actually need.',
+    audience: 'Homeowners, builders, and property managers in Central Florida who need stair railings, glass railings, pool railings, balcony railings, or iron railings installed or replaced. Safety and curb appeal matter equally to them.',
+    keywords: ['stair railing', 'glass railing', 'iron railing', 'aluminum railing', 'balcony railing', 'pool fence', 'custom staircase', 'railing installation', 'railing contractor', 'wrought iron railing'],
+    topics: [
+      'glass railing vs aluminum railing which is right for your home',
+      'stair railing codes and requirements Florida',
+      'how much does railing installation cost in Central Florida',
+      'best railing materials for Florida weather',
+      'pool fence requirements Florida law',
+      'custom glass railing for balconies and decks',
+      'iron railing vs aluminum which lasts longer in Florida',
+      'how to choose the right railing contractor',
+      'cable railing systems for modern homes',
+      'staircase makeover ideas with custom railings',
+    ],
+    cta: 'Get your free railing quote at railingmax.com',
   },
   'rJKRuyayc6Z6twr9X20v': {
     name: 'The Escobar Kitchen',
     domain: 'theescobarkitchen.com',
     lang: 'en',
-    industry: 'restaurant',
-    voice: 'Passionate, food-obsessed, proud of every dish. Warm and inviting — like the owner is personally telling you why you need to try this. References real menu items, real flavors, real experiences.',
-    audience: 'Food lovers in the Kissimmee / Orlando area looking for a unique dining experience. People who share food photos, celebrate special occasions, and care about quality ingredients.',
-    topics: ['best spicy tuna crispy rice in Orlando', 'date night restaurants Kissimmee', 'unique dining experiences near Disney', 'what to order at The Escobar Kitchen', 'food trends in Orlando 2026', 'best happy hour spots Narcoossee', 'private dining Kissimmee FL'],
-    cta: 'Make a reservation or order online at theescobarkitchen.com',
+    industry: 'Latin Asian fusion restaurant',
+    voice: 'Bold, passionate, and proud of every single dish. Writes like someone who is genuinely obsessed with food — the flavors, the craft, the experience. Warm but confident. Makes you feel like you are missing out if you are not there tonight.',
+    audience: 'Food lovers in Kissimmee, Narcoossee, Lake Nona, and greater Orlando searching for something beyond the ordinary — a restaurant where Latin soul meets Asian precision. Date nights, celebrations, foodies, and anyone who searches "best sushi near me" or "latin restaurant near me".',
+    keywords: [
+      'latin restaurant near me', 'sushi near me', 'asian fusion near me', 'latin asian fusion',
+      'best sushi Orlando', 'best latin restaurant Orlando', 'asian fusion Kissimmee',
+      'latin restaurant Kissimmee', 'sushi Narcoossee', 'unique restaurants near Disney',
+      'best spicy tuna crispy rice Orlando', 'fusion restaurant Central Florida',
+      'date night restaurants Kissimmee', 'upscale restaurant Lake Nona',
+    ],
+    topics: [
+      'why The Escobar Kitchen is the best latin asian fusion in Central Florida',
+      'best sushi near Disney World Orlando',
+      'what is latin asian fusion food and why Orlando is obsessed with it',
+      'best date night restaurants in Kissimmee FL',
+      'spicy tuna crispy rice the dish everyone is talking about in Orlando',
+      'best asian fusion restaurants near Lake Nona',
+      'what to order at The Escobar Kitchen — a locals guide',
+      'latin restaurant Narcoossee FL hidden gem',
+      'best seafood restaurants Kissimmee 2026',
+      'asian fusion vs traditional sushi what is the difference',
+    ],
+    cta: 'Reserve your table or order online at theescobarkitchen.com',
   },
   '6FdG0APBuZ81P8X2H4zc': {
     name: 'Rental Spaces',
@@ -104,11 +148,28 @@ const SEO_CLIENTS = {
     name: 'Cooney Homes',
     domain: 'cooneyhomesfl.com',
     lang: 'en',
-    industry: 'real estate',
-    voice: 'Knowledgeable, calm, and trustworthy. Speaks like an agent who actually knows the Florida market inside and out — no hype, just honest guidance for buyers and sellers navigating one of the biggest decisions of their lives.',
-    audience: 'First-time homebuyers, families relocating to Central Florida, and homeowners thinking about selling in the Orlando area.',
-    topics: ['buying a home in Central Florida 2026', 'best neighborhoods in Orlando for families', 'how to sell your home fast in Florida', 'Florida real estate market trends', 'first-time homebuyer tips Florida', 'relocating to Orlando what to know', 'how much home can I afford in Orlando'],
-    cta: 'Start your home search at cooneyhomesfl.com',
+    industry: 'general contractor — home additions, custom home building, and remodeling',
+    voice: 'Experienced builder who has seen every type of project in Florida and knows exactly what it takes to do it right. Practical, confident, and zero tolerance for shortcuts. Speaks to homeowners who want their vision built properly — on time and on budget.',
+    audience: 'Florida homeowners who want to add square footage, build a custom home from scratch, add a garage, expand a kitchen, or build an in-law suite. Also builders and developers in Central Florida looking for a trusted general contractor.',
+    keywords: [
+      'general contractor Orlando', 'home addition Orlando', 'custom home builder Orlando',
+      'room addition Central Florida', 'home remodel Orlando', 'kitchen addition Florida',
+      'in-law suite addition Orlando', 'garage addition Florida', 'custom home construction Orlando',
+      'home expansion contractor Central Florida',
+    ],
+    topics: [
+      'how much does a home addition cost in Florida 2026',
+      'custom home builder vs production builder which is right for you',
+      'home addition ideas that add the most value in Central Florida',
+      'how to add a room to your house in Florida step by step',
+      'building an in-law suite in Orlando what you need to know',
+      'kitchen addition vs full remodel which makes more sense',
+      'garage addition costs and permits in Orange County Florida',
+      'how to find a trustworthy general contractor in Central Florida',
+      'how long does a home addition take in Florida',
+      'building a custom home in Orlando from land to move-in',
+    ],
+    cta: 'Start your project with a free consultation at cooneyhomesfl.com',
   },
   'OpdBPAp31zItOc5IIykL': {
     name: 'Le Varon Barbershop',
@@ -7372,7 +7433,8 @@ async function getClientBlog(locationId, token) {
 
 // Publish one SEO blog post to a single client sub-account
 async function runClientDailySeoBlog(locationId, config) {
-  const { name, domain, lang = 'en', industry = 'local business', voice = '', audience = '', topics = [], cta = `visit ${domain}` } = config;
+  const { name, domain, lang = 'en', industry = 'local business', voice = '', audience = '', topics = [], keywords = [], cta = `visit ${domain}` } = config;
+  const todaysCity = getTodaysCity();
   console.log(`[Client SEO] ${name}: finding keyword for ${domain}...`);
 
   // Step 1: Get location token via agency key
@@ -7383,8 +7445,18 @@ async function runClientDailySeoBlog(locationId, config) {
   const blog = await getClientBlog(locationId, token);
   if (!blog) return { name, skipped: true, reason: 'no_blog_found — set one up in GHL for this client' };
 
-  // Step 3: Find best keyword via DataForSEO keywords_for_site
-  let targetKeyword = `${industry} Orlando FL`;
+  // Step 3: Find best keyword — city-specific for geo domination
+  // Priority: client keywords + city → DataForSEO striking distance → industry + city fallback
+  let targetKeyword = `${industry} ${todaysCity} FL`;
+
+  // First try: use client's own keyword list + today's city (guarantees city-specific content)
+  if (keywords.length > 0) {
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+    const baseKeyword = keywords[dayOfYear % keywords.length];
+    targetKeyword = `${baseKeyword} ${todaysCity} FL`;
+  }
+
+  // Second try: DataForSEO striking distance keywords for this domain
   if (DATAFORSEO_PASSWORD) {
     try {
       const auth = Buffer.from(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`).toString('base64');
@@ -7394,12 +7466,15 @@ async function runClientDailySeoBlog(locationId, config) {
         { headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' }, timeout: 20000 }
       );
       const items = kwRes.data?.tasks?.[0]?.result?.[0]?.items || [];
-      // Striking distance: position 11-30 with highest search volume
       const striking = items
         .filter(k => { const pos = k.ranked_serp_element?.serp_item?.rank_absolute; return pos && pos >= 11 && pos <= 30; })
         .sort((a, b) => (b.keyword_data?.search_volume || 0) - (a.keyword_data?.search_volume || 0));
-      if (striking.length > 0) targetKeyword = striking[0].keyword;
-      else if (items.length > 0) targetKeyword = items[0].keyword;
+      // Only override if DataForSEO finds something better — keep city in the keyword
+      if (striking.length > 0) {
+        const kw = striking[0].keyword;
+        // Add city if not already location-specific
+        targetKeyword = kw.toLowerCase().includes(todaysCity.toLowerCase()) ? kw : `${kw} ${todaysCity}`;
+      }
     } catch (kwErr) { console.error(`[Client SEO] Keyword error for ${name}:`, kwErr.message); }
   }
 
@@ -7424,9 +7499,14 @@ ${topicHint}
 YOUR TASK:
 Write a ${isSpanish ? 'SPANISH' : 'ENGLISH'} SEO blog post (700–950 words) targeting this keyword: "${targetKeyword}"
 
+TODAY'S TARGET CITY: ${todaysCity}, FL
+(This post must rank for searches in ${todaysCity} specifically — not just generic Orlando content)
+
 SEO REQUIREMENTS:
 - Use the exact keyword in: title, first paragraph, at least 2 headings, and conclusion
-- Include specific Orlando / Central Florida / local neighborhood references
+- Mention "${todaysCity}" at least 4 times naturally throughout the post
+- Reference real streets, neighborhoods, or landmarks near ${todaysCity} when relevant
+- Make someone in ${todaysCity} feel like this business is THEIR local option
 - Include 2 natural internal links:
   * One to https://${domain} using the business name or a service as anchor text
   * One to https://${domain}/contact (or /reservations or /book) using "${cta.split(' ').slice(0, 3).join(' ')}" style anchor
