@@ -50,15 +50,88 @@ const DATAFORSEO_BASE     = 'https://api.dataforseo.com';
 // lang   = 'en' or 'es'
 // industry = used as fallback for keyword generation if no DataForSEO data
 const SEO_CLIENTS = {
-  'iipUT8kmVxJZzGBzvkZm': { name: 'Railing Max',          domain: 'railingmax.com',           lang: 'en', industry: 'railing and fence installation' },
-  'rJKRuyayc6Z6twr9X20v': { name: 'The Escobar Kitchen',  domain: 'theescobarkitchen.com',     lang: 'en', industry: 'restaurant' },
-  '6FdG0APBuZ81P8X2H4zc': { name: 'Rental Spaces',        domain: 'rentalspacesinc.com',       lang: 'en', industry: 'RV and boat storage' },
-  'Emg5M7GZE7XmnHc7F5vy': { name: 'Guaca-Mole-Tex-Mex',  domain: 'guaca-mole-texmex.com',     lang: 'en', industry: 'Mexican restaurant' },
-  'd7iUPfamAaPlSBNj6IhT': { name: 'JRZ Marketing',        domain: 'jrzmarketing.com',          lang: 'en', industry: 'AI marketing agency' },
-  'Gc4sUcLiRI2edddJ5Lfl': { name: 'Cooney Homes',         domain: 'cooneyhomesfl.com',         lang: 'en', industry: 'real estate' },
-  'OpdBPAp31zItOc5IIykL': { name: 'Le Varon Barbershop',  domain: 'levaronbarbershop.com',     lang: 'en', industry: 'barbershop' },
-  'VWHZW08b0skUV7wcnG55': { name: 'USA Latino CPA',       domain: 'usalatinocpa.com',          lang: 'en', industry: 'accounting and tax services' },
-  // Add more clients here as needed — just add locationId: { name, domain, lang, industry }
+  'iipUT8kmVxJZzGBzvkZm': {
+    name: 'Railing Max',
+    domain: 'railingmax.com',
+    lang: 'en',
+    industry: 'railing and fence installation',
+    voice: 'Straightforward, trustworthy contractor who takes pride in craftsmanship. Speaks to homeowners who want quality work done right the first time. No fluff — practical advice, real results.',
+    audience: 'Florida homeowners, property managers, and builders looking to upgrade their railings, fences, or gates for safety, curb appeal, or code compliance.',
+    topics: ['aluminum vs wrought iron railings', 'pool fence safety codes Florida', 'how to choose the right railing for your home', 'fence installation cost guide', 'HOA-approved fencing options', 'deck railing ideas for Florida homes', 'gate automation and security'],
+    cta: 'Get a free railing estimate at railingmax.com',
+  },
+  'rJKRuyayc6Z6twr9X20v': {
+    name: 'The Escobar Kitchen',
+    domain: 'theescobarkitchen.com',
+    lang: 'en',
+    industry: 'restaurant',
+    voice: 'Passionate, food-obsessed, proud of every dish. Warm and inviting — like the owner is personally telling you why you need to try this. References real menu items, real flavors, real experiences.',
+    audience: 'Food lovers in the Kissimmee / Orlando area looking for a unique dining experience. People who share food photos, celebrate special occasions, and care about quality ingredients.',
+    topics: ['best spicy tuna crispy rice in Orlando', 'date night restaurants Kissimmee', 'unique dining experiences near Disney', 'what to order at The Escobar Kitchen', 'food trends in Orlando 2026', 'best happy hour spots Narcoossee', 'private dining Kissimmee FL'],
+    cta: 'Make a reservation or order online at theescobarkitchen.com',
+  },
+  '6FdG0APBuZ81P8X2H4zc': {
+    name: 'Rental Spaces',
+    domain: 'rentalspacesinc.com',
+    lang: 'en',
+    industry: 'RV and boat storage',
+    voice: 'Practical and no-nonsense. Speaks to people who love their toys (RVs, boats, ATVs) and want safe, affordable storage without the hassle. Friendly but to the point.',
+    audience: 'RV owners, boaters, and outdoor enthusiasts in the Orlando area who need secure, affordable storage between trips.',
+    topics: ['how to store your RV in Florida summer', 'boat storage near Orlando', 'indoor vs outdoor RV storage', 'tips for winterizing your boat in Florida', 'how to choose an RV storage facility', 'cost of boat storage Orlando', 'RV storage security features to look for'],
+    cta: 'Reserve your storage space at rentalspacesinc.com',
+  },
+  'Emg5M7GZE7XmnHc7F5vy': {
+    name: 'Guaca-Mole-Tex-Mex',
+    domain: 'guaca-mole-texmex.com',
+    lang: 'en',
+    industry: 'Tex-Mex restaurant',
+    voice: 'Fun, bold, and unapologetically Tex-Mex. Celebrates big flavors, good times, and authentic recipes. Casual, energetic, and makes you hungry just reading it.',
+    audience: 'Families, friend groups, and Tex-Mex lovers in Orlando looking for generous portions, great margaritas, and a lively atmosphere.',
+    topics: ['best Tex-Mex in Orlando', 'authentic guacamole made fresh daily', 'best margaritas Orlando FL', 'Tex-Mex vs Mexican food what is the difference', 'family-friendly restaurants Orlando', 'best tacos near me Orlando', 'happy hour deals Orlando restaurants'],
+    cta: 'Come hungry — find us at guaca-mole-texmex.com',
+  },
+  'd7iUPfamAaPlSBNj6IhT': {
+    name: 'JRZ Marketing',
+    domain: 'jrzmarketing.com',
+    lang: 'en',
+    industry: 'AI marketing agency',
+    voice: 'Sharp, confident, and results-driven. José Rivas speaks from real experience building systems that work. Bilingual edge, deep understanding of Latino entrepreneurs, zero tolerance for fluff or wasted ad spend.',
+    audience: 'Small business owners, Latino entrepreneurs, and service-based businesses in Orlando and Central Florida who want real growth — more leads, more sales, more automation.',
+    topics: ['AI marketing automation for small business Orlando', 'how to get more leads without spending more on ads', 'Go High Level for small business', 'social media automation that actually works', 'bilingual marketing strategy Florida', 'how to rank your business on Google Maps Orlando', 'marketing mistakes small business owners make'],
+    cta: 'Book your free strategy call at jrzmarketing.com/contact-us',
+  },
+  'Gc4sUcLiRI2edddJ5Lfl': {
+    name: 'Cooney Homes',
+    domain: 'cooneyhomesfl.com',
+    lang: 'en',
+    industry: 'real estate',
+    voice: 'Knowledgeable, calm, and trustworthy. Speaks like an agent who actually knows the Florida market inside and out — no hype, just honest guidance for buyers and sellers navigating one of the biggest decisions of their lives.',
+    audience: 'First-time homebuyers, families relocating to Central Florida, and homeowners thinking about selling in the Orlando area.',
+    topics: ['buying a home in Central Florida 2026', 'best neighborhoods in Orlando for families', 'how to sell your home fast in Florida', 'Florida real estate market trends', 'first-time homebuyer tips Florida', 'relocating to Orlando what to know', 'how much home can I afford in Orlando'],
+    cta: 'Start your home search at cooneyhomesfl.com',
+  },
+  'OpdBPAp31zItOc5IIykL': {
+    name: 'Le Varon Barbershop',
+    domain: 'levaronbarbershop.com',
+    lang: 'en',
+    industry: 'barbershop',
+    voice: 'Cool, confident, and community-rooted. Celebrates the culture of the barbershop — where men come for more than a haircut. Speaks the language of style, brotherhood, and taking pride in your appearance.',
+    audience: 'Men in Orlando who care about their look — from clean fades to beard lineups. Loyal barbershop clients who see their barber as part of their weekly routine.',
+    topics: ['best barbershop Orlando FL', 'how to find the right barber', 'fade haircut styles 2026', 'how to maintain your beard between cuts', 'barbershop vs hair salon what is the difference', 'mens grooming tips Orlando', 'why a good barber is worth it'],
+    cta: 'Book your appointment at levaronbarbershop.com',
+  },
+  'VWHZW08b0skUV7wcnG55': {
+    name: 'USA Latino CPA',
+    domain: 'usalatinocpa.com',
+    lang: 'en',
+    industry: 'accounting and tax services',
+    voice: 'Trustworthy, clear, and culturally aware. Speaks to Latino business owners and immigrants who have been underserved by mainstream accountants. Demystifies taxes and finances without being condescending — in plain language, sometimes with Spanish terms.',
+    audience: 'Latino entrepreneurs, self-employed immigrants, and small business owners in Florida who need bilingual accounting help, tax filing, and financial guidance they can actually understand.',
+    topics: ['how to file taxes as a self-employed immigrant Florida', 'LLC vs sole proprietor for Latino business owners', 'tax deductions for small business owners', 'how to build business credit in the US', 'ITIN taxes what you need to know', 'accounting tips for restaurant owners', 'why your business needs a bilingual CPA'],
+    cta: 'Schedule a free consultation at usalatinocpa.com',
+  },
+  // Add more clients below — copy the format above
+  // 'LOCATION_ID': { name, domain, lang, industry, voice, audience, topics: [], cta },
 };
 
 // ── Bland.ai voice calls ───────────────────────────────────
@@ -7299,7 +7372,7 @@ async function getClientBlog(locationId, token) {
 
 // Publish one SEO blog post to a single client sub-account
 async function runClientDailySeoBlog(locationId, config) {
-  const { name, domain, lang = 'en', industry = 'local business' } = config;
+  const { name, domain, lang = 'en', industry = 'local business', voice = '', audience = '', topics = [], cta = `visit ${domain}` } = config;
   console.log(`[Client SEO] ${name}: finding keyword for ${domain}...`);
 
   // Step 1: Get location token via agency key
@@ -7332,31 +7405,44 @@ async function runClientDailySeoBlog(locationId, config) {
 
   // Step 4: Write SEO blog post with Claude Haiku (cost-efficient for 15+ clients/day)
   const isSpanish = lang === 'es';
+  const topicHint = topics.length > 0
+    ? `\nContent pillars to draw from (pick the most relevant to the keyword):\n${topics.map(t => `- ${t}`).join('\n')}`
+    : '';
+
   const blogRes = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 2000,
-    messages: [{ role: 'user', content: `You are an SEO content writer for ${name}, a ${industry} business in Orlando, FL.
+    messages: [{ role: 'user', content: `You are writing a blog post FOR ${name} — a ${industry} in the Orlando / Central Florida area.
 
-Write a ${isSpanish ? 'SPANISH' : 'ENGLISH'} SEO blog post (600–900 words) targeting the keyword: "${targetKeyword}"
+BRAND VOICE:
+${voice || `Knowledgeable, helpful, and real. Speaks directly to the customer without jargon.`}
 
-Requirements:
-- Use the exact keyword in the title, first paragraph, 2 headings, and conclusion
-- Include Orlando / Central Florida local references
-- Practical, helpful content — written from real experience, not generic advice
-- Include 2 internal links: one to https://${domain} (anchor: business name or service) and one to https://${domain}/contact or https://${domain}/reservations (anchor: "contact us" or "book now")
-- End with a natural CTA to contact or visit the business
+TARGET AUDIENCE:
+${audience || `Local customers in the Orlando area looking for ${industry} services.`}
+${topicHint}
+
+YOUR TASK:
+Write a ${isSpanish ? 'SPANISH' : 'ENGLISH'} SEO blog post (700–950 words) targeting this keyword: "${targetKeyword}"
+
+SEO REQUIREMENTS:
+- Use the exact keyword in: title, first paragraph, at least 2 headings, and conclusion
+- Include specific Orlando / Central Florida / local neighborhood references
+- Include 2 natural internal links:
+  * One to https://${domain} using the business name or a service as anchor text
+  * One to https://${domain}/contact (or /reservations or /book) using "${cta.split(' ').slice(0, 3).join(' ')}" style anchor
+- End with this CTA naturally woven into the last paragraph: "${cta}"
 
 CRITICAL — WRITE LIKE A REAL HUMAN, NOT AN AI:
-- Use contractions (you'll, don't, it's, we've, here's)
-- Mix short and long sentences — vary the rhythm so it doesn't sound robotic
-- Be specific: real details, real scenarios, real numbers — not vague generalities
-- Write in second person ("you") like you're talking to a neighbor, not writing a report
-- NEVER use: "In today's world", "It's no secret", "In conclusion", "Furthermore", "Moreover", "Game-changing", "Leverage", "Seamlessly", "Delve", "Robust", "Navigate", "Empower", "Unlock potential"
-- Don't make every bullet point the same length or structure
-- Sound like the actual business owner wrote this — someone who knows their craft
+- Use contractions throughout (you'll, don't, it's, we've, here's, that's)
+- Vary sentence length — some 4 words, some 25 words. Never uniform.
+- Talk directly to the reader using "you" — like a trusted expert, not a textbook
+- Specific details and real scenarios — not "quality service" or "satisfied customers"
+- NEVER write: "In today's world", "It's no secret", "In conclusion", "Furthermore", "Moreover", "Game-changing", "Leverage", "Seamlessly", "Delve", "Robust", "Navigate", "Empower", "Unlock", "Look no further"
+- Bullet points should NOT all be the same length
+- Sound like the business owner sat down and wrote this from years of real experience
 
-Return ONLY valid JSON (no markdown):
-{ "title": "SEO title 50-60 chars", "metaDescription": "155 char description with keyword", "htmlContent": "HTML body using h2/h3/p/ul/li/strong/a only" }` }],
+Return ONLY valid JSON, no markdown, no code fences:
+{ "title": "50-60 char SEO title with keyword", "metaDescription": "150-160 char meta description with keyword", "htmlContent": "full HTML using h2/h3/p/ul/li/ol/strong/em/a tags only — no html/head/body" }` }],
   });
 
   const parsed = JSON.parse(blogRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
