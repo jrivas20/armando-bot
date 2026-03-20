@@ -152,6 +152,7 @@ const SEO_CLIENTS = {
     audience: 'RV owners, boaters, and outdoor enthusiasts in the Orlando area who need secure, affordable storage between trips.',
     topics: ['how to store your RV in Florida summer', 'boat storage near Orlando', 'indoor vs outdoor RV storage', 'tips for winterizing your boat in Florida', 'how to choose an RV storage facility', 'cost of boat storage Orlando', 'RV storage security features to look for'],
     cta: 'Reserve your storage space at rentalspacesinc.com',
+    apiKey: 'pit-1b29023e-d415-4ab6-b18d-1a1072d4c355',
   },
   'Emg5M7GZE7XmnHc7F5vy': {
     name: 'Guaca-Mole-Tex-Mex',
