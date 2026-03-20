@@ -12000,6 +12000,28 @@ app.get('/cron/cooney-city-pages/status', async (_req, res) => {
   res.json({ published: snap.published.length, total: COONEY_SERVICES.length * COONEY_CITIES.length, remaining: COONEY_SERVICES.length * COONEY_CITIES.length - snap.published.length, lastPages: snap.published.slice(-10) });
 });
 
+// GET /cron/railing-city-pages/test — test one page and return result or error
+app.get('/cron/railing-city-pages/test', async (_req, res) => {
+  try {
+    const result = await runRailingMaxCityPage(RAILING_MAX_SERVICES[0], RAILING_MAX_CITIES[0]);
+    const snap = await loadCityPagesSnapshot();
+    snap.published.push(`floating-stairs-orlando-fl`);
+    await saveCloudinaryJSON(CITY_PAGES_PID, snap);
+    res.json({ success: true, result });
+  } catch (e) { res.json({ success: false, error: e.message, stack: e.stack?.split('\n').slice(0,5) }); }
+});
+
+// GET /cron/cooney-city-pages/test — test one page and return result or error
+app.get('/cron/cooney-city-pages/test', async (_req, res) => {
+  try {
+    const result = await runCooneyHomeCityPage(COONEY_SERVICES[0], COONEY_CITIES[0]);
+    const snap = await loadCooneyPagesSnapshot();
+    snap.published.push(`custom-home-builder-orlando-fl`);
+    await saveCloudinaryJSON(COONEY_CITY_PAGES_PID, snap);
+    res.json({ success: true, result });
+  } catch (e) { res.json({ success: false, error: e.message, stack: e.stack?.split('\n').slice(0,5) }); }
+});
+
 // Debug: GET /sofia/blogs/:locationId — check what blogs API returns for a sub-account
 app.get('/sofia/blogs/:locationId', async (req, res) => {
   const { locationId } = req.params;
