@@ -11408,19 +11408,23 @@ app.post('/sofia/uptime-check', async (_req, res) => {
 });
 
 // Manual trigger: POST /cron/client-blogs — run daily SEO blog for all SEO_CLIENTS
-app.post('/cron/client-blogs', async (_req, res) => {
-  const result = await runAllClientsDailyBlog();
-  res.json(result);
+// Responds immediately — blog generation runs in background (60-90s per client)
+app.post('/cron/client-blogs', (_req, res) => {
+  res.json({ status: 'started', message: 'Running blogs for all clients in background — check Render logs' });
+  runAllClientsDailyBlog().catch(e => console.error('[Client SEO] All blogs error:', e.message));
 });
 
 // Manual trigger: POST /cron/client-blog/:locationId — run blog for one specific client
 // Example: POST /cron/client-blog/iipUT8kmVxJZzGBzvkZm (Railing Max)
-app.post('/cron/client-blog/:locationId', async (req, res) => {
+// Responds immediately — Claude Opus takes 60-90s, would 502 if awaited on Render free plan
+app.post('/cron/client-blog/:locationId', (req, res) => {
   const { locationId } = req.params;
   const config = SEO_CLIENTS[locationId];
   if (!config) return res.status(404).json({ error: `No SEO_CLIENTS entry for locationId: ${locationId}` });
-  const result = await runClientDailySeoBlog(locationId, config);
-  res.json(result);
+  res.json({ status: 'started', name: config.name, message: 'Blog generating in background — will publish to GHL in ~60s' });
+  runClientDailySeoBlog(locationId, config)
+    .then(r => console.log(`[Client SEO] ✅ Manual blog result for ${config.name}:`, JSON.stringify(r)))
+    .catch(e => console.error(`[Client SEO] ❌ Manual blog error for ${config.name}:`, e.message));
 });
 
 // GET /sofia/content-learning/status — show blog history + next recommended keyword per client
