@@ -175,6 +175,7 @@ const SEO_CLIENTS = {
     audience: 'RV owners, boaters, and outdoor enthusiasts in the Orlando area who need secure, affordable storage between trips.',
     topics: ['how to store your RV in Florida summer', 'boat storage near Orlando', 'indoor vs outdoor RV storage', 'tips for winterizing your boat in Florida', 'how to choose an RV storage facility', 'cost of boat storage Orlando', 'RV storage security features to look for'],
     cta: 'Reserve your storage space at rentalspacesinc.com',
+    keywords: ['RV storage Orlando', 'boat storage Orlando', 'covered RV storage Florida', 'outdoor boat storage Central Florida', 'climate controlled RV storage Orlando', 'monthly boat storage Kissimmee', 'secure RV storage Florida', 'RV parking near Orlando', 'self storage for boats Florida'],
     apiKey: 'pit-1b29023e-d415-4ab6-b18d-1a1072d4c355',
     brand: { primary: '#080808', accent: '#116dff', bg: '#ffffff', logoUrl: '' },
   },
@@ -187,6 +188,7 @@ const SEO_CLIENTS = {
     audience: 'Families, friend groups, and Tex-Mex lovers in Orlando looking for generous portions, great margaritas, and a lively atmosphere.',
     topics: ['best Tex-Mex in Orlando', 'authentic guacamole made fresh daily', 'best margaritas Orlando FL', 'Tex-Mex vs Mexican food what is the difference', 'family-friendly restaurants Orlando', 'best tacos near me Orlando', 'happy hour deals Orlando restaurants'],
     cta: 'Come hungry — find us at guaca-mole-texmex.com',
+    keywords: ['tex mex restaurant Orlando', 'best tacos Orlando', 'mexican restaurant near me Orlando', 'authentic mexican food Central Florida', 'best margaritas Orlando', 'guacamole restaurant Orlando', 'family tex mex Kissimmee', 'best burritos Orlando', 'happy hour tex mex Orlando'],
     apiKey: 'pit-3ba32a5e-775f-46e6-9e5d-4a201148f7fb',
   },
   'd7iUPfamAaPlSBNj6IhT': {
@@ -198,6 +200,7 @@ const SEO_CLIENTS = {
     audience: 'Small business owners, Latino entrepreneurs, and service-based businesses in Orlando and Central Florida who want real growth — more leads, more sales, more automation.',
     topics: ['AI marketing automation for small business Orlando', 'how to get more leads without spending more on ads', 'Go High Level for small business', 'social media automation that actually works', 'bilingual marketing strategy Florida', 'how to rank your business on Google Maps Orlando', 'marketing mistakes small business owners make'],
     cta: 'Book your free strategy call at jrzmarketing.com/contact-us',
+    keywords: ['marketing agency Orlando', 'social media marketing Orlando', 'digital marketing Florida', 'GoHighLevel agency Orlando', 'local SEO Orlando', 'lead generation Orlando', 'marketing automation small business', 'AI marketing automation Florida', 'bilingual marketing agency Orlando'],
     ga4PropertyId: '384751711',
     apiKey: 'pit-9d4919d5-9d6e-4aa9-8c01-e9c1985a3e2e',
     brand: { primary: '#212322', accent: '#37ca37', bg: '#ffffff', logoUrl: 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png' },
@@ -250,6 +253,7 @@ const SEO_CLIENTS = {
     audience: 'Men in Orlando who care about their look — from clean fades to beard lineups. Loyal barbershop clients who see their barber as part of their weekly routine.',
     topics: ['best barbershop Orlando FL', 'how to find the right barber', 'fade haircut styles 2026', 'how to maintain your beard between cuts', 'barbershop vs hair salon what is the difference', 'mens grooming tips Orlando', 'why a good barber is worth it'],
     cta: 'Book your appointment at levaronbarbershop.com',
+    keywords: ['barbershop Orlando', 'best barbershop near me', 'mens haircut Orlando', 'fade haircut Orlando', 'barbershop Kissimmee', 'mens grooming Orlando', 'beard trim Orlando', 'Latino barbershop Central Florida', 'fresh cut near me Orlando'],
   },
   'VWHZW08b0skUV7wcnG55': {
     name: 'USA Latino CPA',
@@ -260,6 +264,7 @@ const SEO_CLIENTS = {
     audience: 'Latino entrepreneurs, self-employed immigrants, and small business owners in Florida who need bilingual accounting help, tax filing, and financial guidance they can actually understand.',
     topics: ['how to file taxes as a self-employed immigrant Florida', 'LLC vs sole proprietor for Latino business owners', 'tax deductions for small business owners', 'how to build business credit in the US', 'ITIN taxes what you need to know', 'accounting tips for restaurant owners', 'why your business needs a bilingual CPA'],
     cta: 'Schedule a free consultation at usalatinocpa.com',
+    keywords: ['CPA Orlando', 'accountant Orlando', 'tax preparation Orlando', 'small business accounting Orlando', 'bookkeeping services Orlando', 'business tax return Florida', 'bilingual accountant Orlando', 'tax planning small business Florida', 'CFO services small business Orlando'],
     apiKey: 'pit-525c7ac9-a267-4e71-a26b-a43f12d27079',
     ga4PropertyId: '529255116',
     brand: {
@@ -3116,6 +3121,13 @@ Return ONLY a valid JSON object — no markdown, no code fences — with these e
 
     const postId = postRes.data?.blogPost?._id;
     console.log(`[SEO Blog] ✅ Published: "${title}" targeting "${targetKeyword}" — ID: ${postId}`);
+
+    // Save to blog history for learning loop (JRZ Marketing)
+    loadBlogHistory().then(hist => {
+      if (!hist['d7iUPfamAaPlSBNj6IhT']) hist['d7iUPfamAaPlSBNj6IhT'] = [];
+      hist['d7iUPfamAaPlSBNj6IhT'].push({ keyword: targetKeyword, baseKeyword: targetKeyword.split(' ').slice(0,3).join(' '), title, url: `https://jrzmarketing.com/post/${postId}`, date: new Date().toISOString().split('T')[0], clicks: null, impressions: null, position: null, gscChecked: false });
+      return saveBlogHistory(hist);
+    }).catch(() => null);
 
     return { success: true, title, keyword: targetKeyword, position: targetPosition, postId };
 
