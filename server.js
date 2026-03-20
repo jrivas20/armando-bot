@@ -7529,16 +7529,10 @@ async function runClientDailySeoBlog(locationId, config) {
   const blog = await getClientBlog(locationId, token);
   if (!blog) return { name, skipped: true, reason: 'no_blog_found — set one up in GHL for this client' };
 
-  // Step 3: Find best keyword — city-specific for geo domination
-  // Priority: client keywords + city → DataForSEO striking distance → industry + city fallback
-  let targetKeyword = `${industry} ${todaysCity} FL`;
-
-  // First try: use client's own keyword list + today's city (guarantees city-specific content)
-  if (keywords.length > 0) {
-    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-    const baseKeyword = keywords[dayOfYear % keywords.length];
-    targetKeyword = `${baseKeyword} ${todaysCity} FL`;
-  }
+  // Step 3: Find best keyword — learning history picks unused/oldest topic, avoids 30-day repeats
+  const _blogHistory = await loadBlogHistory().catch(() => ({}));
+  const _clientHistory = _blogHistory[locationId] || [];
+  let targetKeyword = getBestNextKeyword(locationId, config, _clientHistory);
 
   // Second try: DataForSEO striking distance keywords for this domain
   if (DATAFORSEO_PASSWORD) {
@@ -7690,6 +7684,14 @@ Return ONLY valid JSON, no markdown, no code fences:
   const blogUrl = `https://${domain}/${urlSlug}`;
   forceIndexUrl(blogUrl).catch(() => null); // non-blocking
 
+  // Save to blog history (non-blocking — learning loop)
+  loadBlogHistory().then(hist => {
+    if (!hist[locationId]) hist[locationId] = [];
+    const baseKeyword = (config.keywords || []).find(k => targetKeyword.toLowerCase().includes(k.toLowerCase())) || targetKeyword.split(' ').slice(0,2).join(' ');
+    hist[locationId].push({ keyword: targetKeyword, baseKeyword, title, url: blogUrl, urlSlug, date: new Date().toISOString().split('T')[0], clicks: null, impressions: null, position: null, gscChecked: false });
+    return saveBlogHistory(hist);
+  }).catch(() => null);
+
   return { success: true, name, title, keyword: targetKeyword, blogUrl };
 }
 
@@ -7712,6 +7714,87 @@ async function runAllClientsDailyBlog() {
   const ok = results.filter(r => r.success).length;
   console.log(`[Client SEO] ✅ Done: ${ok}/${results.length} blogs published`);
   return results;
+}
+
+// ─── SEO BLOG HISTORY (Learning Loop) ────────────────────────────────────────
+const SEO_BLOG_HISTORY_PID = 'jrz/seo_blog_history';
+const SEO_BLOG_HISTORY_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/seo_blog_history.json';
+
+async function loadBlogHistory() {
+  try {
+    const res = await axios.get(SEO_BLOG_HISTORY_URL + '?t=' + Date.now(), { timeout: 8000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : (res.data || {});
+  } catch { return {}; }
+}
+async function saveBlogHistory(data) { await saveCloudinaryJSON(SEO_BLOG_HISTORY_PID, data); }
+
+// Smart keyword picker — avoids repeating recent topics, picks least-recently-written
+function getBestNextKeyword(locationId, config, clientHistory = []) {
+  const { keywords = [], industry } = config;
+  const todaysCity = getTodaysCity();
+  const thirtyDaysAgo = Date.now() - 30 * 86400000;
+
+  // What base keywords were written in the last 30 days
+  const recentlyWritten = new Set(
+    clientHistory
+      .filter(p => new Date(p.date).getTime() > thirtyDaysAgo)
+      .map(p => (p.baseKeyword || p.keyword).toLowerCase())
+  );
+
+  if (keywords.length > 0) {
+    // Prefer keywords not written recently
+    const available = keywords.filter(k => !recentlyWritten.has(k.toLowerCase()));
+    if (available.length > 0) {
+      // If we have click data, pick topic similar to best performer
+      const topPost = clientHistory.filter(p => p.clicks > 0).sort((a, b) => (b.clicks || 0) - (a.clicks || 0))[0];
+      if (topPost) {
+        const topBase = (topPost.baseKeyword || topPost.keyword).toLowerCase().split(' ')[0];
+        const similar = available.find(k => k.toLowerCase().startsWith(topBase));
+        if (similar) return `${similar} ${todaysCity} FL`;
+      }
+      return `${available[0]} ${todaysCity} FL`;
+    }
+    // All keywords used recently — pick the oldest one (least recently written)
+    const sorted = [...keywords].sort((a, b) => {
+      const aDate = clientHistory.filter(p => (p.baseKeyword || p.keyword).toLowerCase().includes(a.toLowerCase())).pop()?.date || '2000-01-01';
+      const bDate = clientHistory.filter(p => (p.baseKeyword || p.keyword).toLowerCase().includes(b.toLowerCase())).pop()?.date || '2000-01-01';
+      return new Date(aDate) - new Date(bDate);
+    });
+    return `${sorted[0]} ${todaysCity} FL`;
+  }
+
+  return `${industry} ${todaysCity} FL`;
+}
+
+// Weekly learning report — what's been written, what's next, what's unused
+async function runSofiaContentLearning() {
+  console.log('[Content Learning] Generating SEO learning report...');
+  const history = await loadBlogHistory();
+  const report = [];
+
+  for (const [locationId, config] of Object.entries(SEO_CLIENTS)) {
+    const { name, keywords = [] } = config;
+    const clientHistory = history[locationId] || [];
+    const thirtyDaysAgo = Date.now() - 30 * 86400000;
+    const recentPosts = clientHistory.filter(p => new Date(p.date).getTime() > thirtyDaysAgo);
+    const usedBaseKeywords = new Set(clientHistory.map(p => (p.baseKeyword || p.keyword.split(' ').slice(0,2).join(' ')).toLowerCase()));
+    const unusedKeywords = keywords.filter(k => !usedBaseKeywords.has(k.toLowerCase()));
+    const nextKeyword = getBestNextKeyword(locationId, config, clientHistory);
+    report.push({ name, totalPosts: clientHistory.length, recentPosts: recentPosts.length, unusedKeywords: unusedKeywords.length, unusedList: unusedKeywords.slice(0,5), recentKeywords: recentPosts.slice(-5).map(p => p.keyword), nextKeyword });
+  }
+
+  const html = `<h2>SEO Content Learning Report — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</h2>
+    ${report.map(r => `<h3>${r.name}</h3>
+      <table style="border-collapse:collapse;width:100%;margin-bottom:16px;font-family:Arial,sans-serif;font-size:14px">
+        <tr><td style="padding:7px 14px;background:#f5f5f5;width:200px"><b>Total posts</b></td><td style="padding:7px 14px">${r.totalPosts}</td></tr>
+        <tr><td style="padding:7px 14px;background:#f5f5f5"><b>Last 30 days</b></td><td style="padding:7px 14px">${r.recentPosts} posts</td></tr>
+        <tr><td style="padding:7px 14px;background:#f5f5f5"><b>Keywords unused</b></td><td style="padding:7px 14px">${r.unusedKeywords} left — ${r.unusedList.join(', ') || 'none'}</td></tr>
+        <tr><td style="padding:7px 14px;background:#f5f5f5"><b>Recent topics</b></td><td style="padding:7px 14px">${r.recentKeywords.join(' · ') || '—'}</td></tr>
+        <tr style="background:#d4edda"><td style="padding:7px 14px"><b>Next recommended</b></td><td style="padding:7px 14px"><b>${r.nextKeyword}</b></td></tr>
+      </table>`).join('')}`;
+
+  await sendEmail(OWNER_CONTACT_ID, `SEO Content Learning — ${new Date().toLocaleDateString()}`, html);
+  return { success: true, report };
 }
 
 // ─── BACKLINK AUDIT (DataForSEO) ─────────────────────────────────────────────
@@ -11289,6 +11372,32 @@ app.post('/cron/client-blog/:locationId', async (req, res) => {
   if (!config) return res.status(404).json({ error: `No SEO_CLIENTS entry for locationId: ${locationId}` });
   const result = await runClientDailySeoBlog(locationId, config);
   res.json(result);
+});
+
+// GET /sofia/content-learning/status — show blog history + next recommended keyword per client
+app.get('/sofia/content-learning/status', async (_req, res) => {
+  try {
+    const history = await loadBlogHistory();
+    const status = {};
+    for (const [locationId, config] of Object.entries(SEO_CLIENTS)) {
+      const clientHistory = history[locationId] || [];
+      status[config.name] = {
+        totalPosts: clientHistory.length,
+        lastPost: clientHistory.slice(-1)[0] || null,
+        nextKeyword: getBestNextKeyword(locationId, config, clientHistory),
+        recentKeywords: clientHistory.slice(-5).map(p => p.keyword),
+      };
+    }
+    res.json(status);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /cron/content-learning — generate learning report + email Jose
+app.post('/cron/content-learning', async (_req, res) => {
+  try {
+    const result = await runSofiaContentLearning();
+    res.json(result);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // Debug: GET /sofia/blogs/:locationId — check what blogs API returns for a sub-account
