@@ -12022,7 +12022,8 @@ app.get('/cron/cooney-city-pages/test', async (_req, res) => {
 app.get('/sofia/blogs/:locationId', async (req, res) => {
   const { locationId } = req.params;
   const config = SEO_CLIENTS[locationId];
-  const token = config?.apiKey;
+  const hardcodedKeys = { 'iipUT8kmVxJZzGBzvkZm': RAILING_MAX_API_KEY, 'Gc4sUcLiRI2edddJ5Lfl': COONEY_API_KEY };
+  const token = config?.apiKey || hardcodedKeys[locationId];
   if (!token) return res.json({ error: 'No apiKey for this locationId in SEO_CLIENTS' });
   try {
     const r1 = await axios.get(`https://services.leadconnectorhq.com/blogs/site/all?locationId=${locationId}&skip=0&limit=10`,
