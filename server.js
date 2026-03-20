@@ -163,6 +163,7 @@ const SEO_CLIENTS = {
     audience: 'Families, friend groups, and Tex-Mex lovers in Orlando looking for generous portions, great margaritas, and a lively atmosphere.',
     topics: ['best Tex-Mex in Orlando', 'authentic guacamole made fresh daily', 'best margaritas Orlando FL', 'Tex-Mex vs Mexican food what is the difference', 'family-friendly restaurants Orlando', 'best tacos near me Orlando', 'happy hour deals Orlando restaurants'],
     cta: 'Come hungry — find us at guaca-mole-texmex.com',
+    apiKey: 'pit-3ba32a5e-775f-46e6-9e5d-4a201148f7fb',
   },
   'd7iUPfamAaPlSBNj6IhT': {
     name: 'JRZ Marketing',
