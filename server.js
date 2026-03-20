@@ -8060,10 +8060,10 @@ async function runRailingMaxCityPagesBatch(batchSize = 5) {
       const r = await runRailingMaxCityPage(service, cityObj);
       snapshot.published.push(key);
       results.push(r);
-      await new Promise(r => setTimeout(r, 3000));
+      await saveCloudinaryJSON(CITY_PAGES_PID, snapshot); // save after every page
+      await new Promise(r => setTimeout(r, 2000));
     } catch (e) { console.error(`[City Pages] ❌ ${key}:`, e.message); }
   }
-  await saveCloudinaryJSON(CITY_PAGES_PID, snapshot);
   console.log(`[City Pages] Batch done — ${results.length} published, ${queue.length - results.length} remaining`);
   return { published: results.length, remaining: queue.length - results.length };
 }
@@ -8209,10 +8209,10 @@ async function runCooneyHomesCityPagesBatch(batchSize = 5) {
       const r = await runCooneyHomeCityPage(service, cityObj);
       snapshot.published.push(key);
       results.push(r);
-      await new Promise(r => setTimeout(r, 3000));
+      await saveCloudinaryJSON(COONEY_CITY_PAGES_PID, snapshot); // save after every page
+      await new Promise(r => setTimeout(r, 2000));
     } catch (e) { console.error(`[Cooney City Pages] ❌ ${key}:`, e.message); }
   }
-  await saveCloudinaryJSON(COONEY_CITY_PAGES_PID, snapshot);
   console.log(`[Cooney City Pages] Batch done — ${results.length} published, ${queue.length - results.length} remaining`);
   return { published: results.length, remaining: queue.length - results.length };
 }
