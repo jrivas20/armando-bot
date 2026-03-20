@@ -11977,8 +11977,12 @@ app.post('/cron/railing-city-pages', triggerRailingPages);
 
 // GET /cron/railing-city-pages/status — show progress
 app.get('/cron/railing-city-pages/status', async (_req, res) => {
-  const snap = await loadCityPagesSnapshot().catch(() => ({ published: [] }));
-  res.json({ published: snap.published.length, total: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length, remaining: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length - snap.published.length, lastPages: snap.published.slice(-10) });
+  let snap, snapError;
+  try {
+    const r = await axios.get(CITY_PAGES_URL, { timeout: 8000, headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+    snap = typeof r.data === 'string' ? JSON.parse(r.data) : (r.data || { published: [] });
+  } catch (e) { snapError = e.message; snap = { published: [] }; }
+  res.json({ published: snap.published.length, total: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length, remaining: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length - snap.published.length, lastPages: snap.published.slice(-10), debug: snapError || null });
 });
 
 // GET or POST /cron/cooney-city-pages — run next batch of Cooney Homes city pages
