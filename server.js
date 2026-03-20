@@ -141,6 +141,7 @@ const SEO_CLIENTS = {
     ],
     cta: 'Reserve your table or order online at theescobarkitchen.com',
     ga4PropertyId: '529262280',
+    apiKey: 'pit-64018b7f-6192-47b1-b134-62109b155fc9',
   },
   '6FdG0APBuZ81P8X2H4zc': {
     name: 'Rental Spaces',
@@ -200,6 +201,7 @@ const SEO_CLIENTS = {
     ],
     cta: 'Start your project with a free consultation at cooneyhomesfl.com',
     ga4PropertyId: '503054433',
+    apiKey: 'pit-cd43cc72-9e18-4eee-9bfb-be5942de9722',
   },
   'OpdBPAp31zItOc5IIykL': {
     name: 'Le Varon Barbershop',
