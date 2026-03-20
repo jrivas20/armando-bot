@@ -115,6 +115,7 @@ const SEO_CLIENTS = {
     cta: 'Get your free floating stairs or railing quote at railingmax.com',
     ga4PropertyId: '529233384',
     apiKey: 'pit-3a6936c1-5f10-4e4d-bb26-26bec9ebef1c',
+    brand: { primary: '#d30400', accent: '#d30400', bg: '#f5f5f5', logoUrl: 'https://assets.cdn.filesafe.space/iipUT8kmVxJZzGBzvkZm/media/69b80afa87f2fb2848a34872.png' },
   },
   'rJKRuyayc6Z6twr9X20v': {
     name: 'The Escobar Kitchen',
@@ -145,6 +146,7 @@ const SEO_CLIENTS = {
     cta: 'Reserve your table or order online at theescobarkitchen.com',
     ga4PropertyId: '529262280',
     apiKey: 'pit-64018b7f-6192-47b1-b134-62109b155fc9',
+    brand: { primary: '#0a0a0a', accent: '#e00103', bg: '#0a0a0a', logoUrl: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/69a7ac1bb701fe6a3e793b91.png' },
   },
   '6FdG0APBuZ81P8X2H4zc': {
     name: 'Rental Spaces',
@@ -156,6 +158,7 @@ const SEO_CLIENTS = {
     topics: ['how to store your RV in Florida summer', 'boat storage near Orlando', 'indoor vs outdoor RV storage', 'tips for winterizing your boat in Florida', 'how to choose an RV storage facility', 'cost of boat storage Orlando', 'RV storage security features to look for'],
     cta: 'Reserve your storage space at rentalspacesinc.com',
     apiKey: 'pit-1b29023e-d415-4ab6-b18d-1a1072d4c355',
+    brand: { primary: '#080808', accent: '#116dff', bg: '#ffffff', logoUrl: '' },
   },
   'Emg5M7GZE7XmnHc7F5vy': {
     name: 'Guaca-Mole-Tex-Mex',
@@ -179,6 +182,7 @@ const SEO_CLIENTS = {
     cta: 'Book your free strategy call at jrzmarketing.com/contact-us',
     ga4PropertyId: '384751711',
     apiKey: 'pit-9d4919d5-9d6e-4aa9-8c01-e9c1985a3e2e',
+    brand: { primary: '#212322', accent: '#37ca37', bg: '#ffffff', logoUrl: 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png' },
   },
   'Gc4sUcLiRI2edddJ5Lfl': {
     name: 'Cooney Homes',
@@ -208,6 +212,7 @@ const SEO_CLIENTS = {
     cta: 'Start your project with a free consultation at cooneyhomesfl.com',
     ga4PropertyId: '503054433',
     apiKey: 'pit-cd43cc72-9e18-4eee-9bfb-be5942de9722',
+    brand: { primary: '#f47d72', accent: '#f9bf4d', bg: '#ffffff', logoUrl: 'https://storage.googleapis.com/msgsndr/Gc4sUcLiRI2edddJ5Lfl/media/69861a783fae0a0ae13022b8.png' },
   },
   'OpdBPAp31zItOc5IIykL': {
     name: 'Le Varon Barbershop',
@@ -230,6 +235,7 @@ const SEO_CLIENTS = {
     cta: 'Schedule a free consultation at usalatinocpa.com',
     apiKey: 'pit-525c7ac9-a267-4e71-a26b-a43f12d27079',
     ga4PropertyId: '529255116',
+    brand: { primary: '#073353', accent: '#e32133', bg: '#ffffff', logoUrl: 'https://storage.googleapis.com/msgsndr/VWHZW08b0skUV7wcnG55/media/6980282f66e7ca4a74ce0924.png' },
   },
   // Add more clients below — copy the format above
   // 'LOCATION_ID': { name, domain, lang, industry, voice, audience, topics: [], cta },
@@ -7573,9 +7579,16 @@ Return ONLY valid JSON, no markdown, no code fences:
   // Step 5: Fetch hero image from Pexels
   const heroImage = await getPexelsImage(targetKeyword).catch(() => null);
 
-  // Step 6: Wrap content in styled HTML template
+  // Step 6: Wrap content in brand-styled HTML template
+  const brand = config.brand || { primary: '#0f172a', accent: '#2563eb', bg: '#ffffff', logoUrl: '' };
+  const textOnDark = '#ffffff';
   const styledHTML = `
-<div style="font-family:'Georgia',serif;max-width:820px;margin:0 auto;color:#1a1a1a;line-height:1.8">
+<div style="font-family:'Georgia',serif;max-width:820px;margin:0 auto;color:#1a1a1a;line-height:1.8;background:${brand.bg}">
+
+  ${brand.logoUrl ? `
+  <div style="padding:20px 0 8px">
+    <img src="${brand.logoUrl}" alt="${name} logo" style="height:48px;object-fit:contain;display:block">
+  </div>` : ''}
 
   ${heroImage ? `
   <div style="margin-bottom:32px;border-radius:12px;overflow:hidden">
@@ -7585,20 +7598,20 @@ Return ONLY valid JSON, no markdown, no code fences:
 
   <div style="font-family:Arial,sans-serif">
     ${htmlContent
-      .replace(/<h2/g, '<h2 style="font-size:26px;font-weight:700;color:#0f172a;margin:36px 0 14px;border-bottom:2px solid #e2e8f0;padding-bottom:8px"')
-      .replace(/<h3/g, '<h3 style="font-size:20px;font-weight:600;color:#1e293b;margin:28px 0 10px"')
+      .replace(/<h2/g, `<h2 style="font-size:26px;font-weight:700;color:${brand.primary};margin:36px 0 14px;border-bottom:2px solid ${brand.accent};padding-bottom:8px"`)
+      .replace(/<h3/g, `<h3 style="font-size:20px;font-weight:600;color:${brand.primary};margin:28px 0 10px"`)
       .replace(/<p>/g, '<p style="margin:0 0 18px;font-size:17px;line-height:1.85;color:#374151">')
       .replace(/<ul>/g, '<ul style="margin:0 0 20px;padding-left:24px">')
       .replace(/<ol>/g, '<ol style="margin:0 0 20px;padding-left:24px">')
       .replace(/<li>/g, '<li style="margin-bottom:10px;font-size:16px;color:#374151">')
-      .replace(/<strong>/g, '<strong style="color:#0f172a">')
-      .replace(/<a /g, '<a style="color:#2563eb;text-decoration:underline" ')
+      .replace(/<strong>/g, `<strong style="color:${brand.primary}">`)
+      .replace(/<a /g, `<a style="color:${brand.accent};text-decoration:underline" `)
     }
   </div>
 
-  <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:12px;padding:28px 32px;margin-top:40px;text-align:center">
-    <p style="color:#fff;font-size:18px;font-weight:600;margin:0 0 16px">${cta}</p>
-    <a href="https://${domain}/contact" style="background:#2563eb;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;display:inline-block">Get a Free Quote</a>
+  <div style="background:${brand.primary};border-radius:12px;padding:28px 32px;margin-top:40px;text-align:center">
+    <p style="color:${textOnDark};font-size:18px;font-weight:600;margin:0 0 16px">${cta}</p>
+    <a href="https://${domain}/contact" style="background:${brand.accent};color:${textOnDark};padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;display:inline-block">Get a Free Quote</a>
   </div>
 
 </div>`;
