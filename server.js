@@ -111,6 +111,7 @@ const SEO_CLIENTS = {
     ],
     cta: 'Get your free floating stairs or railing quote at railingmax.com',
     ga4PropertyId: '529233384',
+    apiKey: 'pit-3a6936c1-5f10-4e4d-bb26-26bec9ebef1c',
   },
   'rJKRuyayc6Z6twr9X20v': {
     name: 'The Escobar Kitchen',
@@ -7467,8 +7468,8 @@ async function runClientDailySeoBlog(locationId, config) {
   const todaysCity = getTodaysCity();
   console.log(`[Client SEO] ${name}: finding keyword for ${domain}...`);
 
-  // Step 1: Get location token via agency key
-  const token = await getLocationToken(locationId);
+  // Step 1: Get token — use sub-account apiKey if available, else exchange via agency key
+  const token = config.apiKey || await getLocationToken(locationId);
   if (!token) return { name, skipped: true, reason: 'no_location_token' };
 
   // Step 2: Find client's blog
