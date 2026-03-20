@@ -7986,11 +7986,7 @@ async function runRailingMaxCityPage(service, cityObj) {
   const token = RAILING_MAX_API_KEY;
 
   console.log(`[City Pages] Generating: ${keyword} in ${city}, FL...`);
-  const blogsRes = await axios.get(
-    `https://services.leadconnectorhq.com/blogs/site/all?locationId=${RAILING_MAX_LOCATION_ID}&limit=5`,
-    { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' } }
-  );
-  const blog = blogsRes.data?.blogs?.[0];
+  const blog = await getClientBlog(RAILING_MAX_LOCATION_ID, token);
   if (!blog) throw new Error('No blog site for Railing Max');
 
   const nearbyStr = RAILING_MAX_CITIES.filter(c => c.metro === metro && c.city !== city).slice(0, 4).map(c => c.city).join(', ');
@@ -8023,7 +8019,9 @@ Return ONLY valid JSON:
   const parsed = JSON.parse(aiRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
   const { title, metaDescription, htmlContent } = parsed;
 
-  const pageHTML = `<p><img src="https://assets.cdn.filesafe.space/iipUT8kmVxJZzGBzvkZm/media/69b80afa87f2fb2848a34872.png" alt="Railing Max — ${label} ${city} FL"></p>
+  const heroImg = await getGHLMediaImage(RAILING_MAX_LOCATION_ID, token).catch(() => null);
+  const heroSrc = heroImg?.url || 'https://assets.cdn.filesafe.space/iipUT8kmVxJZzGBzvkZm/media/69b80afa87f2fb2848a34872.png';
+  const pageHTML = `<p><img src="${heroSrc}" alt="Railing Max — ${label} ${city} FL"></p>
 ${htmlContent}
 <p><strong>Ready for your ${label.toLowerCase()} in ${city}? Call <a href="tel:4074125421">(407) 412-5421</a> or visit <a href="https://railingmax.com/contact">railingmax.com</a> for a free quote.</strong></p>
 <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'LocalBusiness', name: 'Railing Max', url: 'https://railingmax.com', telephone: '(407) 412-5421', areaServed: { '@type': 'City', name: city } })}</script>
@@ -8033,7 +8031,7 @@ ${htmlContent}
   const publishedAt = new Date(); publishedAt.setUTCHours(14, 0, 0, 0);
 
   await axios.post('https://services.leadconnectorhq.com/blogs/posts',
-    { title, locationId: RAILING_MAX_LOCATION_ID, blogId: blog.id || blog._id, description: metaDescription,
+    { title, locationId: RAILING_MAX_LOCATION_ID, blogId: blog.blogId, description: metaDescription,
       ...(blog.authorId && { author: blog.authorId }),
       tags: ['Floating Stairs', 'Railing', label, city, metro, 'Florida'],
       urlSlug, status: 'PUBLISHED', publishedAt: publishedAt.toISOString(), rawHTML: pageHTML },
@@ -8134,11 +8132,7 @@ async function runCooneyHomeCityPage(service, cityObj) {
   const token = COONEY_API_KEY;
 
   console.log(`[Cooney City Pages] Generating: ${keyword} in ${city}, FL...`);
-  const blogsRes = await axios.get(
-    `https://services.leadconnectorhq.com/blogs/site/all?locationId=${COONEY_LOCATION_ID}&limit=5`,
-    { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' } }
-  );
-  const blog = blogsRes.data?.blogs?.[0];
+  const blog = await getClientBlog(COONEY_LOCATION_ID, token);
   if (!blog) throw new Error('No blog site for Cooney Homes');
 
   const nearbyCities = COONEY_CITIES.filter(c => c.metro === metro && c.city !== city).slice(0, 4).map(c => c.city).join(', ');
@@ -8175,7 +8169,9 @@ Return ONLY valid JSON:
   const parsed = JSON.parse(aiRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
   const { title, metaDescription, htmlContent } = parsed;
 
-  const pageHTML = `${htmlContent}
+  const cooneyHero = await getGHLMediaImage(COONEY_LOCATION_ID, token).catch(() => null);
+  const pageHTML = `${cooneyHero ? `<p><img src="${cooneyHero.url}" alt="Cooney Homes — ${label} ${city} FL"></p>` : ''}
+${htmlContent}
 <p><strong>Ready to start your ${label.toLowerCase()} in ${city}? Call <a href="tel:4072014100">(407) 201-4100</a> or visit <a href="https://cooneyhomesfl.com/contact">cooneyhomesfl.com</a> for a free consultation.</strong></p>
 <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'LocalBusiness', name: 'Cooney Homes', url: 'https://cooneyhomesfl.com', telephone: '(407) 201-4100', areaServed: { '@type': 'City', name: city } })}</script>
 <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Service', name: `${label} in ${city}, FL`, provider: { '@type': 'LocalBusiness', name: 'Cooney Homes' }, areaServed: city, description: metaDescription })}</script>`;
@@ -8184,7 +8180,7 @@ Return ONLY valid JSON:
   const publishedAt = new Date(); publishedAt.setUTCHours(14, 30, 0, 0);
 
   await axios.post('https://services.leadconnectorhq.com/blogs/posts',
-    { title, locationId: COONEY_LOCATION_ID, blogId: blog.id || blog._id, description: metaDescription,
+    { title, locationId: COONEY_LOCATION_ID, blogId: blog.blogId, description: metaDescription,
       ...(blog.authorId && { author: blog.authorId }),
       tags: ['Custom Home Builder', 'Contractor', label, city, metro, 'Florida'],
       urlSlug, status: 'PUBLISHED', publishedAt: publishedAt.toISOString(), rawHTML: pageHTML },
