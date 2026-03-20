@@ -115,7 +115,16 @@ const SEO_CLIENTS = {
     cta: 'Get your free floating stairs or railing quote at railingmax.com',
     ga4PropertyId: '529233384',
     apiKey: 'pit-3a6936c1-5f10-4e4d-bb26-26bec9ebef1c',
-    brand: { primary: '#d30400', accent: '#d30400', bg: '#f5f5f5', logoUrl: 'https://assets.cdn.filesafe.space/iipUT8kmVxJZzGBzvkZm/media/69b80afa87f2fb2848a34872.png' },
+    brand: {
+      primary: '#d30400', accent: '#d30400', bg: '#ffffff', black: '#0a0a0a',
+      grayMid: '#555', grayLight: '#f5f5f5',
+      fontDisplay: 'Bebas Neue', fontBody: 'Manrope',
+      fontImport: 'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&display=swap',
+      logoUrl: 'https://assets.cdn.filesafe.space/iipUT8kmVxJZzGBzvkZm/media/69b80afa87f2fb2848a34872.png',
+      stats: ['500+ Projects', '10+ Years Experience', 'All of Florida', '100% Satisfaction'],
+      trustBadges: ['Licensed & Insured', 'Free Consultations', '24/7 Support', 'Statewide Install'],
+      phone: '(407) 412-5421',
+    },
   },
   'rJKRuyayc6Z6twr9X20v': {
     name: 'The Escobar Kitchen',
@@ -146,7 +155,16 @@ const SEO_CLIENTS = {
     cta: 'Reserve your table or order online at theescobarkitchen.com',
     ga4PropertyId: '529262280',
     apiKey: 'pit-64018b7f-6192-47b1-b134-62109b155fc9',
-    brand: { primary: '#0a0a0a', accent: '#e00103', bg: '#0a0a0a', logoUrl: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/69a7ac1bb701fe6a3e793b91.png' },
+    brand: {
+      primary: '#e00103', accent: '#e00103', bg: '#0a0a0a', ctaBg: '#131313',
+      textColor: '#f5f0e8', bodyColor: 'rgba(245,240,232,0.85)',
+      fontDisplay: 'Playfair Display', fontBody: 'DM Sans',
+      fontImport: 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&family=Bebas+Neue&display=swap',
+      logoUrl: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/69a7ac1b618c8dbb13a87fcd.png',
+      stats: ['4.6★ Google', '452+ Reviews', '3 Locations', 'Catering Available'],
+      trustBadges: ['Order Direct & Save', 'Latin-Asian Fusion', 'Dine-In & Delivery', 'Family Friendly'],
+      phone: '',
+    },
   },
   '6FdG0APBuZ81P8X2H4zc': {
     name: 'Rental Spaces',
@@ -212,7 +230,16 @@ const SEO_CLIENTS = {
     cta: 'Start your project with a free consultation at cooneyhomesfl.com',
     ga4PropertyId: '503054433',
     apiKey: 'pit-cd43cc72-9e18-4eee-9bfb-be5942de9722',
-    brand: { primary: '#f47d72', accent: '#f9bf4d', bg: '#ffffff', logoUrl: 'https://storage.googleapis.com/msgsndr/Gc4sUcLiRI2edddJ5Lfl/media/69861a783fae0a0ae13022b8.png' },
+    brand: {
+      primary: '#f9bf4d', accent: '#f47d72', bg: '#ffffff', ctaBg: '#121212',
+      textColor: '#121212', bodyColor: 'rgba(18,18,18,0.70)',
+      fontDisplay: 'Poppins', fontBody: 'Poppins',
+      fontImport: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap',
+      logoUrl: 'https://storage.googleapis.com/msgsndr/Gc4sUcLiRI2edddJ5Lfl/media/69861a783fae0a0ae13022b8.png',
+      stats: ['Clean Communication', 'High Craftsmanship', 'Strong Project Control', 'Built for Value'],
+      trustBadges: ['Licensed General Contractor', 'Owner-Led Builds', 'Free Consultations', 'Central Florida'],
+      phone: '(407) 201-4100',
+    },
   },
   'OpdBPAp31zItOc5IIykL': {
     name: 'Le Varon Barbershop',
@@ -235,7 +262,16 @@ const SEO_CLIENTS = {
     cta: 'Schedule a free consultation at usalatinocpa.com',
     apiKey: 'pit-525c7ac9-a267-4e71-a26b-a43f12d27079',
     ga4PropertyId: '529255116',
-    brand: { primary: '#073353', accent: '#e32133', bg: '#ffffff', logoUrl: 'https://storage.googleapis.com/msgsndr/VWHZW08b0skUV7wcnG55/media/6980282f66e7ca4a74ce0924.png' },
+    brand: {
+      primary: '#073353', accent: '#e32133', bg: '#ffffff', ctaBg: '#073353',
+      textColor: '#073353', bodyColor: '#5c6b78',
+      fontDisplay: 'Montserrat', fontBody: 'Montserrat',
+      fontImport: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap',
+      logoUrl: 'https://storage.googleapis.com/msgsndr/VWHZW08b0skUV7wcnG55/media/6980282f66e7ca4a74ce0924.png',
+      stats: ['5.0★ Google', 'CPA-Level Accuracy', 'Proactive Planning', 'Bilingual EN/ES'],
+      trustBadges: ['Proactive Tax Planning', 'Pristine Books', 'IRS-Ready Compliance', 'Bilingual Service'],
+      phone: '(689) 233-7398',
+    },
   },
   // Add more clients below — copy the format above
   // 'LOCATION_ID': { name, domain, lang, industry, voice, audience, topics: [], cta },
@@ -7581,37 +7617,53 @@ Return ONLY valid JSON, no markdown, no code fences:
 
   // Step 6: Wrap content in brand-styled HTML template
   const brand = config.brand || { primary: '#0f172a', accent: '#2563eb', bg: '#ffffff', logoUrl: '' };
-  const textOnDark = '#ffffff';
+  const fontDisplay = brand.fontDisplay || 'Georgia';
+  const fontBody    = brand.fontBody    || 'Arial';
+  const bodyColor   = brand.bodyColor   || '#374151';
+  const ctaBg       = brand.ctaBg       || brand.primary;
   const styledHTML = `
-<div style="font-family:'Georgia',serif;max-width:820px;margin:0 auto;color:#1a1a1a;line-height:1.8;background:${brand.bg}">
+<div style="font-family:'${fontBody}',sans-serif;max-width:820px;margin:0 auto;color:${brand.textColor || '#1a1a1a'};line-height:1.8;background:${brand.bg}">
+
+  ${brand.fontImport ? `<link rel="stylesheet" href="${brand.fontImport}">` : ''}
 
   ${brand.logoUrl ? `
-  <div style="padding:20px 0 8px">
-    <img src="${brand.logoUrl}" alt="${name} logo" style="height:48px;object-fit:contain;display:block">
+  <div style="padding:24px 32px 16px;background:${brand.bg}">
+    <img src="${brand.logoUrl}" alt="${name} logo" style="height:52px;object-fit:contain;display:block">
+  </div>` : ''}
+
+  ${brand.trustBadges && brand.trustBadges.length ? `
+  <div style="background:${brand.accent};padding:13px 32px;display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+    ${brand.trustBadges.map(b => `<span style="color:#ffffff;font-size:13px;font-weight:600;font-family:'${fontBody}',sans-serif">&#10003; ${b}</span>`).join('')}
   </div>` : ''}
 
   ${heroImage ? `
-  <div style="margin-bottom:32px;border-radius:12px;overflow:hidden">
+  <div style="position:relative">
     <img src="${heroImage.url}" alt="${heroImage.alt}" style="width:100%;height:420px;object-fit:cover;display:block">
-    <p style="font-size:11px;color:#888;text-align:right;margin:4px 8px 0;font-family:Arial,sans-serif">Photo by ${heroImage.photographer} · Pexels</p>
+    <p style="font-size:11px;color:#888;text-align:right;margin:0;background:${brand.bg};padding:4px 10px;font-family:Arial,sans-serif">Photo by ${heroImage.photographer} · Pexels</p>
   </div>` : ''}
 
-  <div style="font-family:Arial,sans-serif">
+  <div style="padding:36px 40px 0;font-family:'${fontBody}',sans-serif">
     ${htmlContent
-      .replace(/<h2/g, `<h2 style="font-size:26px;font-weight:700;color:${brand.primary};margin:36px 0 14px;border-bottom:2px solid ${brand.accent};padding-bottom:8px"`)
-      .replace(/<h3/g, `<h3 style="font-size:20px;font-weight:600;color:${brand.primary};margin:28px 0 10px"`)
-      .replace(/<p>/g, '<p style="margin:0 0 18px;font-size:17px;line-height:1.85;color:#374151">')
+      .replace(/<h2/g, `<h2 style="font-family:'${fontDisplay}',serif;font-size:28px;font-weight:900;color:${brand.primary};margin:40px 0 14px;padding-bottom:10px;border-bottom:3px solid ${brand.accent}"`)
+      .replace(/<h3/g, `<h3 style="font-family:'${fontDisplay}',serif;font-size:21px;font-weight:700;color:${brand.primary};margin:28px 0 10px"`)
+      .replace(/<p>/g, `<p style="margin:0 0 18px;font-size:17px;line-height:1.85;color:${bodyColor}">`)
       .replace(/<ul>/g, '<ul style="margin:0 0 20px;padding-left:24px">')
       .replace(/<ol>/g, '<ol style="margin:0 0 20px;padding-left:24px">')
-      .replace(/<li>/g, '<li style="margin-bottom:10px;font-size:16px;color:#374151">')
+      .replace(/<li>/g, `<li style="margin-bottom:10px;font-size:16px;color:${bodyColor}">`)
       .replace(/<strong>/g, `<strong style="color:${brand.primary}">`)
       .replace(/<a /g, `<a style="color:${brand.accent};text-decoration:underline" `)
     }
   </div>
 
-  <div style="background:${brand.primary};border-radius:12px;padding:28px 32px;margin-top:40px;text-align:center">
-    <p style="color:${textOnDark};font-size:18px;font-weight:600;margin:0 0 16px">${cta}</p>
-    <a href="https://${domain}/contact" style="background:${brand.accent};color:${textOnDark};padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;display:inline-block">Get a Free Quote</a>
+  ${brand.stats && brand.stats.length ? `
+  <div style="display:grid;grid-template-columns:repeat(${brand.stats.length},1fr);margin:32px 0 0;border-top:3px solid ${brand.accent}">
+    ${brand.stats.map(s => `<div style="background:${brand.bg};padding:18px 10px;text-align:center;border-right:1px solid ${brand.accent}20"><span style="font-family:'${fontDisplay}',serif;font-size:15px;font-weight:700;color:${brand.primary};display:block">${s}</span></div>`).join('')}
+  </div>` : ''}
+
+  <div style="background:${ctaBg};padding:32px 40px;text-align:center">
+    <p style="color:#ffffff;font-family:'${fontDisplay}',serif;font-size:20px;font-weight:700;margin:0 0 ${brand.phone ? '6px' : '20px'}">${cta}</p>
+    ${brand.phone ? `<p style="color:rgba(255,255,255,0.80);font-size:15px;font-family:'${fontBody}',sans-serif;margin:0 0 20px">${brand.phone}</p>` : ''}
+    <a href="https://${domain}/contact" style="background:${brand.accent};color:#ffffff;padding:16px 36px;border-radius:10px;text-decoration:none;font-family:'${fontDisplay}',serif;font-weight:700;font-size:16px;display:inline-block;letter-spacing:1px">Get a Free Quote</a>
   </div>
 
 </div>`;
