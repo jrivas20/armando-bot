@@ -7891,6 +7891,336 @@ async function runWeeklyBacklinkCheck() {
   return { checked: reportRows.length };
 }
 
+// ─── RAILING MAX CITY PAGES (Programmatic SEO) ───────────────────────────────
+// 58 cities × 6 services = 348 pages — published 5/day starting with floating stairs
+const RAILING_MAX_LOCATION_ID = 'iipUT8kmVxJZzGBzvkZm';
+const RAILING_MAX_API_KEY     = 'pit-3a6936c1-5f10-4e4d-bb26-26bec9ebef1c';
+const RAILING_MAX_DOMAIN      = 'railingmax.com';
+const CITY_PAGES_PID          = 'jrz/railingmax_city_pages';
+const CITY_PAGES_URL          = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/railingmax_city_pages.json';
+
+const RAILING_MAX_SERVICES = [
+  { slug: 'floating-stairs', keyword: 'floating stairs', label: 'Floating Stairs', priority: 1 },
+  { slug: 'glass-railing',   keyword: 'glass railing',   label: 'Glass Railing',   priority: 2 },
+  { slug: 'cable-railing',   keyword: 'cable railing',   label: 'Cable Railing',   priority: 3 },
+  { slug: 'stair-railing',   keyword: 'stair railing',   label: 'Stair Railing',   priority: 4 },
+  { slug: 'iron-railing',    keyword: 'iron railing',    label: 'Iron Railing',    priority: 5 },
+  { slug: 'pool-fence',      keyword: 'pool fence',      label: 'Pool Fence',      priority: 6 },
+];
+
+const RAILING_MAX_CITIES = [
+  // Orlando metro
+  { city: 'Orlando',            state: 'FL', metro: 'Orlando' },
+  { city: 'Kissimmee',          state: 'FL', metro: 'Orlando' },
+  { city: 'Lake Nona',          state: 'FL', metro: 'Orlando' },
+  { city: 'Winter Park',        state: 'FL', metro: 'Orlando' },
+  { city: 'Sanford',            state: 'FL', metro: 'Orlando' },
+  { city: 'Lake Mary',          state: 'FL', metro: 'Orlando' },
+  { city: 'Longwood',           state: 'FL', metro: 'Orlando' },
+  { city: 'Oviedo',             state: 'FL', metro: 'Orlando' },
+  { city: 'Winter Garden',      state: 'FL', metro: 'Orlando' },
+  { city: 'Clermont',           state: 'FL', metro: 'Orlando' },
+  { city: 'Windermere',         state: 'FL', metro: 'Orlando' },
+  { city: 'Celebration',        state: 'FL', metro: 'Orlando' },
+  { city: 'Altamonte Springs',  state: 'FL', metro: 'Orlando' },
+  { city: 'Apopka',             state: 'FL', metro: 'Orlando' },
+  { city: 'Maitland',           state: 'FL', metro: 'Orlando' },
+  { city: 'Casselberry',        state: 'FL', metro: 'Orlando' },
+  { city: 'Daytona Beach',      state: 'FL', metro: 'Orlando' },
+  // Tampa metro
+  { city: 'Tampa',              state: 'FL', metro: 'Tampa' },
+  { city: 'St. Petersburg',     state: 'FL', metro: 'Tampa' },
+  { city: 'Clearwater',         state: 'FL', metro: 'Tampa' },
+  { city: 'Brandon',            state: 'FL', metro: 'Tampa' },
+  { city: 'Wesley Chapel',      state: 'FL', metro: 'Tampa' },
+  { city: 'Lakeland',           state: 'FL', metro: 'Tampa' },
+  { city: 'Sarasota',           state: 'FL', metro: 'Tampa' },
+  { city: 'Bradenton',          state: 'FL', metro: 'Tampa' },
+  { city: 'Lutz',               state: 'FL', metro: 'Tampa' },
+  { city: 'New Port Richey',    state: 'FL', metro: 'Tampa' },
+  { city: 'Dunedin',            state: 'FL', metro: 'Tampa' },
+  { city: 'Tarpon Springs',     state: 'FL', metro: 'Tampa' },
+  { city: 'Plant City',         state: 'FL', metro: 'Tampa' },
+  { city: 'Riverview',          state: 'FL', metro: 'Tampa' },
+  { city: 'Land O Lakes',       state: 'FL', metro: 'Tampa' },
+  // Miami metro
+  { city: 'Miami',              state: 'FL', metro: 'Miami' },
+  { city: 'Miami Beach',        state: 'FL', metro: 'Miami' },
+  { city: 'Coral Gables',       state: 'FL', metro: 'Miami' },
+  { city: 'Doral',              state: 'FL', metro: 'Miami' },
+  { city: 'Hialeah',            state: 'FL', metro: 'Miami' },
+  { city: 'Fort Lauderdale',    state: 'FL', metro: 'Miami' },
+  { city: 'Hollywood',          state: 'FL', metro: 'Miami' },
+  { city: 'Pompano Beach',      state: 'FL', metro: 'Miami' },
+  { city: 'Boca Raton',         state: 'FL', metro: 'Miami' },
+  { city: 'Delray Beach',       state: 'FL', metro: 'Miami' },
+  { city: 'West Palm Beach',    state: 'FL', metro: 'Miami' },
+  { city: 'Aventura',           state: 'FL', metro: 'Miami' },
+  { city: 'Kendall',            state: 'FL', metro: 'Miami' },
+  { city: 'Homestead',          state: 'FL', metro: 'Miami' },
+  { city: 'Weston',             state: 'FL', metro: 'Miami' },
+  // Jacksonville metro
+  { city: 'Jacksonville',       state: 'FL', metro: 'Jacksonville' },
+  { city: 'Fleming Island',     state: 'FL', metro: 'Jacksonville' },
+  { city: 'Orange Park',        state: 'FL', metro: 'Jacksonville' },
+  { city: 'St. Augustine',      state: 'FL', metro: 'Jacksonville' },
+  { city: 'Ponte Vedra',        state: 'FL', metro: 'Jacksonville' },
+  { city: 'Fernandina Beach',   state: 'FL', metro: 'Jacksonville' },
+  { city: 'Jacksonville Beach', state: 'FL', metro: 'Jacksonville' },
+  { city: 'Atlantic Beach',     state: 'FL', metro: 'Jacksonville' },
+  { city: 'Neptune Beach',      state: 'FL', metro: 'Jacksonville' },
+  { city: 'Mandarin',           state: 'FL', metro: 'Jacksonville' },
+  { city: 'Southside',          state: 'FL', metro: 'Jacksonville' },
+];
+
+async function loadCityPagesSnapshot() {
+  try {
+    const res = await axios.get(CITY_PAGES_URL + '?t=' + Date.now(), { timeout: 8000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : (res.data || { published: [] });
+  } catch { return { published: [] }; }
+}
+
+async function runRailingMaxCityPage(service, cityObj) {
+  const { city, metro } = cityObj;
+  const { keyword, label, slug } = service;
+  const token = RAILING_MAX_API_KEY;
+
+  console.log(`[City Pages] Generating: ${keyword} in ${city}, FL...`);
+  const blogsRes = await axios.get(
+    `https://services.leadconnectorhq.com/blogs/site/all?locationId=${RAILING_MAX_LOCATION_ID}&limit=5`,
+    { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' } }
+  );
+  const blog = blogsRes.data?.blogs?.[0];
+  if (!blog) throw new Error('No blog site for Railing Max');
+
+  const nearbyStr = RAILING_MAX_CITIES.filter(c => c.metro === metro && c.city !== city).slice(0, 4).map(c => c.city).join(', ');
+
+  const aiRes = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 2000,
+    messages: [{ role: 'user', content: `Write a LOCAL SERVICE PAGE for Railing Max — licensed floating stairs and railing contractor, all of Florida.
+
+TARGET KEYWORD: "${keyword} ${city} FL"
+TARGET CITY: ${city}, FL (${metro} metro)
+SERVICE: ${label}
+
+VOICE: Expert craftsman. Confident, specific, zero fluff. Sounds like someone who has installed hundreds of ${label.toLowerCase()} across Florida.
+
+WRITE 700-850 WORDS:
+- Open with hook mentioning ${city} and "${keyword}" in first sentence
+- Why ${city} homeowners want ${label.toLowerCase()} (local architecture, waterfront, luxury, new construction — whatever fits ${metro})
+- Materials, installation, Florida codes, timeline, cost range
+- Mention nearby cities served: ${nearbyStr}
+- 2 internal links: one to https://railingmax.com, one to https://railingmax.com/contact
+- End CTA: "Get your free ${label.toLowerCase()} quote in ${city} — call (407) 412-5421 or visit railingmax.com"
+
+No AI clichés. Contractions throughout. Vary sentence length.
+
+Return ONLY valid JSON:
+{ "title": "60-65 char title with '${keyword} ${city} FL'", "metaDescription": "155-165 char meta", "htmlContent": "HTML using h2/h3/p/ul/li/strong/a tags only" }` }],
+  });
+
+  const parsed = JSON.parse(aiRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+  const { title, metaDescription, htmlContent } = parsed;
+
+  const pageHTML = `<p><img src="https://assets.cdn.filesafe.space/iipUT8kmVxJZzGBzvkZm/media/69b80afa87f2fb2848a34872.png" alt="Railing Max — ${label} ${city} FL"></p>
+${htmlContent}
+<p><strong>Ready for your ${label.toLowerCase()} in ${city}? Call <a href="tel:4074125421">(407) 412-5421</a> or visit <a href="https://railingmax.com/contact">railingmax.com</a> for a free quote.</strong></p>
+<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'LocalBusiness', name: 'Railing Max', url: 'https://railingmax.com', telephone: '(407) 412-5421', areaServed: { '@type': 'City', name: city } })}</script>
+<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Service', name: `${label} in ${city}, FL`, provider: { '@type': 'LocalBusiness', name: 'Railing Max' }, areaServed: city, description: metaDescription })}</script>`;
+
+  const urlSlug = `${slug}-${city.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-fl`;
+  const publishedAt = new Date(); publishedAt.setUTCHours(14, 0, 0, 0);
+
+  await axios.post('https://services.leadconnectorhq.com/blogs/posts',
+    { title, locationId: RAILING_MAX_LOCATION_ID, blogId: blog.id || blog._id, description: metaDescription,
+      ...(blog.authorId && { author: blog.authorId }),
+      tags: ['Floating Stairs', 'Railing', label, city, metro, 'Florida'],
+      urlSlug, status: 'PUBLISHED', publishedAt: publishedAt.toISOString(), rawHTML: pageHTML },
+    { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+  );
+  console.log(`[City Pages] ✅ ${title}`);
+  return { title, urlSlug, city, service: slug };
+}
+
+async function runRailingMaxCityPagesBatch(batchSize = 5) {
+  const snapshot = await loadCityPagesSnapshot();
+  const published = new Set(snapshot.published || []);
+  const queue = [];
+  for (const service of [...RAILING_MAX_SERVICES].sort((a, b) => a.priority - b.priority)) {
+    for (const cityObj of RAILING_MAX_CITIES) {
+      const key = `${service.slug}-${cityObj.city.toLowerCase().replace(/[^a-z0-9]/g, '-')}-fl`;
+      if (!published.has(key)) queue.push({ service, cityObj, key });
+    }
+  }
+  if (!queue.length) { console.log('[City Pages] All pages published!'); return { done: true, total: published.size }; }
+
+  const batch = queue.slice(0, batchSize);
+  const results = [];
+  for (const { service, cityObj, key } of batch) {
+    try {
+      const r = await runRailingMaxCityPage(service, cityObj);
+      snapshot.published.push(key);
+      results.push(r);
+      await new Promise(r => setTimeout(r, 3000));
+    } catch (e) { console.error(`[City Pages] ❌ ${key}:`, e.message); }
+  }
+  await saveCloudinaryJSON(CITY_PAGES_PID, snapshot);
+  console.log(`[City Pages] Batch done — ${results.length} published, ${queue.length - results.length} remaining`);
+  return { published: results.length, remaining: queue.length - results.length };
+}
+
+// ─── COONEY HOMES CITY PAGES (Programmatic SEO) ──────────────────────────────
+const COONEY_LOCATION_ID = 'Gc4sUcLiRI2edddJ5Lfl';
+const COONEY_API_KEY     = SEO_CLIENTS['Gc4sUcLiRI2edddJ5Lfl']?.apiKey;
+const COONEY_CITY_PAGES_PID = 'jrz/cooney_city_pages';
+const COONEY_CITY_PAGES_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/cooney_city_pages.json';
+
+const COONEY_SERVICES = [
+  { slug: 'custom-home-builder',  keyword: 'custom home builder',  label: 'Custom Homes',     priority: 1 },
+  { slug: 'home-renovation',      keyword: 'home renovation',       label: 'Home Renovation',  priority: 2 },
+  { slug: 'home-addition',        keyword: 'home addition',         label: 'Home Additions',   priority: 3 },
+  { slug: 'general-contractor',   keyword: 'general contractor',    label: 'General Contractor', priority: 4 },
+];
+
+const COONEY_CITIES = [
+  // Orlando / Central Florida
+  { city: 'Orlando',            state: 'FL', metro: 'Orlando' },
+  { city: 'Kissimmee',          state: 'FL', metro: 'Orlando' },
+  { city: 'St. Cloud',          state: 'FL', metro: 'Orlando' },
+  { city: 'Davenport',          state: 'FL', metro: 'Orlando' },
+  { city: 'Haines City',        state: 'FL', metro: 'Orlando' },
+  { city: 'Poinciana',          state: 'FL', metro: 'Orlando' },
+  { city: 'Winter Park',        state: 'FL', metro: 'Orlando' },
+  { city: 'Sanford',            state: 'FL', metro: 'Orlando' },
+  { city: 'Lake Mary',          state: 'FL', metro: 'Orlando' },
+  { city: 'Longwood',           state: 'FL', metro: 'Orlando' },
+  { city: 'Oviedo',             state: 'FL', metro: 'Orlando' },
+  { city: 'Winter Garden',      state: 'FL', metro: 'Orlando' },
+  { city: 'Clermont',           state: 'FL', metro: 'Orlando' },
+  { city: 'Windermere',         state: 'FL', metro: 'Orlando' },
+  { city: 'Celebration',        state: 'FL', metro: 'Orlando' },
+  { city: 'Altamonte Springs',  state: 'FL', metro: 'Orlando' },
+  { city: 'Apopka',             state: 'FL', metro: 'Orlando' },
+  { city: 'Lake Nona',          state: 'FL', metro: 'Orlando' },
+  { city: 'Osceola County',     state: 'FL', metro: 'Orlando' },
+  { city: 'Polk County',        state: 'FL', metro: 'Orlando' },
+  // Tampa
+  { city: 'Tampa',              state: 'FL', metro: 'Tampa' },
+  { city: 'Lakeland',           state: 'FL', metro: 'Tampa' },
+  { city: 'Brandon',            state: 'FL', metro: 'Tampa' },
+  { city: 'Wesley Chapel',      state: 'FL', metro: 'Tampa' },
+  { city: 'Riverview',          state: 'FL', metro: 'Tampa' },
+  { city: 'Plant City',         state: 'FL', metro: 'Tampa' },
+  { city: 'Land O Lakes',       state: 'FL', metro: 'Tampa' },
+  { city: 'Lutz',               state: 'FL', metro: 'Tampa' },
+  // Daytona / Space Coast
+  { city: 'Daytona Beach',      state: 'FL', metro: 'Daytona' },
+  { city: 'Palm Bay',           state: 'FL', metro: 'Daytona' },
+  { city: 'Melbourne',          state: 'FL', metro: 'Daytona' },
+  { city: 'Cocoa',              state: 'FL', metro: 'Daytona' },
+];
+
+async function loadCooneyPagesSnapshot() {
+  try {
+    const res = await axios.get(COONEY_CITY_PAGES_URL + '?t=' + Date.now(), { timeout: 8000 });
+    return typeof res.data === 'string' ? JSON.parse(res.data) : (res.data || { published: [] });
+  } catch { return { published: [] }; }
+}
+
+async function runCooneyHomeCityPage(service, cityObj) {
+  const { city, metro } = cityObj;
+  const { keyword, label, slug } = service;
+  const token = COONEY_API_KEY;
+
+  console.log(`[Cooney City Pages] Generating: ${keyword} in ${city}, FL...`);
+  const blogsRes = await axios.get(
+    `https://services.leadconnectorhq.com/blogs/site/all?locationId=${COONEY_LOCATION_ID}&limit=5`,
+    { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' } }
+  );
+  const blog = blogsRes.data?.blogs?.[0];
+  if (!blog) throw new Error('No blog site for Cooney Homes');
+
+  const nearbyCities = COONEY_CITIES.filter(c => c.metro === metro && c.city !== city).slice(0, 4).map(c => c.city).join(', ');
+
+  const aiRes = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 2000,
+    messages: [{ role: 'user', content: `Write a LOCAL SERVICE PAGE for Cooney Homes — licensed general contractor in Central Florida specializing in custom homes, renovations, and additions.
+
+TARGET KEYWORD: "${keyword} ${city} FL"
+TARGET CITY: ${city}, FL (${metro} area)
+SERVICE: ${label}
+
+ABOUT COONEY HOMES:
+Owner-led builds. Clean communication. High craftsmanship. Licensed General Contractor. Free consultations. Built for long-term value.
+
+VOICE: Confident, straight-talking contractor. Sounds like the owner talking to a homeowner at their kitchen table. Specific about the process, honest about timelines, proud of the work.
+
+WRITE 700-850 WORDS:
+- Open with hook mentioning ${city} and "${keyword}" in first sentence
+- Why ${city} homeowners choose Cooney Homes for ${label.toLowerCase()} (growth, new neighborhoods, renovation boom, local market where relevant)
+- Process overview: planning, permitting, construction, finish work
+- Florida building codes and what makes Central Florida builds unique (humidity, lot sizes, HOA considerations)
+- Mention nearby areas served: ${nearbyCities}
+- 2 internal links: https://cooneyhomesfl.com and https://cooneyhomesfl.com/contact
+- End CTA: "Ready to build or renovate in ${city}? Call Cooney Homes at (407) 201-4100 for a free consultation."
+
+No AI clichés. Contractions throughout. Vary sentence length.
+
+Return ONLY valid JSON:
+{ "title": "60-65 char title with '${keyword} ${city} FL'", "metaDescription": "155-165 char meta", "htmlContent": "HTML using h2/h3/p/ul/li/strong/a tags only" }` }],
+  });
+
+  const parsed = JSON.parse(aiRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+  const { title, metaDescription, htmlContent } = parsed;
+
+  const pageHTML = `${htmlContent}
+<p><strong>Ready to start your ${label.toLowerCase()} in ${city}? Call <a href="tel:4072014100">(407) 201-4100</a> or visit <a href="https://cooneyhomesfl.com/contact">cooneyhomesfl.com</a> for a free consultation.</strong></p>
+<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'LocalBusiness', name: 'Cooney Homes', url: 'https://cooneyhomesfl.com', telephone: '(407) 201-4100', areaServed: { '@type': 'City', name: city } })}</script>
+<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Service', name: `${label} in ${city}, FL`, provider: { '@type': 'LocalBusiness', name: 'Cooney Homes' }, areaServed: city, description: metaDescription })}</script>`;
+
+  const urlSlug = `${slug}-${city.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-fl`;
+  const publishedAt = new Date(); publishedAt.setUTCHours(14, 30, 0, 0);
+
+  await axios.post('https://services.leadconnectorhq.com/blogs/posts',
+    { title, locationId: COONEY_LOCATION_ID, blogId: blog.id || blog._id, description: metaDescription,
+      ...(blog.authorId && { author: blog.authorId }),
+      tags: ['Custom Home Builder', 'Contractor', label, city, metro, 'Florida'],
+      urlSlug, status: 'PUBLISHED', publishedAt: publishedAt.toISOString(), rawHTML: pageHTML },
+    { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+  );
+  console.log(`[Cooney City Pages] ✅ ${title}`);
+  return { title, urlSlug, city, service: slug };
+}
+
+async function runCooneyHomesCityPagesBatch(batchSize = 5) {
+  const snapshot = await loadCooneyPagesSnapshot();
+  const published = new Set(snapshot.published || []);
+  const queue = [];
+  for (const service of [...COONEY_SERVICES].sort((a, b) => a.priority - b.priority)) {
+    for (const cityObj of COONEY_CITIES) {
+      const key = `${service.slug}-${cityObj.city.toLowerCase().replace(/[^a-z0-9]/g, '-')}-fl`;
+      if (!published.has(key)) queue.push({ service, cityObj, key });
+    }
+  }
+  if (!queue.length) { console.log('[Cooney City Pages] All pages published!'); return { done: true, total: published.size }; }
+
+  const batch = queue.slice(0, batchSize);
+  const results = [];
+  for (const { service, cityObj, key } of batch) {
+    try {
+      const r = await runCooneyHomeCityPage(service, cityObj);
+      snapshot.published.push(key);
+      results.push(r);
+      await new Promise(r => setTimeout(r, 3000));
+    } catch (e) { console.error(`[Cooney City Pages] ❌ ${key}:`, e.message); }
+  }
+  await saveCloudinaryJSON(COONEY_CITY_PAGES_PID, snapshot);
+  console.log(`[Cooney City Pages] Batch done — ${results.length} published, ${queue.length - results.length} remaining`);
+  return { published: results.length, remaining: queue.length - results.length };
+}
+
 // DataForSEO: get search volume + competition score for a list of keywords
 // Returns map of { keyword -> { volume, competition, score } }
 async function getDataForSEOKeywordScores(keywords) {
@@ -11640,6 +11970,32 @@ app.post('/cron/backlink-check', (_req, res) => {
   runWeeklyBacklinkCheck().catch(e => console.error('[Backlinks] Manual error:', e.message));
 });
 
+// POST /cron/railing-city-pages — run next batch of Railing Max city pages now
+app.post('/cron/railing-city-pages', (_req, res) => {
+  const batchSize = parseInt(req.query.batch) || 5;
+  res.json({ status: 'started', message: `Generating ${batchSize} Railing Max city pages in background` });
+  runRailingMaxCityPagesBatch(batchSize).catch(e => console.error('[City Pages] Manual error:', e.message));
+});
+
+// GET /cron/railing-city-pages/status — show progress
+app.get('/cron/railing-city-pages/status', async (_req, res) => {
+  const snap = await loadCityPagesSnapshot().catch(() => ({ published: [] }));
+  res.json({ published: snap.published.length, total: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length, remaining: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length - snap.published.length, lastPages: snap.published.slice(-10) });
+});
+
+// POST /cron/cooney-city-pages — run next batch of Cooney Homes city pages now
+app.post('/cron/cooney-city-pages', (_req, res) => {
+  const batchSize = parseInt(req.query.batch) || 5;
+  res.json({ status: 'started', message: `Generating ${batchSize} Cooney Homes city pages in background` });
+  runCooneyHomesCityPagesBatch(batchSize).catch(e => console.error('[Cooney City Pages] Manual error:', e.message));
+});
+
+// GET /cron/cooney-city-pages/status — show progress
+app.get('/cron/cooney-city-pages/status', async (_req, res) => {
+  const snap = await loadCooneyPagesSnapshot().catch(() => ({ published: [] }));
+  res.json({ published: snap.published.length, total: COONEY_SERVICES.length * COONEY_CITIES.length, remaining: COONEY_SERVICES.length * COONEY_CITIES.length - snap.published.length, lastPages: snap.published.slice(-10) });
+});
+
 // Debug: GET /sofia/blogs/:locationId — check what blogs API returns for a sub-account
 app.get('/sofia/blogs/:locationId', async (req, res) => {
   const { locationId } = req.params;
@@ -11794,6 +12150,8 @@ let lastSofiaCRODate        = null;
 let lastSofiaMonitorHour    = -1; // tracks last 6-hour slot (0, 6, 12, 18)
 let lastRankTrackingDate    = null;
 let lastBacklinkCheckDate   = null;
+let lastRailingCityPagesDate = null;
+let lastCooneyPagesDate      = null;
 
 setInterval(async () => {
   try {
@@ -11820,6 +12178,18 @@ setInterval(async () => {
     if (hour === 7 && minute >= 8 && minute < 13 && lastClientBlogDate !== today) {
       lastClientBlogDate = today;
       runAllClientsDailyBlog(); // non-blocking — loops through SEO_CLIENTS
+    }
+
+    // 7:15am daily — Railing Max: publish next 5 city×service pages (348 total)
+    if (hour === 7 && minute >= 15 && minute < 20 && lastRailingCityPagesDate !== today) {
+      lastRailingCityPagesDate = today;
+      runRailingMaxCityPagesBatch(5); // non-blocking
+    }
+
+    // 7:20am daily — Cooney Homes: publish next 5 city×service pages (128 total)
+    if (hour === 7 && minute >= 20 && minute < 25 && lastCooneyPagesDate !== today) {
+      lastCooneyPagesDate = today;
+      runCooneyHomesCityPagesBatch(5); // non-blocking
     }
 
     // 7:10am Monday — analytics self-learning + A/B test analysis + weekly email
