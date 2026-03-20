@@ -11166,6 +11166,25 @@ app.post('/cron/client-blog/:locationId', async (req, res) => {
   res.json(result);
 });
 
+// Debug: GET /sofia/blogs/:locationId — check what blogs API returns for a sub-account
+app.get('/sofia/blogs/:locationId', async (req, res) => {
+  const { locationId } = req.params;
+  const config = SEO_CLIENTS[locationId];
+  const token = config?.apiKey;
+  if (!token) return res.json({ error: 'No apiKey for this locationId in SEO_CLIENTS' });
+  try {
+    const r1 = await axios.get(`https://services.leadconnectorhq.com/blogs/?locationId=${locationId}`,
+      { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 10000 }
+    ).catch(e => ({ error: e?.response?.data || e.message }));
+    const r2 = await axios.get(`https://services.leadconnectorhq.com/blogs/posts?locationId=${locationId}`,
+      { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 10000 }
+    ).catch(e => ({ error: e?.response?.data || e.message }));
+    res.json({ blogsEndpoint: r1?.data || r1?.error, postsEndpoint: r2?.data || r2?.error });
+  } catch (err) {
+    res.json({ error: err?.response?.data || err.message });
+  }
+});
+
 // Debug: GET /sofia/location-token/:locationId — test if agency key can get a token for a sub-account
 app.get('/sofia/location-token/:locationId', async (req, res) => {
   const { locationId } = req.params;
