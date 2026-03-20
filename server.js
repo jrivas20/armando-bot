@@ -11970,12 +11970,14 @@ app.post('/cron/backlink-check', (_req, res) => {
   runWeeklyBacklinkCheck().catch(e => console.error('[Backlinks] Manual error:', e.message));
 });
 
-// POST /cron/railing-city-pages — run next batch of Railing Max city pages now
-app.post('/cron/railing-city-pages', (_req, res) => {
-  const batchSize = parseInt(req.query.batch) || 5;
-  res.json({ status: 'started', message: `Generating ${batchSize} Railing Max city pages in background` });
+// GET or POST /cron/railing-city-pages — run next batch of Railing Max city pages
+function triggerRailingPages(req, res) {
+  const batchSize = parseInt(req.query.batch) || 50;
+  res.json({ status: 'started', message: `Generating ${batchSize} Railing Max city pages in background — check GHL in ~5 min` });
   runRailingMaxCityPagesBatch(batchSize).catch(e => console.error('[City Pages] Manual error:', e.message));
-});
+}
+app.get('/cron/railing-city-pages', triggerRailingPages);
+app.post('/cron/railing-city-pages', triggerRailingPages);
 
 // GET /cron/railing-city-pages/status — show progress
 app.get('/cron/railing-city-pages/status', async (_req, res) => {
@@ -11983,12 +11985,14 @@ app.get('/cron/railing-city-pages/status', async (_req, res) => {
   res.json({ published: snap.published.length, total: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length, remaining: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length - snap.published.length, lastPages: snap.published.slice(-10) });
 });
 
-// POST /cron/cooney-city-pages — run next batch of Cooney Homes city pages now
-app.post('/cron/cooney-city-pages', (_req, res) => {
-  const batchSize = parseInt(req.query.batch) || 5;
-  res.json({ status: 'started', message: `Generating ${batchSize} Cooney Homes city pages in background` });
+// GET or POST /cron/cooney-city-pages — run next batch of Cooney Homes city pages
+function triggerCooneyPages(req, res) {
+  const batchSize = parseInt(req.query.batch) || 50;
+  res.json({ status: 'started', message: `Generating ${batchSize} Cooney Homes city pages in background — check GHL in ~5 min` });
   runCooneyHomesCityPagesBatch(batchSize).catch(e => console.error('[Cooney City Pages] Manual error:', e.message));
-});
+}
+app.get('/cron/cooney-city-pages', triggerCooneyPages);
+app.post('/cron/cooney-city-pages', triggerCooneyPages);
 
 // GET /cron/cooney-city-pages/status — show progress
 app.get('/cron/cooney-city-pages/status', async (_req, res) => {
