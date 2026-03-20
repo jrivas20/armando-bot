@@ -11171,6 +11171,12 @@ app.get('/sofia/ga4', async (req, res) => {
   if (!propertyId) return res.status(400).json({ error: 'propertyId required' });
 
   // Debug: check each step
+  const saEmail = process.env.GOOGLE_SA_EMAIL;
+  const saKey   = process.env.GOOGLE_SA_PRIVATE_KEY;
+  if (!saEmail && !saKey) return res.json({ error: 'Both GOOGLE_SA_EMAIL and GOOGLE_SA_PRIVATE_KEY are missing in Render env vars' });
+  if (!saEmail) return res.json({ error: 'GOOGLE_SA_EMAIL is missing' });
+  if (!saKey)   return res.json({ error: 'GOOGLE_SA_PRIVATE_KEY is missing', emailFound: saEmail });
+
   const jwt = _buildServiceAccountJWT('https://www.googleapis.com/auth/analytics.readonly');
   if (!jwt) return res.json({ error: 'JWT failed — GOOGLE_SA_EMAIL or GOOGLE_SA_PRIVATE_KEY missing' });
 
