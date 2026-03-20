@@ -7895,6 +7895,7 @@ async function runWeeklyBacklinkCheck() {
 // 58 cities × 6 services = 348 pages — published 5/day starting with floating stairs
 const RAILING_MAX_LOCATION_ID = 'iipUT8kmVxJZzGBzvkZm';
 const RAILING_MAX_API_KEY     = 'pit-3a6936c1-5f10-4e4d-bb26-26bec9ebef1c';
+const RAILING_MAX_BLOG_ID     = 'NUf80XWXC5gwQqrvTpbD';
 const RAILING_MAX_DOMAIN      = 'railingmax.com';
 const CITY_PAGES_PID          = 'jrz/railingmax_city_pages';
 const CITY_PAGES_URL          = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/railingmax_city_pages.json';
@@ -7986,8 +7987,7 @@ async function runRailingMaxCityPage(service, cityObj) {
   const token = RAILING_MAX_API_KEY;
 
   console.log(`[City Pages] Generating: ${keyword} in ${city}, FL...`);
-  const blog = await getClientBlog(RAILING_MAX_LOCATION_ID, token);
-  if (!blog) throw new Error('No blog site for Railing Max');
+  const blog = { blogId: RAILING_MAX_BLOG_ID, authorId: null };
 
   const nearbyStr = RAILING_MAX_CITIES.filter(c => c.metro === metro && c.city !== city).slice(0, 4).map(c => c.city).join(', ');
 
@@ -8069,8 +8069,9 @@ async function runRailingMaxCityPagesBatch(batchSize = 5) {
 }
 
 // ─── COONEY HOMES CITY PAGES (Programmatic SEO) ──────────────────────────────
-const COONEY_LOCATION_ID = 'Gc4sUcLiRI2edddJ5Lfl';
-const COONEY_API_KEY     = SEO_CLIENTS['Gc4sUcLiRI2edddJ5Lfl']?.apiKey;
+const COONEY_LOCATION_ID    = 'Gc4sUcLiRI2edddJ5Lfl';
+const COONEY_API_KEY        = 'pit-cd43cc72-9e18-4eee-9bfb-be5942de9722';
+const COONEY_BLOG_ID        = 'FGBk0wCHy3JJcQd7ULbr';
 const COONEY_CITY_PAGES_PID = 'jrz/cooney_city_pages';
 const COONEY_CITY_PAGES_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/cooney_city_pages.json';
 
@@ -8132,8 +8133,7 @@ async function runCooneyHomeCityPage(service, cityObj) {
   const token = COONEY_API_KEY;
 
   console.log(`[Cooney City Pages] Generating: ${keyword} in ${city}, FL...`);
-  const blog = await getClientBlog(COONEY_LOCATION_ID, token);
-  if (!blog) throw new Error('No blog site for Cooney Homes');
+  const blog = { blogId: COONEY_BLOG_ID, authorId: null };
 
   const nearbyCities = COONEY_CITIES.filter(c => c.metro === metro && c.city !== city).slice(0, 4).map(c => c.city).join(', ');
 
