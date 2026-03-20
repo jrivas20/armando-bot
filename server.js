@@ -11169,8 +11169,31 @@ app.post('/cron/weekly-seo', async (_req, res) => {
 app.get('/sofia/ga4', async (req, res) => {
   const { propertyId } = req.query;
   if (!propertyId) return res.status(400).json({ error: 'propertyId required' });
+
+  // Debug: check each step
+  const jwt = _buildServiceAccountJWT('https://www.googleapis.com/auth/analytics.readonly');
+  if (!jwt) return res.json({ error: 'JWT failed — GOOGLE_SA_EMAIL or GOOGLE_SA_PRIVATE_KEY missing' });
+
+  const tokenResp = await axios.post('https://oauth2.googleapis.com/token', new URLSearchParams({
+    grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+    assertion: jwt,
+  })).catch(e => ({ error: e?.response?.data || e.message }));
+
+  if (tokenResp?.error) return res.json({ error: 'Token exchange failed', detail: tokenResp.error });
+
+  const accessToken = tokenResp?.data?.access_token;
+  if (!accessToken) return res.json({ error: 'No access token returned', raw: tokenResp?.data });
+
+  const apiResp = await axios.post(
+    `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
+    { dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }], metrics: [{ name: 'sessions' }] },
+    { headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
+  ).catch(e => ({ error: e?.response?.data || e.message }));
+
+  if (apiResp?.error) return res.json({ error: 'GA4 API call failed', detail: apiResp.error });
+
   const data = await getGA4Data(propertyId);
-  res.json(data || { error: 'no data — check service account access' });
+  res.json(data || { error: 'getGA4Data returned null' });
 });
 
 // Manual trigger: POST /cron/local-pack — Sofia checks if each client is in the Google 3-pack
