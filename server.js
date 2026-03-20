@@ -7626,6 +7626,8 @@ Return ONLY valid JSON, no markdown, no code fences:
   const parsed = JSON.parse(blogRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
   const { title, metaDescription, htmlContent } = parsed;
 
+  const brand = config.brand || { primary: '#0f172a', accent: '#2563eb', bg: '#ffffff', logoUrl: '' };
+
   // Step 5: Hero image — GHL media library first, Pexels as last resort
   let heroImage = null;
   if (brand.mediaImages && brand.mediaImages.length > 0) {
@@ -7640,7 +7642,6 @@ Return ONLY valid JSON, no markdown, no code fences:
   }
 
   // Step 6: Wrap content in brand-styled HTML template
-  const brand = config.brand || { primary: '#0f172a', accent: '#2563eb', bg: '#ffffff', logoUrl: '' };
 
   // Plain HTML mode — no inline CSS, let GHL theme handle styling
   let styledHTML;
@@ -11427,8 +11428,17 @@ app.post('/cron/client-blogs', (_req, res) => {
 });
 
 // Manual trigger: POST /cron/client-blog/:locationId — run blog for one specific client
-// Example: POST /cron/client-blog/iipUT8kmVxJZzGBzvkZm (Railing Max)
+// Example: GET or POST /cron/client-blog/iipUT8kmVxJZzGBzvkZm (Railing Max)
 // Responds immediately — Claude Opus takes 60-90s, would 502 if awaited on Render free plan
+app.get('/cron/client-blog/:locationId', (req, res) => {
+  const { locationId } = req.params;
+  const config = SEO_CLIENTS[locationId];
+  if (!config) return res.status(404).json({ error: `No SEO_CLIENTS entry for locationId: ${locationId}` });
+  res.json({ status: 'started', name: config.name, message: 'Blog generating in background — will publish to GHL in ~60s' });
+  runClientDailySeoBlog(locationId, config)
+    .then(r => console.log(`[Client SEO] ✅ Manual blog result for ${config.name}:`, JSON.stringify(r)))
+    .catch(e => console.error(`[Client SEO] ❌ Manual blog error for ${config.name}:`, e.message));
+});
 app.post('/cron/client-blog/:locationId', (req, res) => {
   const { locationId } = req.params;
   const config = SEO_CLIENTS[locationId];
