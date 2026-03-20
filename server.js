@@ -7909,10 +7909,10 @@ async function runSofiaCitationAudit(businessName, location = 'Orlando, FL') {
 async function getGHLMediaImage(locationId, token) {
   try {
     const res = await axios.get(
-      `https://services.leadconnectorhq.com/medias/?locationId=${locationId}&type=image&limit=50`,
+      `https://services.leadconnectorhq.com/medias/files?locationId=${locationId}&type=image&limit=50`,
       { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 8000 }
     );
-    const files = res.data?.files || res.data?.medias || [];
+    const files = res.data?.files || [];
     const images = files.filter(f => f.url && /\.(jpg|jpeg|png|webp)/i.test(f.url));
     if (!images.length) return null;
     const pick = images[Math.floor(Math.random() * images.length)];
