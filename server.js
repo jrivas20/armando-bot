@@ -5710,7 +5710,8 @@ app.post('/cron/proposal', async (req, res) => {
 //   Speaks Spanish to all clients (English only to Cooney Homes)
 // ═══════════════════════════════════════════════════════════
 
-const GHL_AGENCY_KEY = process.env.GHL_AGENCY_KEY || 'pit-7a8b4631-2249-4683-b15b-57a661400caa';
+const GHL_AGENCY_KEY  = process.env.GHL_AGENCY_KEY  || 'pit-7a8b4631-2249-4683-b15b-57a661400caa';
+const GHL_COMPANY_ID  = 'VMjVKN63tXxZxQ21jlC4';
 
 // Known client overrides — language + industry per locationId
 // Elena fetches the live list from GHL, then applies these overrides.
