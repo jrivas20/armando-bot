@@ -7976,7 +7976,7 @@ const RAILING_MAX_CITIES = [
 
 async function loadCityPagesSnapshot() {
   try {
-    const res = await axios.get(CITY_PAGES_URL + '?t=' + Date.now(), { timeout: 8000 });
+    const res = await axios.get(CITY_PAGES_URL, { timeout: 8000, headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
     return typeof res.data === 'string' ? JSON.parse(res.data) : (res.data || { published: [] });
   } catch { return { published: [] }; }
 }
@@ -8122,7 +8122,7 @@ const COONEY_CITIES = [
 
 async function loadCooneyPagesSnapshot() {
   try {
-    const res = await axios.get(COONEY_CITY_PAGES_URL + '?t=' + Date.now(), { timeout: 8000 });
+    const res = await axios.get(COONEY_CITY_PAGES_URL, { timeout: 8000, headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
     return typeof res.data === 'string' ? JSON.parse(res.data) : (res.data || { published: [] });
   } catch { return { published: [] }; }
 }
