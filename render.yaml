@@ -38,3 +38,5 @@ services:
         value: info@jrzmarketing.com
       - key: DATAFORSEO_PASSWORD
         sync: false
+      - key: GOOGLE_PLACES_API_KEY
+        value: AIzaSyC1ra5_WT5mE6QJr64HDrVixFHbionXUkM

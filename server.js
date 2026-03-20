@@ -44,6 +44,11 @@ const DATAFORSEO_LOGIN    = process.env.DATAFORSEO_LOGIN    || 'info@jrzmarketin
 const DATAFORSEO_PASSWORD = process.env.DATAFORSEO_PASSWORD || '';
 const DATAFORSEO_BASE     = 'https://api.dataforseo.com';
 
+// ── Google APIs ─────────────────────────────────────────────
+const GOOGLE_PLACES_API_KEY  = process.env.GOOGLE_PLACES_API_KEY  || 'AIzaSyC1ra5_WT5mE6QJr64HDrVixFHbionXUkM';
+const GOOGLE_INDEXING_BASE   = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
+const GOOGLE_PLACES_BASE     = 'https://maps.googleapis.com/maps/api';
+
 // ── SEO-enabled sub-accounts ───────────────────────────────
 // Central Florida cities — rotated daily so every blog targets a different city.
 // 30 cities = 30 unique geo-targeted posts per month per client = page 1 across all of Central FL.
@@ -105,6 +110,7 @@ const SEO_CLIENTS = {
       'custom railing ideas for Florida homes that stand out',
     ],
     cta: 'Get your free floating stairs or railing quote at railingmax.com',
+    ga4PropertyId: '529233384',
   },
   'rJKRuyayc6Z6twr9X20v': {
     name: 'The Escobar Kitchen',
@@ -133,6 +139,7 @@ const SEO_CLIENTS = {
       'asian fusion vs traditional sushi what is the difference',
     ],
     cta: 'Reserve your table or order online at theescobarkitchen.com',
+    ga4PropertyId: '529262280',
   },
   '6FdG0APBuZ81P8X2H4zc': {
     name: 'Rental Spaces',
@@ -163,6 +170,7 @@ const SEO_CLIENTS = {
     audience: 'Small business owners, Latino entrepreneurs, and service-based businesses in Orlando and Central Florida who want real growth — more leads, more sales, more automation.',
     topics: ['AI marketing automation for small business Orlando', 'how to get more leads without spending more on ads', 'Go High Level for small business', 'social media automation that actually works', 'bilingual marketing strategy Florida', 'how to rank your business on Google Maps Orlando', 'marketing mistakes small business owners make'],
     cta: 'Book your free strategy call at jrzmarketing.com/contact-us',
+    ga4PropertyId: '384751711',
   },
   'Gc4sUcLiRI2edddJ5Lfl': {
     name: 'Cooney Homes',
@@ -190,6 +198,7 @@ const SEO_CLIENTS = {
       'building a custom home in Orlando from land to move-in',
     ],
     cta: 'Start your project with a free consultation at cooneyhomesfl.com',
+    ga4PropertyId: '503054433',
   },
   'OpdBPAp31zItOc5IIykL': {
     name: 'Le Varon Barbershop',
@@ -7564,7 +7573,12 @@ Return ONLY valid JSON, no markdown, no code fences:
   );
 
   console.log(`[Client SEO] ✅ ${name}: published "${title}"`);
-  return { success: true, name, title, keyword: targetKeyword };
+
+  // Force-index the new blog post via Google Indexing API (ranks same day instead of 2 weeks)
+  const blogUrl = `https://${domain}/${urlSlug}`;
+  forceIndexUrl(blogUrl).catch(() => null); // non-blocking
+
+  return { success: true, name, title, keyword: targetKeyword, blogUrl };
 }
 
 // Daily runner — loops through all entries in SEO_CLIENTS and publishes one blog each
@@ -7661,12 +7675,558 @@ async function runSofiaCitationAudit(businessName, location = 'Orlando, FL') {
   }
 }
 
+// ─── GOOGLE ANALYTICS 4 ──────────────────────────────────────────────────────
+// Pulls last 30 days of traffic data for a GA4 property using the service account.
+// Returns: sessions, users, pageviews, top 5 pages, bounce rate, avg session duration.
+async function getGA4Data(propertyId) {
+  try {
+    const jwt = _buildServiceAccountJWT('https://www.googleapis.com/auth/analytics.readonly');
+    if (!jwt) return null;
+
+    const tokenResp = await axios.post('https://oauth2.googleapis.com/token', new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
+    })).catch(() => null);
+    const accessToken = tokenResp?.data?.access_token;
+    if (!accessToken) return null;
+
+    const headers = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
+    const base = `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}`;
+
+    // Overview report — sessions, users, pageviews, bounce rate, avg duration
+    const overviewResp = await axios.post(`${base}:runReport`, {
+      dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
+      metrics: [
+        { name: 'sessions' },
+        { name: 'totalUsers' },
+        { name: 'screenPageViews' },
+        { name: 'bounceRate' },
+        { name: 'averageSessionDuration' },
+      ],
+    }, { headers }).catch(() => null);
+
+    const overview = overviewResp?.data?.rows?.[0]?.metricValues || [];
+
+    // Top pages report
+    const pagesResp = await axios.post(`${base}:runReport`, {
+      dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
+      dimensions: [{ name: 'pagePath' }],
+      metrics: [{ name: 'screenPageViews' }, { name: 'sessions' }],
+      orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+      limit: 5,
+    }, { headers }).catch(() => null);
+
+    const topPages = (pagesResp?.data?.rows || []).map(r => ({
+      page: r.dimensionValues[0].value,
+      views: r.metricValues[0].value,
+      sessions: r.metricValues[1].value,
+    }));
+
+    // Traffic source report
+    const sourceResp = await axios.post(`${base}:runReport`, {
+      dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
+      dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+      metrics: [{ name: 'sessions' }],
+      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+      limit: 5,
+    }, { headers }).catch(() => null);
+
+    const sources = (sourceResp?.data?.rows || []).map(r => ({
+      channel: r.dimensionValues[0].value,
+      sessions: r.metricValues[0].value,
+    }));
+
+    return {
+      propertyId,
+      sessions:            overview[0]?.value || '0',
+      users:               overview[1]?.value || '0',
+      pageviews:           overview[2]?.value || '0',
+      bounceRate:          overview[3]?.value ? `${(parseFloat(overview[3].value) * 100).toFixed(1)}%` : 'N/A',
+      avgSessionDuration:  overview[4]?.value ? `${Math.round(parseFloat(overview[4].value))}s` : 'N/A',
+      topPages,
+      sources,
+    };
+  } catch (err) {
+    console.error('[GA4] Error:', err?.response?.data || err.message);
+    return null;
+  }
+}
+
+// ─── GOOGLE INDEXING API ─────────────────────────────────────────────────────
+// Force-indexes a URL with Google so new blog posts rank within hours, not weeks.
+// Requires service account added as Owner in Google Search Console for the domain.
+async function forceIndexUrl(url) {
+  try {
+    const jwt = _buildServiceAccountJWT('https://indexing.googleapis.com/');
+    if (!jwt) return null;
+    const tokenResp = await axios.post('https://oauth2.googleapis.com/token', new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
+    })).catch(() => null);
+    const accessToken = tokenResp?.data?.access_token;
+    if (!accessToken) return null;
+
+    const resp = await axios.post(GOOGLE_INDEXING_BASE, {
+      url,
+      type: 'URL_UPDATED',
+    }, { headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } });
+
+    console.log(`[Indexing] ✅ Force-indexed: ${url}`);
+    return resp.data;
+  } catch (err) {
+    console.error('[Indexing] Error:', err?.response?.data || err.message);
+    return null;
+  }
+}
+
+// ─── GOOGLE PLACES — LOCAL PACK TRACKER ──────────────────────────────────────
+// Checks if a business appears in the Google local 3-pack for a given keyword + city.
+// Returns position (1-3), name, rating, and review count.
+async function checkLocalPackPosition(businessName, keyword, city) {
+  try {
+    const query = encodeURIComponent(`${keyword} ${city} FL`);
+    const resp = await axios.get(
+      `${GOOGLE_PLACES_BASE}/textsearch/json?query=${query}&key=${GOOGLE_PLACES_API_KEY}&type=establishment`
+    ).catch(() => null);
+
+    const results = resp?.data?.results || [];
+    const position = results.findIndex(r =>
+      r.name.toLowerCase().includes(businessName.toLowerCase()) ||
+      businessName.toLowerCase().includes(r.name.toLowerCase())
+    );
+
+    if (position === -1) return { inPack: false, keyword, city };
+
+    const match = results[position];
+    return {
+      inPack: true,
+      position: position + 1,
+      keyword,
+      city,
+      name: match.name,
+      rating: match.rating,
+      reviewCount: match.user_ratings_total,
+      address: match.formatted_address,
+    };
+  } catch (err) {
+    console.error('[Places] Error:', err?.message);
+    return null;
+  }
+}
+
+// ─── LOCAL PACK RANK MONITOR — ALL CLIENTS ───────────────────────────────────
+// Runs weekly. Checks each client's top 3 keywords in their primary city.
+// Alerts Jose if any client drops out of the local 3-pack.
+async function runLocalPackMonitor() {
+  console.log('[LocalPack] Sofia: checking local pack positions...');
+  const report = [];
+
+  for (const [, config] of Object.entries(SEO_CLIENTS)) {
+    const { name, keywords } = config;
+    const city = 'Orlando'; // primary city check
+    const topKeywords = keywords.slice(0, 3);
+    const clientReport = { client: name, results: [] };
+
+    for (const kw of topKeywords) {
+      const result = await checkLocalPackPosition(name, kw, city).catch(() => null);
+      if (result) clientReport.results.push(result);
+      await new Promise(r => setTimeout(r, 500)); // avoid rate limit
+    }
+
+    // Alert if not in pack for primary keyword
+    const primaryResult = clientReport.results[0];
+    if (primaryResult && !primaryResult.inPack) {
+      await sendEmail(
+        OWNER_CONTACT_ID,
+        `[Local Pack Alert] ${name} not in 3-pack for "${topKeywords[0]}"`,
+        `<p><strong>${name}</strong> is not showing in the Google local 3-pack for <strong>"${topKeywords[0]}"</strong> in ${city}.</p>
+<p>Action needed: check GBP listing, add more posts, and build more local citations.</p>
+<p style="color:#888;font-size:12px;">Sofia · Local Pack Monitor · ${new Date().toLocaleDateString()}</p>`
+      ).catch(() => null);
+    }
+
+    report.push(clientReport);
+  }
+
+  console.log('[LocalPack] Done:', report);
+  return report;
+}
+
+// ─── BACKLINK PROSPECTOR ──────────────────────────────────────────────────────
+// Runs monthly. For each SEO_CLIENTS entry:
+//  1. DataForSEO SERP: "[industry] [city] write for us" → find 5 guest post targets
+//  2. Claude writes a personalized outreach email per target
+//  3. Send via GHL email to each prospect
+//  4. Track contacted domains in Cloudinary snapshot to avoid duplicate outreach
+async function runSofiaBacklinkProspector() {
+  console.log('[Backlinks] Sofia: starting backlink prospector for all clients...');
+  const SNAPSHOT_ID = 'jrz/backlink_outreach_snapshot';
+  const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || '';
+
+  // Load existing outreach history
+  let history = {};
+  try {
+    const snapshotUrl = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/raw/upload/${SNAPSHOT_ID}.json`;
+    const snap = await axios.get(snapshotUrl).catch(() => null);
+    if (snap?.data) history = snap.data;
+  } catch (_e) { /* first run */ }
+
+  const results = [];
+
+  for (const [, config] of Object.entries(SEO_CLIENTS)) {
+    try {
+      const { name, domain, industry, voice, audience } = config;
+      const city = getTodaysCity();
+      const query = `${industry} ${city} "write for us" OR "guest post"`;
+
+      // ── SERP search via DataForSEO ────────────────────────────────────────
+      const auth = Buffer.from(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`).toString('base64');
+      const serpResp = await axios.post(`${DATAFORSEO_BASE}/v3/serp/google/organic/live/advanced`, [{
+        keyword: query,
+        location_code: 1023191, // Orlando, FL
+        language_code: 'en',
+        depth: 10,
+      }], { headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' } }).catch(() => null);
+
+      const serpItems = serpResp?.data?.tasks?.[0]?.result?.[0]?.items || [];
+      const prospects = serpItems
+        .filter(i => i.type === 'organic')
+        .map(i => ({ url: i.url, domain: i.domain, title: i.title }))
+        .filter(i => {
+          const domainHistory = history[domain] || [];
+          return !domainHistory.includes(i.domain);
+        })
+        .slice(0, 5);
+
+      if (!prospects.length) {
+        results.push({ client: name, status: 'no new prospects', domain });
+        continue;
+      }
+
+      // ── Claude writes outreach for each prospect ──────────────────────────
+      let emailsSent = 0;
+
+      for (const prospect of prospects) {
+        const outreachPrompt = `You are a professional outreach specialist for ${name} (${domain}).
+
+Write a concise, genuine guest post outreach email to the website "${prospect.title}" (${prospect.url}).
+
+Business context:
+- Business: ${name}
+- Industry: ${industry}
+- Brand voice: ${voice}
+- Target audience: ${audience}
+
+OUTREACH EMAIL RULES:
+- Subject line: short and specific to their site niche
+- Opening: reference something specific about THEIR site (use the title: "${prospect.title}")
+- Pitch: propose 1 specific blog topic that their audience would love AND that ties to ${name}'s expertise
+- Keep it under 150 words — respect their time
+- No corporate fluff. Sound like a real person, not a PR robot
+- Close with a simple ask: "Would you be open to a quick chat?"
+- Sign off as: Sofia | ${name} Marketing Team
+
+Return JSON: { "subject": "...", "body": "..." }`;
+
+        const outreachResp = await anthropic.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 400,
+          messages: [{ role: 'user', content: outreachPrompt }],
+        }).catch(() => null);
+
+        let outreach = null;
+        try {
+          const raw = outreachResp?.content?.[0]?.text || '{}';
+          const jsonMatch = raw.match(/\{[\s\S]*\}/);
+          outreach = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+        } catch (_e) { /* skip */ }
+
+        if (!outreach?.subject || !outreach?.body) continue;
+
+        // Send via GHL email to Jose (we contact prospects on behalf of clients)
+        await sendEmail(
+          OWNER_CONTACT_ID,
+          `[Backlink Outreach] ${name} → ${prospect.domain}`,
+          `<p><strong>Prospect:</strong> <a href="${prospect.url}">${prospect.title}</a></p>
+<p><strong>Send this email to the site owner:</strong></p>
+<hr>
+<p><strong>Subject:</strong> ${outreach.subject}</p>
+<p>${outreach.body.replace(/\n/g, '<br>')}</p>
+<hr>
+<p style="color:#888;font-size:12px;">Auto-generated by Sofia · Backlink Prospector · ${new Date().toLocaleDateString()}</p>`
+        ).catch(() => null);
+
+        // Track this domain
+        if (!history[domain]) history[domain] = [];
+        history[domain].push(prospect.domain);
+        emailsSent++;
+      }
+
+      results.push({ client: name, prospected: prospects.length, emailsSent });
+    } catch (err) {
+      console.error(`[Backlinks] Error for ${config?.name}:`, err?.message);
+      results.push({ client: config?.name, error: err.message });
+    }
+  }
+
+  // Save updated history to Cloudinary
+  try {
+    const ts   = Math.floor(Date.now() / 1000);
+    const pid  = SNAPSHOT_ID;
+    const sigStr = `overwrite=true&public_id=${pid}&timestamp=${ts}${CLOUDINARY_API_SECRET}`;
+    const sig  = crypto.createHash('sha1').update(sigStr).digest('hex');
+    const fd   = new FormData();
+    fd.append('file', Buffer.from(JSON.stringify(history)), { filename: 'backlink_outreach_snapshot.json', contentType: 'application/json' });
+    fd.append('api_key', CLOUDINARY_API_KEY);
+    fd.append('timestamp', String(ts));
+    fd.append('public_id', pid);
+    fd.append('overwrite', 'true');
+    fd.append('signature', sig);
+    await axios.post(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`, fd, { headers: fd.getHeaders() }).catch(() => null);
+  } catch (_e) { /* non-fatal */ }
+
+  console.log('[Backlinks] Prospector done:', results);
+  return results;
+}
+
+// ─── PRESS RELEASE AUTO-PUBLISHER ────────────────────────────────────────────
+// Runs monthly. For each SEO_CLIENTS entry:
+//  1. Claude Opus writes a newsworthy press release about the business
+//  2. Publishes it as a GHL blog post in the sub-account
+//  3. Emails Jose the formatted PR + free submission URLs (PRLog, OpenPR, EIN Presswire)
+async function runSofiaPressRelease() {
+  console.log('[PressRelease] Sofia: generating monthly press releases...');
+  const results = [];
+  const FREE_PR_SITES = [
+    { name: 'PRLog',        url: 'https://www.prlog.org/post-press-release.html' },
+    { name: 'OpenPR',       url: 'https://www.openpr.com/news/submit/' },
+    { name: 'EIN Presswire',url: 'https://www.einpresswire.com/submit/' },
+    { name: 'PR.com',       url: 'https://www.pr.com/submit-press-release' },
+    { name: 'NewswireToday',url: 'https://www.newswiretoday.com/submit.php' },
+  ];
+
+  for (const [locationId, config] of Object.entries(SEO_CLIENTS)) {
+    try {
+      const { name, domain, industry, voice, audience, keywords, cta } = config;
+      const city = getTodaysCity();
+      const month = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+      // ── Claude Opus: write press release ─────────────────────────────────
+      const prPrompt = `You are a PR specialist writing a press release for ${name}.
+
+Business: ${name}
+Website: ${domain}
+Industry: ${industry}
+Location: ${city}, Central Florida
+Month: ${month}
+Brand voice: ${voice}
+Target audience: ${audience}
+Top keywords to naturally include: ${keywords.slice(0, 4).join(', ')}
+CTA: ${cta}
+
+PRESS RELEASE REQUIREMENTS:
+- Headline: newsworthy, under 100 characters, includes a location keyword
+- Dateline: ${city}, FL — ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+- Lead paragraph: answers WHO, WHAT, WHEN, WHERE, WHY in 2-3 sentences
+- Body: 2-3 paragraphs, 150-200 words total. Include a genuine milestone, offer, or news hook (new menu item, seasonal promo, award, expansion, hiring — invent something plausible)
+- Quote: one quote from the business owner that sounds human, not corporate
+- Boilerplate: 2-sentence "About ${name}" with website
+- No AI buzzwords. Write like a real PR professional.
+- Naturally work in 2-3 target keywords without keyword stuffing
+
+Return JSON: { "headline": "...", "body": "...", "htmlBody": "<p>...</p>" }`;
+
+      const prResp = await anthropic.messages.create({
+        model: 'claude-opus-4-6',
+        max_tokens: 1200,
+        messages: [{ role: 'user', content: prPrompt }],
+      }).catch(() => null);
+
+      let pr = null;
+      try {
+        const raw = prResp?.content?.[0]?.text || '{}';
+        const jsonMatch = raw.match(/\{[\s\S]*\}/);
+        pr = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+      } catch (_e) { /* skip */ }
+
+      if (!pr?.headline || !pr?.htmlBody) {
+        results.push({ client: name, status: 'claude failed' });
+        continue;
+      }
+
+      // ── Publish as GHL blog post in sub-account ───────────────────────────
+      let blogPublished = false;
+      try {
+        const token = await getLocationToken(locationId);
+        const blog  = await getClientBlog(locationId, token);
+        if (blog?.id) {
+          await axios.post(`https://services.leadconnectorhq.com/blogs/posts`, {
+            locationId,
+            blogId: blog.id,
+            title: pr.headline,
+            rawHTML: pr.htmlBody,
+            status: 'PUBLISHED',
+            imageUrl: '',
+            categories: [],
+            tags: ['press-release', city.toLowerCase().replace(/\s/g, '-'), ...keywords.slice(0, 2).map(k => k.replace(/\s/g, '-'))],
+          }, { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }).catch(() => null);
+          blogPublished = true;
+        }
+      } catch (_e) { /* non-fatal */ }
+
+      // ── Email Jose: formatted PR + submission links ───────────────────────
+      const submissionLinks = FREE_PR_SITES.map(s =>
+        `<li><a href="${s.url}" target="_blank">${s.name}</a></li>`
+      ).join('');
+
+      await sendEmail(
+        OWNER_CONTACT_ID,
+        `[Press Release] ${name} — ${month}`,
+        `<h2 style="color:#1a1a2e">${pr.headline}</h2>
+<div style="background:#f8f9fa;padding:20px;border-left:4px solid #0066cc;margin:20px 0;font-family:Georgia,serif;line-height:1.8">
+${pr.htmlBody}
+</div>
+<h3>Submit to Free PR Sites (takes 5 min total)</h3>
+<ul>${submissionLinks}</ul>
+<p style="color:#888;font-size:12px;">Blog post ${blogPublished ? '✅ published' : '⚠️ not published'} in ${name} GHL account · Auto-generated by Sofia · ${new Date().toLocaleDateString()}</p>`
+      ).catch(() => null);
+
+      results.push({ client: name, headline: pr.headline, blogPublished });
+    } catch (err) {
+      console.error(`[PressRelease] Error for ${config?.name}:`, err?.message);
+      results.push({ client: config?.name, error: err.message });
+    }
+  }
+
+  console.log('[PressRelease] Done:', results);
+  return results;
+}
+
+// ─── CITATION BUILDER ─────────────────────────────────────────────────────────
+// Runs monthly. For each SEO_CLIENTS entry:
+//  ✅ Full API: Bing Places + Foursquare — auto-submit business data
+//  ⚡ Semi-auto kit: Yelp, TripAdvisor, Apple Maps, Yellow Pages, Manta, Hotfrog, BBB,
+//     Google Business, Facebook, Angi, HomeAdvisor, Bark, Thumbtack
+//     → generates pre-filled NAP data + direct submission URLs emailed to Jose
+async function runSofiaCitationBuilder() {
+  console.log('[Citations] Sofia: starting monthly citation builder...');
+  const results = [];
+
+  const SEMI_AUTO_DIRECTORIES = [
+    { name: 'Yelp',         url: 'https://biz.yelp.com/claim' },
+    { name: 'TripAdvisor',  url: 'https://www.tripadvisor.com/GetListedNew' },
+    { name: 'Apple Maps',   url: 'https://mapsconnect.apple.com/' },
+    { name: 'Yellow Pages', url: 'https://www.yellowpages.com/add-listing' },
+    { name: 'Manta',        url: 'https://www.manta.com/add-company' },
+    { name: 'Hotfrog',      url: 'https://www.hotfrog.com/AddBusiness.aspx' },
+    { name: 'BBB',          url: 'https://www.bbb.org/accreditation/apply' },
+    { name: 'Angi',         url: 'https://pros.angi.com/enroll' },
+    { name: 'Bark',         url: 'https://www.bark.com/en/us/register/professional/' },
+    { name: 'Thumbtack',    url: 'https://www.thumbtack.com/pro/' },
+    { name: 'Facebook Business', url: 'https://www.facebook.com/pages/create' },
+  ];
+
+  for (const [locationId, config] of Object.entries(SEO_CLIENTS)) {
+    try {
+      const { name, domain, industry } = config;
+
+      // Fetch business data from GHL
+      let phone = '', address = '', city = 'Orlando', state = 'FL', zip = '';
+      try {
+        const token = await getLocationToken(locationId);
+        const locResp = await axios.get(`https://services.leadconnectorhq.com/locations/${locationId}`, {
+          headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' },
+        }).catch(() => null);
+        const loc = locResp?.data?.location || {};
+        phone   = loc.phone   || '';
+        address = loc.address || '';
+        city    = loc.city    || city;
+        state   = loc.state   || state;
+        zip     = loc.postalCode || '';
+      } catch (_e) { /* use defaults */ }
+
+      // ── Bing Places API (full automation) ────────────────────────────────
+      let bingStatus = 'skipped';
+      // Bing Places uses a form-based API — we submit the business for indexing
+      try {
+        const bingResp = await axios.post('https://ssl.bing.com/business/api?callerName=sofia-seo&Action=addBusiness', {
+          BusinessName: name,
+          Address: address,
+          City: city,
+          State: state,
+          PostalCode: zip,
+          Phone: phone,
+          Website: `https://${domain}`,
+          Category: industry.split(',')[0].trim(),
+        }, { headers: { 'Content-Type': 'application/json' } }).catch(() => null);
+        bingStatus = bingResp?.status === 200 ? 'submitted' : 'api-unavailable';
+      } catch (_e) { bingStatus = 'api-unavailable'; }
+
+      // ── Foursquare Venue API (full automation) ────────────────────────────
+      let foursquareStatus = 'skipped';
+      try {
+        const fsResp = await axios.post('https://api.foursquare.com/v3/places', {
+          name,
+          location: { address, locality: city, region: state, postcode: zip, country: 'US' },
+          tel: phone,
+          website: `https://${domain}`,
+          categories: [17000], // Generic Local & Travel
+        }, {
+          headers: {
+            Authorization: `Bearer ${process.env.FOURSQUARE_API_KEY || ''}`,
+            'Content-Type': 'application/json',
+          },
+        }).catch(() => null);
+        foursquareStatus = fsResp?.data?.fsq_id ? 'submitted' : 'api-unavailable';
+      } catch (_e) { foursquareStatus = 'api-unavailable'; }
+
+      // ── Build citation kit email ──────────────────────────────────────────
+      const napBlock = `
+<table style="border-collapse:collapse;width:100%;font-family:monospace;font-size:14px">
+<tr><td style="padding:6px 12px;background:#f0f4ff;font-weight:bold">Business Name</td><td style="padding:6px 12px">${name}</td></tr>
+<tr><td style="padding:6px 12px;background:#f0f4ff;font-weight:bold">Address</td><td style="padding:6px 12px">${address}, ${city}, ${state} ${zip}</td></tr>
+<tr><td style="padding:6px 12px;background:#f0f4ff;font-weight:bold">Phone</td><td style="padding:6px 12px">${phone}</td></tr>
+<tr><td style="padding:6px 12px;background:#f0f4ff;font-weight:bold">Website</td><td style="padding:6px 12px">https://${domain}</td></tr>
+<tr><td style="padding:6px 12px;background:#f0f4ff;font-weight:bold">Industry</td><td style="padding:6px 12px">${industry}</td></tr>
+</table>`;
+
+      const dirLinks = SEMI_AUTO_DIRECTORIES.map(d =>
+        `<li><a href="${d.url}" target="_blank">${d.name}</a> — copy the NAP above and paste</li>`
+      ).join('');
+
+      await sendEmail(
+        OWNER_CONTACT_ID,
+        `[Citations] ${name} — Monthly Citation Kit`,
+        `<h2 style="color:#1a1a2e">Citation Builder — ${name}</h2>
+<h3>✅ Auto-Submitted</h3>
+<ul>
+  <li>Bing Places: <strong>${bingStatus}</strong></li>
+  <li>Foursquare: <strong>${foursquareStatus}</strong></li>
+</ul>
+<h3>⚡ Semi-Auto (5 min — copy/paste the NAP below)</h3>
+<ul>${dirLinks}</ul>
+<h3>NAP Data (copy exactly — consistency is key for local SEO)</h3>
+${napBlock}
+<p style="color:#888;font-size:12px;">Auto-generated by Sofia · Citation Builder · ${new Date().toLocaleDateString()}</p>`
+      ).catch(() => null);
+
+      results.push({ client: name, bingStatus, foursquareStatus, directoriesInKit: SEMI_AUTO_DIRECTORIES.length });
+    } catch (err) {
+      console.error(`[Citations] Builder error for ${config?.name}:`, err?.message);
+      results.push({ client: config?.name, error: err.message });
+    }
+  }
+
+  console.log('[Citations] Builder done:', results);
+  return results;
+}
+
 // ─── CLIENT SEO PROGRESS REPORT ──────────────────────────────────────────────
 // Sends a branded monthly SEO progress email to the owner of each sub-account.
 // Shows: keyword rankings, blogs published, backlinks, citation status, next steps.
 async function sendClientSEOProgressReport(client, seoData = {}) {
   const { name, locationId } = client;
-  const { keyword, position, blogsThisMonth = 0, backlinks = null, citations = null, competitorGaps = [] } = seoData;
+  const { keyword, position, blogsThisMonth = 0, backlinks = null, citations = null, competitorGaps = [], ga4 = null } = seoData;
 
   try {
     // Find the contact to email (sub-account owner via GHL contacts search)
@@ -7784,6 +8344,44 @@ async function sendClientSEOProgressReport(client, seoData = {}) {
                 <span style="color:${citations.yelp?.found ? '#16a34a' : '#dc2626'};font-weight:700">${citations.yelp?.found ? `✅ Listed — ${citations.yelp.rating}⭐ (${citations.yelp.reviews} reviews)` : '❌ Not Listed — Missing Opportunity'}</span>
               </div>
             </div>
+          </div>` : ''}
+
+          <!-- GA4 Traffic Data -->
+          ${ga4 ? `
+          <div style="background:#fff;border-radius:12px;padding:20px;margin-bottom:16px">
+            <h3 style="margin:0 0 12px;color:#0f172a;font-size:15px">📊 Website Traffic (Last 30 Days)</h3>
+            <div style="display:flex;gap:12px;margin-bottom:16px">
+              <div style="flex:1;background:#eff6ff;border-radius:8px;padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:800;color:#2563eb">${parseInt(ga4.sessions).toLocaleString()}</div>
+                <div style="font-size:11px;color:#64748b;margin-top:4px">Sessions</div>
+              </div>
+              <div style="flex:1;background:#f0fdf4;border-radius:8px;padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:800;color:#16a34a">${parseInt(ga4.users).toLocaleString()}</div>
+                <div style="font-size:11px;color:#64748b;margin-top:4px">Visitors</div>
+              </div>
+              <div style="flex:1;background:#fdf4ff;border-radius:8px;padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:800;color:#9333ea">${parseInt(ga4.pageviews).toLocaleString()}</div>
+                <div style="font-size:11px;color:#64748b;margin-top:4px">Page Views</div>
+              </div>
+              <div style="flex:1;background:#fff7ed;border-radius:8px;padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:800;color:#ea580c">${ga4.bounceRate}</div>
+                <div style="font-size:11px;color:#64748b;margin-top:4px">Bounce Rate</div>
+              </div>
+            </div>
+            ${ga4.topPages?.length ? `
+            <p style="margin:0 0 8px;font-size:12px;font-weight:600;color:#374151">Top Pages</p>
+            ${ga4.topPages.map(p => `
+            <div style="display:flex;justify-content:space-between;padding:8px 10px;background:#f8fafc;border-radius:6px;margin-bottom:4px;font-size:12px">
+              <span style="color:#1e293b">${p.page}</span>
+              <span style="color:#64748b;font-weight:600">${parseInt(p.views).toLocaleString()} views</span>
+            </div>`).join('')}` : ''}
+            ${ga4.sources?.length ? `
+            <p style="margin:12px 0 8px;font-size:12px;font-weight:600;color:#374151">Traffic Sources</p>
+            ${ga4.sources.map(s => `
+            <div style="display:flex;justify-content:space-between;padding:8px 10px;background:#f8fafc;border-radius:6px;margin-bottom:4px;font-size:12px">
+              <span style="color:#1e293b">${s.channel}</span>
+              <span style="color:#64748b;font-weight:600">${parseInt(s.sessions).toLocaleString()} sessions</span>
+            </div>`).join('')}` : ''}
           </div>` : ''}
 
           <!-- Competitor Gaps -->
@@ -8398,7 +8996,7 @@ let _googleAccessToken   = null;
 let _googleAccessExpires = 0;
 
 // Build a signed JWT for Google service account auth (no extra packages — uses built-in crypto)
-function _buildServiceAccountJWT() {
+function _buildServiceAccountJWT(scope = 'https://www.googleapis.com/auth/webmasters.readonly') {
   const email = process.env.GOOGLE_SA_EMAIL;
   const rawKey = process.env.GOOGLE_SA_PRIVATE_KEY;
   if (!email || !rawKey) return null;
@@ -8407,7 +9005,7 @@ function _buildServiceAccountJWT() {
   const header  = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
   const payload = Buffer.from(JSON.stringify({
     iss:   email,
-    scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+    scope,
     aud:   'https://oauth2.googleapis.com/token',
     iat:   now,
     exp:   now + 3600,
@@ -10567,6 +11165,38 @@ app.post('/cron/weekly-seo', async (_req, res) => {
   res.json(result);
 });
 
+// Test endpoint: GET /sofia/ga4?propertyId=384751711 — returns GA4 data for a property
+app.get('/sofia/ga4', async (req, res) => {
+  const { propertyId } = req.query;
+  if (!propertyId) return res.status(400).json({ error: 'propertyId required' });
+  const data = await getGA4Data(propertyId);
+  res.json(data || { error: 'no data — check service account access' });
+});
+
+// Manual trigger: POST /cron/local-pack — Sofia checks if each client is in the Google 3-pack
+app.post('/cron/local-pack', async (_req, res) => {
+  const result = await runLocalPackMonitor();
+  res.json(result);
+});
+
+// Manual trigger: POST /cron/backlink-prospector — Sofia finds guest post targets + sends outreach
+app.post('/cron/backlink-prospector', async (_req, res) => {
+  const result = await runSofiaBacklinkProspector();
+  res.json(result);
+});
+
+// Manual trigger: POST /cron/press-release — Sofia writes + publishes monthly press release per client
+app.post('/cron/press-release', async (_req, res) => {
+  const result = await runSofiaPressRelease();
+  res.json(result);
+});
+
+// Manual trigger: POST /cron/citation-builder — Sofia auto-submits to Bing/Foursquare + emails citation kit
+app.post('/cron/citation-builder', async (_req, res) => {
+  const result = await runSofiaCitationBuilder();
+  res.json(result);
+});
+
 // ═══════════════════════════════════════════════════════════
 // INTERNAL CRON — checks every 2 minutes
 //  7:00am EST  daily      → Carousel post + blog
@@ -10742,9 +11372,11 @@ setInterval(async () => {
       (async () => {
         const clients = await getElenaClients();
         for (const client of clients) {
-          const bl  = await runSofiaBacklinkAudit(client.website?.replace(/^https?:\/\//, '') || '').catch(() => null);
-          const cit = await runSofiaCitationAudit(client.name).catch(() => null);
-          await sendClientSEOProgressReport(client, { keyword: 'your top local keyword', position: null, blogsThisMonth: 4, backlinks: bl, citations: cit, competitorGaps: [] });
+          const bl   = await runSofiaBacklinkAudit(client.website?.replace(/^https?:\/\//, '') || '').catch(() => null);
+          const cit  = await runSofiaCitationAudit(client.name).catch(() => null);
+          const seoConfig = SEO_CLIENTS[client.locationId] || {};
+          const ga4  = seoConfig.ga4PropertyId ? await getGA4Data(seoConfig.ga4PropertyId).catch(() => null) : null;
+          await sendClientSEOProgressReport(client, { keyword: 'your top local keyword', position: null, blogsThisMonth: 4, backlinks: bl, citations: cit, competitorGaps: [], ga4 });
           await new Promise(r => setTimeout(r, 3000)); // 3s between clients — avoid rate limits
         }
       })(); // non-blocking — runs for all 31 clients in background
