@@ -7561,6 +7561,15 @@ async function runClientDailySeoBlog(locationId, config) {
     ? `\nContent pillars to draw from (pick the most relevant to the keyword):\n${topics.map(t => `- ${t}`).join('\n')}`
     : '';
 
+  // Internal linking — pass last 5 published posts so Claude links to them naturally
+  const _recentPosts = _clientHistory
+    .filter(p => p.urlSlug || p.url)
+    .slice(-5)
+    .map(p => `- "${p.title}" → ${p.url || `https://${domain}/post/${p.urlSlug}`}`);
+  const internalLinksBlock = _recentPosts.length > 0
+    ? `\nEXISTING POSTS TO LINK TO (link naturally to 1-2 where relevant):\n${_recentPosts.join('\n')}`
+    : '';
+
   const blogRes = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 2000,
@@ -7571,7 +7580,7 @@ ${voice || `Knowledgeable, helpful, and real. Speaks directly to the customer wi
 
 TARGET AUDIENCE:
 ${audience || `Local customers in the Orlando area looking for ${industry} services.`}
-${topicHint}
+${topicHint}${internalLinksBlock}
 
 YOUR TASK:
 Write a ${isSpanish ? 'SPANISH' : 'ENGLISH'} SEO blog post (700–950 words) targeting this keyword: "${targetKeyword}"
@@ -7584,9 +7593,10 @@ SEO REQUIREMENTS:
 - Mention "${todaysCity}" at least 4 times naturally throughout the post
 - Reference real streets, neighborhoods, or landmarks near ${todaysCity} when relevant
 - Make someone in ${todaysCity} feel like this business is THEIR local option
-- Include 2 natural internal links:
+- Include 2-4 natural internal links:
   * One to https://${domain} using the business name or a service as anchor text
   * One to https://${domain}/contact (or /reservations or /book) using "${cta.split(' ').slice(0, 3).join(' ')}" style anchor
+  * Link naturally to 1-2 existing posts listed above (if any) where the topic is relevant
 - End with this CTA naturally woven into the last paragraph: "${cta}"
 
 CRITICAL — WRITE LIKE A REAL HUMAN, NOT AN AI:
@@ -7624,6 +7634,13 @@ Return ONLY valid JSON, no markdown, no code fences:
 
   // Plain HTML mode — no inline CSS, let GHL theme handle styling
   let styledHTML;
+  // Schema markup helpers (shared by both paths)
+  const _schemaLocal = JSON.stringify({ '@context': 'https://schema.org', '@type': 'LocalBusiness', name, url: `https://${domain}`, telephone: brand.phone || '', sameAs: [`https://${domain}`] });
+  const _schemaBlog  = JSON.stringify({ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: title, datePublished: new Date().toISOString().split('T')[0], description: metaDescription, author: { '@type': 'Organization', name } });
+  const _faqMatches  = [...(htmlContent.matchAll(/<h2[^>]*>(.*?)<\/h2>[\s\S]*?<p[^>]*>(.*?)<\/p>/gs))].slice(0, 5);
+  const _schemaFaq   = _faqMatches.length > 0 ? JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: _faqMatches.map(m => ({ '@type': 'Question', name: m[1].replace(/<[^>]+>/g, ''), acceptedAnswer: { '@type': 'Answer', text: m[2].replace(/<[^>]+>/g, '') } })) }) : null;
+  const schemaBlock  = `<script type="application/ld+json">${_schemaLocal}</script>\n<script type="application/ld+json">${_schemaBlog}</script>${_schemaFaq ? `\n<script type="application/ld+json">${_schemaFaq}</script>` : ''}`;
+
   if (brand.plainHtml) {
     styledHTML = `
 ${brand.logoUrl ? `<p><img src="${brand.logoUrl}" alt="${name} logo"></p>` : ''}
@@ -7631,6 +7648,7 @@ ${heroImage ? `<p><img src="${heroImage.url}" alt="${heroImage.alt}"></p>` : ''}
 ${htmlContent}
 <p><strong>${cta}</strong></p>
 <p><a href="https://${domain}/contact">Contact Us</a></p>
+${schemaBlock}
 `;
   } else {
 
@@ -7682,6 +7700,8 @@ ${htmlContent}
     ${brand.phone ? `<p style="color:rgba(255,255,255,0.80);font-size:15px;font-family:'${fontBody}',sans-serif;margin:0 0 20px">${brand.phone}</p>` : ''}
     <a href="https://${domain}/contact" style="background:${brand.accent};color:#ffffff;padding:16px 36px;border-radius:10px;text-decoration:none;font-family:'${fontDisplay}',serif;font-weight:700;font-size:16px;display:inline-block;letter-spacing:1px">Get a Free Quote</a>
   </div>
+
+  ${schemaBlock}
 
 </div>`;
 
@@ -7752,6 +7772,124 @@ async function loadBlogHistory() {
   } catch { return {}; }
 }
 async function saveBlogHistory(data) { await saveCloudinaryJSON(SEO_BLOG_HISTORY_PID, data); }
+
+const BACKLINK_SNAPSHOT_PID = 'jrz/backlink_snapshot';
+const BACKLINK_SNAPSHOT_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/backlink_snapshot.json';
+
+// ─── WEEKLY RANK TRACKING ────────────────────────────────────────────────────
+async function runWeeklyRankTracking() {
+  console.log('[Rank Tracking] Starting weekly rank check...');
+  if (!DATAFORSEO_PASSWORD) return { skipped: true, reason: 'no_dataforseo_password' };
+  const auth = Buffer.from(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`).toString('base64');
+  const hist = await loadBlogHistory();
+  const sixtyDaysAgo = Date.now() - 60 * 86400000;
+  const today = new Date().toISOString().split('T')[0];
+  const reportRows = [];
+
+  for (const [locationId, config] of Object.entries(SEO_CLIENTS)) {
+    const { name, domain } = config;
+    const posts = (hist[locationId] || []).filter(p => new Date(p.date).getTime() > sixtyDaysAgo && (!p.gscChecked || p.position == null));
+    for (const post of posts) {
+      try {
+        const res = await axios.post(
+          `${DATAFORSEO_BASE}/v3/serp/google/organic/live/advanced`,
+          [{ keyword: post.keyword, location_code: 2840, language_code: 'en', depth: 100 }],
+          { headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' }, timeout: 20000 }
+        );
+        const items = res.data?.tasks?.[0]?.result?.[0]?.items || [];
+        const match = items.find(i => i.url && i.url.includes(domain));
+        const prevPosition = post.position;
+        post.position = match ? match.rank_absolute : null;
+        post.gscChecked = true;
+        post.lastChecked = today;
+        reportRows.push({ client: name, keyword: post.keyword, title: post.title, position: post.position, prev: prevPosition, change: (prevPosition != null && post.position != null) ? prevPosition - post.position : null });
+        await new Promise(r => setTimeout(r, 1500));
+      } catch (e) { console.error(`[Rank Tracking] ${name} — ${post.keyword}:`, e.message); }
+    }
+  }
+
+  await saveBlogHistory(hist);
+  if (!reportRows.length) return { checked: 0 };
+
+  const tableRows = reportRows.map(r => `<tr>
+    <td style="padding:8px;border:1px solid #e5e7eb">${r.client}</td>
+    <td style="padding:8px;border:1px solid #e5e7eb">${r.keyword}</td>
+    <td style="padding:8px;border:1px solid #e5e7eb">${r.title || '—'}</td>
+    <td style="padding:8px;border:1px solid #e5e7eb;text-align:center">${r.position != null ? `#${r.position}` : 'Not ranking'}</td>
+    <td style="padding:8px;border:1px solid #e5e7eb;text-align:center;color:${r.change > 0 ? '#16a34a' : r.change < 0 ? '#dc2626' : '#6b7280'}">${r.change != null ? (r.change > 0 ? `▲${r.change}` : `▼${Math.abs(r.change)}`) : 'New'}</td>
+  </tr>`).join('');
+
+  const html = `<h2 style="font-family:Arial,sans-serif">Weekly Rank Tracking Report</h2>
+    <p style="font-family:Arial,sans-serif;color:#6b7280">${today} — ${reportRows.length} keywords checked</p>
+    <table style="border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:14px">
+      <thead><tr style="background:#1e40af;color:#fff">
+        <th style="padding:10px;text-align:left">Client</th><th style="padding:10px;text-align:left">Keyword</th>
+        <th style="padding:10px;text-align:left">Post</th><th style="padding:10px;text-align:center">Position</th><th style="padding:10px;text-align:center">Change</th>
+      </tr></thead><tbody>${tableRows}</tbody></table>`;
+
+  await sendEmail(OWNER_CONTACT_ID, `Weekly Rank Report — ${reportRows.length} keywords checked`, html);
+  console.log(`[Rank Tracking] Done — ${reportRows.length} checked.`);
+  return { checked: reportRows.length };
+}
+
+// ─── WEEKLY BACKLINK MONITORING ──────────────────────────────────────────────
+async function runWeeklyBacklinkCheck() {
+  console.log('[Backlinks] Starting weekly backlink check...');
+  if (!DATAFORSEO_PASSWORD) return { skipped: true, reason: 'no_dataforseo_password' };
+  const auth = Buffer.from(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`).toString('base64');
+  const today = new Date().toISOString().split('T')[0];
+
+  let prevSnapshot = {};
+  try {
+    const snap = await axios.get(BACKLINK_SNAPSHOT_URL + '?t=' + Date.now(), { timeout: 8000 });
+    prevSnapshot = typeof snap.data === 'string' ? JSON.parse(snap.data) : (snap.data || {});
+  } catch { /* first run */ }
+
+  const newSnapshot = { date: today, clients: {} };
+  const reportRows = [];
+
+  for (const [, config] of Object.entries(SEO_CLIENTS)) {
+    const { name, domain } = config;
+    try {
+      const res = await axios.post(
+        `${DATAFORSEO_BASE}/v3/backlinks/summary/live`,
+        [{ target: domain, include_subdomains: true }],
+        { headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' }, timeout: 20000 }
+      );
+      const result = res.data?.tasks?.[0]?.result?.[0] || {};
+      const current = { total_count: result.backlinks || 0, referring_domains: result.referring_domains || 0 };
+      newSnapshot.clients[domain] = current;
+      const prev = prevSnapshot.clients?.[domain] || {};
+      reportRows.push({ client: name, domain, ...current, gained: current.total_count - (prev.total_count || 0), domainsGained: current.referring_domains - (prev.referring_domains || 0) });
+      await new Promise(r => setTimeout(r, 1500));
+    } catch (e) { console.error(`[Backlinks] ${name}:`, e.message); }
+  }
+
+  await saveCloudinaryJSON(BACKLINK_SNAPSHOT_PID, newSnapshot);
+  if (!reportRows.length) return { checked: 0 };
+
+  const tableRows = reportRows.map(r => `<tr>
+    <td style="padding:8px;border:1px solid #e5e7eb">${r.client}</td>
+    <td style="padding:8px;border:1px solid #e5e7eb">${r.domain}</td>
+    <td style="padding:8px;border:1px solid #e5e7eb;text-align:center">${r.total_count.toLocaleString()}</td>
+    <td style="padding:8px;border:1px solid #e5e7eb;text-align:center">${r.referring_domains.toLocaleString()}</td>
+    <td style="padding:8px;border:1px solid #e5e7eb;text-align:center;color:${r.gained > 0 ? '#16a34a' : r.gained < 0 ? '#dc2626' : '#6b7280'}">${r.gained > 0 ? `+${r.gained}` : r.gained}</td>
+    <td style="padding:8px;border:1px solid #e5e7eb;text-align:center;color:${r.domainsGained > 0 ? '#16a34a' : r.domainsGained < 0 ? '#dc2626' : '#6b7280'}">${r.domainsGained > 0 ? `+${r.domainsGained}` : r.domainsGained}</td>
+  </tr>`).join('');
+
+  const html = `<h2 style="font-family:Arial,sans-serif">Weekly Backlink Report</h2>
+    <p style="font-family:Arial,sans-serif;color:#6b7280">${today}</p>
+    <table style="border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:14px">
+      <thead><tr style="background:#1e40af;color:#fff">
+        <th style="padding:10px;text-align:left">Client</th><th style="padding:10px;text-align:left">Domain</th>
+        <th style="padding:10px;text-align:center">Total Backlinks</th><th style="padding:10px;text-align:center">Ref. Domains</th>
+        <th style="padding:10px;text-align:center">Links ±</th><th style="padding:10px;text-align:center">Domains ±</th>
+      </tr></thead><tbody>${tableRows}</tbody></table>`;
+
+  await sendEmail(OWNER_CONTACT_ID, `Weekly Backlink Report — ${today}`, html);
+  console.log(`[Backlinks] Done — ${reportRows.length} clients checked.`);
+  return { checked: reportRows.length };
+}
 
 // DataForSEO: get search volume + competition score for a list of keywords
 // Returns map of { keyword -> { volume, competition, score } }
@@ -11490,6 +11628,18 @@ app.post('/cron/content-learning', async (_req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// POST /cron/rank-tracking — run weekly rank check now
+app.post('/cron/rank-tracking', (_req, res) => {
+  res.json({ status: 'started', message: 'Rank tracking running in background — check Render logs' });
+  runWeeklyRankTracking().catch(e => console.error('[Rank Tracking] Manual error:', e.message));
+});
+
+// POST /cron/backlink-check — run backlink monitoring now
+app.post('/cron/backlink-check', (_req, res) => {
+  res.json({ status: 'started', message: 'Backlink check running in background — check Render logs' });
+  runWeeklyBacklinkCheck().catch(e => console.error('[Backlinks] Manual error:', e.message));
+});
+
 // Debug: GET /sofia/blogs/:locationId — check what blogs API returns for a sub-account
 app.get('/sofia/blogs/:locationId', async (req, res) => {
   const { locationId } = req.params;
@@ -11642,6 +11792,8 @@ let lastMarcoTrendDate      = null;
 let lastSofiaCheckDate      = null;
 let lastSofiaCRODate        = null;
 let lastSofiaMonitorHour    = -1; // tracks last 6-hour slot (0, 6, 12, 18)
+let lastRankTrackingDate    = null;
+let lastBacklinkCheckDate   = null;
 
 setInterval(async () => {
   try {
@@ -11762,6 +11914,18 @@ setInterval(async () => {
     if (hour === 9 && minute < 5 && dayOfWeek === 1 && lastEnrichDate !== today) {
       lastEnrichDate = today;
       await enrichProspectEmails();
+    }
+
+    // 9:05am Monday — rank tracking (DataForSEO SERP check for all client posts ≤60 days)
+    if (hour === 9 && minute >= 5 && minute < 10 && dayOfWeek === 1 && lastRankTrackingDate !== today) {
+      lastRankTrackingDate = today;
+      runWeeklyRankTracking(); // non-blocking
+    }
+
+    // 9:10am Monday — backlink monitoring (DataForSEO snapshot per client domain)
+    if (hour === 9 && minute >= 10 && minute < 15 && dayOfWeek === 1 && lastBacklinkCheckDate !== today) {
+      lastBacklinkCheckDate = today;
+      runWeeklyBacklinkCheck(); // non-blocking
     }
 
     // 1st of month, 9:00am — monthly client reports + Elena + Diego scorecard
