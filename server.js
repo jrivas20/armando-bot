@@ -225,6 +225,7 @@ const SEO_CLIENTS = {
     topics: ['how to file taxes as a self-employed immigrant Florida', 'LLC vs sole proprietor for Latino business owners', 'tax deductions for small business owners', 'how to build business credit in the US', 'ITIN taxes what you need to know', 'accounting tips for restaurant owners', 'why your business needs a bilingual CPA'],
     cta: 'Schedule a free consultation at usalatinocpa.com',
     apiKey: 'pit-525c7ac9-a267-4e71-a26b-a43f12d27079',
+    ga4PropertyId: '529255116',
   },
   // Add more clients below — copy the format above
   // 'LOCATION_ID': { name, domain, lang, industry, voice, audience, topics: [], cta },
