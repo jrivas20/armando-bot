@@ -7457,12 +7457,13 @@ async function getClientBlog(locationId, token) {
     );
     const blog = (res.data?.blogs || res.data?.data || [])[0];
     if (!blog) return null;
+    const blogId = blog._id || blog.id;
     const authorRes = await axios.get(
-      `https://services.leadconnectorhq.com/blogs/authors?locationId=${locationId}&blogId=${blog.id}`,
+      `https://services.leadconnectorhq.com/blogs/authors?locationId=${locationId}&blogId=${blogId}`,
       { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 10000 }
     ).catch(() => ({ data: { authors: [] } }));
     const authorId = authorRes.data?.authors?.[0]?.id || null;
-    return { blogId: blog.id, authorId };
+    return { blogId, authorId };
   } catch (err) {
     console.error(`[ClientBlog] Discovery failed for ${locationId}:`, err?.response?.data?.message || err.message);
     return null;
