@@ -77,6 +77,7 @@ const SEO_CLIENTS = {
     domain: 'railingmax.com',
     lang: 'en',
     industry: 'floating stairs, railing, and glass installation',
+    competitors: ['viewrail.com', 'agsstainless.com', 'stairsupplies.com'],
     voice: 'Expert craftsman and the go-to specialist for floating stairs in Florida. Knows every material, every code, every detail. Talks like someone who has built hundreds of custom staircases and railings — confident, specific, and zero fluff. When homeowners want floating stairs done right, this is who they call.',
     audience: 'Homeowners, architects, interior designers, and builders in Central Florida who want floating stairs, glass railings, cable railings, iron railings, or custom staircases. They care about the wow factor AND safety AND code compliance. They have seen floating stairs on Instagram and want that for their home.',
     keywords: [
@@ -131,6 +132,7 @@ const SEO_CLIENTS = {
     domain: 'theescobarkitchen.com',
     lang: 'en',
     industry: 'Latin Asian fusion restaurant',
+    competitors: ['thepressorlando.com', 'christners.com', 'orlandofoodcritic.com'],
     voice: 'Bold, passionate, and proud of every single dish. Writes like someone who is genuinely obsessed with food — the flavors, the craft, the experience. Warm but confident. Makes you feel like you are missing out if you are not there tonight.',
     audience: 'Food lovers in Kissimmee, Narcoossee, Lake Nona, and greater Orlando searching for something beyond the ordinary — a restaurant where Latin soul meets Asian precision. Date nights, celebrations, foodies, and anyone who searches "best sushi near me" or "latin restaurant near me".',
     keywords: [
@@ -179,6 +181,7 @@ const SEO_CLIENTS = {
     domain: 'rentalspacesinc.com',
     lang: 'en',
     industry: 'RV and boat storage',
+    competitors: ['rvshare.com', 'storagemart.com', 'extraspace.com'],
     voice: 'Practical and no-nonsense. Speaks to people who love their toys (RVs, boats, ATVs) and want safe, affordable storage without the hassle. Friendly but to the point.',
     audience: 'RV owners, boaters, and outdoor enthusiasts in the Orlando area who need secure, affordable storage between trips.',
     topics: ['how to store your RV in Florida summer', 'boat storage near Orlando', 'indoor vs outdoor RV storage', 'tips for winterizing your boat in Florida', 'how to choose an RV storage facility', 'cost of boat storage Orlando', 'RV storage security features to look for'],
@@ -192,6 +195,7 @@ const SEO_CLIENTS = {
     domain: 'guaca-mole-texmex.com',
     lang: 'en',
     industry: 'Tex-Mex restaurant',
+    competitors: ['chuy.com', 'ontheborder.com', 'orlandofoodcritic.com'],
     voice: 'Fun, bold, and unapologetically Tex-Mex. Celebrates big flavors, good times, and authentic recipes. Casual, energetic, and makes you hungry just reading it.',
     audience: 'Families, friend groups, and Tex-Mex lovers in Orlando looking for generous portions, great margaritas, and a lively atmosphere.',
     topics: ['best Tex-Mex in Orlando', 'authentic guacamole made fresh daily', 'best margaritas Orlando FL', 'Tex-Mex vs Mexican food what is the difference', 'family-friendly restaurants Orlando', 'best tacos near me Orlando', 'happy hour deals Orlando restaurants'],
@@ -204,6 +208,7 @@ const SEO_CLIENTS = {
     domain: 'jrzmarketing.com',
     lang: 'en',
     industry: 'AI marketing agency',
+    competitors: ['webfx.com', 'thehoth.com', 'ignitevisibility.com'],
     voice: 'Sharp, confident, and results-driven. José Rivas speaks from real experience building systems that work. Bilingual edge, deep understanding of Latino entrepreneurs, zero tolerance for fluff or wasted ad spend.',
     audience: 'Small business owners, Latino entrepreneurs, and service-based businesses in Orlando and Central Florida who want real growth — more leads, more sales, more automation.',
     topics: ['AI marketing automation for small business Orlando', 'how to get more leads without spending more on ads', 'Go High Level for small business', 'social media automation that actually works', 'bilingual marketing strategy Florida', 'how to rank your business on Google Maps Orlando', 'marketing mistakes small business owners make'],
@@ -218,6 +223,7 @@ const SEO_CLIENTS = {
     domain: 'cooneyhomesfl.com',
     lang: 'en',
     industry: 'general contractor — home additions, custom home building, and remodeling',
+    competitors: ['buildwithbbt.com', 'myhomeus.com', 'semiholehomes.com'],
     voice: 'Experienced builder who has seen every type of project in Florida and knows exactly what it takes to do it right. Practical, confident, and zero tolerance for shortcuts. Speaks to homeowners who want their vision built properly — on time and on budget.',
     audience: 'Florida homeowners who want to add square footage, build a custom home from scratch, add a garage, expand a kitchen, or build an in-law suite. Also builders and developers in Central Florida looking for a trusted general contractor.',
     keywords: [
@@ -8414,6 +8420,124 @@ async function runWeeklyBacklinkCheck() {
   return { checked: reportRows.length };
 }
 
+// ─── WEEKLY BACKLINK PROSPECTING — build links, not just monitor ─────────────
+// Every Monday 9:20am: mine competitor referring domains via DataForSEO,
+// Claude writes personalized guest post pitches, GHL sends outreach emails.
+// Tracks contacted domains in Cloudinary so we never double-reach out.
+async function runBacklinkProspecting() {
+  console.log('[LinkBuild] Starting weekly backlink prospecting...');
+  if (!DATAFORSEO_PASSWORD) return { skipped: true, reason: 'no_dataforseo_password' };
+  const auth = Buffer.from(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`).toString('base64');
+
+  // Load snapshot — tracks who we've already contacted
+  let snapshot = { contacted: {}, history: [], lastRun: null };
+  try {
+    const r = await axios.get(LINK_PROSPECTS_URL, { timeout: 8000, headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+    snapshot = typeof r.data === 'string' ? JSON.parse(r.data) : (r.data || snapshot);
+  } catch { /* first run */ }
+
+  const results = [];
+
+  for (const [, config] of Object.entries(SEO_CLIENTS)) {
+    if (!config.competitors?.length || !config.domain) continue;
+    const { name, domain, industry } = config;
+    const alreadyContacted = new Set(snapshot.contacted[domain] || []);
+
+    console.log(`[LinkBuild] Prospecting for ${name} (${domain})...`);
+
+    // Mine referring domains from up to 2 competitors
+    const candidateMap = new Map();
+    for (const competitor of config.competitors.slice(0, 2)) {
+      try {
+        const res = await axios.post(
+          `${DATAFORSEO_BASE}/v3/backlinks/referring_domains/live`,
+          [{ target: competitor, limit: 40, order_by: ['rank,desc'], filters: [['dofollow', '=', true]] }],
+          { headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' }, timeout: 20000 }
+        );
+        const items = res.data?.tasks?.[0]?.result?.[0]?.items || [];
+        for (const item of items) {
+          const df = item.domain_from;
+          if (!df || df === domain || alreadyContacted.has(df)) continue;
+          // Filter out mega-domains unlikely to accept pitches
+          if (['google', 'facebook', 'youtube', 'twitter', 'amazon', 'yelp', 'reddit', 'linkedin', 'instagram', 'pinterest', 'wikipedia'].some(x => df.includes(x))) continue;
+          if (!candidateMap.has(df)) candidateMap.set(df, item.rank || 0);
+        }
+        await new Promise(r => setTimeout(r, 1500));
+      } catch (e) { console.error(`[LinkBuild] DataForSEO error for ${competitor}:`, e.message); }
+    }
+
+    // Take top 3 by rank score
+    const targets = [...candidateMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([d]) => d);
+    if (!targets.length) { console.log(`[LinkBuild] No new targets for ${name}`); continue; }
+
+    // For each target: Claude writes pitch → GHL sends email
+    for (const targetDomain of targets) {
+      try {
+        const msg = await anthropic.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 400,
+          messages: [{ role: 'user', content: `Write a short guest post outreach email from Jose Rivas at JRZ Marketing on behalf of ${name} (${domain}).
+
+Target site: ${targetDomain} — assume they publish content related to ${industry} or adjacent topics.
+Goal: earn a dofollow backlink to ${domain}.
+
+Rules:
+- Write a compelling subject line + email body under 120 words
+- Pitch ONE specific guest post idea that genuinely helps their readers AND earns the link
+- Sound human, not automated — reference their likely content focus
+- End with: "Reply to this email if you're interested — Jose | JRZ Marketing"
+- No fluff, no excessive compliments
+
+Return JSON only: {"subject":"...","body":"..."}` }]
+        });
+        const raw = msg.content[0].text.trim();
+        const match = raw.match(/\{[\s\S]*\}/);
+        if (!match) continue;
+        const { subject, body } = JSON.parse(match[0]);
+
+        // Create GHL contact + send email
+        const email = `info@${targetDomain}`;
+        const contactRes = await axios.post(
+          'https://services.leadconnectorhq.com/contacts/',
+          { locationId: GHL_LOCATION_ID, firstName: 'Editor', lastName: targetDomain, email, tags: ['link_prospect', `client_${name.toLowerCase().replace(/\s+/g, '_')}`], source: 'Link Building Bot' },
+          { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' } }
+        ).catch(() => null);
+
+        const contactId = contactRes?.data?.contact?.id;
+        if (contactId) {
+          await sendEmail(contactId, subject, `<p style="font-family:Arial,sans-serif;line-height:1.6">${body.replace(/\n/g, '</p><p style="font-family:Arial,sans-serif;line-height:1.6">')}</p>`);
+          if (!snapshot.contacted[domain]) snapshot.contacted[domain] = [];
+          snapshot.contacted[domain].push(targetDomain);
+          results.push({ client: name, target: targetDomain, subject, email });
+          console.log(`[LinkBuild] ✅ Pitched ${targetDomain} for ${name}`);
+        }
+        await new Promise(r => setTimeout(r, 2000));
+      } catch (e) { console.error(`[LinkBuild] Pitch error for ${targetDomain}:`, e.message); }
+    }
+  }
+
+  // Save snapshot + alert Jose
+  snapshot.lastRun = new Date().toISOString();
+  snapshot.history = [...(snapshot.history || []), ...results].slice(-500);
+  await saveCloudinaryJSON(LINK_PROSPECTS_PID, snapshot);
+
+  if (results.length > 0) {
+    const rows = results.map(r => `<tr><td style="padding:8px;border:1px solid #e5e7eb">${r.client}</td><td style="padding:8px;border:1px solid #e5e7eb">${r.target}</td><td style="padding:8px;border:1px solid #e5e7eb">${r.subject}</td></tr>`).join('');
+    await sendEmail(OWNER_CONTACT_ID, `🔗 Link Building — ${results.length} Outreach Emails Sent`,
+      `<h2 style="font-family:Arial,sans-serif">Weekly Link Building Report</h2>
+       <p style="font-family:Arial,sans-serif;color:#6b7280">Pitches sent this week: <strong>${results.length}</strong></p>
+       <table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:14px;width:100%">
+         <thead><tr style="background:#1e40af;color:#fff">
+           <th style="padding:10px;text-align:left">Client</th><th style="padding:10px;text-align:left">Target Site</th><th style="padding:10px;text-align:left">Email Subject</th>
+         </tr></thead><tbody>${rows}</tbody></table>
+       <p style="font-family:Arial,sans-serif;color:#6b7280;margin-top:16px">All sent from info@email.jrzmarketing.com via GHL. Replies come to your inbox. Reply to accept and we'll write the full guest post.</p>`
+    );
+  }
+
+  console.log(`[LinkBuild] Done — ${results.length} pitches sent across ${Object.keys(SEO_CLIENTS).length} clients`);
+  return { sent: results.length, results };
+}
+
 // ─── RAILING MAX CITY PAGES (Programmatic SEO) ───────────────────────────────
 // 58 cities × 6 services = 348 pages — published 5/day starting with floating stairs
 const RAILING_MAX_LOCATION_ID = 'iipUT8kmVxJZzGBzvkZm';
@@ -8683,6 +8807,9 @@ const COONEY_CITY_PAGES_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/j
 
 const STANDUP_PID = 'jrz/daily_standup';
 const STANDUP_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/daily_standup.json';
+
+const LINK_PROSPECTS_PID = 'jrz/link_prospects';
+const LINK_PROSPECTS_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/link_prospects.json';
 
 const COONEY_SERVICES = [
   { slug: 'custom-home-builder',  keyword: 'custom home builder',  label: 'Custom Homes',     priority: 1 },
@@ -12575,6 +12702,27 @@ app.post('/cron/backlink-check', (_req, res) => {
   runWeeklyBacklinkCheck().catch(e => console.error('[Backlinks] Manual error:', e.message));
 });
 
+// POST /cron/link-prospecting — run backlink prospecting now (mines competitor links, sends pitches)
+app.post('/cron/link-prospecting', (_req, res) => {
+  res.json({ status: 'started', message: 'Link prospecting running — pitches sending in background. Check your email for report.' });
+  runBacklinkProspecting().catch(e => console.error('[LinkBuild] Manual error:', e.message));
+});
+
+// GET /cron/link-prospects/status — show full prospect history
+app.get('/cron/link-prospects/status', async (_req, res) => {
+  try {
+    const r = await axios.get(LINK_PROSPECTS_URL, { timeout: 8000, headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+    const snap = typeof r.data === 'string' ? JSON.parse(r.data) : r.data;
+    const totalContacted = Object.values(snap.contacted || {}).reduce((s, arr) => s + arr.length, 0);
+    res.json({
+      lastRun: snap.lastRun || 'never',
+      totalOutreach: totalContacted,
+      recentPitches: (snap.history || []).slice(-20),
+      contactedByClient: Object.fromEntries(Object.entries(snap.contacted || {}).map(([d, arr]) => [d, arr.length]))
+    });
+  } catch (e) { res.json({ lastRun: 'never', totalOutreach: 0, recentPitches: [], error: e.message }); }
+});
+
 // GET or POST /cron/railing-city-pages — run next batch of Railing Max city pages
 function triggerRailingPages(req, res) {
   const batchSize = parseInt(req.query.batch) || 50;
@@ -12786,9 +12934,10 @@ let lastSofiaCRODate        = null;
 let lastSofiaMonitorHour    = -1; // tracks last 6-hour slot (0, 6, 12, 18)
 let lastRankTrackingDate    = null;
 let lastBacklinkCheckDate   = null;
-let lastRailingCityPagesDate = null;
-let lastCooneyPagesDate      = null;
-let lastStandupDate          = null;
+let lastRailingCityPagesDate  = null;
+let lastCooneyPagesDate       = null;
+let lastStandupDate           = null;
+let lastLinkProspectingDate   = null;
 
 setInterval(async () => {
   try {
@@ -12939,6 +13088,12 @@ setInterval(async () => {
     if (hour === 9 && minute >= 10 && minute < 15 && dayOfWeek === 1 && lastBacklinkCheckDate !== today) {
       lastBacklinkCheckDate = today;
       runWeeklyBacklinkCheck(); // non-blocking
+    }
+
+    // 9:20am Monday — backlink prospecting: mine competitor domains, send guest post pitches
+    if (hour === 9 && minute >= 20 && minute < 25 && dayOfWeek === 1 && lastLinkProspectingDate !== today) {
+      lastLinkProspectingDate = today;
+      runBacklinkProspecting(); // non-blocking
     }
 
     // 1st of month, 9:00am — monthly client reports + Elena + Diego scorecard
