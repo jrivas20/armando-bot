@@ -4463,7 +4463,394 @@ app.get('/', (_req, res) => {
     mission: 'DM lead capture + autonomous social media posting 7 days/week',
     socialMedia: 'Instagram · Facebook · LinkedIn · YouTube · Google Business',
     postsPerDay: '1 carousel (8am EST) + 1 story (7pm EST)',
+    office: 'https://armando-bot-1.onrender.com/office',
   });
+});
+
+// GET /office — 2D anime AI team office
+app.get('/office', (_req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JRZ Marketing — AI Headquarters</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#1a1a2e;overflow-x:hidden;min-height:100vh}
+
+.header{background:linear-gradient(135deg,#16213e,#0f3460);padding:14px 30px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #e94560}
+.header h1{color:#fff;font-size:1.3rem;letter-spacing:1px}
+.header .sub{color:#4ecca3;font-size:0.8rem;margin-top:3px}
+.clock{color:#fff;font-size:1.1rem;font-weight:bold;background:rgba(233,69,96,0.2);padding:6px 14px;border-radius:20px;border:1px solid #e94560}
+
+.stats-bar{background:#16213e;padding:10px 30px;display:flex;gap:25px;flex-wrap:wrap;border-bottom:1px solid #0f3460}
+.stat{color:#aaa;font-size:0.8rem}.stat strong{color:#4ecca3}
+
+/* OFFICE ROOM */
+.office-room{
+  background:linear-gradient(180deg,#c8d8e8 0%,#dce8f0 35%,#e8e8ee 35%,#e0ddd8 60%,#c8b99a 60%,#b5a585 100%);
+  min-height:480px;position:relative;padding:20px 10px 90px;
+  display:flex;align-items:flex-end;gap:10px;justify-content:center;overflow:hidden
+}
+
+/* ceiling */
+.ceil-light{position:absolute;top:0;width:18px;height:7px;background:#fffbe6;border-radius:0 0 4px 4px;box-shadow:0 0 40px 20px rgba(255,252,200,0.25)}
+
+/* window */
+.window{position:absolute;top:18px;left:35px;width:110px;height:130px;background:linear-gradient(160deg,#b8e4f9,#e0f7fa);border:7px solid #7a5c14;border-radius:4px}
+.window::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:3px;background:#7a5c14;transform:translateX(-50%)}
+.window::after{content:'';position:absolute;top:50%;left:0;right:0;height:3px;background:#7a5c14}
+
+/* office sign */
+.office-sign{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#e94560;color:#fff;padding:6px 18px;border-radius:4px;font-weight:900;font-size:1rem;letter-spacing:3px;white-space:nowrap;box-shadow:0 2px 10px rgba(233,69,96,0.5)}
+
+/* plant */
+.plant{position:absolute;bottom:85px;right:25px}
+.plant-pot{width:28px;height:18px;background:#c0632b;clip-path:polygon(10% 0%,90% 0%,100% 100%,0% 100%);margin:0 auto}
+.plant-leaf{position:absolute;width:18px;height:28px;background:#2d8a3e;border-radius:0 50% 0 50%}
+
+/* DESK STATION */
+.station{display:flex;flex-direction:column;align-items:center;position:relative;width:130px;flex-shrink:0}
+.station-label{font-size:0.65rem;font-weight:900;color:#fff;background:rgba(0,0,0,0.65);padding:2px 9px;border-radius:10px;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
+.role-tag{font-size:0.55rem;color:#4ecca3;text-align:center;margin-bottom:4px}
+
+.monitor{width:96px;height:68px;background:#111;border:3px solid #444;border-radius:5px;position:relative;overflow:hidden;flex-shrink:0}
+.monitor::after{content:'';position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);width:28px;height:14px;background:#555;clip-path:polygon(20% 0%,80% 0%,100% 100%,0% 100%)}
+.monitor-screen{width:100%;height:100%;padding:4px 5px;font-size:0.48rem;color:#4ecca3;font-family:monospace;overflow:hidden;line-height:1.4}
+.scroll-text{animation:scrollUp 10s linear infinite}
+@keyframes scrollUp{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}
+
+.keyboard{width:76px;height:18px;background:linear-gradient(180deg,#ddd,#bbb);border-radius:3px;border:1px solid #999;margin-top:16px;position:relative}
+.keyboard::after{content:'';position:absolute;top:3px;left:5px;right:5px;height:2px;background:repeating-linear-gradient(90deg,#aaa 0,#aaa 5px,transparent 5px,transparent 8px)}
+
+.desk{width:125px;height:22px;background:linear-gradient(180deg,#d4a574,#b8864e);border-radius:4px 4px 0 0;border:2px solid #8B6914;margin-top:4px}
+.desk-legs{width:105px;height:36px;display:flex;justify-content:space-between;padding:0 10px}
+.desk-leg{width:9px;height:36px;background:#8B6914;border-radius:0 0 3px 3px}
+
+/* CHARACTER — chibi anime */
+.char-wrap{position:absolute;bottom:60px;left:50%;transform:translateX(-50%)}
+.chibi{width:58px;height:88px;position:relative}
+.chibi.anim-idle{animation:idle 2.5s ease-in-out infinite}
+.chibi.anim-type{animation:typeAnim 0.6s ease-in-out infinite}
+.chibi.anim-active{animation:activeAnim 1.8s ease-in-out infinite}
+.chibi.anim-sleep{animation:idle 4s ease-in-out infinite;opacity:0.65}
+
+@keyframes idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes typeAnim{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-3px) rotate(1deg)}}
+@keyframes activeAnim{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.03)}}
+
+/* head */
+.c-head{width:42px;height:42px;border-radius:50%;position:absolute;top:0;left:8px;z-index:3}
+/* hair top */
+.c-hair{position:absolute;top:-4px;left:4px;width:50px;height:24px;border-radius:50% 50% 0 0;z-index:4}
+/* hair sides */
+.c-hair-l{position:absolute;top:12px;left:3px;width:8px;height:20px;border-radius:0 0 50% 50%;z-index:2}
+.c-hair-r{position:absolute;top:12px;right:3px;width:8px;height:20px;border-radius:0 0 50% 50%;z-index:2}
+/* eyes */
+.c-eyes{position:absolute;top:16px;left:9px;width:24px;display:flex;gap:5px;z-index:5}
+.c-eye{width:7px;height:9px;border-radius:50%;position:relative}
+.c-eye::after{content:'';position:absolute;top:1px;right:1px;width:2px;height:2px;border-radius:50%;background:#fff}
+/* blush */
+.c-blush-l{position:absolute;top:24px;left:5px;width:8px;height:4px;border-radius:50%;background:rgba(255,140,140,0.5);z-index:5}
+.c-blush-r{position:absolute;top:24px;right:5px;width:8px;height:4px;border-radius:50%;background:rgba(255,140,140,0.5);z-index:5}
+/* glasses (Sofia) */
+.c-glasses{position:absolute;top:15px;left:7px;width:28px;height:9px;border:2px solid #555;border-radius:3px;z-index:6}
+/* body */
+.c-body{width:38px;height:30px;border-radius:9px 9px 4px 4px;position:absolute;top:38px;left:10px;z-index:2}
+/* arms */
+.c-arm-l{position:absolute;width:11px;height:22px;border-radius:6px;top:42px;left:1px;z-index:1;transform:rotate(20deg)}
+.c-arm-r{position:absolute;width:11px;height:22px;border-radius:6px;top:42px;right:1px;z-index:1;transform:rotate(-20deg)}
+.chibi.anim-type .c-arm-l{animation:al 0.6s ease-in-out infinite}
+.chibi.anim-type .c-arm-r{animation:ar 0.6s ease-in-out infinite}
+@keyframes al{0%,100%{transform:rotate(20deg)}50%{transform:rotate(32deg) translateY(3px)}}
+@keyframes ar{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(-32deg) translateY(3px)}}
+
+/* thought bubble */
+.bubble{position:absolute;top:-46px;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #e94560;border-radius:10px;padding:3px 8px;font-size:0.52rem;white-space:nowrap;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,0.2);max-width:120px;text-align:center}
+.bubble::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#e94560}
+
+/* TICKER */
+.ticker-wrap{background:#0f3460;padding:9px 0;overflow:hidden;border-top:2px solid #e94560;display:flex;align-items:center}
+.ticker-label{color:#e94560;font-weight:900;font-size:0.75rem;padding:0 15px;white-space:nowrap;flex-shrink:0}
+.ticker-track{overflow:hidden;flex:1}
+.ticker{display:flex;animation:tick 35s linear infinite;white-space:nowrap}
+.ticker-item{color:#4ecca3;font-size:0.78rem;padding:0 28px}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>🏢 JRZ Marketing — AI Headquarters</h1>
+    <div class="sub">● 5 AI agents online · 31 clients · fully autonomous</div>
+  </div>
+  <div class="clock" id="clock">--:-- EST</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat">🤖 Agents: <strong>5 online</strong></div>
+  <div class="stat">🏢 Clients: <strong>31 active</strong></div>
+  <div class="stat">📱 Daily posts: <strong>1 carousel + 1 story</strong></div>
+  <div class="stat">✍️ SEO blogs: <strong>daily per client</strong></div>
+  <div class="stat">🏙️ City pages: <strong>348 Railing Max · 128 Cooney</strong></div>
+  <div class="stat">📊 Reports: <strong>weekly + monthly</strong></div>
+</div>
+
+<div class="office-room" id="office">
+  <!-- Lights -->
+  <div class="ceil-light" style="left:18%"></div>
+  <div class="ceil-light" style="left:38%"></div>
+  <div class="ceil-light" style="left:58%"></div>
+  <div class="ceil-light" style="left:78%"></div>
+
+  <!-- Window -->
+  <div class="window"></div>
+
+  <!-- Sign -->
+  <div class="office-sign">JRZ MARKETING</div>
+
+  <!-- Plant -->
+  <div class="plant">
+    <div class="plant-leaf" style="left:4px;bottom:18px;transform:rotate(-30deg)"></div>
+    <div class="plant-leaf" style="right:4px;bottom:18px;transform:rotate(30deg) scaleX(-1)"></div>
+    <div class="plant-leaf" style="left:7px;bottom:32px;transform:rotate(-10deg)"></div>
+    <div class="plant-pot"></div>
+  </div>
+
+  <!-- ─── ARMANDO ─── -->
+  <div class="station">
+    <div class="station-label">Armando</div>
+    <div class="role-tag">Community Manager</div>
+    <div class="monitor">
+      <div class="monitor-screen"><div class="scroll-text">
+        📨 New DM @user123<br>💬 Generating reply...<br>✅ Reply sent<br>🔔 Comment detected<br>📊 Lead captured!<br>🏷️ Tag: hot_lead<br>📨 New DM @user456<br>💬 Generating reply...<br>✅ Reply sent<br>🔔 Comment detected<br>📊 Lead captured!<br>🏷️ Tag: hot_lead<br>
+      </div></div>
+    </div>
+    <div class="keyboard"></div>
+    <div class="desk"></div>
+    <div class="desk-legs"><div class="desk-leg"></div><div class="desk-leg"></div></div>
+    <div class="char-wrap">
+      <div class="chibi anim-type" id="chibi-armando">
+        <div class="bubble" id="bub-armando">24/7 DM guard 🛡️</div>
+        <div class="c-hair" style="background:#1a1010"></div>
+        <div class="c-hair-l" style="background:#1a1010"></div>
+        <div class="c-hair-r" style="background:#1a1010"></div>
+        <div class="c-head" style="background:#C68642"></div>
+        <div class="c-eyes"><div class="c-eye" style="background:#3d2314"></div><div class="c-eye" style="background:#3d2314"></div></div>
+        <div class="c-blush-l"></div><div class="c-blush-r"></div>
+        <div class="c-body" style="background:#3a7bd5"></div>
+        <div class="c-arm-l" style="background:#C68642"></div>
+        <div class="c-arm-r" style="background:#C68642"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ELENA ─── -->
+  <div class="station">
+    <div class="station-label">Elena</div>
+    <div class="role-tag">Client Success</div>
+    <div class="monitor">
+      <div class="monitor-screen"><div class="scroll-text">
+        📋 Escobar Kitchen<br>✅ Health: Excellent<br>📈 Growth: +12%<br>📋 Railing Max<br>✅ 348 city pages<br>📋 Cooney Homes<br>✅ Health: Good<br>📋 USA CPA<br>✅ Health: Excellent<br>📈 Growth: +12%<br>📋 Railing Max<br>✅ 348 city pages<br>
+      </div></div>
+    </div>
+    <div class="keyboard"></div>
+    <div class="desk"></div>
+    <div class="desk-legs"><div class="desk-leg"></div><div class="desk-leg"></div></div>
+    <div class="char-wrap">
+      <div class="chibi anim-idle" id="chibi-elena">
+        <div class="bubble" id="bub-elena">Client reports 📋</div>
+        <div class="c-hair" style="background:#2c1810;border-radius:50% 50% 0 0;height:28px"></div>
+        <div class="c-hair-l" style="background:#2c1810;height:30px"></div>
+        <div class="c-hair-r" style="background:#2c1810;height:30px"></div>
+        <div class="c-head" style="background:#FDBCB4"></div>
+        <div class="c-eyes"><div class="c-eye" style="background:#2c2c2c"></div><div class="c-eye" style="background:#2c2c2c"></div></div>
+        <div class="c-blush-l"></div><div class="c-blush-r"></div>
+        <div class="c-body" style="background:#e91e8c"></div>
+        <div class="c-arm-l" style="background:#FDBCB4"></div>
+        <div class="c-arm-r" style="background:#FDBCB4"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── DIEGO ─── -->
+  <div class="station">
+    <div class="station-label">Diego</div>
+    <div class="role-tag">Project Manager</div>
+    <div class="monitor">
+      <div class="monitor-screen"><div class="scroll-text">
+        📊 Scorecard: A<br>🗓️ Sprint: Week 12<br>✅ Tasks: 24/28<br>📌 KPIs: 94%<br>🗣️ Standup done<br>📊 Q1 on track<br>📊 Scorecard: A<br>🗓️ Sprint: Week 12<br>✅ Tasks: 24/28<br>📌 KPIs: 94%<br>🗣️ Standup done<br>📊 Q1 on track<br>
+      </div></div>
+    </div>
+    <div class="keyboard"></div>
+    <div class="desk"></div>
+    <div class="desk-legs"><div class="desk-leg"></div><div class="desk-leg"></div></div>
+    <div class="char-wrap">
+      <div class="chibi anim-idle" id="chibi-diego">
+        <div class="bubble" id="bub-diego">Weekly report 📊</div>
+        <div class="c-hair" style="background:#6B3A2A;height:20px;border-radius:50% 50% 0 0"></div>
+        <div class="c-hair-l" style="background:#6B3A2A;height:14px"></div>
+        <div class="c-hair-r" style="background:#6B3A2A;height:14px"></div>
+        <div class="c-head" style="background:#D4A270"></div>
+        <div class="c-eyes"><div class="c-eye" style="background:#4a2c17"></div><div class="c-eye" style="background:#4a2c17"></div></div>
+        <div class="c-blush-l"></div><div class="c-blush-r"></div>
+        <div class="c-body" style="background:#e67e22"></div>
+        <div class="c-arm-l" style="background:#D4A270"></div>
+        <div class="c-arm-r" style="background:#D4A270"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MARCO ─── -->
+  <div class="station">
+    <div class="station-label">Marco</div>
+    <div class="role-tag">Content Director</div>
+    <div class="monitor">
+      <div class="monitor-screen"><div class="scroll-text">
+        ✍️ Blog: Railing Max<br>🎨 Content brief<br>📱 Reel script done<br>🔥 Trend: #local SEO<br>📝 Caption crafted<br>🎯 A/B test ready<br>✍️ Blog: Escobar<br>🎨 Content brief<br>📱 Reel script done<br>🔥 Trend: #local SEO<br>📝 Caption crafted<br>🎯 A/B test ready<br>
+      </div></div>
+    </div>
+    <div class="keyboard"></div>
+    <div class="desk"></div>
+    <div class="desk-legs"><div class="desk-leg"></div><div class="desk-leg"></div></div>
+    <div class="char-wrap">
+      <div class="chibi anim-type" id="chibi-marco">
+        <div class="bubble" id="bub-marco">Writing content ✍️</div>
+        <div class="c-hair" style="background:#1a3a2a;height:22px;border-radius:60% 40% 0 0"></div>
+        <div class="c-hair-l" style="background:#1a3a2a;height:16px"></div>
+        <div class="c-hair-r" style="background:#1a3a2a;height:16px"></div>
+        <div class="c-head" style="background:#C8956C"></div>
+        <div class="c-eyes"><div class="c-eye" style="background:#2c2c2c"></div><div class="c-eye" style="background:#2c2c2c"></div></div>
+        <div class="c-blush-l"></div><div class="c-blush-r"></div>
+        <div class="c-body" style="background:#27ae60"></div>
+        <div class="c-arm-l" style="background:#C8956C"></div>
+        <div class="c-arm-r" style="background:#C8956C"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SOFIA ─── -->
+  <div class="station">
+    <div class="station-label">Sofia</div>
+    <div class="role-tag">Web Designer / SEO</div>
+    <div class="monitor">
+      <div class="monitor-screen"><div class="scroll-text">
+        🌐 Auditing sites...<br>📈 PageSpeed: 94<br>🔍 SEO: all good<br>🏙️ City page ✅<br>⚡ Uptime: 100%<br>🔗 Backlinks OK<br>🌐 Auditing sites...<br>📈 PageSpeed: 94<br>🔍 SEO: all good<br>🏙️ City page ✅<br>⚡ Uptime: 100%<br>🔗 Backlinks OK<br>
+      </div></div>
+    </div>
+    <div class="keyboard"></div>
+    <div class="desk"></div>
+    <div class="desk-legs"><div class="desk-leg"></div><div class="desk-leg"></div></div>
+    <div class="char-wrap">
+      <div class="chibi anim-type" id="chibi-sofia">
+        <div class="bubble" id="bub-sofia">Website audit 🌐</div>
+        <div class="c-hair" style="background:#1a6a7a;height:20px;border-radius:50% 50% 0 0"></div>
+        <div class="c-hair-l" style="background:#1a6a7a;width:10px;height:14px"></div>
+        <div class="c-hair-r" style="background:#1a6a7a;width:10px;height:14px"></div>
+        <div class="c-head" style="background:#FDBCB4"></div>
+        <div class="c-glasses"></div>
+        <div class="c-eyes"><div class="c-eye" style="background:#2c2c2c"></div><div class="c-eye" style="background:#2c2c2c"></div></div>
+        <div class="c-blush-l"></div><div class="c-blush-r"></div>
+        <div class="c-body" style="background:#00bcd4"></div>
+        <div class="c-arm-l" style="background:#FDBCB4"></div>
+        <div class="c-arm-r" style="background:#FDBCB4"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /office-room -->
+
+<!-- CLIENT TICKER -->
+<div class="ticker-wrap">
+  <span class="ticker-label">📡 ACTIVE CLIENTS:</span>
+  <div class="ticker-track">
+    <div class="ticker">
+      <span class="ticker-item">⭐ JRZ Marketing</span>
+      <span class="ticker-item">🍽️ The Escobar Kitchen</span>
+      <span class="ticker-item">🏗️ Railing Max</span>
+      <span class="ticker-item">🏠 Cooney Homes</span>
+      <span class="ticker-item">💰 USA Latino CPA</span>
+      <span class="ticker-item">💈 Le Varon Barbershop</span>
+      <span class="ticker-item">🥑 Guaca-Mole</span>
+      <span class="ticker-item">🏢 Rental Spaces</span>
+      <span class="ticker-item">📐 Railing Max — 348 city pages</span>
+      <span class="ticker-item">🏘️ Cooney Homes — 128 city pages</span>
+      <span class="ticker-item">⭐ JRZ Marketing</span>
+      <span class="ticker-item">🍽️ The Escobar Kitchen</span>
+      <span class="ticker-item">🏗️ Railing Max</span>
+      <span class="ticker-item">🏠 Cooney Homes</span>
+      <span class="ticker-item">💰 USA Latino CPA</span>
+      <span class="ticker-item">💈 Le Varon Barbershop</span>
+      <span class="ticker-item">🥑 Guaca-Mole</span>
+      <span class="ticker-item">🏢 Rental Spaces</span>
+      <span class="ticker-item">📐 Railing Max — 348 city pages</span>
+      <span class="ticker-item">🏘️ Cooney Homes — 128 city pages</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// Clock
+function tick(){
+  const d=new Date();
+  document.getElementById('clock').textContent=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'America/New_York'})+' EST';
+}
+setInterval(tick,1000);tick();
+
+// Determine active agents based on EST hour
+const nowEST=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));
+const h=nowEST.getHours();
+const dow=nowEST.getDay(); // 0=Sun,1=Mon
+const dom=nowEST.getDate();
+
+const schedule={
+  armando:{anim:'anim-type',bubble:'24/7 DM guard 🛡️'},
+  elena:{
+    anim: (h>=8&&h<=17)?'anim-type':'anim-idle',
+    bubble: h===9&&dom===1?'Monthly reports 📋':h>=8&&h<=10?'Health check 💊':'Client success 🤝'
+  },
+  diego:{
+    anim:(h>=8&&h<=10)&&dow===1?'anim-active':(h>=8&&h<=17?'anim-type':'anim-sleep'),
+    bubble:h===8&&dow===1?'Standup time! 🗣️':h===9&&dow===1?'Weekly report 📊':'Project tracking 📌'
+  },
+  marco:{
+    anim:(h>=9&&h<=11)?'anim-type':(h===10&&dow===3?'anim-active':'anim-idle'),
+    bubble:h===9&&dow===1?'Content brief 📝':h===10&&dow===3?'Trend alert 🔥':'Content creating ✍️'
+  },
+  sofia:{
+    anim:(h===7||h===9||h===10||h===16)?'anim-active':'anim-type',
+    bubble:h===7?'Daily post time! 📱':h===9?'Website audit 🌐':h===16?'Reel time 🎬':'SEO monitoring 🔍'
+  }
+};
+
+Object.entries(schedule).forEach(([name,data])=>{
+  const c=document.getElementById('chibi-'+name);
+  const b=document.getElementById('bub-'+name);
+  if(c){c.className='chibi '+data.anim;}
+  if(b){b.textContent=data.bubble;}
+});
+
+// Random event bubbles
+const events=[
+  ['armando','New lead! 🎯'],['armando','DM replied ✅'],['armando','Comment liked 👍'],
+  ['elena','Client happy 😊'],['elena','Report sent 📋'],['elena','A+ grade! 🏆'],
+  ['diego','Sprint done! 🏁'],['diego','Goal met ✅'],['diego','KPI: 97% 📊'],
+  ['marco','Blog live! 🎉'],['marco','Reel posted 🎬'],['marco','Trend caught 🔥'],
+  ['sofia','Audit done ✅'],['sofia','City page live 🏙️'],['sofia','PageSpeed 95 ⚡']
+];
+function randomEvent(){
+  const [name,text]=events[Math.floor(Math.random()*events.length)];
+  const b=document.getElementById('bub-'+name);
+  const orig=schedule[name].bubble;
+  if(b){b.textContent=text;setTimeout(()=>b.textContent=orig,2500);}
+}
+setInterval(randomEvent,8000);
+</script>
+</body>
+</html>`);
 });
 
 // ═══════════════════════════════════════════════════════════
