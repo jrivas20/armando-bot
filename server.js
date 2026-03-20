@@ -7552,29 +7552,8 @@ async function runClientDailySeoBlog(locationId, config) {
   // Step 3: Find best keyword — learning history picks unused/oldest topic, avoids 30-day repeats
   const _blogHistory = await loadBlogHistory().catch(() => ({}));
   const _clientHistory = _blogHistory[locationId] || [];
-  let targetKeyword = getBestNextKeyword(locationId, config, _clientHistory);
-
-  // Second try: DataForSEO striking distance keywords for this domain
-  if (DATAFORSEO_PASSWORD) {
-    try {
-      const auth = Buffer.from(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`).toString('base64');
-      const kwRes = await axios.post(
-        `${DATAFORSEO_BASE}/v3/dataforseo_labs/google/keywords_for_site/live`,
-        [{ target: domain, location_code: 2840, language_code: lang === 'es' ? 'es' : 'en', limit: 30 }],
-        { headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' }, timeout: 20000 }
-      );
-      const items = kwRes.data?.tasks?.[0]?.result?.[0]?.items || [];
-      const striking = items
-        .filter(k => { const pos = k.ranked_serp_element?.serp_item?.rank_absolute; return pos && pos >= 11 && pos <= 30; })
-        .sort((a, b) => (b.keyword_data?.search_volume || 0) - (a.keyword_data?.search_volume || 0));
-      // Only override if DataForSEO finds something better — keep city in the keyword
-      if (striking.length > 0) {
-        const kw = striking[0].keyword;
-        // Add city if not already location-specific
-        targetKeyword = kw.toLowerCase().includes(todaysCity.toLowerCase()) ? kw : `${kw} ${todaysCity}`;
-      }
-    } catch (kwErr) { console.error(`[Client SEO] Keyword error for ${name}:`, kwErr.message); }
-  }
+  // DataForSEO scores all available keywords and picks highest volume/lowest competition
+  let targetKeyword = await getBestNextKeyword(locationId, config, _clientHistory);
 
   // Step 4: Write SEO blog post with Claude Haiku (cost-efficient for 15+ clients/day)
   const isSpanish = lang === 'es';
@@ -7774,8 +7753,33 @@ async function loadBlogHistory() {
 }
 async function saveBlogHistory(data) { await saveCloudinaryJSON(SEO_BLOG_HISTORY_PID, data); }
 
-// Smart keyword picker — avoids repeating recent topics, picks least-recently-written
-function getBestNextKeyword(locationId, config, clientHistory = []) {
+// DataForSEO: get search volume + competition score for a list of keywords
+// Returns map of { keyword -> { volume, competition, score } }
+async function getDataForSEOKeywordScores(keywords) {
+  if (!DATAFORSEO_PASSWORD || !keywords.length) return {};
+  try {
+    const auth = Buffer.from(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`).toString('base64');
+    const res = await axios.post(
+      `${DATAFORSEO_BASE}/v3/keywords_data/google_ads/search_volume/live`,
+      [{ keywords, location_code: 2840, language_code: 'en' }],
+      { headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' }, timeout: 15000 }
+    );
+    const items = res.data?.tasks?.[0]?.result || [];
+    const scores = {};
+    for (const item of items) {
+      const vol = item.search_volume || 0;
+      const comp = item.competition_index || 50; // 0-100, lower = easier
+      scores[item.keyword] = { volume: vol, competition: comp, score: vol / (comp + 1) };
+    }
+    return scores;
+  } catch (e) {
+    console.error('[DataForSEO] Keyword scores error:', e.message);
+    return {};
+  }
+}
+
+// Smart keyword picker — uses DataForSEO to rank available keywords by opportunity (high volume, low competition)
+async function getBestNextKeyword(locationId, config, clientHistory = []) {
   const { keywords = [], industry } = config;
   const todaysCity = getTodaysCity();
   const thirtyDaysAgo = Date.now() - 30 * 86400000;
@@ -7790,8 +7794,25 @@ function getBestNextKeyword(locationId, config, clientHistory = []) {
   if (keywords.length > 0) {
     // Prefer keywords not written recently
     const available = keywords.filter(k => !recentlyWritten.has(k.toLowerCase()));
+    const pool = available.length > 0 ? available : (() => {
+      // All used recently — pick oldest
+      return [[...keywords].sort((a, b) => {
+        const aDate = clientHistory.filter(p => (p.baseKeyword || p.keyword).toLowerCase().includes(a.toLowerCase())).pop()?.date || '2000-01-01';
+        const bDate = clientHistory.filter(p => (p.baseKeyword || p.keyword).toLowerCase().includes(b.toLowerCase())).pop()?.date || '2000-01-01';
+        return new Date(aDate) - new Date(bDate);
+      })[0]];
+    })();
+
+    // Score pool with DataForSEO — pick highest opportunity keyword
+    const scores = await getDataForSEOKeywordScores(pool);
+    if (Object.keys(scores).length > 0) {
+      const best = pool.sort((a, b) => (scores[b]?.score || 0) - (scores[a]?.score || 0))[0];
+      console.log(`[DataForSEO] Best keyword for ${locationId}: "${best}" (vol:${scores[best]?.volume}, comp:${scores[best]?.competition})`);
+      return `${best} ${todaysCity} FL`;
+    }
+
+    // DataForSEO unavailable — fall back to click-data heuristic
     if (available.length > 0) {
-      // If we have click data, pick topic similar to best performer
       const topPost = clientHistory.filter(p => p.clicks > 0).sort((a, b) => (b.clicks || 0) - (a.clicks || 0))[0];
       if (topPost) {
         const topBase = (topPost.baseKeyword || topPost.keyword).toLowerCase().split(' ')[0];
@@ -7800,13 +7821,7 @@ function getBestNextKeyword(locationId, config, clientHistory = []) {
       }
       return `${available[0]} ${todaysCity} FL`;
     }
-    // All keywords used recently — pick the oldest one (least recently written)
-    const sorted = [...keywords].sort((a, b) => {
-      const aDate = clientHistory.filter(p => (p.baseKeyword || p.keyword).toLowerCase().includes(a.toLowerCase())).pop()?.date || '2000-01-01';
-      const bDate = clientHistory.filter(p => (p.baseKeyword || p.keyword).toLowerCase().includes(b.toLowerCase())).pop()?.date || '2000-01-01';
-      return new Date(aDate) - new Date(bDate);
-    });
-    return `${sorted[0]} ${todaysCity} FL`;
+    return `${pool[0]} ${todaysCity} FL`;
   }
 
   return `${industry} ${todaysCity} FL`;
@@ -7825,7 +7840,7 @@ async function runSofiaContentLearning() {
     const recentPosts = clientHistory.filter(p => new Date(p.date).getTime() > thirtyDaysAgo);
     const usedBaseKeywords = new Set(clientHistory.map(p => (p.baseKeyword || p.keyword.split(' ').slice(0,2).join(' ')).toLowerCase()));
     const unusedKeywords = keywords.filter(k => !usedBaseKeywords.has(k.toLowerCase()));
-    const nextKeyword = getBestNextKeyword(locationId, config, clientHistory);
+    const nextKeyword = await getBestNextKeyword(locationId, config, clientHistory);
     report.push({ name, totalPosts: clientHistory.length, recentPosts: recentPosts.length, unusedKeywords: unusedKeywords.length, unusedList: unusedKeywords.slice(0,5), recentKeywords: recentPosts.slice(-5).map(p => p.keyword), nextKeyword });
   }
 
@@ -11459,7 +11474,7 @@ app.get('/sofia/content-learning/status', async (_req, res) => {
       status[config.name] = {
         totalPosts: clientHistory.length,
         lastPost: clientHistory.slice(-1)[0] || null,
-        nextKeyword: getBestNextKeyword(locationId, config, clientHistory),
+        nextKeyword: await getBestNextKeyword(locationId, config, clientHistory),
         recentKeywords: clientHistory.slice(-5).map(p => p.keyword),
       };
     }
