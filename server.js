@@ -7452,10 +7452,10 @@ async function getLocationToken(locationId) {
 async function getClientBlog(locationId, token) {
   try {
     const res = await axios.get(
-      `https://services.leadconnectorhq.com/blogs/?locationId=${locationId}`,
+      `https://services.leadconnectorhq.com/blogs/site/all?locationId=${locationId}&skip=0&limit=10`,
       { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 10000 }
     );
-    const blog = (res.data?.blogs || [])[0];
+    const blog = (res.data?.blogs || res.data?.data || [])[0];
     if (!blog) return null;
     const authorRes = await axios.get(
       `https://services.leadconnectorhq.com/blogs/authors?locationId=${locationId}&blogId=${blog.id}`,
@@ -11173,13 +11173,10 @@ app.get('/sofia/blogs/:locationId', async (req, res) => {
   const token = config?.apiKey;
   if (!token) return res.json({ error: 'No apiKey for this locationId in SEO_CLIENTS' });
   try {
-    const r1 = await axios.get(`https://services.leadconnectorhq.com/blogs/?locationId=${locationId}`,
+    const r1 = await axios.get(`https://services.leadconnectorhq.com/blogs/site/all?locationId=${locationId}&skip=0&limit=10`,
       { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 10000 }
     ).catch(e => ({ error: e?.response?.data || e.message }));
-    const r2 = await axios.get(`https://services.leadconnectorhq.com/blogs/posts?locationId=${locationId}`,
-      { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 10000 }
-    ).catch(e => ({ error: e?.response?.data || e.message }));
-    res.json({ blogsEndpoint: r1?.data || r1?.error, postsEndpoint: r2?.data || r2?.error });
+    res.json({ blogsEndpoint: r1?.data || r1?.error });
   } catch (err) {
     res.json({ error: err?.response?.data || err.message });
   }
