@@ -4853,6 +4853,142 @@ setInterval(randomEvent,8000);
 </html>`);
 });
 
+// GET /office/standup — daily AI team meeting room
+app.get('/office/standup', async (_req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  let standup;
+  try {
+    const r = await axios.get(STANDUP_URL, { timeout: 8000, headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+    standup = typeof r.data === 'string' ? JSON.parse(r.data) : r.data;
+  } catch (_e) { standup = null; }
+
+  const agentColors = { armando: '#3a7bd5', elena: '#e91e8c', diego: '#e67e22', marco: '#27ae60', sofia: '#00bcd4' };
+  const agentEmoji  = { armando: '🛡️', elena: '📋', diego: '📊', marco: '✍️', sofia: '🌐' };
+  const agentRole   = { armando: 'Community Manager', elena: 'Client Success', diego: 'Project Manager', marco: 'Content Director', sofia: 'Web Designer / SEO' };
+
+  const messagesHtml = standup?.messages?.map((m, i) => `
+    <div class="msg" style="animation-delay:${i * 0.15}s">
+      <div class="msg-avatar" style="background:${agentColors[m.agent] || '#555'}">${agentEmoji[m.agent] || '🤖'}</div>
+      <div class="msg-body">
+        <div class="msg-name" style="color:${agentColors[m.agent] || '#aaa'}">${m.agent.charAt(0).toUpperCase()+m.agent.slice(1)} <span class="msg-role">${agentRole[m.agent] || ''}</span></div>
+        <div class="msg-text">${m.message}</div>
+      </div>
+    </div>`).join('') || '<div class="no-standup">⏳ Standup not yet generated today — runs at 6:50am EST.<br><br>Trigger it now: <code>POST /cron/standup</code></div>';
+
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JRZ AI Team — Daily Standup</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#1a1a2e;color:#fff;min-height:100vh}
+.header{background:linear-gradient(135deg,#16213e,#0f3460);padding:14px 30px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #e94560}
+.header h1{font-size:1.3rem;letter-spacing:1px}
+.header .meta{font-size:0.8rem;color:#4ecca3;margin-top:3px}
+.back{color:#e94560;text-decoration:none;font-size:0.85rem;border:1px solid #e94560;padding:5px 12px;border-radius:15px}
+.back:hover{background:#e94560;color:#fff}
+.meeting-room{max-width:820px;margin:30px auto;padding:0 20px}
+.room-header{background:linear-gradient(135deg,#0f3460,#16213e);border:1px solid #e94560;border-radius:12px;padding:20px 25px;margin-bottom:24px;display:flex;align-items:center;gap:20px}
+.room-icon{font-size:2.5rem}
+.room-title{font-size:1.2rem;font-weight:700;color:#fff}
+.room-sub{color:#4ecca3;font-size:0.85rem;margin-top:4px}
+.room-stats{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap}
+.rstat{background:rgba(233,69,96,0.15);border:1px solid rgba(233,69,96,0.3);border-radius:8px;padding:8px 14px;text-align:center}
+.rstat strong{color:#e94560;display:block;font-size:1.1rem}
+.rstat span{font-size:0.7rem;color:#aaa}
+.messages{display:flex;flex-direction:column;gap:16px}
+.msg{display:flex;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;animation:fadeIn 0.4s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.msg-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.msg-name{font-weight:700;font-size:0.95rem;margin-bottom:4px}
+.msg-role{font-weight:400;font-size:0.72rem;color:#888;margin-left:6px}
+.msg-text{color:#ddd;font-size:0.9rem;line-height:1.6}
+.no-standup{text-align:center;padding:50px 20px;color:#888;font-size:0.95rem;line-height:2}
+.no-standup code{background:rgba(255,255,255,0.1);padding:3px 8px;border-radius:4px;color:#4ecca3}
+.apis{background:rgba(15,52,96,0.5);border:1px solid rgba(78,204,163,0.2);border-radius:12px;padding:20px 25px;margin-top:24px}
+.apis h3{color:#4ecca3;font-size:0.9rem;margin-bottom:14px;text-transform:uppercase;letter-spacing:1px}
+.api-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.api-tag{background:rgba(78,204,163,0.1);border:1px solid rgba(78,204,163,0.25);border-radius:6px;padding:6px 10px;font-size:0.75rem;color:#4ecca3;display:flex;align-items:center;gap:6px}
+.api-dot{width:7px;height:7px;border-radius:50%;background:#4ecca3;flex-shrink:0;box-shadow:0 0 6px #4ecca3}
+.trigger{text-align:center;margin-top:20px}
+.trigger a{background:#e94560;color:#fff;padding:10px 22px;border-radius:20px;text-decoration:none;font-size:0.85rem;font-weight:600}
+.trigger a:hover{background:#c73652}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>🗓️ Daily AI Team Standup</h1>
+    <div class="meta">${standup ? `${standup.dayName}, ${standup.date} · Generated ${new Date(standup.generatedAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'})} EST` : 'Pending generation'}</div>
+  </div>
+  <a href="/office" class="back">← Back to Office</a>
+</div>
+
+<div class="meeting-room">
+  <div class="room-header">
+    <div class="room-icon">🏢</div>
+    <div>
+      <div class="room-title">JRZ Marketing — Morning Meeting</div>
+      <div class="room-sub">All 5 AI agents · 24/7 operations · ${standup?.clientCount || 0} active clients</div>
+    </div>
+    <div class="room-stats">
+      <div class="rstat"><strong>${standup?.clientCount || '—'}</strong><span>Clients</span></div>
+      <div class="rstat"><strong>${standup?.railingCount || '—'}/348</strong><span>Railing Pages</span></div>
+      <div class="rstat"><strong>${standup?.cooneyCount || '—'}/128</strong><span>Cooney Pages</span></div>
+    </div>
+  </div>
+
+  <div class="messages">${messagesHtml}</div>
+
+  <div class="apis">
+    <h3>🔌 Active API Connections</h3>
+    <div class="api-grid">
+      <div class="api-tag"><div class="api-dot"></div>GHL LeadConnector API</div>
+      <div class="api-tag"><div class="api-dot"></div>Anthropic Claude API</div>
+      <div class="api-tag"><div class="api-dot"></div>DataForSEO API</div>
+      <div class="api-tag"><div class="api-dot"></div>ElevenLabs Voice API</div>
+      <div class="api-tag"><div class="api-dot"></div>Cloudinary Storage</div>
+      <div class="api-tag"><div class="api-dot"></div>NewsAPI</div>
+      <div class="api-tag"><div class="api-dot"></div>Apollo.io Enrichment</div>
+      <div class="api-tag"><div class="api-dot"></div>Google PageSpeed API</div>
+      <div class="api-tag"><div class="api-dot"></div>Google Search Console</div>
+      <div class="api-tag"><div class="api-dot"></div>Bland AI Calls</div>
+      <div class="api-tag"><div class="api-dot"></div>Pexels / GHL Media</div>
+      <div class="api-tag"><div class="api-dot"></div>Render (auto-deploy)</div>
+    </div>
+  </div>
+
+  <div class="trigger">
+    <a href="#" onclick="triggerStandup();return false;">🔄 Regenerate Today's Standup</a>
+  </div>
+</div>
+
+<script>
+async function triggerStandup(){
+  const btn=event.target;
+  btn.textContent='Generating...';
+  btn.style.background='#555';
+  try{
+    await fetch('/cron/standup',{method:'POST'});
+    btn.textContent='✅ Generating — refresh in 30s';
+    setTimeout(()=>location.reload(),32000);
+  }catch(e){btn.textContent='❌ Error — try again';}
+}
+const h=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'})).getHours();
+if(!${!!standup}||h<7){document.querySelector('.trigger').style.display='block';}
+</script>
+</body>
+</html>`);
+});
+
+// POST /cron/standup — generate today's team standup now
+app.post('/cron/standup', (_req, res) => {
+  res.json({ status: 'started', message: 'Generating daily team standup — check /office/standup in ~30s' });
+  runDailyTeamStandup().catch(e => console.error('[Standup] Manual error:', e.message));
+});
+
 // ═══════════════════════════════════════════════════════════
 // APOLLO ENRICHMENT — runs Monday 9am EST
 // Finds GHL contacts tagged needs_email, hits Apollo People
@@ -8368,6 +8504,89 @@ async function loadCityPagesSnapshot() {
   } catch { return { published: [] }; }
 }
 
+// ═══════════════════════════════════════════════════════════
+// DAILY TEAM STANDUP — all 5 AI agents meet every morning
+// Generated by Claude with real data, saved to Cloudinary,
+// served at /office/standup
+// ═══════════════════════════════════════════════════════════
+
+async function runDailyTeamStandup() {
+  console.log('[Standup] Generating daily team meeting...');
+  try {
+    const clients = await getElenaClients().catch(() => []);
+    const railingSnap = await loadCityPagesSnapshot().catch(() => ({ published: [] }));
+    const cooneySnap  = await loadCooneyPagesSnapshot().catch(() => ({ published: [] }));
+    const railingCount = railingSnap.published?.length || 0;
+    const cooneyCount  = cooneySnap.published?.length  || 0;
+
+    const nowEST   = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const dayName  = nowEST.toLocaleDateString('en-US', { weekday: 'long' });
+    const dateStr  = nowEST.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const dow      = nowEST.getDay();
+    const dom      = nowEST.getDate();
+
+    const todayJobs = ['7:00am — Daily carousel post', '10:30am — Client check-ins', '6:30pm — Daily story'];
+    if (dow === 1) todayJobs.push('8:00am — Diego standup', '8:35am — Elena health check', '9:00am — Apollo enrichment', '9:15am — Diego weekly report', '9:30am — Marco content brief', '9:45am — Sofia website audit');
+    if (dow === 3) todayJobs.push('10:00am — Marco trend alert');
+    if (dom === 1) todayJobs.push('9:00am — Monthly client reports + Diego scorecard');
+
+    const prompt = `You are writing the daily morning standup meeting for the JRZ Marketing AI team on ${dayName}, ${dateStr}.
+
+REAL-TIME DATA:
+- Active sub-accounts managed: ${clients.length} clients
+- Client names: ${clients.map(c => c.name).join(', ')}
+- Railing Max city pages published: ${railingCount}/348 (floating stairs priority)
+- Cooney Homes city pages published: ${cooneyCount}/128
+- Today's cron schedule: ${todayJobs.join(' | ')}
+
+ACTIVE API CONNECTIONS:
+- GHL (LeadConnector) API — contacts, conversations, blogs, social posting, sub-accounts
+- Anthropic Claude API — claude-opus-4-6 (quality), claude-haiku-4-5 (fast tasks)
+- DataForSEO — keyword volume, competition scoring, SERP rank tracking, backlink monitoring
+- ElevenLabs — voice synthesis (Joseph Corona voice ID)
+- Cloudinary — persistent memory: health snapshots, scorecard, city pages, content strategy, standup
+- NewsAPI — trending topic discovery for content briefs
+- Apollo.io — prospect email enrichment (50 credits/month)
+- Google PageSpeed API — site performance scoring
+- Google Search Console API — rank/click/impression data
+- Bland AI — automated phone call campaigns
+- Pexels — stock photo fallback for blog hero images
+- GHL Media Storage — primary blog images per sub-account
+
+Write a natural daily standup where all 5 agents speak. Each should report what they're doing TODAY, reference specific client names, mention which APIs they're using, and share 1 insight or thing they learned. Agents should cross-reference each other's work naturally.
+
+Return ONLY a valid JSON array:
+[{"agent":"armando","message":"..."},{"agent":"elena","message":"..."},{"agent":"diego","message":"..."},{"agent":"marco","message":"..."},{"agent":"sofia","message":"..."},{"agent":"armando","message":"..."}]
+
+6 messages total. Each message 2-4 sentences. Keep it real, specific, energetic. They work together 24/7.`;
+
+    const msg = await anthropic.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 1400,
+      messages: [{ role: 'user', content: prompt }]
+    });
+
+    const raw = msg.content[0].text.trim();
+    const jsonMatch = raw.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('No JSON array in standup response');
+    const messages = JSON.parse(jsonMatch[0]);
+
+    const standup = {
+      date: dateStr, dayName,
+      generatedAt: new Date().toISOString(),
+      railingCount, cooneyCount,
+      clientCount: clients.length,
+      messages
+    };
+    await saveCloudinaryJSON(STANDUP_PID, standup);
+    console.log('[Standup] ✅ Daily meeting saved');
+    return standup;
+  } catch (e) {
+    console.error('[Standup] Error:', e.message);
+    throw e;
+  }
+}
+
 async function runRailingMaxCityPage(service, cityObj) {
   const { city, metro } = cityObj;
   const { keyword, label, slug } = service;
@@ -8461,6 +8680,9 @@ const COONEY_API_KEY        = 'pit-cd43cc72-9e18-4eee-9bfb-be5942de9722';
 const COONEY_BLOG_ID        = 'FGBk0wCHy3JJcQd7ULbr';
 const COONEY_CITY_PAGES_PID = 'jrz/cooney_city_pages';
 const COONEY_CITY_PAGES_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/cooney_city_pages.json';
+
+const STANDUP_PID = 'jrz/daily_standup';
+const STANDUP_URL = 'https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/daily_standup.json';
 
 const COONEY_SERVICES = [
   { slug: 'custom-home-builder',  keyword: 'custom home builder',  label: 'Custom Homes',     priority: 1 },
@@ -12566,6 +12788,7 @@ let lastRankTrackingDate    = null;
 let lastBacklinkCheckDate   = null;
 let lastRailingCityPagesDate = null;
 let lastCooneyPagesDate      = null;
+let lastStandupDate          = null;
 
 setInterval(async () => {
   try {
@@ -12575,6 +12798,12 @@ setInterval(async () => {
     const minute    = nowEST.getMinutes();
     const dayOfWeek = nowEST.getDay(); // 0=Sun, 1=Mon…6=Sat
     const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+
+    // 6:50am daily — team standup meeting (all 5 agents, Claude-generated)
+    if (hour === 6 && minute >= 50 && minute < 55 && lastStandupDate !== today) {
+      lastStandupDate = today;
+      runDailyTeamStandup(); // non-blocking
+    }
 
     // 7:00am — daily carousel + blog
     if (hour === 7 && minute < 5 && lastPostDate !== today) {
