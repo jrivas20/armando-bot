@@ -175,7 +175,7 @@ const SEO_CLIENTS = {
     topics: ['AI marketing automation for small business Orlando', 'how to get more leads without spending more on ads', 'Go High Level for small business', 'social media automation that actually works', 'bilingual marketing strategy Florida', 'how to rank your business on Google Maps Orlando', 'marketing mistakes small business owners make'],
     cta: 'Book your free strategy call at jrzmarketing.com/contact-us',
     ga4PropertyId: '384751711',
-    apiKey: process.env.GHL_API_KEY, // JRZ Marketing uses the main account key
+    apiKey: 'pit-9d4919d5-9d6e-4aa9-8c01-e9c1985a3e2e',
   },
   'Gc4sUcLiRI2edddJ5Lfl': {
     name: 'Cooney Homes',
