@@ -156,11 +156,22 @@ const SEO_CLIENTS = {
     ga4PropertyId: '529262280',
     apiKey: 'pit-64018b7f-6192-47b1-b134-62109b155fc9',
     brand: {
-      primary: '#e00103', accent: '#e00103', bg: '#0a0a0a', ctaBg: '#131313',
-      textColor: '#f5f0e8', bodyColor: 'rgba(245,240,232,0.85)',
+      primary: '#0a0a0a', accent: '#e00103', bg: '#ffffff', ctaBg: '#0a0a0a',
+      textColor: '#0a0a0a', bodyColor: '#374151',
       fontDisplay: 'Playfair Display', fontBody: 'DM Sans',
       fontImport: 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&family=Bebas+Neue&display=swap',
       logoUrl: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/69a7ac1b618c8dbb13a87fcd.png',
+      mediaImages: [
+        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b45df9bdf880b05c99c.jpg',
+        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b45df9bdf54b605c975.jpg',
+        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b44df9bdfd6d905c970.jpg',
+        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b44df9bdf4a3705c944.jpg',
+        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b45df9bdf8ef905c98e.jpg',
+        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b44df9bdf2d8c05c96c.jpg',
+        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b44df9bdf08bc05c940.jpg',
+        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b454c8da2997996c53d.jpg',
+        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b4455d8bc7efa4455ea.jpg',
+      ],
       stats: ['4.6★ Google', '452+ Reviews', '3 Locations', 'Catering Available'],
       trustBadges: ['Order Direct & Save', 'Latin-Asian Fusion', 'Dine-In & Delivery', 'Family Friendly'],
       phone: '',
@@ -7618,8 +7629,14 @@ Return ONLY valid JSON, no markdown, no code fences:
   const parsed = JSON.parse(blogRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
   const { title, metaDescription, htmlContent } = parsed;
 
-  // Step 5: Fetch hero image from Pexels
-  const heroImage = await getPexelsImage(targetKeyword).catch(() => null);
+  // Step 5: Hero image — use brand's GHL media library if available, else Pexels
+  let heroImage = null;
+  if (brand.mediaImages && brand.mediaImages.length > 0) {
+    const pick = brand.mediaImages[Math.floor(Math.random() * brand.mediaImages.length)];
+    heroImage = { url: pick, alt: `${name} — ${targetKeyword}`, photographer: null };
+  } else {
+    heroImage = await getPexelsImage(targetKeyword).catch(() => null);
+  }
 
   // Step 6: Wrap content in brand-styled HTML template
   const brand = config.brand || { primary: '#0f172a', accent: '#2563eb', bg: '#ffffff', logoUrl: '' };
@@ -7645,7 +7662,7 @@ Return ONLY valid JSON, no markdown, no code fences:
   ${heroImage ? `
   <div style="position:relative">
     <img src="${heroImage.url}" alt="${heroImage.alt}" style="width:100%;height:420px;object-fit:cover;display:block">
-    <p style="font-size:11px;color:#888;text-align:right;margin:0;background:${brand.bg};padding:4px 10px;font-family:Arial,sans-serif">Photo by ${heroImage.photographer} · Pexels</p>
+    ${heroImage.photographer ? `<p style="font-size:11px;color:#888;text-align:right;margin:0;background:${brand.bg};padding:4px 10px;font-family:Arial,sans-serif">Photo by ${heroImage.photographer} · Pexels</p>` : ''}
   </div>` : ''}
 
   <div style="padding:36px 40px 0;font-family:'${fontBody}',sans-serif">
