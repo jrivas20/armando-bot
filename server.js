@@ -49,6 +49,9 @@ const GOOGLE_PLACES_API_KEY  = process.env.GOOGLE_PLACES_API_KEY  || 'AIzaSyC1ra
 const GOOGLE_INDEXING_BASE   = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
 const GOOGLE_PLACES_BASE     = 'https://maps.googleapis.com/maps/api';
 
+// ── Pexels — free stock photos for blog posts ────────────────
+const PEXELS_API_KEY = process.env.PEXELS_API_KEY || 'KKnsOB57rfTFv5cuySAq8I9xm0ek6AiKZo4xeOURePlXJvnnw4EDbBdg';
+
 // ── SEO-enabled sub-accounts ───────────────────────────────
 // Central Florida cities — rotated daily so every blog targets a different city.
 // 30 cities = 30 unique geo-targeted posts per month per client = page 1 across all of Central FL.
@@ -7567,7 +7570,40 @@ Return ONLY valid JSON, no markdown, no code fences:
   const parsed = JSON.parse(blogRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
   const { title, metaDescription, htmlContent } = parsed;
 
-  // Step 5: Publish to client's GHL blog
+  // Step 5: Fetch hero image from Pexels
+  const heroImage = await getPexelsImage(targetKeyword).catch(() => null);
+
+  // Step 6: Wrap content in styled HTML template
+  const styledHTML = `
+<div style="font-family:'Georgia',serif;max-width:820px;margin:0 auto;color:#1a1a1a;line-height:1.8">
+
+  ${heroImage ? `
+  <div style="margin-bottom:32px;border-radius:12px;overflow:hidden">
+    <img src="${heroImage.url}" alt="${heroImage.alt}" style="width:100%;height:420px;object-fit:cover;display:block">
+    <p style="font-size:11px;color:#888;text-align:right;margin:4px 8px 0;font-family:Arial,sans-serif">Photo by ${heroImage.photographer} · Pexels</p>
+  </div>` : ''}
+
+  <div style="font-family:Arial,sans-serif">
+    ${htmlContent
+      .replace(/<h2/g, '<h2 style="font-size:26px;font-weight:700;color:#0f172a;margin:36px 0 14px;border-bottom:2px solid #e2e8f0;padding-bottom:8px"')
+      .replace(/<h3/g, '<h3 style="font-size:20px;font-weight:600;color:#1e293b;margin:28px 0 10px"')
+      .replace(/<p>/g, '<p style="margin:0 0 18px;font-size:17px;line-height:1.85;color:#374151">')
+      .replace(/<ul>/g, '<ul style="margin:0 0 20px;padding-left:24px">')
+      .replace(/<ol>/g, '<ol style="margin:0 0 20px;padding-left:24px">')
+      .replace(/<li>/g, '<li style="margin-bottom:10px;font-size:16px;color:#374151">')
+      .replace(/<strong>/g, '<strong style="color:#0f172a">')
+      .replace(/<a /g, '<a style="color:#2563eb;text-decoration:underline" ')
+    }
+  </div>
+
+  <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:12px;padding:28px 32px;margin-top:40px;text-align:center">
+    <p style="color:#fff;font-size:18px;font-weight:600;margin:0 0 16px">${cta}</p>
+    <a href="https://${domain}/contact" style="background:#2563eb;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;display:inline-block">Get a Free Quote</a>
+  </div>
+
+</div>`;
+
+  // Step 7: Publish to client's GHL blog
   const urlSlug = title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').slice(0, 60) + '-' + Date.now().toString(36);
   const publishedAt = new Date(); publishedAt.setUTCHours(14, 0, 0, 0);
 
@@ -7576,8 +7612,9 @@ Return ONLY valid JSON, no markdown, no code fences:
     {
       title, locationId, blogId: blog.blogId, description: metaDescription,
       ...(blog.authorId && { author: blog.authorId }),
+      ...(heroImage && { imageUrl: heroImage.url }),
       tags: ['SEO', industry, 'Orlando', targetKeyword.split(' ').slice(0, 2).join(' ')],
-      urlSlug, status: 'PUBLISHED', publishedAt: publishedAt.toISOString(), rawHTML: htmlContent,
+      urlSlug, status: 'PUBLISHED', publishedAt: publishedAt.toISOString(), rawHTML: styledHTML,
     },
     { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
   );
@@ -7681,6 +7718,28 @@ async function runSofiaCitationAudit(businessName, location = 'Orlando, FL') {
     };
   } catch (err) {
     console.error('[Citations] Audit error:', err?.response?.data || err.message);
+    return null;
+  }
+}
+
+// ─── PEXELS IMAGE SEARCH ─────────────────────────────────────────────────────
+// Fetches a relevant stock photo for blog posts based on keyword.
+// Returns { url, photographer, alt } or null if not found.
+async function getPexelsImage(keyword) {
+  try {
+    const query = encodeURIComponent(keyword.split(' ').slice(0, 3).join(' '));
+    const resp = await axios.get(`https://api.pexels.com/v1/search?query=${query}&per_page=5&orientation=landscape`, {
+      headers: { Authorization: PEXELS_API_KEY },
+    }).catch(() => null);
+    const photos = resp?.data?.photos || [];
+    if (!photos.length) return null;
+    const photo = photos[Math.floor(Math.random() * Math.min(3, photos.length))];
+    return {
+      url: photo.src.large2x || photo.src.large,
+      photographer: photo.photographer,
+      alt: photo.alt || keyword,
+    };
+  } catch (_e) {
     return null;
   }
 }

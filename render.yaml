@@ -40,3 +40,5 @@ services:
         sync: false
       - key: GOOGLE_PLACES_API_KEY
         value: AIzaSyC1ra5_WT5mE6QJr64HDrVixFHbionXUkM
+      - key: PEXELS_API_KEY
+        value: KKnsOB57rfTFv5cuySAq8I9xm0ek6AiKZo4xeOURePlXJvnnw4EDbBdg
