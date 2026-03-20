@@ -11147,6 +11147,16 @@ app.post('/cron/client-blogs', async (_req, res) => {
   res.json(result);
 });
 
+// Manual trigger: POST /cron/client-blog/:locationId — run blog for one specific client
+// Example: POST /cron/client-blog/iipUT8kmVxJZzGBzvkZm (Railing Max)
+app.post('/cron/client-blog/:locationId', async (req, res) => {
+  const { locationId } = req.params;
+  const config = SEO_CLIENTS[locationId];
+  if (!config) return res.status(404).json({ error: `No SEO_CLIENTS entry for locationId: ${locationId}` });
+  const result = await runClientDailySeoBlog(locationId, config);
+  res.json(result);
+});
+
 // Manual trigger: POST /cron/seo-blog — Isabella writes a SEO blog targeting a striking-distance keyword
 app.post('/cron/seo-blog', async (_req, res) => {
   const result = await runDailySeoBlog();
