@@ -11157,6 +11157,21 @@ app.post('/cron/client-blog/:locationId', async (req, res) => {
   res.json(result);
 });
 
+// Debug: GET /sofia/location-token/:locationId — test if agency key can get a token for a sub-account
+app.get('/sofia/location-token/:locationId', async (req, res) => {
+  const { locationId } = req.params;
+  try {
+    const tokenResp = await axios.post(
+      'https://services.leadconnectorhq.com/oauth/locationToken',
+      { companyId: GHL_COMPANY_ID, locationId },
+      { headers: { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' }, timeout: 10000 }
+    );
+    res.json({ success: true, hasToken: !!tokenResp.data?.access_token, raw: tokenResp.data });
+  } catch (err) {
+    res.json({ success: false, error: err?.response?.data || err.message });
+  }
+});
+
 // Manual trigger: POST /cron/seo-blog — Isabella writes a SEO blog targeting a striking-distance keyword
 app.post('/cron/seo-blog', async (_req, res) => {
   const result = await runDailySeoBlog();
