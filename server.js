@@ -156,11 +156,8 @@ const SEO_CLIENTS = {
     ga4PropertyId: '529262280',
     apiKey: 'pit-64018b7f-6192-47b1-b134-62109b155fc9',
     brand: {
-      primary: '#0a0a0a', accent: '#e00103', bg: '#ffffff', ctaBg: '#0a0a0a',
-      textColor: '#0a0a0a', bodyColor: '#374151',
-      fontDisplay: 'Playfair Display', fontBody: 'DM Sans',
-      fontImport: 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&family=Bebas+Neue&display=swap',
-      logoUrl: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/69a7ac1b618c8dbb13a87fcd.png',
+      plainHtml: true,
+      logoUrl: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/69a7ac1bb701fe6a3e793b91.png',
       mediaImages: [
         'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b45df9bdf880b05c99c.jpg',
         'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b45df9bdf54b605c975.jpg',
@@ -7644,11 +7641,24 @@ Return ONLY valid JSON, no markdown, no code fences:
 
   // Step 6: Wrap content in brand-styled HTML template
   const brand = config.brand || { primary: '#0f172a', accent: '#2563eb', bg: '#ffffff', logoUrl: '' };
+
+  // Plain HTML mode — no inline CSS, let GHL theme handle styling
+  let styledHTML;
+  if (brand.plainHtml) {
+    styledHTML = `
+${brand.logoUrl ? `<p><img src="${brand.logoUrl}" alt="${name} logo"></p>` : ''}
+${heroImage ? `<p><img src="${heroImage.url}" alt="${heroImage.alt}"></p>` : ''}
+${htmlContent}
+<p><strong>${cta}</strong></p>
+<p><a href="https://${domain}/contact">Contact Us</a></p>
+`;
+  } else {
+
   const fontDisplay = brand.fontDisplay || 'Georgia';
   const fontBody    = brand.fontBody    || 'Arial';
   const bodyColor   = brand.bodyColor   || '#374151';
   const ctaBg       = brand.ctaBg       || brand.primary;
-  const styledHTML = `
+  styledHTML = `
 <div style="font-family:'${fontBody}',sans-serif;max-width:820px;margin:0 auto;color:${brand.textColor || '#1a1a1a'};line-height:1.8;background:${brand.bg}">
 
   ${brand.fontImport ? `<link rel="stylesheet" href="${brand.fontImport}">` : ''}
@@ -7694,6 +7704,8 @@ Return ONLY valid JSON, no markdown, no code fences:
   </div>
 
 </div>`;
+
+  } // end else (styled HTML)
 
   // Step 7: Publish to client's GHL blog
   const urlSlug = title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').slice(0, 60) + '-' + Date.now().toString(36);
