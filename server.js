@@ -7629,13 +7629,17 @@ Return ONLY valid JSON, no markdown, no code fences:
   const parsed = JSON.parse(blogRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
   const { title, metaDescription, htmlContent } = parsed;
 
-  // Step 5: Hero image — use brand's GHL media library if available, else Pexels
+  // Step 5: Hero image — GHL media library first, Pexels as last resort
   let heroImage = null;
   if (brand.mediaImages && brand.mediaImages.length > 0) {
+    // Use pre-defined media URLs from brand config (e.g. Escobar Kitchen)
     const pick = brand.mediaImages[Math.floor(Math.random() * brand.mediaImages.length)];
     heroImage = { url: pick, alt: `${name} — ${targetKeyword}`, photographer: null };
   } else {
-    heroImage = await getPexelsImage(targetKeyword).catch(() => null);
+    // Dynamically pull from this sub-account's GHL media library
+    heroImage = await getGHLMediaImage(locationId, token).catch(() => null);
+    // Only fall back to Pexels if GHL media is empty
+    if (!heroImage) heroImage = await getPexelsImage(targetKeyword).catch(() => null);
   }
 
   // Step 6: Wrap content in brand-styled HTML template
@@ -7900,6 +7904,22 @@ async function runSofiaCitationAudit(businessName, location = 'Orlando, FL') {
 }
 
 // ─── PEXELS IMAGE SEARCH ─────────────────────────────────────────────────────
+// Fetches a random image from a sub-account's GHL media library.
+// Returns { url, alt } or null if no images found.
+async function getGHLMediaImage(locationId, token) {
+  try {
+    const res = await axios.get(
+      `https://services.leadconnectorhq.com/medias/?locationId=${locationId}&type=image&limit=50`,
+      { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 8000 }
+    );
+    const files = res.data?.files || res.data?.medias || [];
+    const images = files.filter(f => f.url && /\.(jpg|jpeg|png|webp)/i.test(f.url));
+    if (!images.length) return null;
+    const pick = images[Math.floor(Math.random() * images.length)];
+    return { url: pick.url, alt: pick.name || 'photo', photographer: null };
+  } catch { return null; }
+}
+
 // Fetches a relevant stock photo for blog posts based on keyword.
 // Returns { url, photographer, alt } or null if not found.
 async function getPexelsImage(keyword) {
