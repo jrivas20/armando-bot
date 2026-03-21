@@ -12734,12 +12734,14 @@ app.post('/cron/railing-city-pages', triggerRailingPages);
 
 // GET /cron/railing-city-pages/status — show progress
 app.get('/cron/railing-city-pages/status', async (_req, res) => {
-  let snap, snapError;
+  let snap, snapError, rawPreview, statusCode;
   try {
     const r = await axios.get(CITY_PAGES_URL, { timeout: 8000, headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+    statusCode = r.status;
+    rawPreview = JSON.stringify(r.data).slice(0, 120);
     snap = typeof r.data === 'string' ? JSON.parse(r.data) : (r.data || { published: [] });
   } catch (e) { snapError = e.message; snap = { published: [] }; }
-  res.json({ published: snap.published.length, total: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length, remaining: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length - snap.published.length, lastPages: snap.published.slice(-10), debug: snapError || null });
+  res.json({ published: (snap.published || []).length, total: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length, remaining: RAILING_MAX_SERVICES.length * RAILING_MAX_CITIES.length - (snap.published || []).length, lastPages: (snap.published || []).slice(-10), debug: snapError || null, statusCode, rawPreview });
 });
 
 // GET or POST /cron/cooney-city-pages — run next batch of Cooney Homes city pages
