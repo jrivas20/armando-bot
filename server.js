@@ -1853,8 +1853,8 @@ async function saveABTestData(data) {
 async function saveCloudinaryJSON(publicId, data) {
   try {
     const ts     = Math.floor(Date.now() / 1000);
-    // resource_type must NOT be included in the signature string per Cloudinary docs
-    const sigStr = `overwrite=true&public_id=${publicId}&timestamp=${ts}${CLOUDINARY_API_SECRET}`;
+    // invalidate=true flushes CDN cache so all edge nodes serve fresh data immediately
+    const sigStr = `invalidate=true&overwrite=true&public_id=${publicId}&timestamp=${ts}${CLOUDINARY_API_SECRET}`;
     const sig    = crypto.createHash('sha1').update(sigStr).digest('hex');
     const form   = new FormData();
     const buf    = Buffer.from(JSON.stringify(data, null, 2));
@@ -1862,6 +1862,7 @@ async function saveCloudinaryJSON(publicId, data) {
     form.append('public_id', publicId); form.append('resource_type', 'raw');
     form.append('timestamp', String(ts)); form.append('api_key', CLOUDINARY_API_KEY);
     form.append('signature', sig); form.append('overwrite', 'true');
+    form.append('invalidate', 'true');
     await axios.post(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`, form, { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 30000 });
   } catch (err) { console.error(`[Memory] Failed to save ${publicId}:`, err.message); }
 }
