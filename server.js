@@ -13091,12 +13091,18 @@ Return ONLY the post text, nothing else.` }]
         const postText = msg.content[0].text.trim();
 
         // Publish via GHL Social Posting API
+        const postNow = new Date();
         await axios.post(
           `https://services.leadconnectorhq.com/social-media-posting/${locationId}/posts`,
           {
             accountIds: [account.id],
-            content: postText,
-            status: 'PUBLISHED',
+            summary: postText,
+            type: 'post',
+            userId: GHL_USER_ID,
+            status: 'scheduled',
+            scheduleDate: postNow.toISOString(),
+            scheduleTimeUpdated: true,
+            media: [],
           },
           { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' }, timeout: 15000 }
         );
