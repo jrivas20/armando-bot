@@ -205,6 +205,7 @@ const SEO_CLIENTS = {
     topics: ['how to store your RV in Florida summer', 'boat storage near Orlando', 'indoor vs outdoor RV storage', 'tips for winterizing your boat in Florida', 'how to choose an RV storage facility', 'cost of boat storage Orlando', 'RV storage security features to look for'],
     cta: 'Reserve your storage space at rentalspacesinc.com',
     keywords: ['RV storage Orlando', 'boat storage Orlando', 'covered RV storage Florida', 'outdoor boat storage Central Florida', 'climate controlled RV storage Orlando', 'monthly boat storage Kissimmee', 'secure RV storage Florida', 'RV parking near Orlando', 'self storage for boats Florida'],
+    blogEnabled: false,
     apiKey: 'pit-1b29023e-d415-4ab6-b18d-1a1072d4c355',
     brand: { primary: '#080808', accent: '#116dff', bg: '#ffffff', logoUrl: '' },
   },
@@ -225,6 +226,7 @@ const SEO_CLIENTS = {
     topics: ['best Tex-Mex in Orlando', 'authentic guacamole made fresh daily', 'best margaritas Orlando FL', 'Tex-Mex vs Mexican food what is the difference', 'family-friendly restaurants Orlando', 'best tacos near me Orlando', 'happy hour deals Orlando restaurants'],
     cta: 'Come hungry — find us at guaca-mole-texmex.com',
     keywords: ['tex mex restaurant Orlando', 'best tacos Orlando', 'mexican restaurant near me Orlando', 'authentic mexican food Central Florida', 'best margaritas Orlando', 'guacamole restaurant Orlando', 'family tex mex Kissimmee', 'best burritos Orlando', 'happy hour tex mex Orlando'],
+    blogEnabled: false,
     apiKey: 'pit-3ba32a5e-775f-46e6-9e5d-4a201148f7fb',
   },
   'd7iUPfamAaPlSBNj6IhT': {
@@ -310,6 +312,7 @@ const SEO_CLIENTS = {
     topics: ['best barbershop Orlando FL', 'how to find the right barber', 'fade haircut styles 2026', 'how to maintain your beard between cuts', 'barbershop vs hair salon what is the difference', 'mens grooming tips Orlando', 'why a good barber is worth it'],
     cta: 'Book your appointment at levaronbarbershop.com',
     keywords: ['barbershop Orlando', 'best barbershop near me', 'mens haircut Orlando', 'fade haircut Orlando', 'barbershop Kissimmee', 'mens grooming Orlando', 'beard trim Orlando', 'Latino barbershop Central Florida', 'fresh cut near me Orlando'],
+    blogEnabled: false,
   },
   'VWHZW08b0skUV7wcnG55': {
     name: 'USA Latino CPA',
@@ -8350,6 +8353,7 @@ async function runAllClientsDailyBlog() {
   console.log(`[Client SEO] Running daily blog for ${entries.length} clients...`);
   const results = [];
   for (const [locationId, config] of entries) {
+    if (config.blogEnabled === false) { results.push({ name: config.name, skipped: true, reason: 'blogEnabled: false' }); continue; }
     try {
       const result = await runClientDailySeoBlog(locationId, config);
       results.push(result);
