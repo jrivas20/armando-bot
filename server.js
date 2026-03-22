@@ -13122,8 +13122,8 @@ setInterval(async () => {
     const dayOfWeek = nowEST.getDay(); // 0=Sun, 1=Mon…6=Sat
     const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
 
-    // 9:00am daily — Google Business Profile posts for all connected clients
-    if (hour === 9 && minute >= 0 && minute < 5 && lastGBPPostDate !== today) {
+    // 9:00am Mon–Fri — Google Business Profile posts for all connected clients
+    if (hour === 9 && minute >= 0 && minute < 5 && isWeekday && lastGBPPostDate !== today) {
       lastGBPPostDate = today;
       runDailyGBPPosts(); // non-blocking
     }
