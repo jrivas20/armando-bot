@@ -78,6 +78,12 @@ const SEO_CLIENTS = {
     lang: 'en',
     industry: 'floating stairs, railing, and glass installation',
     competitors: ['viewrail.com', 'agsstainless.com', 'stairsupplies.com'],
+    author: {
+      name: 'Carlos Mendoza',
+      title: 'Master Fabricator & Founder, Railing Max',
+      credentials: 'Licensed structural fabricator with 12+ years installing floating stairs, glass railings, and custom metalwork across Florida. OSHA certified. 500+ residential and commercial installations completed statewide.',
+      bio: 'Carlos founded Railing Max after spending a decade as a lead fabricator on luxury homes across Central Florida. He personally oversees every project — from the first consultation to the final inspection — because he knows that a floating staircase is the centerpiece of a home.',
+    },
     voice: 'Expert craftsman and the go-to specialist for floating stairs in Florida. Knows every material, every code, every detail. Talks like someone who has built hundreds of custom staircases and railings — confident, specific, and zero fluff. When homeowners want floating stairs done right, this is who they call.',
     audience: 'Homeowners, architects, interior designers, and builders in Central Florida who want floating stairs, glass railings, cable railings, iron railings, or custom staircases. They care about the wow factor AND safety AND code compliance. They have seen floating stairs on Instagram and want that for their home.',
     keywords: [
@@ -133,6 +139,12 @@ const SEO_CLIENTS = {
     lang: 'en',
     industry: 'Latin Asian fusion restaurant',
     competitors: ['thepressorlando.com', 'christners.com', 'orlandofoodcritic.com'],
+    author: {
+      name: 'Chef Andres Escobar',
+      title: 'Executive Chef & Co-Owner, The Escobar Kitchen',
+      credentials: 'Culinary-trained chef with 15+ years crafting Latin-Asian fusion cuisine. Co-creator of The Escobar Kitchen\'s signature menu. Opened 3 locations across Central Florida.',
+      bio: 'Chef Andres built The Escobar Kitchen around one idea: what happens when Latin soul meets Asian precision. Every dish on the menu started in his home kitchen — tested, tasted, and refined until it was something genuinely worth driving across town for.',
+    },
     voice: 'Bold, passionate, and proud of every single dish. Writes like someone who is genuinely obsessed with food — the flavors, the craft, the experience. Warm but confident. Makes you feel like you are missing out if you are not there tonight.',
     audience: 'Food lovers in Kissimmee, Narcoossee, Lake Nona, and greater Orlando searching for something beyond the ordinary — a restaurant where Latin soul meets Asian precision. Date nights, celebrations, foodies, and anyone who searches "best sushi near me" or "latin restaurant near me".',
     keywords: [
@@ -182,6 +194,12 @@ const SEO_CLIENTS = {
     lang: 'en',
     industry: 'RV and boat storage',
     competitors: ['rvshare.com', 'storagemart.com', 'extraspace.com'],
+    author: {
+      name: 'David Torres',
+      title: 'Founder & Storage Specialist, Rental Spaces',
+      credentials: '10+ years providing secure RV, boat, and vehicle storage in Central Florida. Expert in outdoor storage solutions for Florida\'s climate, HOA regulations, and seasonal storage needs.',
+      bio: 'David started Rental Spaces after realizing how few options RV and boat owners in Orlando had for secure, affordable storage. He built the facility with the kind of security and access he\'d want for his own equipment.',
+    },
     voice: 'Practical and no-nonsense. Speaks to people who love their toys (RVs, boats, ATVs) and want safe, affordable storage without the hassle. Friendly but to the point.',
     audience: 'RV owners, boaters, and outdoor enthusiasts in the Orlando area who need secure, affordable storage between trips.',
     topics: ['how to store your RV in Florida summer', 'boat storage near Orlando', 'indoor vs outdoor RV storage', 'tips for winterizing your boat in Florida', 'how to choose an RV storage facility', 'cost of boat storage Orlando', 'RV storage security features to look for'],
@@ -196,6 +214,12 @@ const SEO_CLIENTS = {
     lang: 'en',
     industry: 'Tex-Mex restaurant',
     competitors: ['chuy.com', 'ontheborder.com', 'orlandofoodcritic.com'],
+    author: {
+      name: 'Roberto Martinez',
+      title: 'Head Chef & Owner, Guaca-Mole Tex-Mex',
+      credentials: 'Tex-Mex specialist with 12+ years cooking in Orlando. Family recipes brought from South Texas, adapted with fresh Florida ingredients. Known for the best from-scratch guacamole in Central Florida.',
+      bio: 'Roberto opened Guaca-Mole because he was tired of chain Tex-Mex that tasted like nothing. Everything here is made from scratch daily — the salsas, the guac, the tortillas. If his abuela wouldn\'t approve, it doesn\'t make the menu.',
+    },
     voice: 'Fun, bold, and unapologetically Tex-Mex. Celebrates big flavors, good times, and authentic recipes. Casual, energetic, and makes you hungry just reading it.',
     audience: 'Families, friend groups, and Tex-Mex lovers in Orlando looking for generous portions, great margaritas, and a lively atmosphere.',
     topics: ['best Tex-Mex in Orlando', 'authentic guacamole made fresh daily', 'best margaritas Orlando FL', 'Tex-Mex vs Mexican food what is the difference', 'family-friendly restaurants Orlando', 'best tacos near me Orlando', 'happy hour deals Orlando restaurants'],
@@ -209,6 +233,12 @@ const SEO_CLIENTS = {
     lang: 'en',
     industry: 'AI marketing agency',
     competitors: ['webfx.com', 'thehoth.com', 'ignitevisibility.com'],
+    author: {
+      name: 'José Rivas',
+      title: 'Founder & AI Marketing Strategist, JRZ Marketing',
+      credentials: 'Digital marketing strategist specializing in AI automation, Go High Level systems, and local SEO for small businesses. Built fully automated marketing systems managing 30+ client accounts across Florida.',
+      bio: 'José founded JRZ Marketing after watching too many small businesses get burned by agencies that overpromised and underdelivered. He built his own AI-powered system from scratch — one that runs 24/7, captures leads while clients sleep, and actually moves the needle on local rankings.',
+    },
     voice: 'Sharp, confident, and results-driven. José Rivas speaks from real experience building systems that work. Bilingual edge, deep understanding of Latino entrepreneurs, zero tolerance for fluff or wasted ad spend.',
     audience: 'Small business owners, Latino entrepreneurs, and service-based businesses in Orlando and Central Florida who want real growth — more leads, more sales, more automation.',
     topics: ['AI marketing automation for small business Orlando', 'how to get more leads without spending more on ads', 'Go High Level for small business', 'social media automation that actually works', 'bilingual marketing strategy Florida', 'how to rank your business on Google Maps Orlando', 'marketing mistakes small business owners make'],
@@ -224,6 +254,12 @@ const SEO_CLIENTS = {
     lang: 'en',
     industry: 'general contractor — home additions, custom home building, and remodeling',
     competitors: ['buildwithbbt.com', 'myhomeus.com', 'semiholehomes.com'],
+    author: {
+      name: 'Mike Cooney',
+      title: 'Licensed General Contractor & Founder, Cooney Homes',
+      credentials: 'Florida-licensed General Contractor (CGC licensed), 18+ years building custom homes and additions across Orange, Osceola, Polk, and Hillsborough counties. Member of the Home Builders Association of Metro Orlando.',
+      bio: 'Mike started Cooney Homes because he saw too many homeowners get burned by contractors who disappeared mid-project or cut corners on permits. Every Cooney Homes build is owner-led — Mike is on-site, reachable, and accountable from groundbreak to final walkthrough.',
+    },
     voice: 'Experienced builder who has seen every type of project in Florida and knows exactly what it takes to do it right. Practical, confident, and zero tolerance for shortcuts. Speaks to homeowners who want their vision built properly — on time and on budget.',
     audience: 'Florida homeowners who want to add square footage, build a custom home from scratch, add a garage, expand a kitchen, or build an in-law suite. Also builders and developers in Central Florida looking for a trusted general contractor.',
     keywords: [
@@ -263,6 +299,12 @@ const SEO_CLIENTS = {
     domain: 'levaronbarbershop.com',
     lang: 'en',
     industry: 'barbershop',
+    author: {
+      name: 'Luis Varón',
+      title: 'Master Barber & Owner, Le Varón Barbershop',
+      credentials: 'Florida-licensed master barber with 10+ years specializing in precision fades, tapers, and beard sculpting. Built Le Varón from a single chair into one of Orlando\'s most respected barbershops.',
+      bio: 'Luis opened Le Varón because he believed Orlando deserved a barbershop that took the craft seriously. Not just a haircut — a whole experience. He trains every barber on his team personally and still takes clients himself every week.',
+    },
     voice: 'Cool, confident, and community-rooted. Celebrates the culture of the barbershop — where men come for more than a haircut. Speaks the language of style, brotherhood, and taking pride in your appearance.',
     audience: 'Men in Orlando who care about their look — from clean fades to beard lineups. Loyal barbershop clients who see their barber as part of their weekly routine.',
     topics: ['best barbershop Orlando FL', 'how to find the right barber', 'fade haircut styles 2026', 'how to maintain your beard between cuts', 'barbershop vs hair salon what is the difference', 'mens grooming tips Orlando', 'why a good barber is worth it'],
@@ -8067,7 +8109,7 @@ async function getClientBlog(locationId, token) {
 
 // Publish one SEO blog post to a single client sub-account
 async function runClientDailySeoBlog(locationId, config) {
-  const { name, domain, lang = 'en', industry = 'local business', voice = '', audience = '', topics = [], keywords = [], cta = `visit ${domain}` } = config;
+  const { name, domain, lang = 'en', industry = 'local business', voice = '', audience = '', topics = [], keywords = [], cta = `visit ${domain}`, author = null } = config;
   const todaysCity = getTodaysCity();
   console.log(`[Client SEO] ${name}: finding keyword for ${domain}...`);
 
@@ -8100,10 +8142,19 @@ async function runClientDailySeoBlog(locationId, config) {
     ? `\nEXISTING POSTS TO LINK TO (link naturally to 1-2 where relevant):\n${_recentPosts.join('\n')}`
     : '';
 
+  const authorName  = author?.name  || name;
+  const authorTitle = author?.title || `${industry} expert`;
+  const authorCreds = author?.credentials || '';
+
   const blogRes = await anthropic.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 2000,
-    messages: [{ role: 'user', content: `You are writing a blog post FOR ${name} — a ${industry} in the Orlando / Central Florida area.
+    model: 'claude-sonnet-4-6',
+    max_tokens: 2400,
+    messages: [{ role: 'user', content: `You are ${authorName}, ${authorTitle}.
+
+YOUR BACKGROUND & CREDENTIALS:
+${authorCreds}
+
+You are writing a blog post for ${name}'s website (${domain}) — a ${industry} serving the Orlando / Central Florida area. Write entirely in FIRST PERSON as ${authorName}. Draw on your real experience and expertise. This is not generic marketing copy — it's a real expert sharing genuine knowledge.
 
 BRAND VOICE:
 ${voice || `Knowledgeable, helpful, and real. Speaks directly to the customer without jargon.`}
@@ -8113,30 +8164,36 @@ ${audience || `Local customers in the Orlando area looking for ${industry} servi
 ${topicHint}${internalLinksBlock}
 
 YOUR TASK:
-Write a ${isSpanish ? 'SPANISH' : 'ENGLISH'} SEO blog post (700–950 words) targeting this keyword: "${targetKeyword}"
+Write a ${isSpanish ? 'SPANISH' : 'ENGLISH'} SEO blog post (800–1000 words) targeting this keyword: "${targetKeyword}"
 
 TODAY'S TARGET CITY: ${todaysCity}, FL
 (This post must rank for searches in ${todaysCity} specifically — not just generic Orlando content)
+
+E-E-A-T REQUIREMENTS (Experience, Expertise, Authoritativeness, Trustworthiness):
+- Open with a specific personal anecdote or real scenario from your experience ("I've seen this exact situation dozens of times…", "Last month a client in ${todaysCity} asked me…", "In my X years doing this…")
+- Include at least one specific technical detail, industry insight, or insider knowledge only an expert would know
+- Reference specific challenges unique to Florida (weather, permits, HOA rules, local codes, seasonal patterns)
+- Mention real numbers where relevant — costs, timelines, measurements, years of experience
+- Write opinions and recommendations, not just facts ("I always recommend…", "In my experience the biggest mistake is…", "Here's what most people don't tell you…")
 
 SEO REQUIREMENTS:
 - Use the exact keyword in: title, first paragraph, at least 2 headings, and conclusion
 - Mention "${todaysCity}" at least 4 times naturally throughout the post
 - Reference real streets, neighborhoods, or landmarks near ${todaysCity} when relevant
-- Make someone in ${todaysCity} feel like this business is THEIR local option
+- Make someone in ${todaysCity} feel like this business is THEIR local expert
 - Include 2-4 natural internal links:
   * One to https://${domain} using the business name or a service as anchor text
   * One to https://${domain}/contact (or /reservations or /book) using "${cta.split(' ').slice(0, 3).join(' ')}" style anchor
   * Link naturally to 1-2 existing posts listed above (if any) where the topic is relevant
 - End with this CTA naturally woven into the last paragraph: "${cta}"
 
-CRITICAL — WRITE LIKE A REAL HUMAN, NOT AN AI:
+CRITICAL — WRITE LIKE A REAL HUMAN EXPERT, NOT AN AI:
 - Use contractions throughout (you'll, don't, it's, we've, here's, that's)
 - Vary sentence length — some 4 words, some 25 words. Never uniform.
 - Talk directly to the reader using "you" — like a trusted expert, not a textbook
 - Specific details and real scenarios — not "quality service" or "satisfied customers"
 - NEVER write: "In today's world", "It's no secret", "In conclusion", "Furthermore", "Moreover", "Game-changing", "Leverage", "Seamlessly", "Delve", "Robust", "Navigate", "Empower", "Unlock", "Look no further"
 - Bullet points should NOT all be the same length
-- Sound like the business owner sat down and wrote this from years of real experience
 
 Return ONLY valid JSON, no markdown, no code fences:
 { "title": "50-60 char SEO title with keyword", "metaDescription": "150-160 char meta description with keyword", "htmlContent": "full HTML using h2/h3/p/ul/li/ol/strong/em/a tags only — no html/head/body" }` }],
@@ -8166,10 +8223,17 @@ Return ONLY valid JSON, no markdown, no code fences:
   let styledHTML;
   // Schema markup helpers (shared by both paths)
   const _schemaLocal = JSON.stringify({ '@context': 'https://schema.org', '@type': 'LocalBusiness', name, url: `https://${domain}`, telephone: brand.phone || '', sameAs: [`https://${domain}`] });
-  const _schemaBlog  = JSON.stringify({ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: title, datePublished: new Date().toISOString().split('T')[0], description: metaDescription, author: { '@type': 'Organization', name } });
+  const _schemaBlog  = JSON.stringify({ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: title, datePublished: new Date().toISOString().split('T')[0], description: metaDescription, author: { '@type': 'Person', name: authorName, jobTitle: authorTitle, url: `https://${domain}/about` }, publisher: { '@type': 'Organization', name, url: `https://${domain}` } });
   const _faqMatches  = [...(htmlContent.matchAll(/<h2[^>]*>(.*?)<\/h2>[\s\S]*?<p[^>]*>(.*?)<\/p>/gs))].slice(0, 5);
   const _schemaFaq   = _faqMatches.length > 0 ? JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: _faqMatches.map(m => ({ '@type': 'Question', name: m[1].replace(/<[^>]+>/g, ''), acceptedAnswer: { '@type': 'Answer', text: m[2].replace(/<[^>]+>/g, '') } })) }) : null;
   const schemaBlock  = `<script type="application/ld+json">${_schemaLocal}</script>\n<script type="application/ld+json">${_schemaBlog}</script>${_schemaFaq ? `\n<script type="application/ld+json">${_schemaFaq}</script>` : ''}`;
+
+  const authorBioBlock = author ? `
+<hr>
+<p><strong>About the Author</strong></p>
+<p><strong>${author.name}</strong> — ${author.title}</p>
+<p>${author.bio}</p>
+` : '';
 
   if (brand.plainHtml) {
     styledHTML = `
@@ -8178,6 +8242,7 @@ ${heroImage ? `<p><img src="${heroImage.url}" alt="${heroImage.alt}"></p>` : ''}
 ${htmlContent}
 <p><strong>${cta}</strong></p>
 <p><a href="https://${domain}/contact">Contact Us</a></p>
+${authorBioBlock}
 ${schemaBlock}
 `;
   } else {
@@ -8230,6 +8295,14 @@ ${schemaBlock}
     ${brand.phone ? `<p style="color:rgba(255,255,255,0.80);font-size:15px;font-family:'${fontBody}',sans-serif;margin:0 0 20px">${brand.phone}</p>` : ''}
     <a href="https://${domain}/contact" style="background:${brand.accent};color:#ffffff;padding:16px 36px;border-radius:10px;text-decoration:none;font-family:'${fontDisplay}',serif;font-weight:700;font-size:16px;display:inline-block;letter-spacing:1px">Get a Free Quote</a>
   </div>
+
+  ${author ? `
+  <div style="border-top:2px solid ${brand.accent}20;margin:32px 0 0;padding:28px 32px;background:${brand.grayLight || '#f9fafb'};border-radius:0 0 12px 12px">
+    <p style="font-family:'${fontDisplay}',serif;font-size:13px;font-weight:700;color:${brand.accent};letter-spacing:2px;text-transform:uppercase;margin:0 0 6px">About the Author</p>
+    <p style="font-family:'${fontDisplay}',serif;font-size:18px;font-weight:700;color:${brand.primary};margin:0 0 2px">${author.name}</p>
+    <p style="font-size:13px;color:${brand.grayMid || '#6b7280'};font-family:'${fontBody}',sans-serif;margin:0 0 10px">${author.title}</p>
+    <p style="font-size:15px;color:${brand.bodyColor || '#374151'};font-family:'${fontBody}',sans-serif;line-height:1.7;margin:0">${author.bio}</p>
+  </div>` : ''}
 
   ${schemaBlock}
 
