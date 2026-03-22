@@ -12774,6 +12774,12 @@ app.post('/cron/rank-tracking', (_req, res) => {
   runWeeklyRankTracking().catch(e => console.error('[Rank Tracking] Manual error:', e.message));
 });
 
+// POST /cron/gbp-posts — trigger GBP posting now for all connected clients
+app.post('/cron/gbp-posts', (_req, res) => {
+  res.json({ status: 'started', message: 'GBP posts running in background — check Render logs for results' });
+  runDailyGBPPosts().catch(e => console.error('[GBP] Manual trigger error:', e.message));
+});
+
 // POST /cron/backlink-check — run backlink monitoring now
 app.post('/cron/backlink-check', (_req, res) => {
   res.json({ status: 'started', message: 'Backlink check running in background — check Render logs' });
@@ -13018,6 +13024,94 @@ let lastRailingCityPagesDate  = null;
 let lastCooneyPagesDate       = null;
 let lastStandupDate           = null;
 let lastLinkProspectingDate   = null;
+let lastGBPPostDate           = null;
+
+// ─── GOOGLE BUSINESS PROFILE AUTO-POSTING ────────────────────────────────────
+// Runs daily at 9:00am — fetches connected Google accounts per client,
+// generates a location-specific GBP post with Claude Haiku, publishes via GHL.
+const GBP_POST_TYPES = ['WHATS_NEW', 'WHATS_NEW', 'WHATS_NEW', 'OFFER', 'EVENT'];
+
+async function runDailyGBPPosts() {
+  console.log('[GBP] Starting daily Google Business Profile posts...');
+  const results = [];
+
+  const gbpClients = Object.entries(SEO_CLIENTS).filter(([, c]) => c.blogEnabled !== false);
+
+  for (const [locationId, config] of gbpClients) {
+    const { name, industry, voice, author } = config;
+    const token = config.apiKey;
+    if (!token) continue;
+
+    try {
+      // Fetch connected Google accounts for this sub-account
+      const accountsRes = await axios.get(
+        `https://services.leadconnectorhq.com/social-media-posting/${locationId}/accounts`,
+        { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 10000 }
+      );
+      const googleAccounts = (accountsRes.data?.results?.accounts || [])
+        .filter(a => a.platform === 'google' && !a.isExpired && !a.deleted);
+
+      if (!googleAccounts.length) {
+        console.log(`[GBP] No Google accounts connected for ${name} — skipping`);
+        continue;
+      }
+
+      console.log(`[GBP] ${name}: ${googleAccounts.length} GBP location(s) found`);
+
+      // Rotate post type by day of week
+      const dayIdx = new Date().getDay();
+      const postType = GBP_POST_TYPES[dayIdx % GBP_POST_TYPES.length];
+
+      // Generate post for each connected GBP location
+      for (const account of googleAccounts) {
+        const locationName = account.name || name;
+
+        const msg = await anthropic.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 300,
+          messages: [{ role: 'user', content: `Write a Google Business Profile "${postType}" post for ${locationName} — a ${industry} in Central Florida.
+
+AUTHOR: ${author?.name || name}, ${author?.title || ''}
+BRAND VOICE: ${voice || 'Helpful, local, and direct.'}
+POST TYPE: ${postType === 'WHATS_NEW' ? "What's New (share an update, tip, or reason to visit)" : postType === 'OFFER' ? 'Special Offer (limited time deal or promotion)' : 'Event (upcoming event or special occasion)'}
+
+RULES:
+- 150–280 characters total
+- Mention a specific service, dish, or benefit
+- End with a clear action ("Call us", "Book online", "Order now", "Visit us today")
+- Sound like a real local business owner wrote it — no corporate speak
+- NO hashtags, NO emojis unless naturally fitting
+
+Return ONLY the post text, nothing else.` }]
+        });
+
+        const postText = msg.content[0].text.trim();
+
+        // Publish via GHL Social Posting API
+        await axios.post(
+          `https://services.leadconnectorhq.com/social-media-posting/${locationId}/posts`,
+          {
+            accountIds: [account.id],
+            content: postText,
+            status: 'PUBLISHED',
+          },
+          { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' }, timeout: 15000 }
+        );
+
+        console.log(`[GBP] ✅ Posted to ${locationName} GBP: "${postText.slice(0, 60)}..."`);
+        results.push({ client: name, location: locationName, text: postText });
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    } catch (e) {
+      console.error(`[GBP] ❌ ${name}:`, e.message);
+    }
+
+    await new Promise(r => setTimeout(r, 3000));
+  }
+
+  console.log(`[GBP] Done — ${results.length} GBP posts published`);
+  return results;
+}
 
 setInterval(async () => {
   try {
@@ -13027,6 +13121,12 @@ setInterval(async () => {
     const minute    = nowEST.getMinutes();
     const dayOfWeek = nowEST.getDay(); // 0=Sun, 1=Mon…6=Sat
     const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+
+    // 9:00am daily — Google Business Profile posts for all connected clients
+    if (hour === 9 && minute >= 0 && minute < 5 && lastGBPPostDate !== today) {
+      lastGBPPostDate = today;
+      runDailyGBPPosts(); // non-blocking
+    }
 
     // 6:50am daily — team standup meeting (all 5 agents, Claude-generated)
     if (hour === 6 && minute >= 50 && minute < 55 && lastStandupDate !== today) {
