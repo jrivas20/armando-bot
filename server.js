@@ -3378,7 +3378,10 @@ Return ONLY valid JSON:
 No hashtags in JSON. Direct style. Every line earns the next.`,
     }],
   });
-  return JSON.parse(msg.content[0].text.trim());
+  const raw = msg.content[0].text.trim();
+  const match = raw.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('No JSON in reel content response');
+  return JSON.parse(match[0]);
 }
 
 // ── Build a natural voiceover script from reel content ───────────────────────
