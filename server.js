@@ -4197,6 +4197,22 @@ app.post('/cron/run-reel', async (_req, res) => {
   }
 });
 
+// Debug: GET /test-reel-content — test Claude reel content gen directly
+app.get('/test-reel-content', async (_req, res) => {
+  try {
+    const { script } = getTodaysScript();
+    const msg = await anthropic.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 600,
+      messages: [{ role: 'user', content: `Return this exact JSON with no changes: {"hook":"TEST","hook_sub":"sub","content":["a","b","c"],"climax1":"X","climax2":"Y","climax_sub":"Z","framework":"test"}` }]
+    });
+    const raw = msg.content[0].text.trim();
+    res.json({ success: true, topic: script.title, rawResponse: raw, parsed: (() => { try { return JSON.parse(raw.match(/\{[\s\S]*\}/)[0]); } catch(e) { return { parseError: e.message }; } })() });
+  } catch (e) {
+    res.json({ success: false, error: e.message, type: e.constructor?.name });
+  }
+});
+
 // Debug: GET /test-voice — test ElevenLabs Joseph Corona live on Render
 app.get('/test-voice', async (_req, res) => {
   const audioPath = '/tmp/test_voice_debug.mp3';
