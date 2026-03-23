@@ -13351,13 +13351,6 @@ setInterval(async () => {
       await runClientCheckIns();
     }
 
-    // 4:00pm Mon/Wed/Fri — viral Reel (12 per month)
-    const isReelDay = dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5;
-    if (hour === 16 && minute < 5 && isReelDay && lastReelDate !== today) {
-      lastReelDate = today;
-      await runDailyReel();
-    }
-
     // 6:30pm — story
     if (hour === 18 && minute >= 30 && minute < 35 && lastStoryDate !== today) {
       lastStoryDate = today;

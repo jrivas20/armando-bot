@@ -116,7 +116,6 @@ const sigStr = `overwrite=true&public_id=${AB_PUB_ID}&resource_type=raw&timestam
 | 9:00am | 1st | `sendMonthlyClientReports()`, `elenaMonthlyReports()`, `runDiegoScorecard()` |
 | 9:30am | 1st Jan/Apr/Jul/Oct | `elenaQuarterlyReport()` |
 | 10:00am | 15th | `elenaMidMonthCheckIn()` |
-| 4:00pm | Mon/Wed/Fri | `runDailyReel()` |
 | 6:30pm | Daily | `runDailyStory()` |
 | Every 6h (0/6/12/18) | Daily | `runSofiaUptimeMonitor()` |
 | Every 2 min | Daily | `runGmailCheck()` |
