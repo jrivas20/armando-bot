@@ -7,41 +7,24 @@ const path = require('path');
 const crypto = require('crypto');
 const FormData = require('form-data');
 
-// ─── RETRY WRAPPER ────────────────────────────────────────────────────────────
-// Wraps any async fn with exponential backoff. Use for all external API calls.
-async function withRetry(fn, retries = 3, delay = 1500) {
-  for (let i = 0; i < retries; i++) {
-    try { return await fn(); }
-    catch (e) {
-      if (i === retries - 1) throw e;
-      console.warn(`[Retry] attempt ${i + 2}/${retries} in ${delay * (i + 1)}ms — ${e.message}`);
-      await new Promise(r => setTimeout(r, delay * (i + 1)));
-    }
-  }
-}
+// ─── Shared helpers (retry, cron logging, build hash) ────────────────────────
+const {
+  SERVER_START_TIME, BUILD_HASH,
+  withRetry,
+  CRON_STATUS, logCron, runCron,
+} = require('./modules/helpers');
 
-// ─── CRON STATUS TRACKER ─────────────────────────────────────────────────────
-const CRON_STATUS = {};
-const SERVER_START_TIME = new Date().toISOString();
-const BUILD_HASH = process.env.RENDER_GIT_COMMIT
-  ? process.env.RENDER_GIT_COMMIT.slice(0, 8)
-  : require('crypto').createHash('md5').update(String(Date.now())).digest('hex').slice(0, 8);
-
-function logCron(name, status, detail = '') {
-  const d = typeof detail === 'object' ? JSON.stringify(detail) : String(detail);
-  CRON_STATUS[name] = { lastRun: new Date().toISOString(), status, detail: d.slice(0, 300) };
-}
-
-// Wraps a cron fn: logs start→ok or error. nonBlocking=true = fire-and-forget but still logs.
-async function runCron(name, fn, nonBlocking = false) {
-  if (nonBlocking) {
-    fn().then(r  => logCron(name, 'ok',    r   ?? 'done'))
-        .catch(e => { logCron(name, 'error', e.message); console.error(`[Cron:${name}] ❌`, e.message); });
-  } else {
-    try   { const r = await fn(); logCron(name, 'ok', r ?? 'done'); }
-    catch (e) { logCron(name, 'error', e.message); console.error(`[Cron:${name}] ❌`, e.message); throw e; }
-  }
-}
+// ─── Data modules (edit client configs, scripts, IDs here) ───────────────────
+const { SEO_CLIENTS, CENTRAL_FL_CITIES, getTodaysCity } = require('./modules/clients');
+const { CAROUSEL_SCRIPTS, STORY_TEMPLATES, getTodaysScript } = require('./modules/scripts');
+const {
+  GHL_LOCATION_ID, GHL_USER_ID,
+  MARKETING_PIPELINE_ID, PIPELINE_STAGES,
+  BLOG_ID, BLOG_AUTHOR_ID, BLOG_CATEGORIES,
+  SOCIAL_ACCOUNTS, TEXT_POST_ACCOUNTS, INSTAGRAM_ACCOUNTS, REEL_ACCOUNTS, STORY_ACCOUNTS,
+  CLOUDINARY_BASE, CAROUSEL_IMAGES,
+  GBP_POST_TYPES,
+} = require('./modules/constants');
 
 const app = express();
 app.use(express.json());
@@ -91,291 +74,6 @@ const PEXELS_API_KEY = process.env.PEXELS_API_KEY || 'KKnsOB57rfTFv5cuySAq8I9xm0
 // ── SEO-enabled sub-accounts ───────────────────────────────
 // Central Florida cities — rotated daily so every blog targets a different city.
 // 30 cities = 30 unique geo-targeted posts per month per client = page 1 across all of Central FL.
-const CENTRAL_FL_CITIES = [
-  'Orlando', 'Kissimmee', 'Winter Park', 'Winter Garden', 'Sanford',
-  'Lake Mary', 'Celebration', 'Windermere', 'Clermont', 'Apopka',
-  'Oviedo', 'Longwood', 'Altamonte Springs', 'Casselberry', 'Maitland',
-  'St. Cloud', 'Lake Nona', 'Dr. Phillips', 'Narcoossee', 'Hunters Creek',
-  'Deltona', 'Daytona Beach', 'Deland', 'Ocala', 'Leesburg',
-  'Osceola County', 'Orange County', 'Seminole County', 'Lake County', 'Polk County',
-];
-
-// Returns today's target city — cycles through CENTRAL_FL_CITIES so each day = new city
-function getTodaysCity() {
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  return CENTRAL_FL_CITIES[dayOfYear % CENTRAL_FL_CITIES.length];
-}
-
-// Add clients here to run daily blogs + weekly SEO plan for them.
-const SEO_CLIENTS = {
-  'iipUT8kmVxJZzGBzvkZm': {
-    name: 'Railing Max',
-    domain: 'railingmax.com',
-    lang: 'en',
-    industry: 'floating stairs, railing, and glass installation',
-    competitors: ['viewrail.com', 'agsstainless.com', 'stairsupplies.com'],
-    author: {
-      name: 'Carlos Mendoza',
-      title: 'Master Fabricator & Founder, Railing Max',
-      credentials: 'Licensed structural fabricator with 12+ years installing floating stairs, glass railings, and custom metalwork across Florida. OSHA certified. 500+ residential and commercial installations completed statewide.',
-      bio: 'Carlos founded Railing Max after spending a decade as a lead fabricator on luxury homes across Central Florida. He personally oversees every project — from the first consultation to the final inspection — because he knows that a floating staircase is the centerpiece of a home.',
-    },
-    voice: 'Expert craftsman and the go-to specialist for floating stairs in Florida. Knows every material, every code, every detail. Talks like someone who has built hundreds of custom staircases and railings — confident, specific, and zero fluff. When homeowners want floating stairs done right, this is who they call.',
-    audience: 'Homeowners, architects, interior designers, and builders in Central Florida who want floating stairs, glass railings, cable railings, iron railings, or custom staircases. They care about the wow factor AND safety AND code compliance. They have seen floating stairs on Instagram and want that for their home.',
-    keywords: [
-      // PRIMARY — floating stairs is the #1 target to dominate Florida
-      'floating stairs', 'floating stairs Orlando', 'floating stairs Florida',
-      'floating staircase Orlando', 'floating staircase Florida', 'floating stairs near me',
-      'open riser stairs Florida', 'open riser staircase Orlando',
-      // Secondary — railing + glass
-      'glass railing Orlando', 'glass railing installation Florida',
-      'stair railing contractor Orlando', 'railing installation Orlando',
-      'cable railing Florida', 'cable railing Orlando',
-      'iron railing Orlando', 'aluminum railing Florida',
-      // Local + pool
-      'pool fence Orlando', 'pool fence Clermont FL',
-      'railing contractor Central Florida',
-    ],
-    topics: [
-      // Floating stairs — own this topic across Florida
-      'what are floating stairs and why every Orlando home wants them in 2026',
-      'floating stairs cost guide Florida — what to expect before you build',
-      'floating stairs vs traditional staircase which is right for your home',
-      'how floating stairs are built — materials, codes, and installation process Florida',
-      'best wood choices for floating stairs in Florida humidity',
-      'floating stairs with glass railing the most popular combo in Orlando right now',
-      'open riser staircase building codes Florida what you need to know',
-      'how to get floating stairs installed in your Florida home step by step',
-      // Railing topics
-      'glass railing installation Orlando — cost, materials, and what to expect',
-      'cable railing vs glass railing which looks better in a Florida home',
-      'pool fence requirements Orange County Florida 2026',
-      'stair railing contractor Orlando how to choose the right one',
-      'iron railing vs aluminum railing which holds up better in Florida weather',
-      'railing installation cost guide Central Florida',
-      'custom railing ideas for Florida homes that stand out',
-    ],
-    cta: 'Get your free floating stairs or railing quote at railingmax.com',
-    ga4PropertyId: '529233384',
-    apiKey: 'pit-3a6936c1-5f10-4e4d-bb26-26bec9ebef1c',
-    brand: {
-      primary: '#d30400', accent: '#d30400', bg: '#ffffff', black: '#0a0a0a',
-      grayMid: '#555', grayLight: '#f5f5f5',
-      fontDisplay: 'Bebas Neue', fontBody: 'Manrope',
-      fontImport: 'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&display=swap',
-      logoUrl: 'https://assets.cdn.filesafe.space/iipUT8kmVxJZzGBzvkZm/media/69b80afa87f2fb2848a34872.png',
-      stats: ['500+ Projects', '10+ Years Experience', 'All of Florida', '100% Satisfaction'],
-      trustBadges: ['Licensed & Insured', 'Free Consultations', '24/7 Support', 'Statewide Install'],
-      phone: '(407) 412-5421',
-    },
-  },
-  'rJKRuyayc6Z6twr9X20v': {
-    name: 'The Escobar Kitchen',
-    domain: 'theescobarkitchen.com',
-    lang: 'en',
-    industry: 'Latin Asian fusion restaurant',
-    competitors: ['thepressorlando.com', 'christners.com', 'orlandofoodcritic.com'],
-    author: {
-      name: 'Chef Andres Escobar',
-      title: 'Executive Chef & Co-Owner, The Escobar Kitchen',
-      credentials: 'Culinary-trained chef with 15+ years crafting Latin-Asian fusion cuisine. Co-creator of The Escobar Kitchen\'s signature menu. Opened 3 locations across Central Florida.',
-      bio: 'Chef Andres built The Escobar Kitchen around one idea: what happens when Latin soul meets Asian precision. Every dish on the menu started in his home kitchen — tested, tasted, and refined until it was something genuinely worth driving across town for.',
-    },
-    voice: 'Bold, passionate, and proud of every single dish. Writes like someone who is genuinely obsessed with food — the flavors, the craft, the experience. Warm but confident. Makes you feel like you are missing out if you are not there tonight.',
-    audience: 'Food lovers in Kissimmee, Narcoossee, Lake Nona, and greater Orlando searching for something beyond the ordinary — a restaurant where Latin soul meets Asian precision. Date nights, celebrations, foodies, and anyone who searches "best sushi near me" or "latin restaurant near me".',
-    keywords: [
-      'latin restaurant near me', 'sushi near me', 'asian fusion near me', 'latin asian fusion',
-      'best sushi Orlando', 'best latin restaurant Orlando', 'asian fusion Kissimmee',
-      'latin restaurant Kissimmee', 'sushi Narcoossee', 'unique restaurants near Disney',
-      'best spicy tuna crispy rice Orlando', 'fusion restaurant Central Florida',
-      'date night restaurants Kissimmee', 'upscale restaurant Lake Nona',
-    ],
-    topics: [
-      'why The Escobar Kitchen is the best latin asian fusion in Central Florida',
-      'best sushi near Disney World Orlando',
-      'what is latin asian fusion food and why Orlando is obsessed with it',
-      'best date night restaurants in Kissimmee FL',
-      'spicy tuna crispy rice the dish everyone is talking about in Orlando',
-      'best asian fusion restaurants near Lake Nona',
-      'what to order at The Escobar Kitchen — a locals guide',
-      'latin restaurant Narcoossee FL hidden gem',
-      'best seafood restaurants Kissimmee 2026',
-      'asian fusion vs traditional sushi what is the difference',
-    ],
-    cta: 'Reserve your table or order online at theescobarkitchen.com',
-    ga4PropertyId: '529262280',
-    apiKey: 'pit-64018b7f-6192-47b1-b134-62109b155fc9',
-    brand: {
-      plainHtml: true,
-      logoUrl: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/69a7ac1bb701fe6a3e793b91.png',
-      mediaImages: [
-        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b45df9bdf880b05c99c.jpg',
-        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b45df9bdf54b605c975.jpg',
-        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b44df9bdfd6d905c970.jpg',
-        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b44df9bdf4a3705c944.jpg',
-        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b45df9bdf8ef905c98e.jpg',
-        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b44df9bdf2d8c05c96c.jpg',
-        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b44df9bdf08bc05c940.jpg',
-        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b454c8da2997996c53d.jpg',
-        'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b4455d8bc7efa4455ea.jpg',
-      ],
-      stats: ['4.6★ Google', '452+ Reviews', '3 Locations', 'Catering Available'],
-      trustBadges: ['Order Direct & Save', 'Latin-Asian Fusion', 'Dine-In & Delivery', 'Family Friendly'],
-      phone: '',
-    },
-  },
-  '6FdG0APBuZ81P8X2H4zc': {
-    name: 'Rental Spaces',
-    domain: 'rentalspacesinc.com',
-    lang: 'en',
-    industry: 'RV and boat storage',
-    competitors: ['rvshare.com', 'storagemart.com', 'extraspace.com'],
-    author: {
-      name: 'David Torres',
-      title: 'Founder & Storage Specialist, Rental Spaces',
-      credentials: '10+ years providing secure RV, boat, and vehicle storage in Central Florida. Expert in outdoor storage solutions for Florida\'s climate, HOA regulations, and seasonal storage needs.',
-      bio: 'David started Rental Spaces after realizing how few options RV and boat owners in Orlando had for secure, affordable storage. He built the facility with the kind of security and access he\'d want for his own equipment.',
-    },
-    voice: 'Practical and no-nonsense. Speaks to people who love their toys (RVs, boats, ATVs) and want safe, affordable storage without the hassle. Friendly but to the point.',
-    audience: 'RV owners, boaters, and outdoor enthusiasts in the Orlando area who need secure, affordable storage between trips.',
-    topics: ['how to store your RV in Florida summer', 'boat storage near Orlando', 'indoor vs outdoor RV storage', 'tips for winterizing your boat in Florida', 'how to choose an RV storage facility', 'cost of boat storage Orlando', 'RV storage security features to look for'],
-    cta: 'Reserve your storage space at rentalspacesinc.com',
-    keywords: ['RV storage Orlando', 'boat storage Orlando', 'covered RV storage Florida', 'outdoor boat storage Central Florida', 'climate controlled RV storage Orlando', 'monthly boat storage Kissimmee', 'secure RV storage Florida', 'RV parking near Orlando', 'self storage for boats Florida'],
-    blogEnabled: false,
-    apiKey: 'pit-1b29023e-d415-4ab6-b18d-1a1072d4c355',
-    brand: { primary: '#080808', accent: '#116dff', bg: '#ffffff', logoUrl: '' },
-  },
-  'Emg5M7GZE7XmnHc7F5vy': {
-    name: 'Guaca-Mole-Tex-Mex',
-    domain: 'guaca-mole-texmex.com',
-    lang: 'en',
-    industry: 'Tex-Mex restaurant',
-    competitors: ['chuy.com', 'ontheborder.com', 'orlandofoodcritic.com'],
-    author: {
-      name: 'Roberto Martinez',
-      title: 'Head Chef & Owner, Guaca-Mole Tex-Mex',
-      credentials: 'Tex-Mex specialist with 12+ years cooking in Orlando. Family recipes brought from South Texas, adapted with fresh Florida ingredients. Known for the best from-scratch guacamole in Central Florida.',
-      bio: 'Roberto opened Guaca-Mole because he was tired of chain Tex-Mex that tasted like nothing. Everything here is made from scratch daily — the salsas, the guac, the tortillas. If his abuela wouldn\'t approve, it doesn\'t make the menu.',
-    },
-    voice: 'Fun, bold, and unapologetically Tex-Mex. Celebrates big flavors, good times, and authentic recipes. Casual, energetic, and makes you hungry just reading it.',
-    audience: 'Families, friend groups, and Tex-Mex lovers in Orlando looking for generous portions, great margaritas, and a lively atmosphere.',
-    topics: ['best Tex-Mex in Orlando', 'authentic guacamole made fresh daily', 'best margaritas Orlando FL', 'Tex-Mex vs Mexican food what is the difference', 'family-friendly restaurants Orlando', 'best tacos near me Orlando', 'happy hour deals Orlando restaurants'],
-    cta: 'Come hungry — find us at guaca-mole-texmex.com',
-    keywords: ['tex mex restaurant Orlando', 'best tacos Orlando', 'mexican restaurant near me Orlando', 'authentic mexican food Central Florida', 'best margaritas Orlando', 'guacamole restaurant Orlando', 'family tex mex Kissimmee', 'best burritos Orlando', 'happy hour tex mex Orlando'],
-    blogEnabled: false,
-    apiKey: 'pit-3ba32a5e-775f-46e6-9e5d-4a201148f7fb',
-  },
-  'd7iUPfamAaPlSBNj6IhT': {
-    name: 'JRZ Marketing',
-    domain: 'jrzmarketing.com',
-    lang: 'en',
-    industry: 'AI marketing agency',
-    competitors: ['webfx.com', 'thehoth.com', 'ignitevisibility.com'],
-    author: {
-      name: 'José Rivas',
-      title: 'Founder & AI Marketing Strategist, JRZ Marketing',
-      credentials: 'Digital marketing strategist specializing in AI automation, Go High Level systems, and local SEO for small businesses. Built fully automated marketing systems managing 30+ client accounts across Florida.',
-      bio: 'José founded JRZ Marketing after watching too many small businesses get burned by agencies that overpromised and underdelivered. He built his own AI-powered system from scratch — one that runs 24/7, captures leads while clients sleep, and actually moves the needle on local rankings.',
-    },
-    voice: 'Sharp, confident, and results-driven. José Rivas speaks from real experience building systems that work. Bilingual edge, deep understanding of Latino entrepreneurs, zero tolerance for fluff or wasted ad spend.',
-    audience: 'Small business owners, Latino entrepreneurs, and service-based businesses in Orlando and Central Florida who want real growth — more leads, more sales, more automation.',
-    topics: ['AI marketing automation for small business Orlando', 'how to get more leads without spending more on ads', 'Go High Level for small business', 'social media automation that actually works', 'bilingual marketing strategy Florida', 'how to rank your business on Google Maps Orlando', 'marketing mistakes small business owners make'],
-    cta: 'Book your free strategy call at jrzmarketing.com/contact-us',
-    keywords: ['marketing agency Orlando', 'social media marketing Orlando', 'digital marketing Florida', 'GoHighLevel agency Orlando', 'local SEO Orlando', 'lead generation Orlando', 'marketing automation small business', 'AI marketing automation Florida', 'bilingual marketing agency Orlando'],
-    ga4PropertyId: '384751711',
-    apiKey: 'pit-9d4919d5-9d6e-4aa9-8c01-e9c1985a3e2e',
-    brand: { primary: '#212322', accent: '#37ca37', bg: '#ffffff', logoUrl: 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png' },
-  },
-  'Gc4sUcLiRI2edddJ5Lfl': {
-    name: 'Cooney Homes',
-    domain: 'cooneyhomesfl.com',
-    lang: 'en',
-    industry: 'general contractor — home additions, custom home building, and remodeling',
-    competitors: ['buildwithbbt.com', 'myhomeus.com', 'semiholehomes.com'],
-    author: {
-      name: 'Mike Cooney',
-      title: 'Licensed General Contractor & Founder, Cooney Homes',
-      credentials: 'Florida-licensed General Contractor (CGC licensed), 18+ years building custom homes and additions across Orange, Osceola, Polk, and Hillsborough counties. Member of the Home Builders Association of Metro Orlando.',
-      bio: 'Mike started Cooney Homes because he saw too many homeowners get burned by contractors who disappeared mid-project or cut corners on permits. Every Cooney Homes build is owner-led — Mike is on-site, reachable, and accountable from groundbreak to final walkthrough.',
-    },
-    voice: 'Experienced builder who has seen every type of project in Florida and knows exactly what it takes to do it right. Practical, confident, and zero tolerance for shortcuts. Speaks to homeowners who want their vision built properly — on time and on budget.',
-    audience: 'Florida homeowners who want to add square footage, build a custom home from scratch, add a garage, expand a kitchen, or build an in-law suite. Also builders and developers in Central Florida looking for a trusted general contractor.',
-    keywords: [
-      'general contractor Orlando', 'home addition Orlando', 'custom home builder Orlando',
-      'room addition Central Florida', 'home remodel Orlando', 'kitchen addition Florida',
-      'in-law suite addition Orlando', 'garage addition Florida', 'custom home construction Orlando',
-      'home expansion contractor Central Florida',
-    ],
-    topics: [
-      'how much does a home addition cost in Florida 2026',
-      'custom home builder vs production builder which is right for you',
-      'home addition ideas that add the most value in Central Florida',
-      'how to add a room to your house in Florida step by step',
-      'building an in-law suite in Orlando what you need to know',
-      'kitchen addition vs full remodel which makes more sense',
-      'garage addition costs and permits in Orange County Florida',
-      'how to find a trustworthy general contractor in Central Florida',
-      'how long does a home addition take in Florida',
-      'building a custom home in Orlando from land to move-in',
-    ],
-    cta: 'Start your project with a free consultation at cooneyhomesfl.com',
-    ga4PropertyId: '503054433',
-    apiKey: 'pit-cd43cc72-9e18-4eee-9bfb-be5942de9722',
-    brand: {
-      primary: '#f9bf4d', accent: '#f47d72', bg: '#ffffff', ctaBg: '#121212',
-      textColor: '#121212', bodyColor: 'rgba(18,18,18,0.70)',
-      fontDisplay: 'Poppins', fontBody: 'Poppins',
-      fontImport: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap',
-      logoUrl: 'https://storage.googleapis.com/msgsndr/Gc4sUcLiRI2edddJ5Lfl/media/69861a783fae0a0ae13022b8.png',
-      stats: ['Clean Communication', 'High Craftsmanship', 'Strong Project Control', 'Built for Value'],
-      trustBadges: ['Licensed General Contractor', 'Owner-Led Builds', 'Free Consultations', 'Central Florida'],
-      phone: '(407) 201-4100',
-    },
-  },
-  'OpdBPAp31zItOc5IIykL': {
-    name: 'Le Varon Barbershop',
-    domain: 'levaronbarbershop.com',
-    lang: 'en',
-    industry: 'barbershop',
-    author: {
-      name: 'Luis Varón',
-      title: 'Master Barber & Owner, Le Varón Barbershop',
-      credentials: 'Florida-licensed master barber with 10+ years specializing in precision fades, tapers, and beard sculpting. Built Le Varón from a single chair into one of Orlando\'s most respected barbershops.',
-      bio: 'Luis opened Le Varón because he believed Orlando deserved a barbershop that took the craft seriously. Not just a haircut — a whole experience. He trains every barber on his team personally and still takes clients himself every week.',
-    },
-    voice: 'Cool, confident, and community-rooted. Celebrates the culture of the barbershop — where men come for more than a haircut. Speaks the language of style, brotherhood, and taking pride in your appearance.',
-    audience: 'Men in Orlando who care about their look — from clean fades to beard lineups. Loyal barbershop clients who see their barber as part of their weekly routine.',
-    topics: ['best barbershop Orlando FL', 'how to find the right barber', 'fade haircut styles 2026', 'how to maintain your beard between cuts', 'barbershop vs hair salon what is the difference', 'mens grooming tips Orlando', 'why a good barber is worth it'],
-    cta: 'Book your appointment at levaronbarbershop.com',
-    keywords: ['barbershop Orlando', 'best barbershop near me', 'mens haircut Orlando', 'fade haircut Orlando', 'barbershop Kissimmee', 'mens grooming Orlando', 'beard trim Orlando', 'Latino barbershop Central Florida', 'fresh cut near me Orlando'],
-    blogEnabled: false,
-  },
-  'VWHZW08b0skUV7wcnG55': {
-    name: 'USA Latino CPA',
-    domain: 'usalatinocpa.com',
-    lang: 'en',
-    industry: 'accounting and tax services',
-    voice: 'Trustworthy, clear, and culturally aware. Speaks to Latino business owners and immigrants who have been underserved by mainstream accountants. Demystifies taxes and finances without being condescending — in plain language, sometimes with Spanish terms.',
-    audience: 'Latino entrepreneurs, self-employed immigrants, and small business owners in Florida who need bilingual accounting help, tax filing, and financial guidance they can actually understand.',
-    topics: ['how to file taxes as a self-employed immigrant Florida', 'LLC vs sole proprietor for Latino business owners', 'tax deductions for small business owners', 'how to build business credit in the US', 'ITIN taxes what you need to know', 'accounting tips for restaurant owners', 'why your business needs a bilingual CPA'],
-    cta: 'Schedule a free consultation at usalatinocpa.com',
-    keywords: ['CPA Orlando', 'accountant Orlando', 'tax preparation Orlando', 'small business accounting Orlando', 'bookkeeping services Orlando', 'business tax return Florida', 'bilingual accountant Orlando', 'tax planning small business Florida', 'CFO services small business Orlando'],
-    apiKey: 'pit-525c7ac9-a267-4e71-a26b-a43f12d27079',
-    ga4PropertyId: '529255116',
-    brand: {
-      primary: '#073353', accent: '#e32133', bg: '#ffffff', ctaBg: '#073353',
-      textColor: '#073353', bodyColor: '#5c6b78',
-      fontDisplay: 'Montserrat', fontBody: 'Montserrat',
-      fontImport: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap',
-      logoUrl: 'https://storage.googleapis.com/msgsndr/VWHZW08b0skUV7wcnG55/media/6980282f66e7ca4a74ce0924.png',
-      stats: ['5.0★ Google', 'CPA-Level Accuracy', 'Proactive Planning', 'Bilingual EN/ES'],
-      trustBadges: ['Proactive Tax Planning', 'Pristine Books', 'IRS-Ready Compliance', 'Bilingual Service'],
-      phone: '(689) 233-7398',
-    },
-  },
-  // Add more clients below — copy the format above
-  // 'LOCATION_ID': { name, domain, lang, industry, voice, audience, topics: [], cta },
-};
 
 // ── Bland.ai voice calls ───────────────────────────────────
 const BLAND_API_KEY     = process.env.BLAND_API_KEY;
@@ -498,532 +196,8 @@ const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || 'IdUnHGrO7wYG
 // ═══════════════════════════════════════════════════════════
 // SOCIAL MEDIA — ACCOUNT IDs & CONSTANTS
 // ═══════════════════════════════════════════════════════════
-const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID || 'd7iUPfamAaPlSBNj6IhT';
-const GHL_USER_ID     = process.env.GHL_USER_ID     || 'ALHFH3LlHUg7V4GuSbop';
-
-// ─── Marketing Pipeline constants ────────────────────────
-const MARKETING_PIPELINE_ID = 'AA7OHokVnWcxHbbclGTk';
-const PIPELINE_STAGES = {
-  newLead:  '40493ee9-177a-4c42-ac4b-51b431f81a25',
-  hotLead:  '184cf994-5c67-4cba-b5a0-c6d619c9fd8b',
-  booking:  'b5fd5971-5f90-4343-a93a-22cc60c3bad9',
-  attended: 'edc7830a-4171-4bd2-a25f-c84e21b81acb',
-  sale:     'cbe933ec-5fd9-4e36-bcc5-b5db54479ffc',
-  review:   '508da827-df8a-49f0-ae24-feb1dac67c8c',
-};
-
-// ─── Blog constants ───────────────────────────────────────
-const BLOG_ID        = 'BSFKLAs40udrWd6XM0Tw';
-const BLOG_AUTHOR_ID = '69b556769166961ed4d1ce43';
-const BLOG_CATEGORIES = {
-  ai:         '69b5568a6704163c27f63acf',
-  automation: '69b556980fecd748ab1e5260',
-  marketing:  '69b556a40fecd79c4e1e52f2',
-  business:   '69b556c30fecd71ad71e5485',
-  ghl:        '69b556b49166960cf8d1d167',
-};
-
-const SOCIAL_ACCOUNTS = {
-  instagram:    '69571d8023b2d14504f42a08_d7iUPfamAaPlSBNj6IhT_17841419446338150',
-  facebook:     '69571d90f8b327442fd7c7ff_d7iUPfamAaPlSBNj6IhT_106416250738350_page',
-  linkedinJose: '69571db227f36db5a4c941a7_d7iUPfamAaPlSBNj6IhT_rzdo30Vn11_profile',
-  linkedinJRZ:  '69571db227f36db5a4c941a7_d7iUPfamAaPlSBNj6IhT_59796032_page',
-  google:       '69571da123b2d16f33f435a2_d7iUPfamAaPlSBNj6IhT_9708635617980992827',
-  youtube:        '69571dd027f36d280fc94983_d7iUPfamAaPlSBNj6IhT_UCz-cQ8MvL74r83op8SvuSHw_profile',
-  tiktokJose:     '69b64eeeed8b7690d62b17e3_d7iUPfamAaPlSBNj6IhT_000KlsWW3XktDcaqlWJLYjd9wZcGgB2K2R0_profile',
-  tiktokJRZ:      '69b64e80794ff7350b7c5681_d7iUPfamAaPlSBNj6IhT_000BpU3LiTvQhmVRbhj0ztTBOYETOcE1k5J_business',
-};
-
-// Facebook, LinkedIn, YouTube, Google Business accept text-only posts
-const TEXT_POST_ACCOUNTS = [
-  SOCIAL_ACCOUNTS.facebook,
-  SOCIAL_ACCOUNTS.linkedinJose,
-  SOCIAL_ACCOUNTS.linkedinJRZ,
-  SOCIAL_ACCOUNTS.youtube,
-  SOCIAL_ACCOUNTS.google,
-];
-
-// Instagram carousel accounts — always posts with images
-const INSTAGRAM_ACCOUNTS = [SOCIAL_ACCOUNTS.instagram];
-
-// 4pm daily Reel accounts — all 7 video-capable platforms
-const REEL_ACCOUNTS = [
-  SOCIAL_ACCOUNTS.instagram,
-  SOCIAL_ACCOUNTS.facebook,
-  SOCIAL_ACCOUNTS.youtube,
-  SOCIAL_ACCOUNTS.linkedinJose,
-  SOCIAL_ACCOUNTS.linkedinJRZ,
-  SOCIAL_ACCOUNTS.tiktokJose,
-  SOCIAL_ACCOUNTS.tiktokJRZ,
-];
-
-// ─── Cloudinary Carousel Images — 7 days × 4 slides ────────────────────────
-// URLs without version = always serve latest uploaded image (overwrite weekly)
-// Mapping: JS getDay() 0=Sun → day7, 1=Mon → day1, ..., 6=Sat → day6
-const CLOUDINARY_BASE = 'https://res.cloudinary.com/dbsuw1mfm/image/upload/jrz';
-const CAROUSEL_IMAGES = {
-  0: [ // Sunday
-    `${CLOUDINARY_BASE}/day7_slide1.png`,
-    `${CLOUDINARY_BASE}/day7_slide2.png`,
-    `${CLOUDINARY_BASE}/day7_slide3.png`,
-    `${CLOUDINARY_BASE}/day7_slide4.png`,
-  ],
-  1: [ // Monday
-    `${CLOUDINARY_BASE}/day1_slide1.png`,
-    `${CLOUDINARY_BASE}/day1_slide2.png`,
-    `${CLOUDINARY_BASE}/day1_slide3.png`,
-    `${CLOUDINARY_BASE}/day1_slide4.png`,
-  ],
-  2: [ // Tuesday
-    `${CLOUDINARY_BASE}/day2_slide1.png`,
-    `${CLOUDINARY_BASE}/day2_slide2.png`,
-    `${CLOUDINARY_BASE}/day2_slide3.png`,
-    `${CLOUDINARY_BASE}/day2_slide4.png`,
-  ],
-  3: [ // Wednesday
-    `${CLOUDINARY_BASE}/day3_slide1.png`,
-    `${CLOUDINARY_BASE}/day3_slide2.png`,
-    `${CLOUDINARY_BASE}/day3_slide3.png`,
-    `${CLOUDINARY_BASE}/day3_slide4.png`,
-  ],
-  4: [ // Thursday
-    `${CLOUDINARY_BASE}/day4_slide1.png`,
-    `${CLOUDINARY_BASE}/day4_slide2.png`,
-    `${CLOUDINARY_BASE}/day4_slide3.png`,
-    `${CLOUDINARY_BASE}/day4_slide4.png`,
-  ],
-  5: [ // Friday
-    `${CLOUDINARY_BASE}/day5_slide1.png`,
-    `${CLOUDINARY_BASE}/day5_slide2.png`,
-    `${CLOUDINARY_BASE}/day5_slide3.png`,
-    `${CLOUDINARY_BASE}/day5_slide4.png`,
-  ],
-  6: [ // Saturday
-    `${CLOUDINARY_BASE}/day6_slide1.png`,
-    `${CLOUDINARY_BASE}/day6_slide2.png`,
-    `${CLOUDINARY_BASE}/day6_slide3.png`,
-    `${CLOUDINARY_BASE}/day6_slide4.png`,
-  ],
-};
-
-// Stories: Instagram + Facebook only
-const STORY_ACCOUNTS = [
-  SOCIAL_ACCOUNTS.instagram,
-  SOCIAL_ACCOUNTS.facebook,
-];
 
 // ─────────────────────────────────────────────────────────
-// PLATFORM CHARACTER LIMITS (enforced when building captions)
-// Instagram: 2,200 | Facebook: 63,206 | LinkedIn: 3,000
-// YouTube Community: 500 | Google Business: 1,500
-// The main caption is optimized for Instagram (≤2,200 chars).
-// ─────────────────────────────────────────────────────────
-
-// ═══════════════════════════════════════════════════════════
-// 14 PRE-WRITTEN CAROUSEL SCRIPTS — WEEKS 1 & 2
-// (Week 3+ → NewsAPI + Claude generates fresh content daily)
-// Theme: Jose Rivas as THE AI/Automation Guru for Latino entrepreneurs
-// ═══════════════════════════════════════════════════════════
-const CAROUSEL_SCRIPTS = [
-  // ── WEEK 1 ─────────────────────────────────────────────
-  {
-    title: '5 herramientas de IA que están usando los negocios más exitosos',
-    caption: `¿Todavía haciendo todo a mano? 😅
-
-En 2026, la IA ya no es una ventaja — es una necesidad.
-
-Aquí las 5 herramientas que estoy implementando con mis clientes:
-
-1️⃣ CRM con IA → cero leads perdidos
-2️⃣ Chatbot 24/7 → responde mientras duermes
-3️⃣ Email automation → nutre a tus clientes solo
-4️⃣ Scheduler de redes → publica sin pensar
-5️⃣ Analytics con IA → toma decisiones con datos reales
-
-¿Tu negocio ya usa alguna? 👇 Comenta cuál y te digo cómo optimizarla.
-
-Guarda este post — lo vas a necesitar. 🔖
-
-#MarketingDigital #InteligenciaArtificial #NegociosLatinos #Emprendedores #AutomatizaciónIA #JRZMarketing #IA2026 #HerramientasIA`,
-  },
-  {
-    title: 'Tu negocio está perdiendo clientes HOY por esto',
-    caption: `La realidad que nadie te quiere decir:
-
-Cada vez que tardas más de 5 minutos en responder un mensaje, pierdes ese cliente. ❌
-
-Estadística real: el 78% de los clientes compra al primero que responde.
-
-¿Cuántos leads pierdes por semana porque no tienes un sistema?
-
-En JRZ Marketing resolvemos eso con IA que responde en segundos:
-→ DMs de Instagram
-→ Mensajes de Facebook
-→ WhatsApp y más
-
-24 horas. 7 días. Sin descanso.
-
-¿Quieres ver cómo funciona para tu negocio?
-Agenda gratis → ${BOOKING_URL}
-
-💬 Comenta "QUIERO" y te cuento más.
-
-#AutomatizaciónIA #ChatbotIA #NegociosLatinos #MarketingDigital #JRZMarketing #Emprendedores #LeadGeneration`,
-  },
-  {
-    title: 'Cómo generé 50+ leads en 30 días sin gastar en publicidad',
-    caption: `Te voy a ser 100% honesto sobre cómo funciona el crecimiento real. 🎯
-
-No fue suerte. Fue sistema.
-
-Lo que hicimos:
-✅ Contenido que educa (como este)
-✅ CRM conectado a todas las redes
-✅ IA que califica leads automáticamente
-✅ Follow-up en menos de 60 segundos
-✅ Proceso de ventas claro y repetible
-
-El resultado: 50+ leads calificados. En un mes.
-
-El secreto no es gastar más en ads.
-Es convertir mejor lo que ya tienes.
-
-¿Cuántos leads estás dejando ir esta semana?
-
-Dime tu industria abajo y te doy un tip específico para la tuya 👇
-
-#LeadGeneration #MarketingOrgánico #NegociosLatinos #Emprendedores2026 #JRZMarketing #SistemaDeMarketing`,
-  },
-  {
-    title: 'El error #1 que destruye el marketing de los emprendedores',
-    caption: `Lo veo todo el tiempo con negocios latinos... 😬
-
-Están en Instagram, Facebook, TikTok, LinkedIn, Twitter...
-
-Pero en ninguna están convirtiendo.
-
-El problema: PRESENCIA sin ESTRATEGIA.
-
-Estar en todas partes pero no profundizar en ninguna es el error más caro que existe.
-
-Lo que funciona de verdad:
-→ 2 plataformas bien trabajadas
-→ Contenido que educa Y vende
-→ Sistema de captura de leads
-→ Follow-up automatizado
-→ CTA claro en cada post
-
-¿En cuántas redes estás? ¿Cuántas ventas te generan?
-
-Sé honesto en los comentarios 👇
-
-#EstrategiaDigital #MarketingLatino #Emprendedores #NegociosExitosos #JRZMarketing #MarketingDigital`,
-  },
-  {
-    title: 'El vendedor que nunca duerme: así funciona nuestra IA',
-    caption: `Las 2am. Alguien te escribe por Instagram.
-
-Si no tienes sistema: ese lead se va.
-Si tienes nuestra IA: responde en 10 segundos. 🤖
-
-Así funciona Armando, nuestra IA de ventas:
-
-🧠 Entiende lo que el cliente necesita
-💬 Responde en español o inglés
-📋 Califica si es un buen lead
-📲 Pide teléfono y email
-📅 Los manda a agendar una llamada
-
-Todo automático. Sin intervención humana.
-
-¿Cuánto te está costando no tener esto?
-
-Escríbeme "IA" en los comentarios y te cuento cómo funciona para tu tipo de negocio 👇
-
-#ChatbotIA #VentasAutomáticas #NegociosLatinos #AutomatizaciónIA #JRZMarketing #InteligenciaArtificial`,
-  },
-  {
-    title: 'Negocio que crece vs negocio que se estanca: la diferencia real',
-    caption: `Después de trabajar con 50+ negocios latinos, identificé el patrón.
-
-Los que CRECEN hacen esto:
-✅ Tienen sistema (CRM, automatización, seguimiento)
-✅ Miden todo — toman decisiones con datos
-✅ Crean contenido consistente semana tras semana
-✅ Responden rápido a cada lead
-✅ Invierten antes de que lo necesiten
-
-Los que se ESTANCAN hacen esto:
-❌ Trabajan por intuición, sin datos
-❌ Publican cuando tienen ganas
-❌ No tienen sistema de seguimiento
-❌ Esperan resultados sin consistencia
-❌ Esperan el "momento perfecto"
-
-¿En cuál grupo está tu negocio hoy?
-
-No hay juicio — hay solución.
-Agenda una sesión gratuita y lo vemos juntos:
-${BOOKING_URL}
-
-#CrecimientoNegocio #NegociosLatinos #Emprendedores #MarketingDigital #JRZMarketing`,
-  },
-  {
-    title: 'El sistema de marketing que usamos con cada cliente',
-    caption: `No hay magia. Solo sistema. 💡
-
-Esto es exactamente lo que implementamos en JRZ Marketing:
-
-📍 FASE 1 — Diagnóstico
-Analizamos tu situación real, tus competidores, tu cliente ideal.
-
-📍 FASE 2 — Estrategia
-Diseñamos un plan personalizado (no genérico, no copiado).
-
-📍 FASE 3 — Implementación
-CRM + automatización + contenido + IA todo conectado.
-
-📍 FASE 4 — Crecimiento
-Contenido 7 días/semana, ads cuando aplique, seguimiento constante.
-
-📍 FASE 5 — Optimización
-Medimos, ajustamos, escalamos. Mes a mes.
-
-¿Quieres verlo en acción para tu negocio?
-30 minutos. Sin costo. Sin compromiso.
-
-Agenda aquí → ${BOOKING_URL}
-
-#SistemaMarketing #MarketingDigital #NegociosLatinos #Emprendedores #JRZMarketing #AutomatizaciónIA`,
-  },
-
-  // ── WEEK 2 ─────────────────────────────────────────────
-  {
-    title: '7 procesos que puedes automatizar esta semana en tu negocio',
-    caption: `¿Cuántas horas a la semana gastas en tareas repetitivas? ⏰
-
-Aquí 7 cosas que ya deberían estar automatizadas:
-
-1️⃣ Respuestas a DMs → IA 24/7
-2️⃣ Seguimiento a leads → email + SMS automático
-3️⃣ Confirmación de citas → sin llamadas manuales
-4️⃣ Recordatorios de pago → sin perseguir a nadie
-5️⃣ Reseñas de clientes → solicitud automática post-servicio
-6️⃣ Publicación en redes → programado una vez, publica solo
-7️⃣ Reportes de marketing → datos listos sin buscarlos
-
-Cada hora que gastas en estas tareas es una hora que no estás creciendo.
-
-¿Cuál automatizarías primero?
-Dímelo abajo 👇
-
-#AutomatizaciónNegocio #EficienciaEmpresarial #NegociosLatinos #IA #JRZMarketing #Emprendedores`,
-  },
-  {
-    title: '¿Qué es un CRM y por qué tu negocio pierde dinero sin uno?',
-    caption: `Un CRM no es lujo. Es lo mínimo para crecer. 💼
-
-Sin CRM:
-❌ Leads que se te olvidan
-❌ Clientes que no regresan
-❌ Oportunidades perdidas por seguimiento tardío
-❌ Tu equipo desorganizado
-❌ Cero visibilidad de tu negocio
-
-Con el CRM correcto:
-✅ Cada lead capturado y seguido automáticamente
-✅ Clientes que regresan solos
-✅ Pipeline claro y predecible
-✅ Equipo alineado con un solo sistema
-✅ Datos reales para tomar decisiones
-
-El CRM que usamos con clientes: Go High Level.
-Implementación completa hecha por nosotros.
-
-¿Ya tienes uno? ¿Lo estás usando bien?
-Cuéntame abajo 👇
-
-#CRM #GoHighLevel #NegociosDigitales #AutomatizaciónIA #JRZMarketing #MarketingDigital #NegociosLatinos`,
-  },
-  {
-    title: 'Instagram vs Facebook vs LinkedIn vs YouTube: ¿Dónde está tu cliente?',
-    caption: `La pregunta que me hacen siempre: "¿En qué red debo estar?"
-
-Mi respuesta honesta: depende de quién es tu cliente. 🎯
-
-📱 INSTAGRAM
-→ Negocios locales, servicios, estilo de vida
-→ Edad 18-40. Visual y emocional.
-→ Reels + Carruseles + Stories = crecimiento
-
-👥 FACEBOOK
-→ Comunidades locales, 30-60 años
-→ Grupos, eventos, ads muy segmentados
-
-💼 LINKEDIN
-→ B2B, servicios de alto valor, profesionales
-→ Empresarios y tomadores de decisión
-
-▶️ YOUTUBE
-→ Contenido de valor largo plazo
-→ Posicionamiento como experto
-→ Búsquedas orgánicas que nunca paran
-
-Mi recomendación para emprendedores latinos:
-Empieza en 2. Hazlo bien. Luego expande.
-
-¿Cuál es tu red principal ahora mismo?
-
-#RedesSociales #EstrategiaDigital #MarketingLatino #Emprendedores #JRZMarketing`,
-  },
-  {
-    title: 'El embudo de ventas que todo emprendedor latino necesita',
-    caption: `Sin embudo de ventas estás dejando dinero en la mesa. 💸
-
-El embudo que funciona para negocios latinos:
-
-🔝 ATRACCIÓN
-→ Contenido en redes que educa y engancha
-→ Reel/carrusel 7 días a la semana
-
-⬇️ CAPTURA
-→ Lead magnet (guía, consulta gratis, etc.)
-→ Landing page optimizada con CTA claro
-
-⬇️ NUTRICIÓN
-→ Email automation con valor real
-→ Follow-up con IA en segundos
-
-⬇️ CONVERSIÓN
-→ Llamada de estrategia gratuita
-→ Propuesta personalizada
-
-⬇️ RETENCIÓN
-→ Servicio que supera expectativas
-→ Programa de referidos
-
-¿En cuál etapa está fallando tu negocio?
-Dímelo abajo y te doy un consejo específico 🎯
-
-#EmbudoVentas #EstrategiaMarketing #NegociosLatinos #Emprendedores #JRZMarketing`,
-  },
-  {
-    title: 'Cómo crear contenido viral sin ser influencer',
-    caption: `No necesitas millones de seguidores para que tu contenido impacte. ✋
-
-La fórmula del contenido que funciona:
-
-💡 HOOK — Las primeras 3 palabras detienen el scroll
-📚 VALOR — Un aprendizaje accionable que puedan usar HOY
-🎭 EMOCIÓN — Que inspire, enseñe o conecte
-🔄 COMPARTIBLE — Que lo guarden o lo manden a alguien
-📣 CTA — Diles exactamente qué hacer después
-
-El contenido viral no es suerte.
-Es fórmula aplicada consistentemente.
-
-¿Cuál de estos elementos le falta más a tu contenido?
-
-Dime abajo y te doy feedback específico 👇
-
-Guarda este post 🔖 — te lo vas a agradecer.
-
-#ContenidoViral #MarketingContenidos #CreadorContenido #NegociosLatinos #JRZMarketing #EstrategiaContenido`,
-  },
-  {
-    title: '3 tipos de contenido que SIEMPRE generan ventas',
-    caption: `No todo el contenido vende igual.
-
-Después de manejar decenas de cuentas, estos 3 nunca fallan:
-
-1️⃣ PRUEBA SOCIAL
-"Mira lo que logramos para este cliente..."
-→ Resultados reales + historia = confianza instantánea
-
-2️⃣ EDUCACIÓN + PROBLEMA
-"El error que te está costando clientes..."
-→ Identifies el dolor, ofreces la solución
-
-3️⃣ TRANSFORMACIÓN
-"Antes vs Después — 90 días de trabajo"
-→ Muestra el viaje, no solo el destino
-
-¿Cuál usas menos?
-Ese es tu punto ciego. Ese es donde más oportunidad tienes.
-
-Empieza a publicar estos 3 y verás la diferencia en 30 días.
-
-¿Quieres una estrategia de contenido para tu negocio específico?
-Escríbenos un DM 📩
-
-#EstrategiaContenido #MarketingDigital #Ventas #NegociosLatinos #JRZMarketing`,
-  },
-  {
-    title: 'El ROI real del marketing digital (números sin mentiras)',
-    caption: `La pregunta que siempre me hacen: "¿Cuánto voy a ganar si invierto en marketing?"
-
-La respuesta honesta: depende. Pero aquí los números reales:
-
-📊 Email marketing: $36 por cada $1 invertido (promedio global)
-📊 SEO local: 5-10x ROI en 6-12 meses
-📊 Redes sociales orgánicas: depende de tu sistema de conversión
-📊 Facebook/IG Ads bien optimizados: 3-8x ROAS
-
-Lo que NADIE te dice:
-→ El marketing digital SÍ funciona
-→ Pero necesita mínimo 90 días de consistencia
-→ Necesita sistema (CRM + automatización)
-→ Necesita estrategia, no solo "post y reza"
-
-¿Cuánto llevas invirtiendo en marketing y qué resultado tienes?
-Dime honestamente abajo 👇
-
-#ROIMarketing #MarketingDigital #NegociosLatinos #Inversión #JRZMarketing #Emprendedores`,
-  },
-];
-
-// ═══════════════════════════════════════════════════════════
-// DAILY STORY TEMPLATES — Rotate by day of week (0=Sun…6=Sat)
-// Platform: Instagram + Facebook | Type: story
-// Character limit: aim for ≤500 chars (short & punchy)
-// ═══════════════════════════════════════════════════════════
-const STORY_TEMPLATES = [
-  // Sunday (0)
-  {
-    text: `Nueva semana. Nueva oportunidad de crecer. 🌟\n\n¿Tu negocio tiene el sistema para captarlo?\n\nAgenda tu sesión estratégica GRATIS esta semana 👇\n${BOOKING_URL}\n\nJRZ Marketing · Orlando, FL`,
-    cta: 'Agenda esta semana',
-  },
-  // Monday (1)
-  {
-    text: `¿Listo para transformar tu negocio esta semana? 🚀\n\nTe regalamos 30 minutos de estrategia gratis.\nSin costo. Sin compromiso.\n\n👉 ${BOOKING_URL}\n\nJRZ Marketing · jrzmarketing.com`,
-    cta: 'Agenda tu llamada gratuita',
-  },
-  // Tuesday (2)
-  {
-    text: `¿Tu negocio está captando todos los leads que podría? 🎯\n\nNosotros te ayudamos a que no se te escape ninguno.\n\n💬 Escríbenos un DM y hablamos.\nO agenda directo → ${BOOKING_URL}`,
-    cta: 'Escríbenos por DM',
-  },
-  // Wednesday (3)
-  {
-    text: `💡 Dato: el 78% de los clientes compra al primero que responde.\n\n¿Cuántos leads pierdes por responder tarde?\n\nPide tu cotización gratis 👇\n📩 info@jrzmarketing.com\n\n#AutomatizaciónIA #NegociosLatinos`,
-    cta: 'Pide tu cotización',
-  },
-  // Thursday (4)
-  {
-    text: `🤖 IA + Marketing + Automatización =\nResultados que trabajan mientras duermes.\n\nEso hacemos en JRZ Marketing.\n\n¿Tu negocio está listo para el siguiente nivel?\n👉 ${BOOKING_URL}`,
-    cta: 'Habla con el equipo',
-  },
-  // Friday (5)
-  {
-    text: `¡Viernes! Termina la semana con un plan para la próxima. 📋\n\nAgenda hoy tu sesión estratégica gratuita.\nCupos limitados esta semana.\n\n→ ${BOOKING_URL}\n\nJRZ Marketing · Orlando, FL 🇺🇸`,
-    cta: 'Reserva tu espacio',
-  },
-  // Saturday (6)
-  {
-    text: `El fin de semana es perfecto para planear tu próximo nivel. 🎯\n\nSi tu marketing no trabaja para ti, nosotros sí podemos.\n\nJRZ Marketing · Orlando, FL\n🌐 jrzmarketing.com\n📩 info@jrzmarketing.com`,
-    cta: 'Visita jrzmarketing.com',
-  },
-];
 
 // ═══════════════════════════════════════════════════════════
 // ARMANDO DM BOT — EXISTING LOGIC (unchanged)
@@ -2693,15 +1867,6 @@ async function schedulePost({ caption, accountIds, type = 'post', scheduleDate, 
     }
   );
   return res.data;
-}
-
-// Get today's carousel script — cycles through 14 pre-written, then uses NewsAPI + Claude
-function getTodaysScript() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 1);
-  const dayOfYear = Math.ceil((now - start) / 86400000);
-  const scriptIndex = (dayOfYear - 1) % CAROUSEL_SCRIPTS.length;
-  return { script: CAROUSEL_SCRIPTS[scriptIndex], index: scriptIndex, usedPrewritten: true };
 }
 
 // Use NewsAPI + Claude to generate fresh Spanish content (week 3+ fallback)
@@ -4568,6 +3733,47 @@ app.get('/', (_req, res) => {
     socialMedia: 'Instagram · Facebook · LinkedIn · YouTube · Google Business',
     postsPerDay: '1 carousel (8am EST) + 1 story (7pm EST)',
     office: 'https://armando-bot-1.onrender.com/office',
+    health: 'https://armando-bot-1.onrender.com/health',
+    status: 'https://armando-bot-1.onrender.com/status',
+  });
+});
+
+// ─── GET /health — instant deploy verification ───────────────────────────────
+// Check this after every push: build hash changes = new code is live.
+app.get('/health', (_req, res) => {
+  res.json({
+    ok: true,
+    build: BUILD_HASH,
+    startedAt: SERVER_START_TIME,
+    uptime: `${Math.floor(process.uptime() / 60)}m`,
+    node: process.version,
+    memory: `${Math.round(process.memoryUsage().rss / 1024 / 1024)}MB`,
+  });
+});
+
+// ─── GET /status — full cron dashboard ───────────────────────────────────────
+// Shows last run time + result for every cron job. Debug in seconds, not minutes.
+app.get('/status', (_req, res) => {
+  const jobs = Object.entries(CRON_STATUS).map(([name, info]) => ({
+    job: name,
+    lastRun: info.lastRun,
+    status: info.status,
+    detail: info.detail,
+    minutesAgo: info.lastRun
+      ? Math.round((Date.now() - new Date(info.lastRun)) / 60000)
+      : null,
+  }));
+
+  const ok  = jobs.filter(j => j.status === 'ok').length;
+  const err = jobs.filter(j => j.status === 'error').length;
+  const never = Object.keys(CRON_STATUS).length === 0;
+
+  res.json({
+    build: BUILD_HASH,
+    startedAt: SERVER_START_TIME,
+    uptime: `${Math.floor(process.uptime() / 60)}m`,
+    summary: never ? 'No jobs have run yet since last deploy' : `${ok} ok / ${err} errors`,
+    jobs: jobs.sort((a, b) => (b.lastRun || '').localeCompare(a.lastRun || '')),
   });
 });
 
@@ -12783,19 +11989,17 @@ app.get('/cron/client-blog/:locationId', (req, res) => {
   const { locationId } = req.params;
   const config = SEO_CLIENTS[locationId];
   if (!config) return res.status(404).json({ error: `No SEO_CLIENTS entry for locationId: ${locationId}` });
-  res.json({ status: 'started', name: config.name, message: 'Blog generating in background — will publish to GHL in ~60s' });
-  runClientDailySeoBlog(locationId, config)
-    .then(r => console.log(`[Client SEO] ✅ Manual blog result for ${config.name}:`, JSON.stringify(r)))
-    .catch(e => console.error(`[Client SEO] ❌ Manual blog error for ${config.name}:`, e.message));
+  const jobKey = `blog-${config.name}`;
+  res.json({ status: 'started', job: jobKey, name: config.name, note: 'Check GET /status in ~60s' });
+  runCron(jobKey, () => runClientDailySeoBlog(locationId, config), true);
 });
 app.post('/cron/client-blog/:locationId', (req, res) => {
   const { locationId } = req.params;
   const config = SEO_CLIENTS[locationId];
   if (!config) return res.status(404).json({ error: `No SEO_CLIENTS entry for locationId: ${locationId}` });
-  res.json({ status: 'started', name: config.name, message: 'Blog generating in background — will publish to GHL in ~60s' });
-  runClientDailySeoBlog(locationId, config)
-    .then(r => console.log(`[Client SEO] ✅ Manual blog result for ${config.name}:`, JSON.stringify(r)))
-    .catch(e => console.error(`[Client SEO] ❌ Manual blog error for ${config.name}:`, e.message));
+  const jobKey = `blog-${config.name}`;
+  res.json({ status: 'started', job: jobKey, name: config.name, note: 'Check GET /status in ~60s' });
+  runCron(jobKey, () => runClientDailySeoBlog(locationId, config), true);
 });
 
 // GET /sofia/content-learning/status — show blog history + next recommended keyword per client
@@ -12876,8 +12080,8 @@ app.get('/cron/link-prospects/status', async (_req, res) => {
 // GET or POST /cron/railing-city-pages — run next batch of Railing Max city pages
 function triggerRailingPages(req, res) {
   const batchSize = parseInt(req.query.batch) || 50;
-  res.json({ status: 'started', message: `Generating ${batchSize} Railing Max city pages in background — check GHL in ~5 min` });
-  runRailingMaxCityPagesBatch(batchSize).catch(e => console.error('[City Pages] Manual error:', e.message));
+  res.json({ status: 'started', job: 'railing-city-pages', batchSize, note: 'Check GET /status or /cron/railing-city-pages/status in ~5 min' });
+  runCron('railing-city-pages', () => runRailingMaxCityPagesBatch(batchSize), true);
 }
 app.get('/cron/railing-city-pages', triggerRailingPages);
 app.post('/cron/railing-city-pages', triggerRailingPages);
@@ -12897,8 +12101,8 @@ app.get('/cron/railing-city-pages/status', async (_req, res) => {
 // GET or POST /cron/cooney-city-pages — run next batch of Cooney Homes city pages
 function triggerCooneyPages(req, res) {
   const batchSize = parseInt(req.query.batch) || 50;
-  res.json({ status: 'started', message: `Generating ${batchSize} Cooney Homes city pages in background — check GHL in ~5 min` });
-  runCooneyHomesCityPagesBatch(batchSize).catch(e => console.error('[Cooney City Pages] Manual error:', e.message));
+  res.json({ status: 'started', job: 'cooney-city-pages', batchSize, note: 'Check GET /status or /cron/cooney-city-pages/status in ~5 min' });
+  runCron('cooney-city-pages', () => runCooneyHomesCityPagesBatch(batchSize), true);
 }
 app.get('/cron/cooney-city-pages', triggerCooneyPages);
 app.post('/cron/cooney-city-pages', triggerCooneyPages);
@@ -13094,7 +12298,6 @@ let lastGBPPostDate           = null;
 // ─── GOOGLE BUSINESS PROFILE AUTO-POSTING ────────────────────────────────────
 // Runs daily at 9:00am — fetches connected Google accounts per client,
 // generates a location-specific GBP post with Claude Haiku, publishes via GHL.
-const GBP_POST_TYPES = ['WHATS_NEW', 'WHATS_NEW', 'WHATS_NEW', 'OFFER', 'EVENT'];
 
 async function runDailyGBPPosts() {
   console.log('[GBP] Starting daily Google Business Profile posts...');
