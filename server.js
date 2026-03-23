@@ -7,6 +7,42 @@ const path = require('path');
 const crypto = require('crypto');
 const FormData = require('form-data');
 
+// ─── RETRY WRAPPER ────────────────────────────────────────────────────────────
+// Wraps any async fn with exponential backoff. Use for all external API calls.
+async function withRetry(fn, retries = 3, delay = 1500) {
+  for (let i = 0; i < retries; i++) {
+    try { return await fn(); }
+    catch (e) {
+      if (i === retries - 1) throw e;
+      console.warn(`[Retry] attempt ${i + 2}/${retries} in ${delay * (i + 1)}ms — ${e.message}`);
+      await new Promise(r => setTimeout(r, delay * (i + 1)));
+    }
+  }
+}
+
+// ─── CRON STATUS TRACKER ─────────────────────────────────────────────────────
+const CRON_STATUS = {};
+const SERVER_START_TIME = new Date().toISOString();
+const BUILD_HASH = process.env.RENDER_GIT_COMMIT
+  ? process.env.RENDER_GIT_COMMIT.slice(0, 8)
+  : require('crypto').createHash('md5').update(String(Date.now())).digest('hex').slice(0, 8);
+
+function logCron(name, status, detail = '') {
+  const d = typeof detail === 'object' ? JSON.stringify(detail) : String(detail);
+  CRON_STATUS[name] = { lastRun: new Date().toISOString(), status, detail: d.slice(0, 300) };
+}
+
+// Wraps a cron fn: logs start→ok or error. nonBlocking=true = fire-and-forget but still logs.
+async function runCron(name, fn, nonBlocking = false) {
+  if (nonBlocking) {
+    fn().then(r  => logCron(name, 'ok',    r   ?? 'done'))
+        .catch(e => { logCron(name, 'error', e.message); console.error(`[Cron:${name}] ❌`, e.message); });
+  } else {
+    try   { const r = await fn(); logCron(name, 'ok', r ?? 'done'); }
+    catch (e) { logCron(name, 'error', e.message); console.error(`[Cron:${name}] ❌`, e.message); throw e; }
+  }
+}
+
 const app = express();
 app.use(express.json());
 
@@ -4188,8 +4224,10 @@ app.post('/cron/daily-post', async (_req, res) => {
 
 // Manual trigger: POST /cron/run-reel  — fire-and-forget (reel takes 60-90s, beyond Render timeout)
 app.post('/cron/run-reel', (_req, res) => {
-  res.json({ status: 'started', message: 'Reel generating in background — check GHL Social Planner in ~2 min' });
-  runDailyReel().then(r => console.log('[Reel] Manual result:', JSON.stringify(r))).catch(e => console.error('/cron/run-reel error:', e.message));
+  res.json({ status: 'started', message: 'Reel generating in background — check GET /status in ~2 min' });
+  runDailyReel()
+    .then(r => logCron('daily-reel', 'ok', r))
+    .catch(e => { logCron('daily-reel', 'error', e.message); console.error('/cron/run-reel error:', e.message); });
 });
 
 // Debug: GET /test-reel-content — test Claude reel content gen directly
@@ -5051,8 +5089,10 @@ if(!${!!standup}||h<7){document.querySelector('.trigger').style.display='block';
 
 // POST /cron/standup — generate today's team standup now
 app.post('/cron/standup', (_req, res) => {
-  res.json({ status: 'started', message: 'Generating daily team standup — check /office/standup in ~30s' });
-  runDailyTeamStandup().catch(e => console.error('[Standup] Manual error:', e.message));
+  res.json({ status: 'started', message: 'Generating standup — check GET /status in ~30s' });
+  runDailyTeamStandup()
+    .then(r => logCron('standup', 'ok', r))
+    .catch(e => { logCron('standup', 'error', e.message); console.error('[Standup] Manual error:', e.message); });
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -12730,8 +12770,10 @@ app.post('/sofia/uptime-check', async (_req, res) => {
 // Manual trigger: POST /cron/client-blogs — run daily SEO blog for all SEO_CLIENTS
 // Responds immediately — blog generation runs in background (60-90s per client)
 app.post('/cron/client-blogs', (_req, res) => {
-  res.json({ status: 'started', message: 'Running blogs for all clients in background — check Render logs' });
-  runAllClientsDailyBlog().catch(e => console.error('[Client SEO] All blogs error:', e.message));
+  res.json({ status: 'started', message: 'Blogs running in background — check GET /status for results' });
+  runAllClientsDailyBlog()
+    .then(r => logCron('client-blogs', 'ok', r))
+    .catch(e => { logCron('client-blogs', 'error', e.message); console.error('[Client SEO] All blogs error:', e.message); });
 });
 
 // Manual trigger: POST /cron/client-blog/:locationId — run blog for one specific client
@@ -12784,8 +12826,10 @@ app.post('/cron/content-learning', async (_req, res) => {
 
 // POST /cron/rank-tracking — run weekly rank check now
 app.post('/cron/rank-tracking', (_req, res) => {
-  res.json({ status: 'started', message: 'Rank tracking running in background — check Render logs' });
-  runWeeklyRankTracking().catch(e => console.error('[Rank Tracking] Manual error:', e.message));
+  res.json({ status: 'started', message: 'Rank tracking running — check GET /status for results' });
+  runWeeklyRankTracking()
+    .then(r => logCron('rank-tracking', 'ok', r))
+    .catch(e => { logCron('rank-tracking', 'error', e.message); console.error('[Rank Tracking] Manual error:', e.message); });
 });
 
 // POST /cron/gbp-posts — trigger GBP posting now for all connected clients
@@ -12800,14 +12844,18 @@ app.post('/cron/gbp-posts', async (_req, res) => {
 
 // POST /cron/backlink-check — run backlink monitoring now
 app.post('/cron/backlink-check', (_req, res) => {
-  res.json({ status: 'started', message: 'Backlink check running in background — check Render logs' });
-  runWeeklyBacklinkCheck().catch(e => console.error('[Backlinks] Manual error:', e.message));
+  res.json({ status: 'started', message: 'Backlink check running — check GET /status for results' });
+  runWeeklyBacklinkCheck()
+    .then(r => logCron('backlink-check', 'ok', r))
+    .catch(e => { logCron('backlink-check', 'error', e.message); console.error('[Backlinks] Manual error:', e.message); });
 });
 
 // POST /cron/link-prospecting — run backlink prospecting now (mines competitor links, sends pitches)
 app.post('/cron/link-prospecting', (_req, res) => {
-  res.json({ status: 'started', message: 'Link prospecting running — pitches sending in background. Check your email for report.' });
-  runBacklinkProspecting().catch(e => console.error('[LinkBuild] Manual error:', e.message));
+  res.json({ status: 'started', message: 'Link prospecting running — check GET /status + your email for report' });
+  runBacklinkProspecting()
+    .then(r => logCron('link-prospecting', 'ok', r))
+    .catch(e => { logCron('link-prospecting', 'error', e.message); console.error('[LinkBuild] Manual error:', e.message); });
 });
 
 // GET /cron/link-prospects/status — show full prospect history
@@ -13012,7 +13060,6 @@ app.post('/cron/citation-builder', async (_req, res) => {
 //  6:30pm EST  daily      → Story (Instagram + Facebook)
 // ═══════════════════════════════════════════════════════════
 let lastPostDate     = null;
-let lastReelDate     = null;
 let lastStoryDate    = null;
 let lastSeoBlogDate        = null;
 let lastClientBlogDate     = null;
@@ -13105,9 +13152,9 @@ Return ONLY the post text, nothing else.` }]
 
         const postText = msg.content[0].text.trim();
 
-        // Publish via GHL Social Posting API
+        // Publish via GHL Social Posting API — withRetry handles transient GHL errors
         const postNow = new Date();
-        await axios.post(
+        await withRetry(() => axios.post(
           `https://services.leadconnectorhq.com/social-media-posting/${locationId}/posts`,
           {
             accountIds: [account.id],
@@ -13120,7 +13167,7 @@ Return ONLY the post text, nothing else.` }]
             media: [],
           },
           { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' }, timeout: 15000 }
-        );
+        ));
 
         console.log(`[GBP] ✅ Posted to ${locationName} GBP: "${postText.slice(0, 60)}..."`);
         results.push({ client: name, location: locationName, text: postText });
@@ -13137,235 +13184,304 @@ Return ONLY the post text, nothing else.` }]
   return results;
 }
 
+// ─── /health — instant deploy verification ────────────────────────────────────
+app.get('/health', (_req, res) => {
+  const errors = Object.values(CRON_STATUS).filter(s => s.status === 'error').length;
+  res.json({
+    status: 'ok',
+    buildHash: BUILD_HASH,
+    startedAt: SERVER_START_TIME,
+    uptime: `${Math.floor(process.uptime() / 3600)}h ${Math.floor((process.uptime() % 3600) / 60)}m`,
+    cronJobs: Object.keys(CRON_STATUS).length,
+    errors,
+  });
+});
+
+// ─── /status — live cron dashboard ───────────────────────────────────────────
+app.get('/status', (_req, res) => {
+  const jobs = Object.entries(CRON_STATUS).sort((a, b) => a[0].localeCompare(b[0]));
+  const rows = jobs.map(([name, s]) => {
+    const icon = s.status === 'ok' ? '✅' : s.status === 'error' ? '❌' : '⏳';
+    const mins = s.lastRun ? Math.round((Date.now() - new Date(s.lastRun)) / 60000) : null;
+    const age  = mins === null ? 'never' : mins < 60 ? `${mins}m ago` : `${Math.floor(mins/60)}h ago`;
+    const color = s.status === 'error' ? '#e74c3c' : '#2ecc71';
+    return `<tr>
+      <td>${icon} <strong>${name}</strong></td>
+      <td style="color:#aaa">${age}</td>
+      <td style="color:${color}">${s.status}</td>
+      <td style="font-size:12px;color:#888;max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(s.detail||'').replace(/"/g,"'")}">${s.detail || ''}</td>
+    </tr>`;
+  }).join('');
+
+  const errorCount = jobs.filter(([,s]) => s.status === 'error').length;
+  const okCount    = jobs.filter(([,s]) => s.status === 'ok').length;
+  const upStr = `${Math.floor(process.uptime()/3600)}h ${Math.floor((process.uptime()%3600)/60)}m`;
+
+  res.set('Content-Type', 'text/html').send(`<!DOCTYPE html><html><head>
+<title>Armando Bot — Status</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Courier New',monospace;background:#0a0a0a;color:#ddd;padding:24px}
+  h1{color:#fff;font-size:22px;margin-bottom:4px}
+  .meta{color:#555;font-size:13px;margin-bottom:20px}
+  .stats{display:flex;gap:16px;margin-bottom:24px}
+  .stat{background:#111;border:1px solid #222;padding:12px 20px;border-radius:8px;text-align:center}
+  .stat .n{font-size:28px;font-weight:bold;color:#fff}
+  .stat .l{font-size:11px;color:#666;text-transform:uppercase;margin-top:2px}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;padding:8px 14px;background:#111;color:#555;font-size:11px;text-transform:uppercase;border-bottom:1px solid #1a1a1a}
+  td{padding:9px 14px;border-bottom:1px solid #141414;font-size:13px}
+  tr:hover td{background:#0f0f0f}
+  .empty{padding:32px;text-align:center;color:#333}
+</style></head><body>
+<h1>🤖 Armando Bot</h1>
+<p class="meta">Build: <strong>${BUILD_HASH}</strong> &nbsp;|&nbsp; Up: <strong>${upStr}</strong> &nbsp;|&nbsp; ${new Date().toLocaleString('en-US',{timeZone:'America/New_York'})} EST</p>
+<div class="stats">
+  <div class="stat"><div class="n">${jobs.length}</div><div class="l">Total Jobs</div></div>
+  <div class="stat"><div class="n" style="color:#2ecc71">${okCount}</div><div class="l">OK</div></div>
+  <div class="stat"><div class="n" style="color:#e74c3c">${errorCount}</div><div class="l">Errors</div></div>
+  <div class="stat"><div class="n" style="color:#f39c12">${jobs.length - okCount - errorCount}</div><div class="l">Pending</div></div>
+</div>
+<table><thead><tr><th>Job</th><th>Last Run</th><th>Status</th><th>Detail</th></tr></thead>
+<tbody>${rows || '<tr><td colspan="4" class="empty">No jobs have run yet — cron fires at scheduled times EST.</td></tr>'}</tbody></table>
+</body></html>`);
+});
+
 setInterval(async () => {
   try {
-    const nowEST    = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
-    const today     = nowEST.toISOString().split('T')[0];
-    const hour      = nowEST.getHours();
-    const minute    = nowEST.getMinutes();
-    const dayOfWeek = nowEST.getDay(); // 0=Sun, 1=Mon…6=Sat
-    const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+    const nowEST      = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const today       = nowEST.toISOString().split('T')[0];
+    const hour        = nowEST.getHours();
+    const minute      = nowEST.getMinutes();
+    const dayOfWeek   = nowEST.getDay();
+    const isWeekday   = dayOfWeek >= 1 && dayOfWeek <= 5;
+    const dateOfMonth = nowEST.getDate();
 
-    // 9:00am Mon–Fri — Google Business Profile posts for all connected clients
+    // 9:00am Mon–Fri — Google Business Profile posts
     if (hour === 9 && minute >= 0 && minute < 5 && isWeekday && lastGBPPostDate !== today) {
       lastGBPPostDate = today;
-      runDailyGBPPosts(); // non-blocking
+      runCron('gbp-posts', runDailyGBPPosts, true);
     }
 
-    // 6:50am daily — team standup meeting (all 5 agents, Claude-generated)
+    // 6:50am daily — AI team standup
     if (hour === 6 && minute >= 50 && minute < 55 && lastStandupDate !== today) {
       lastStandupDate = today;
-      runDailyTeamStandup(); // non-blocking
+      runCron('standup', runDailyTeamStandup, true);
     }
 
-    // 7:00am — daily carousel + blog
+    // 7:00am daily — carousel + blog
     if (hour === 7 && minute < 5 && lastPostDate !== today) {
       lastPostDate = today;
-      await runDailyPost();
+      await runCron('daily-post', runDailyPost);
     }
 
-    // 7:05am daily — Isabella: SEO blog targeting striking-distance keywords from Google Search Console
+    // 7:05am daily — SEO blog (striking-distance keywords)
     if (hour === 7 && minute >= 5 && minute < 10 && lastSeoBlogDate !== today) {
       lastSeoBlogDate = today;
-      runDailySeoBlog(); // non-blocking — Opus call, takes 20–30s
+      runCron('seo-blog', runDailySeoBlog, true);
     }
 
-    // 7:08am daily — all SEO clients: publish one blog post each
+    // 7:08am daily — all SEO clients: one blog post each
     if (hour === 7 && minute >= 8 && minute < 13 && lastClientBlogDate !== today) {
       lastClientBlogDate = today;
-      runAllClientsDailyBlog(); // non-blocking — loops through SEO_CLIENTS
+      runCron('client-blogs', runAllClientsDailyBlog, true);
     }
 
-    // 7:15am daily — Railing Max: publish next 5 city×service pages (348 total)
+    // 7:15am daily — Railing Max: 5 city×service pages
     if (hour === 7 && minute >= 15 && minute < 20 && lastRailingCityPagesDate !== today) {
       lastRailingCityPagesDate = today;
-      runRailingMaxCityPagesBatch(5); // non-blocking
+      runCron('railing-city-pages', () => runRailingMaxCityPagesBatch(5), true);
     }
 
-    // 7:20am daily — Cooney Homes: publish next 5 city×service pages (128 total)
+    // 7:20am daily — Cooney Homes: 5 city×service pages
     if (hour === 7 && minute >= 20 && minute < 25 && lastCooneyPagesDate !== today) {
       lastCooneyPagesDate = today;
-      runCooneyHomesCityPagesBatch(5); // non-blocking
+      runCron('cooney-city-pages', () => runCooneyHomesCityPagesBatch(5), true);
     }
 
-    // 7:10am Monday — analytics self-learning + A/B test analysis + weekly email
+    // 7:10am Monday — weekly analytics + A/B test + summary email
     if (hour === 7 && minute >= 10 && minute < 15 && dayOfWeek === 1 && lastSummaryDate !== today) {
       lastSummaryDate = today;
-      await runWeeklyAnalysis();
-      await runABTestAnalysis(); // analyze closing variants, shift weights to winner
-      const days     = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-      const weekPosts = CAROUSEL_SCRIPTS.slice(0, 7).map((s, i) => ({ day: days[i], title: s.title, success: true }));
-      await sendWeeklySummaryEmail(weekPosts);
+      await runCron('weekly-summary', async () => {
+        await runWeeklyAnalysis();
+        await runABTestAnalysis();
+        const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+        const weekPosts = CAROUSEL_SCRIPTS.slice(0, 7).map((s, i) => ({ day: days[i], title: s.title, success: true }));
+        await sendWeeklySummaryEmail(weekPosts);
+      });
     }
 
-    // 8:00am Mon–Fri — Diego: daily standup
+    // 8:00am Mon–Fri — Diego standup
     if (hour === 8 && minute < 5 && isWeekday && lastDiegoStandupDate !== today) {
       lastDiegoStandupDate = today;
-      runDiegoStandup(); // non-blocking
+      runCron('diego-standup', runDiegoStandup, true);
     }
 
     // 8:00am Monday — competitor monitoring
     if (hour === 8 && minute < 5 && dayOfWeek === 1 && lastCompetitorDate !== today) {
       lastCompetitorDate = today;
-      await runCompetitorMonitoring();
+      await runCron('competitor-monitoring', runCompetitorMonitoring);
     }
 
-    // 8:30am Monday — engagement learning + voice pattern optimization + review mining
+    // 8:30am Monday — engagement learning + voice patterns + review mining
     if (hour === 8 && minute >= 30 && minute < 35 && dayOfWeek === 1 && lastLearningDate !== today) {
       lastLearningDate = today;
-      await runEngagementLearning();
-      await updateWinningVoicePatterns();
-      await runReviewMining();
-      await runObjectionLearning();
-      await runSelfUpdateRules();
+      await runCron('engagement-learning', async () => {
+        await runEngagementLearning();
+        await updateWinningVoicePatterns();
+        await runReviewMining();
+        await runObjectionLearning();
+        await runSelfUpdateRules();
+      });
     }
 
-    // 8:35am Monday — Elena: weekly subaccount health check
+    // 8:35am Monday — Elena health check
     if (hour === 8 && minute >= 35 && minute < 40 && dayOfWeek === 1 && lastElenaHealthDate !== today) {
       lastElenaHealthDate = today;
-      elenaHealthCheck(); // non-blocking — hits 31 APIs
+      runCron('elena-health', elenaHealthCheck, true);
     }
 
-    // 9:30am Monday — Marco: weekly content brief
+    // 9:00am Monday — Apollo email enrichment
+    if (hour === 9 && minute < 5 && dayOfWeek === 1 && lastEnrichDate !== today) {
+      lastEnrichDate = today;
+      await runCron('enrich-prospects', enrichProspectEmails);
+    }
+
+    // 9:05am Monday — rank tracking
+    if (hour === 9 && minute >= 5 && minute < 10 && dayOfWeek === 1 && lastRankTrackingDate !== today) {
+      lastRankTrackingDate = today;
+      runCron('rank-tracking', runWeeklyRankTracking, true);
+    }
+
+    // 9:10am Monday — backlink monitoring
+    if (hour === 9 && minute >= 10 && minute < 15 && dayOfWeek === 1 && lastBacklinkCheckDate !== today) {
+      lastBacklinkCheckDate = today;
+      runCron('backlink-check', runWeeklyBacklinkCheck, true);
+    }
+
+    // 9:15am Monday — Diego weekly report
+    if (hour === 9 && minute >= 15 && minute < 20 && dayOfWeek === 1 && lastDiegoReportDate !== today) {
+      lastDiegoReportDate = today;
+      runCron('diego-weekly-report', runDiegoWeeklyReport, true);
+    }
+
+    // 9:20am Monday — backlink prospecting
+    if (hour === 9 && minute >= 20 && minute < 25 && dayOfWeek === 1 && lastLinkProspectingDate !== today) {
+      lastLinkProspectingDate = today;
+      runCron('link-prospecting', runBacklinkProspecting, true);
+    }
+
+    // 9:30am Monday — Marco content brief
     if (hour === 9 && minute >= 30 && minute < 35 && dayOfWeek === 1 && lastMarcoContentDate !== today) {
       lastMarcoContentDate = today;
-      runMarcoContentBrief(); // non-blocking
+      runCron('marco-content-brief', runMarcoContentBrief, true);
     }
 
-    // 10am Wednesday — Marco: mid-week trend alert
-    if (hour === 10 && minute < 5 && dayOfWeek === 3 && lastMarcoTrendDate !== today) {
-      lastMarcoTrendDate = today;
-      runMarcoTrendAlert(); // non-blocking
-    }
-
-    // 9:40am Monday — Sofia: keyword rank tracker (DataForSEO SERP check for 10 target keywords)
+    // 9:40am Monday — Sofia keyword tracker
     if (hour === 9 && minute >= 40 && minute < 45 && dayOfWeek === 1 && lastKeywordTrackerDate !== today) {
       lastKeywordTrackerDate = today;
-      runSofiaKeywordTracker(); // non-blocking — 10 SERP calls, ~15s
+      runCron('keyword-tracker', runSofiaKeywordTracker, true);
     }
 
-    // 9:50am Monday — Sofia: weekly SEO plan (keyword → meta → schema → blog → competitor gap)
-    if (hour === 9 && minute >= 50 && minute < 55 && dayOfWeek === 1 && lastWeeklySEODate !== today) {
-      lastWeeklySEODate = today;
-      runSofiaWeeklySEOPlan(); // non-blocking — opus call + GHL updates
-    }
-
-    // 9:45am Monday — Sofia: weekly full website health check + onboarding scan
+    // 9:45am Monday — Sofia weekly check + onboarding
     if (hour === 9 && minute >= 45 && minute < 50 && dayOfWeek === 1 && lastSofiaCheckDate !== today) {
       lastSofiaCheckDate = today;
-      runSofiaWeeklyCheck();    // non-blocking
-      runSofiaOnboardingCheck(); // non-blocking — detects new clients
+      runCron('sofia-weekly-check',   runSofiaWeeklyCheck,    true);
+      runCron('sofia-onboarding',     runSofiaOnboardingCheck, true);
     }
 
-    // Every 6 hours (0am, 6am, 12pm, 6pm) — Sofia: lightweight uptime monitor
+    // 9:50am Monday — Sofia weekly SEO plan
+    if (hour === 9 && minute >= 50 && minute < 55 && dayOfWeek === 1 && lastWeeklySEODate !== today) {
+      lastWeeklySEODate = today;
+      runCron('weekly-seo-plan', runSofiaWeeklySEOPlan, true);
+    }
+
+    // Every 6 hours (0/6/12/18) — Sofia uptime monitor
     const sixHourSlot = Math.floor(hour / 6);
     if (minute < 3 && sixHourSlot !== lastSofiaMonitorHour) {
       lastSofiaMonitorHour = sixHourSlot;
-      runSofiaUptimeMonitor(); // non-blocking — alerts Jose only if site goes down
+      runCron('uptime-monitor', runSofiaUptimeMonitor, true);
     }
 
-    // 1st of month, 9:55am — Sofia: monthly CRO report
+    // 1st of month, 9:55am — Sofia CRO report
     if (hour === 9 && minute >= 55 && dateOfMonth === 1 && lastSofiaCRODate !== today) {
       lastSofiaCRODate = today;
-      runSofiaCROReport(); // non-blocking
+      runCron('sofia-cro-report', runSofiaCROReport, true);
     }
 
-    // 9:15am Monday — Diego: weekly project report
-    if (hour === 9 && minute >= 15 && minute < 20 && dayOfWeek === 1 && lastDiegoReportDate !== today) {
-      lastDiegoReportDate = today;
-      runDiegoWeeklyReport(); // non-blocking
-    }
-
-    // 9:00am Monday — Apollo email enrichment (free plan: 50 credits/month)
-    if (hour === 9 && minute < 5 && dayOfWeek === 1 && lastEnrichDate !== today) {
-      lastEnrichDate = today;
-      await enrichProspectEmails();
-    }
-
-    // 9:05am Monday — rank tracking (DataForSEO SERP check for all client posts ≤60 days)
-    if (hour === 9 && minute >= 5 && minute < 10 && dayOfWeek === 1 && lastRankTrackingDate !== today) {
-      lastRankTrackingDate = today;
-      runWeeklyRankTracking(); // non-blocking
-    }
-
-    // 9:10am Monday — backlink monitoring (DataForSEO snapshot per client domain)
-    if (hour === 9 && minute >= 10 && minute < 15 && dayOfWeek === 1 && lastBacklinkCheckDate !== today) {
-      lastBacklinkCheckDate = today;
-      runWeeklyBacklinkCheck(); // non-blocking
-    }
-
-    // 9:20am Monday — backlink prospecting: mine competitor domains, send guest post pitches
-    if (hour === 9 && minute >= 20 && minute < 25 && dayOfWeek === 1 && lastLinkProspectingDate !== today) {
-      lastLinkProspectingDate = today;
-      runBacklinkProspecting(); // non-blocking
-    }
-
-    // 1st of month, 9:00am — monthly client reports + Elena + Diego scorecard
-    const dateOfMonth = nowEST.getDate();
+    // 1st of month, 9:00am — monthly reports + Elena + Diego scorecard + SEO progress
     if (hour === 9 && minute < 5 && dateOfMonth === 1 && lastMonthlyReportDate !== today) {
       lastMonthlyReportDate = today;
-      await sendMonthlyClientReports();
-      elenaMonthlyReports();   // non-blocking
-      runDiegoScorecard();     // non-blocking
-      // Send SEO progress report to every client sub-account owner
-      (async () => {
-        const clients = await getElenaClients();
-        for (const client of clients) {
-          const bl   = await runSofiaBacklinkAudit(client.website?.replace(/^https?:\/\//, '') || '').catch(() => null);
-          const cit  = await runSofiaCitationAudit(client.name).catch(() => null);
-          const seoConfig = SEO_CLIENTS[client.locationId] || {};
-          const ga4  = seoConfig.ga4PropertyId ? await getGA4Data(seoConfig.ga4PropertyId).catch(() => null) : null;
-          await sendClientSEOProgressReport(client, { keyword: 'your top local keyword', position: null, blogsThisMonth: 4, backlinks: bl, citations: cit, competitorGaps: [], ga4 });
-          await new Promise(r => setTimeout(r, 3000)); // 3s between clients — avoid rate limits
-        }
-      })(); // non-blocking — runs for all 31 clients in background
+      await runCron('monthly-reports', async () => {
+        await sendMonthlyClientReports();
+        elenaMonthlyReports();
+        runDiegoScorecard();
+        (async () => {
+          const clients = await getElenaClients();
+          for (const client of clients) {
+            const bl  = await runSofiaBacklinkAudit(client.website?.replace(/^https?:\/\//, '') || '').catch(() => null);
+            const cit = await runSofiaCitationAudit(client.name).catch(() => null);
+            const seoConfig = SEO_CLIENTS[client.locationId] || {};
+            const ga4 = seoConfig.ga4PropertyId ? await getGA4Data(seoConfig.ga4PropertyId).catch(() => null) : null;
+            await sendClientSEOProgressReport(client, { keyword: 'your top local keyword', position: null, blogsThisMonth: 4, backlinks: bl, citations: cit, competitorGaps: [], ga4 });
+            await new Promise(r => setTimeout(r, 3000));
+          }
+        })();
+      });
     }
 
-    // 15th of month, 10:00am — Elena: mid-month proactive check-in to at-risk clients
+    // 15th of month, 10:00am — Elena mid-month check-in
     if (hour === 10 && minute < 5 && dateOfMonth === 15 && lastMidMonthCheckIn !== today) {
       lastMidMonthCheckIn = today;
-      elenaMidMonthCheckIn(); // non-blocking
+      runCron('elena-midmonth', elenaMidMonthCheckIn, true);
     }
 
-    // 1st of Jan/Apr/Jul/Oct, 9:30am — Elena: quarterly deep-dive report
+    // 1st of Jan/Apr/Jul/Oct, 9:30am — Elena quarterly report
     const isQuarterStart = [1, 4, 7, 10].includes(nowEST.getMonth() + 1) && dateOfMonth === 1;
     if (hour === 9 && minute >= 30 && minute < 35 && isQuarterStart && lastQuarterlyReport !== today) {
       lastQuarterlyReport = today;
-      elenaQuarterlyReport(); // non-blocking
+      runCron('elena-quarterly', elenaQuarterlyReport, true);
     }
 
-
-    // Last Friday of month, 10:00am — sub-account monthly check-in emails
-    const isFriday = dayOfWeek === 5;
+    // Last Friday of month, 10:00am — sub-account check-in emails
+    const isFriday    = dayOfWeek === 5;
     const isLastFriday = isFriday && (dateOfMonth + 7 > new Date(nowEST.getFullYear(), nowEST.getMonth() + 1, 0).getDate());
     if (hour === 10 && minute < 5 && isLastFriday && lastSubCheckInDate !== today) {
       lastSubCheckInDate = today;
-      await sendSubAccountCheckInEmails();
+      await runCron('subaccount-checkin', sendSubAccountCheckInEmails);
+    }
+
+    // 10:00am Wednesday — Marco trend alert
+    if (hour === 10 && minute < 5 && dayOfWeek === 3 && lastMarcoTrendDate !== today) {
+      lastMarcoTrendDate = today;
+      runCron('marco-trend-alert', runMarcoTrendAlert, true);
     }
 
     // 10:00am Mon–Fri — outbound prospecting
     if (hour === 10 && minute < 5 && isWeekday && lastOutboundDate !== today) {
       lastOutboundDate = today;
-      await runDailyOutbound();
+      await runCron('daily-outbound', runDailyOutbound);
     }
 
-    // 10:30am daily — client check-ins (30-day rolling)
+    // 10:30am daily — client check-ins
     if (hour === 10 && minute >= 30 && minute < 35 && lastCheckInDate !== today) {
       lastCheckInDate = today;
-      await runClientCheckIns();
+      await runCron('client-checkins', runClientCheckIns);
     }
 
-    // 6:30pm — story
+    // 6:30pm daily — story
     if (hour === 18 && minute >= 30 && minute < 35 && lastStoryDate !== today) {
       lastStoryDate = today;
-      await runDailyStory();
+      await runCron('daily-story', runDailyStory);
     }
 
-    // Every tick (every 2 min) — Gmail inbox check
-    await runGmailCheck();
+    // Every 2 min — Gmail inbox check
+    await runCron('gmail-check', runGmailCheck);
 
   } catch (err) {
     console.error('[Cron] Internal scheduler error:', err.message);
+    logCron('_scheduler', 'error', err.message);
   }
 }, 2 * 60 * 1000); // Every 2 minutes
 
