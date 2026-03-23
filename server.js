@@ -4186,15 +4186,10 @@ app.post('/cron/daily-post', async (_req, res) => {
   }
 });
 
-// Manual trigger: POST /cron/run-reel  — test the Canva reel right now
-app.post('/cron/run-reel', async (_req, res) => {
-  try {
-    const result = await runDailyReel();
-    res.json({ status: 'ok', ...result });
-  } catch (err) {
-    console.error('/cron/run-reel error:', err.message);
-    res.status(500).json({ status: 'error', message: err.message });
-  }
+// Manual trigger: POST /cron/run-reel  — fire-and-forget (reel takes 60-90s, beyond Render timeout)
+app.post('/cron/run-reel', (_req, res) => {
+  res.json({ status: 'started', message: 'Reel generating in background — check GHL Social Planner in ~2 min' });
+  runDailyReel().then(r => console.log('[Reel] Manual result:', JSON.stringify(r))).catch(e => console.error('/cron/run-reel error:', e.message));
 });
 
 // Debug: GET /test-reel-content — test Claude reel content gen directly
