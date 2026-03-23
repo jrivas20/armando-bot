@@ -3680,7 +3680,7 @@ async function runDailyReel() {
     console.log('[Reel] ✅ Viral content generated:', content.hook);
   } catch (err) {
     console.error('[Reel] ❌ Content generation failed:', err.message);
-    return { success: false, error: 'Content generation failed' };
+    return { success: false, error: `Content generation failed: ${err.message}` };
   }
 
   // Build the video
