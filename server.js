@@ -12789,9 +12789,13 @@ app.post('/cron/rank-tracking', (_req, res) => {
 });
 
 // POST /cron/gbp-posts — trigger GBP posting now for all connected clients
-app.post('/cron/gbp-posts', (_req, res) => {
-  res.json({ status: 'started', message: 'GBP posts running in background — check Render logs for results' });
-  runDailyGBPPosts().catch(e => console.error('[GBP] Manual trigger error:', e.message));
+app.post('/cron/gbp-posts', async (_req, res) => {
+  try {
+    const results = await runDailyGBPPosts();
+    res.json({ status: 'done', posted: results.length, results });
+  } catch (e) {
+    res.json({ status: 'error', error: e.message });
+  }
 });
 
 // POST /cron/backlink-check — run backlink monitoring now
