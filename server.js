@@ -5648,8 +5648,6 @@ const {
   runWeeklyRankTracking,
   runWeeklyBacklinkCheck,
   runBacklinkProspecting,
-  buildLandingHTML,
-  createGHLLandingPage,
 } = require('./modules/agents/sofia')({
   anthropic, axios, crypto, FormData,
   sendEmail, logActivity, setAgentBusy, setAgentIdle, agentChat,
