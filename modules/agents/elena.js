@@ -4,6 +4,7 @@
 'use strict';
 
 module.exports = function createElena({
+  app,
   anthropic, axios, crypto, FormData,
   sendEmail, logActivity,
   GHL_API_KEY, GHL_LOCATION_ID,

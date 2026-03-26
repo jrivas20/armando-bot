@@ -4,6 +4,7 @@
 'use strict';
 
 module.exports = function createMarco({
+  app,
   anthropic, axios,
   sendEmail, logActivity, setAgentBusy, setAgentIdle, agentChat,
   getWeeklyStats, loadContentStrategy, saveCloudinaryJSON,

@@ -5478,6 +5478,7 @@ const {
   elenaMidMonthCheckIn,
   elenaQuarterlyReport,
 } = require('./modules/agents/elena')({
+  app,
   anthropic, axios, crypto, FormData,
   sendEmail, logActivity,
   GHL_API_KEY, GHL_LOCATION_ID,
@@ -5494,6 +5495,7 @@ const {
   runDiegoScorecard,
   runDiegoStandup,
 } = require('./modules/agents/diego')({
+  app,
   anthropic, axios, crypto, FormData,
   sendEmail, logActivity, setAgentBusy, setAgentIdle, agentChat,
   getElenaClients, saveCloudinaryJSON,
@@ -5510,6 +5512,7 @@ const {
   runMarcoContentBrief,
   runMarcoTrendAlert,
 } = require('./modules/agents/marco')({
+  app,
   anthropic, axios,
   sendEmail, logActivity, setAgentBusy, setAgentIdle, agentChat,
   getWeeklyStats, loadContentStrategy, saveCloudinaryJSON,

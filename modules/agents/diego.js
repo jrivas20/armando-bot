@@ -4,6 +4,7 @@
 'use strict';
 
 module.exports = function createDiego({
+  app,
   anthropic, axios, crypto, FormData,
   sendEmail, logActivity, setAgentBusy, setAgentIdle, agentChat,
   getElenaClients, saveCloudinaryJSON,
