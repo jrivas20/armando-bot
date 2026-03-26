@@ -1447,7 +1447,6 @@ async function runLocalPackMonitor() {
 async function runSofiaBacklinkProspector() {
   console.log('[Backlinks] Sofia: starting backlink prospector for all clients...');
   const SNAPSHOT_ID = 'jrz/backlink_outreach_snapshot';
-  const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || '';
 
   // Load existing outreach history
   let history = {};
