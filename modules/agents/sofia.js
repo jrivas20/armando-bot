@@ -2526,10 +2526,6 @@ async function runSofiaWeeklyCheck() {
   return {
     checkWebsite,
     runSofiaWeeklyCheck,
-    runSofiaFullAudit,
-    runSofiaCROReport,
-    runSofiaOnboardingCheck,
-    runSofiaUptimeMonitor,
     runSofiaWeeklySEOPlan,
     runSofiaContentLearning,
     runSofiaBacklinkAudit,

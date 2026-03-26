@@ -5523,10 +5523,6 @@ const {
 const {
   checkWebsite,
   runSofiaWeeklyCheck,
-  runSofiaFullAudit,
-  runSofiaCROReport,
-  runSofiaOnboardingCheck,
-  runSofiaUptimeMonitor,
   runSofiaWeeklySEOPlan,
   runSofiaContentLearning,
   runSofiaBacklinkAudit,
