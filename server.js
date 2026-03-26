@@ -21,7 +21,7 @@ const {
   GHL_LOCATION_ID, GHL_USER_ID,
   MARKETING_PIPELINE_ID, PIPELINE_STAGES,
   BLOG_ID, BLOG_AUTHOR_ID, BLOG_CATEGORIES,
-  SOCIAL_ACCOUNTS, TEXT_POST_ACCOUNTS, INSTAGRAM_ACCOUNTS, REEL_ACCOUNTS, STORY_ACCOUNTS,
+  SOCIAL_ACCOUNTS, TEXT_POST_ACCOUNTS, REEL_ACCOUNTS, STORY_ACCOUNTS,
   CAROUSEL_IMAGES,
   GBP_POST_TYPES,
 } = require('./modules/constants');
@@ -1785,69 +1785,6 @@ Reglas:
 // opts.slideDuration: seconds per slide (default 7 for carousel, 5 for short Reels)
 // opts.publicIdSuffix: extra suffix for Cloudinary public_id (e.g. '_short')
 // Returns permanent Cloudinary video URL, or null on failure
-async function createReelFromSlides(slideUrls, dayIdx, opts = {}) {
-  const { maxSlides = 4, slideDuration = 7, publicIdSuffix = '' } = opts;
-  const slides  = slideUrls.slice(0, maxSlides);
-  const tmpDir = '/tmp/jrz_reel';
-  try {
-    fs.mkdirSync(tmpDir, { recursive: true });
-
-    // 1. Download selected slides to /tmp
-    const slidePaths = [];
-    for (let i = 0; i < slides.length; i++) {
-      const dest = path.join(tmpDir, `slide${i}.png`);
-      const res  = await axios.get(slides[i], { responseType: 'arraybuffer' });
-      fs.writeFileSync(dest, res.data);
-      slidePaths.push(dest);
-    }
-
-    // 2. Build FFmpeg filter — slideDuration seconds per slide with black fade between each
-    const fadeStart = slideDuration - 1; // fade begins 1s before slide ends
-    const n       = slidePaths.length;
-    const inputs  = slidePaths.map(p => `-loop 1 -t ${slideDuration} -i "${p}"`).join(' ');
-    const filters = slidePaths.map((_, i) => {
-      const base = `[${i}:v]scale=1080:1080:force_original_aspect_ratio=decrease,pad=1080:1080:(ow-iw)/2:(oh-ih)/2,setsar=1`;
-      if (i === 0)     return `${base},fade=t=out:st=${fadeStart}:d=1[v${i}]`;
-      if (i === n - 1) return `${base},fade=t=in:st=0:d=1[v${i}]`;
-      return               `${base},fade=t=in:st=0:d=1,fade=t=out:st=${fadeStart}:d=1[v${i}]`;
-    }).join(';');
-    const concat  = slidePaths.map((_, i) => `[v${i}]`).join('');
-    const outPath = path.join(tmpDir, `reel${publicIdSuffix}.mp4`);
-
-    const cmd = `ffmpeg -y ${inputs} -filter_complex "${filters};${concat}concat=n=${n}:v=1:a=0,format=yuv420p[v]" -map "[v]" -r 30 -c:v libx264 -preset ultrafast -crf 26 "${outPath}"`;
-    execSync(cmd, { stdio: 'pipe', timeout: 120000 });
-
-    // 3. Upload to Cloudinary (video resource, overwrite on each run)
-    const publicId  = `jrz/reel_day${dayIdx}${publicIdSuffix}`;
-    const timestamp = Math.floor(Date.now() / 1000);
-    const sigStr    = `overwrite=true&public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
-    const signature = crypto.createHash('sha1').update(sigStr).digest('hex');
-
-    const form = new FormData();
-    form.append('file',       fs.createReadStream(outPath));
-    form.append('public_id',  publicId);
-    form.append('timestamp',  String(timestamp));
-    form.append('api_key',    CLOUDINARY_API_KEY);
-    form.append('signature',  signature);
-    form.append('overwrite',  'true');
-
-    await axios.post(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/video/upload`,
-      form,
-      { headers: form.getHeaders(), maxBodyLength: Infinity, timeout: 120000 }
-    );
-
-    // Cleanup temp files
-    slidePaths.forEach(p => { try { fs.unlinkSync(p); } catch (_) {} });
-    try { fs.unlinkSync(outPath); } catch (_) {}
-
-    // Return version-less URL so it always serves the latest
-    return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/video/upload/jrz/reel_day${dayIdx}${publicIdSuffix}.mp4`;
-  } catch (err) {
-    console.error('[Reel] ❌ Failed to create reel:', err.message);
-    return null;
-  }
-}
 
 // Schedule a post via GHL Social Media API
 // Pass media = [{ url, type: 'image' }] array for Instagram image posts
@@ -2455,56 +2392,8 @@ async function runDailyPost() {
     socialResult = { success: false, error: err.message };
   }
 
-  // ── Instagram Reel — build video from slides via FFmpeg → Cloudinary ──
-  let instagramResult = { success: false };
-  console.log('[Reel] Building reel from carousel slides...');
-  const reelUrl = await createReelFromSlides(todayImages, dayIdx >= 0 ? dayIdx : new Date().getDay());
-
-  if (reelUrl) {
-    // Post as Reel (video) — higher reach than static carousel
-    try {
-      const result = await schedulePost({
-        caption,
-        accountIds: INSTAGRAM_ACCOUNTS,
-        type: 'post',
-        scheduleDate: postTime,
-        media: [{ url: reelUrl, type: 'video' }],
-      });
-      console.log(`[Reel] ✅ Instagram Reel scheduled for ${postTime.toISOString()} — "${title}"`);
-      instagramResult = { success: true, title, scheduledFor: postTime.toISOString(), reelUrl, result };
-    } catch (err) {
-      console.error('[Reel] ❌ Failed to schedule Instagram Reel:', err?.response?.data || err.message);
-      // Fallback: post static carousel images if Reel fails
-      try {
-        await schedulePost({
-          caption,
-          accountIds: INSTAGRAM_ACCOUNTS,
-          type: 'post',
-          scheduleDate: postTime,
-          media: instagramMedia,
-        });
-        console.log('[Reel] ↩️  Fell back to static carousel for Instagram');
-        instagramResult = { success: true, fallback: 'carousel', title };
-      } catch (fallbackErr) {
-        instagramResult = { success: false, error: fallbackErr.message };
-      }
-    }
-  } else {
-    // Reel creation failed — post static carousel as fallback
-    console.log('[Reel] ↩️  Reel creation failed, falling back to static carousel');
-    try {
-      await schedulePost({
-        caption,
-        accountIds: INSTAGRAM_ACCOUNTS,
-        type: 'post',
-        scheduleDate: postTime,
-        media: instagramMedia,
-      });
-      instagramResult = { success: true, fallback: 'carousel', title };
-    } catch (err) {
-      instagramResult = { success: false, error: err.message };
-    }
-  }
+  // Instagram daily post disabled — user paused 2026-03-26
+  const instagramResult = { success: false, skipped: true, reason: 'Instagram paused' };
 
   // ── Blog post (English, published same day) ──
   const blogResult = await createDailyBlog(title, caption);
