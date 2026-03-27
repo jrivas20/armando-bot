@@ -8456,6 +8456,280 @@ setInterval(async () => {
   }
 }, 2 * 60 * 1000); // Every 2 minutes
 
+// ═══════════════════════════════════════════════════════════
+// AUTHOR PAGES — branded bio pages for each client's blogger
+// ═══════════════════════════════════════════════════════════
+
+const AUTHOR_SLUGS = {
+  'railing-max':        'iipUT8kmVxJZzGBzvkZm',
+  'escobar-kitchen':    'rJKRuyayc6Z6twr9X20v',
+  'rental-spaces':      '6FdG0APBuZ81P8X2H4zc',
+  'guaca-mole':         'Emg5M7GZE7XmnHc7F5vy',
+  'jrz-marketing':      'd7iUPfamAaPlSBNj6IhT',
+  'cooney-homes':       'Gc4sUcLiRI2edddJ5Lfl',
+  'le-varon':           'OpdBPAp31zItOc5IIykL',
+  'usa-latino-cpa':     'VWHZW08b0skUV7wcnG55',
+};
+
+function buildAuthorPageHTML(client) {
+  const a = client.author || {};
+  const b = client.brand || {};
+  const primary   = b.primary || '#1a1a1a';
+  const accent    = b.accent  || primary;
+  const fontImport = b.fontImport || "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap";
+  const fontDisplay = b.fontDisplay || 'Inter';
+  const fontBody   = b.fontBody   || 'Inter';
+  const logoUrl    = b.logoUrl    || '';
+  const phone      = b.phone      || '';
+  const stats      = b.stats      || [];
+  const trust      = b.trustBadges || [];
+
+  const authorName  = a.name        || 'Our Expert';
+  const authorTitle = a.title       || '';
+  const authorCreds = a.credentials || '';
+  const authorBio   = a.bio         || '';
+
+  const articlesUrl = `https://${client.domain}/blog`;
+  const cta = client.cta || `Learn more at ${client.domain}`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${authorName} — ${client.name}</title>
+<meta name="description" content="${authorTitle}. ${authorCreds.slice(0,160)}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="${fontImport}" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: '${fontBody}', sans-serif; background: #f9f9f9; color: #1a1a1a; }
+
+.hero {
+  background: ${primary};
+  color: #fff;
+  padding: 64px 24px 80px;
+  text-align: center;
+}
+.hero-logo { max-height: 48px; margin-bottom: 32px; opacity: 0.95; }
+.avatar-ring {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 4px solid ${accent};
+  background: rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+  font-family: '${fontDisplay}', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 2px;
+}
+.author-name {
+  font-family: '${fontDisplay}', sans-serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.author-title {
+  font-size: 15px;
+  opacity: 0.85;
+  font-weight: 400;
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.card-section {
+  max-width: 780px;
+  margin: -40px auto 0;
+  padding: 0 20px 64px;
+}
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 40px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+  margin-bottom: 24px;
+}
+.card h2 {
+  font-family: '${fontDisplay}', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: ${accent};
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+.card p {
+  font-size: 16px;
+  line-height: 1.75;
+  color: #333;
+}
+.creds {
+  background: ${primary}0D;
+  border-left: 3px solid ${accent};
+  padding: 16px 20px;
+  border-radius: 0 8px 8px 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #222;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-box {
+  background: ${primary};
+  color: #fff;
+  border-radius: 12px;
+  padding: 20px 16px;
+  text-align: center;
+}
+.stat-box .num {
+  font-family: '${fontDisplay}', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.stat-box .lbl { font-size: 12px; opacity: 0.8; }
+
+.trust-row {
+  display: flex; flex-wrap: wrap; gap: 10px;
+}
+.badge {
+  background: #f0f0f0;
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+}
+.badge::before { content: '✓  '; color: ${accent}; font-weight: 700; }
+
+.cta-card {
+  background: ${primary};
+  color: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+}
+.cta-card h3 {
+  font-family: '${fontDisplay}', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.cta-card p { font-size: 15px; opacity: 0.85; margin-bottom: 24px; }
+.cta-btn {
+  display: inline-block;
+  background: ${accent};
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 32px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+${phone ? `.phone-link { display:inline-block; margin-top:12px; color:#fff; opacity:0.85; font-size:14px; text-decoration:none; }` : ''}
+
+@media (max-width: 600px) {
+  .card { padding: 28px 24px; }
+  .hero { padding: 48px 20px 72px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  ${logoUrl ? `<img src="${logoUrl}" alt="${client.name}" class="hero-logo">` : ''}
+  <div class="avatar-ring">${authorName.charAt(0)}</div>
+  <div class="author-name">${authorName}</div>
+  <div class="author-title">${authorTitle}</div>
+</div>
+
+<div class="card-section">
+
+  ${stats.length ? `
+  <div class="stats-row">
+    ${stats.map(s => {
+      const parts = s.match(/^([^A-Za-z]+)?(.*)$/) || [, '', s];
+      return `<div class="stat-box"><div class="num">${s}</div></div>`;
+    }).join('')}
+  </div>` : ''}
+
+  <div class="card">
+    <h2>About ${authorName}</h2>
+    <p>${authorBio}</p>
+  </div>
+
+  ${authorCreds ? `
+  <div class="card">
+    <h2>Credentials & Experience</h2>
+    <div class="creds">${authorCreds}</div>
+  </div>` : ''}
+
+  ${trust.length ? `
+  <div class="card">
+    <h2>Why ${client.name}</h2>
+    <div class="trust-row">
+      ${trust.map(t => `<span class="badge">${t}</span>`).join('')}
+    </div>
+  </div>` : ''}
+
+  <div class="cta-card">
+    <h3>Read Articles by ${authorName.split(' ')[0]}</h3>
+    <p>${cta}</p>
+    <a href="https://${client.domain}" class="cta-btn">Visit ${client.name}</a>
+    ${phone ? `<br><a href="tel:${phone.replace(/\D/g,'')}" class="phone-link">${phone}</a>` : ''}
+  </div>
+
+</div>
+</body>
+</html>`;
+}
+
+// GET /author/:slug — branded author page for any SEO client
+app.get('/author/:slug', (req, res) => {
+  const locationId = AUTHOR_SLUGS[req.params.slug];
+  if (!locationId) {
+    return res.status(404).send('<h1>Author not found</h1><p>Valid paths: /authors</p>');
+  }
+  const client = SEO_CLIENTS[locationId];
+  if (!client || !client.author) {
+    return res.status(404).send('<h1>No author configured for this client</h1>');
+  }
+  res.setHeader('Content-Type', 'text/html');
+  res.send(buildAuthorPageHTML(client));
+});
+
+// GET /authors — index of all author pages
+app.get('/authors', (_req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  const rows = Object.entries(AUTHOR_SLUGS).map(([slug, locId]) => {
+    const c = SEO_CLIENTS[locId];
+    if (!c) return '';
+    const a = c.author || {};
+    return `<tr>
+      <td><strong>${a.name || '—'}</strong></td>
+      <td>${c.name}</td>
+      <td><a href="/author/${slug}">/author/${slug}</a></td>
+    </tr>`;
+  }).join('');
+  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Author Index</title>
+  <style>body{font-family:system-ui,sans-serif;padding:40px;max-width:800px;margin:0 auto}
+  table{width:100%;border-collapse:collapse}td,th{padding:12px;border-bottom:1px solid #eee;text-align:left}
+  th{background:#f5f5f5;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+  a{color:#37ca37}</style></head><body>
+  <h1 style="margin-bottom:24px">JRZ Marketing — Author Pages</h1>
+  <table><thead><tr><th>Author</th><th>Client</th><th>Page URL</th></tr></thead>
+  <tbody>${rows}</tbody></table></body></html>`);
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
