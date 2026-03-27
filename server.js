@@ -17,6 +17,7 @@ const {
 // ─── Data modules (edit client configs, scripts, IDs here) ───────────────────
 const { SEO_CLIENTS, getTodaysCity } = require('./modules/clients');
 const { CAROUSEL_SCRIPTS, STORY_TEMPLATES, getTodaysScript } = require('./modules/scripts');
+const { getPersona, hasPersona } = require('./modules/personas');
 const {
   GHL_LOCATION_ID, GHL_USER_ID,
   MARKETING_PIPELINE_ID, PIPELINE_STAGES,
