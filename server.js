@@ -391,7 +391,8 @@ function extractContactInfo(messages) {
   return { foundPhone, foundEmail };
 }
 
-async function getArmandoReply(incomingMessage, contactName, contactId, conversationId, channel = 'IG') {
+// prefetched = { history: [...], contact: { phone, email } } — passed from webhook to avoid duplicate GHL calls
+async function getArmandoReply(incomingMessage, contactName, contactId, conversationId, channel = 'IG', prefetched = {}) {
   const count = (contactMessageCount.get(contactId) || 0) + 1;
   contactMessageCount.set(contactId, count);
 
@@ -414,13 +415,14 @@ async function getArmandoReply(incomingMessage, contactName, contactId, conversa
   let historyCount = count;
   let claudeHistory = [];
 
-  // Pull existing contact info from GHL first (most reliable source)
-  const ghlContact = await getGHLContact(contactId);
+  // Use pre-fetched contact info if available — avoids a duplicate GHL API call
+  const ghlContact = prefetched.contact || await getGHLContact(contactId);
   foundPhone = ghlContact.phone || null;
   foundEmail = ghlContact.email || null;
 
-  if (conversationId) {
-    const messages = await getConversationHistory(conversationId);
+  // Use pre-fetched history if available — avoids a duplicate GHL API call
+  const messages = prefetched.history || (conversationId ? await getConversationHistory(conversationId) : []);
+  if (messages.length) {
     // Only extract from conversation if GHL doesn't have it yet
     if (!foundPhone || !foundEmail) {
       const extracted = extractContactInfo(messages);
@@ -3106,48 +3108,46 @@ app.post('/webhook', async (req, res) => {
       return res.status(200).json({ status: 'skipped', reason: 'duplicate messageId' });
     }
 
-    // ── Decide if Armando should engage at all ──
     const sendType = getSendType(messageType);
-    let shouldAutoReply = true;
 
-    // 1. If conversation already has outbound messages → Jose is handling it, stay silent
-    if (conversationId) {
-      const history = await getConversationHistory(conversationId);
-      const hasOutbound = history.some(m => m.direction === 'outbound');
-      if (hasOutbound) {
-        shouldAutoReply = false;
-        console.log(`[Armando] Existing conversation — staying silent, Jose handles it.`);
-      }
+    // ── Pre-flight checks — bail before Claude if Armando shouldn't engage ──
+    // Fetch history + contact info once here; pass into getArmandoReply to avoid duplicate GHL calls
+    const [priorHistory, priorContact] = await Promise.all([
+      conversationId ? getConversationHistory(conversationId) : Promise.resolve([]),
+      getGHLContact(contactId),
+    ]);
+
+    // 1. If Jose already sent outbound messages → he's handling it, stay silent
+    if (priorHistory.some(m => m.direction === 'outbound')) {
+      console.log(`[Armando] Existing outbound — silent, Jose handles it.`);
+      return res.status(200).json({ status: 'silent', reason: 'jose_handling' });
     }
 
-    // 2. If contact already has phone OR email in GHL → they gave us info, link was dropped, done.
-    if (shouldAutoReply) {
-      const existing = await getGHLContact(contactId);
-      if (existing.phone || existing.email) {
-        shouldAutoReply = false;
-        console.log(`[Armando] Contact already has contact info in GHL — staying silent, Jose handles it.`);
-      }
+    // 2. If contact already has phone AND email → fully qualified, no need to chase
+    if (priorContact.phone && priorContact.email) {
+      console.log(`[Armando] Contact already fully qualified — silent.`);
+      return res.status(200).json({ status: 'silent', reason: 'already_qualified' });
     }
 
+    // ── Now call Claude — pre-fetched data passed in to avoid duplicate API calls ──
     const { reply, leadQuality, sentiment, shouldEngage, wantsCall, slotChoice, foundPhone, foundEmail, contactMemory: cMem, competitorInsights: cInsights, compPainPoints: cPain } = await getArmandoReply(
-      messageBody, contactName, contactId, conversationId, sendType
+      messageBody, contactName, contactId, conversationId, sendType,
+      { history: priorHistory, contact: priorContact }  // pre-fetched — no re-fetch needed
     );
     const msgCount = contactMessageCount.get(contactId) || 1;
-    console.log(`Armando reply (msg #${msgCount}, lead: ${leadQuality}, sentiment: ${sentiment}, engage: ${shouldEngage}, phone: ${foundPhone || 'none'}, email: ${foundEmail || 'none'}):`, reply);
+    // shouldAutoReply: true unless Claude says the message is personal/non-business
+    let shouldAutoReply = shouldEngage !== false;
+    if (!shouldAutoReply) console.log(`[Armando] Message flagged as personal/non-business — silent.`);
+    console.log(`[Armando] msg #${msgCount} | lead:${leadQuality} sentiment:${sentiment} engage:${shouldAutoReply} phone:${foundPhone || '-'} email:${foundEmail || '-'}`);
 
     // Reel attribution — on first DM, check if a reel drove this lead
     if (msgCount === 1) {
-      const reelHook = await checkReelAttribution(contactId);
-      if (reelHook) {
-        tagContact(contactId, ['reel-driven-lead']); // fire-and-forget
-        console.log(`[Attribution] Lead ${contactId} attributed to reel: "${reelHook.slice(0, 60)}"`);
-      }
-    }
-
-    // 3. If Claude detects this is a personal/casual message not related to business → stay silent
-    if (shouldAutoReply && !shouldEngage) {
-      shouldAutoReply = false;
-      console.log(`[Armando] Message flagged as personal/non-business — staying silent.`);
+      checkReelAttribution(contactId).then(reelHook => {
+        if (reelHook) {
+          tagContact(contactId, ['reel-driven-lead']);
+          console.log(`[Attribution] Lead ${contactId} → reel: "${reelHook.slice(0, 60)}"`);
+        }
+      }).catch(() => {});
     }
 
     if (foundPhone || foundEmail) {
