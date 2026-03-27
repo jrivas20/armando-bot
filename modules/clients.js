@@ -80,6 +80,8 @@ const SEO_CLIENTS = {
     domain: 'theescobarkitchen.com',
     lang: 'en',
     industry: 'Latin Asian fusion restaurant',
+    blogEnabled: false,
+    gbpEnabled: false,
     competitors: ['thepressorlando.com', 'christners.com', 'orlandofoodcritic.com'],
     author: {
       name: 'Chef Andres Escobar',

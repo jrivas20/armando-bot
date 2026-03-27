@@ -8082,7 +8082,7 @@ async function runDailyGBPPosts() {
   console.log('[GBP] Starting daily Google Business Profile posts...');
   const results = [];
 
-  const gbpClients = Object.entries(SEO_CLIENTS).filter(([, c]) => c.blogEnabled !== false);
+  const gbpClients = Object.entries(SEO_CLIENTS).filter(([, c]) => c.blogEnabled !== false && c.gbpEnabled !== false);
 
   for (const [locationId, config] of gbpClients) {
     const { name, industry, voice, author } = config;
