@@ -2413,16 +2413,19 @@ async function runDailyStory() {
 
   const dayOfWeek = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'short' });
   const dayIndex = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(dayOfWeek.substring(0, 3));
-  const template = STORY_TEMPLATES[dayIndex >= 0 ? dayIndex : new Date().getDay()];
+  const idx = dayIndex >= 0 ? dayIndex : new Date().getDay();
+  const template = STORY_TEMPLATES[idx];
 
-  // Schedule for 7pm EST today (00:00 UTC next day = midnight = 7pm EST when UTC-5)
-  // 7pm EST = 23:00 UTC (during EDT/UTC-4) or 00:00 UTC+1day (during EST/UTC-5)
-  // Using 23:00 UTC as a safe default (works for EDT Apr-Nov)
+  // Schedule for 7pm EST today — 23:00 UTC works for EDT (UTC-4)
   const storyTime = new Date();
   storyTime.setUTCHours(23, 0, 0, 0);
   if (storyTime < new Date()) {
     storyTime.setDate(storyTime.getDate() + 1);
   }
+
+  // Stories require at least one image — use first carousel image for today
+  const todayImages = CAROUSEL_IMAGES[idx];
+  const storyMedia = [{ url: todayImages[0], type: 'image/png' }];
 
   try {
     const result = await schedulePost({
@@ -2430,6 +2433,7 @@ async function runDailyStory() {
       accountIds: STORY_ACCOUNTS,
       type: 'story',
       scheduleDate: storyTime,
+      media: storyMedia,
     });
     console.log(`[Social] ✅ Story scheduled for ${storyTime.toISOString()} — "${template.cta}"`);
     return { success: true, cta: template.cta, scheduledFor: storyTime.toISOString(), result };
@@ -8350,6 +8354,108 @@ app.get('/status', (_req, res) => {
 </div>
 <table><thead><tr><th>Job</th><th>Last Run</th><th>Status</th><th>Detail</th></tr></thead>
 <tbody>${rows || '<tr><td colspan="4" class="empty">No jobs have run yet — cron fires at scheduled times EST.</td></tr>'}</tbody></table>
+</body></html>`);
+});
+
+// ─── /dashboard — JRZ Marketing client dashboard ─────────────────────────────
+app.get('/dashboard', (_req, res) => {
+  const now = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+  const upStr = `${Math.floor(process.uptime()/3600)}h ${Math.floor((process.uptime()%3600)/60)}m`;
+
+  // DM stats from in-memory trackers
+  const totalDMs     = repliedMessageIds.size;
+  const uniqueLeads  = contactMessageCount.size;
+  const hotLeads     = alertEmailSent.size;
+  const qualified    = leadScoreAlertSent.size;
+
+  // Cron health summary
+  const cronJobs  = Object.entries(CRON_STATUS);
+  const cronOk    = cronJobs.filter(([,s]) => s.status === 'ok').length;
+  const cronErr   = cronJobs.filter(([,s]) => s.status === 'error').length;
+
+  // Key cron rows to show on dashboard
+  const KEY_CRONS = ['daily-post','daily-story','daily-seo-blog','gbp-posts','diego-standup','weekly-analysis'];
+  const cronRows = KEY_CRONS.map(name => {
+    const s = CRON_STATUS[name];
+    if (!s) return `<tr><td>${name}</td><td style="color:#555">never run</td><td style="color:#555">—</td></tr>`;
+    const mins = s.lastRun ? Math.round((Date.now() - new Date(s.lastRun)) / 60000) : null;
+    const age  = mins === null ? 'never' : mins < 60 ? `${mins}m ago` : `${Math.floor(mins/60)}h ago`;
+    const dot  = s.status === 'ok' ? '#2ecc71' : s.status === 'error' ? '#e74c3c' : '#f39c12';
+    return `<tr>
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dot};margin-right:8px"></span>${name}</td>
+      <td style="color:#aaa">${age}</td>
+      <td style="color:${dot};font-size:12px">${s.detail ? s.detail.slice(0,80) : s.status}</td>
+    </tr>`;
+  }).join('');
+
+  res.set('Content-Type', 'text/html').send(`<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JRZ Marketing — Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d0d0d;color:#e0e0e0;padding:0}
+header{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:20px 32px;border-bottom:3px solid #e94560;display:flex;align-items:center;justify-content:space-between}
+header h1{color:#fff;font-size:1.4rem;font-weight:700}header h1 span{color:#e94560}
+.meta{color:#666;font-size:12px;margin-top:4px}
+.now{color:#4ecca3;font-size:13px;background:rgba(78,204,163,0.1);padding:4px 12px;border-radius:20px;border:1px solid #4ecca3}
+.main{padding:28px 32px;max-width:1100px;margin:0 auto}
+.section-title{color:#888;font-size:11px;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;margin-top:28px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:8px}
+.kpi{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:20px;text-align:center}
+.kpi .num{font-size:2.4rem;font-weight:800;line-height:1}
+.kpi .lbl{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+.kpi.blue .num{color:#4ecca3}
+.kpi.red .num{color:#e94560}
+.kpi.orange .num{color:#f39c12}
+.kpi.green .num{color:#2ecc71}
+table{width:100%;border-collapse:collapse;background:#111;border-radius:10px;overflow:hidden;border:1px solid #1e1e1e}
+th{text-align:left;padding:10px 16px;background:#0f0f0f;color:#555;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+td{padding:10px 16px;border-bottom:1px solid #161616;font-size:13px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#0f0f0f}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge.ok{background:rgba(46,204,113,0.15);color:#2ecc71}
+.badge.err{background:rgba(231,76,60,0.15);color:#e74c3c}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.link{color:#4ecca3;text-decoration:none;font-size:13px;padding:6px 16px;border:1px solid #4ecca3;border-radius:20px}
+.link:hover{background:rgba(78,204,163,0.1)}
+footer{padding:20px 32px;color:#333;font-size:12px;border-top:1px solid #1a1a1a;margin-top:32px}
+</style></head><body>
+<header>
+  <div><h1>JRZ Marketing <span>·</span> AI Dashboard</h1><div class="meta">Build: ${BUILD_HASH} &nbsp;·&nbsp; Up: ${upStr}</div></div>
+  <div class="now">${now} EST</div>
+</header>
+<div class="main">
+
+  <div class="section-title">DM Bot — Since Last Deploy</div>
+  <div class="kpi-grid">
+    <div class="kpi blue"><div class="num">${totalDMs}</div><div class="lbl">DMs Handled</div></div>
+    <div class="kpi"><div class="num">${uniqueLeads}</div><div class="lbl">Unique Leads</div></div>
+    <div class="kpi orange"><div class="num">${hotLeads}</div><div class="lbl">Hot Leads Alerted</div></div>
+    <div class="kpi red"><div class="num">${qualified}</div><div class="lbl">Score ≥ 8 Alerts</div></div>
+  </div>
+
+  <div class="section-title">System Health</div>
+  <div class="kpi-grid">
+    <div class="kpi green"><div class="num">${cronOk}</div><div class="lbl">Crons OK</div></div>
+    <div class="kpi ${cronErr > 0 ? 'red' : 'green'}"><div class="num">${cronErr}</div><div class="lbl">Cron Errors</div></div>
+    <div class="kpi"><div class="num">${cronJobs.length}</div><div class="lbl">Total Jobs</div></div>
+  </div>
+
+  <div class="section-title">Key Automations</div>
+  <table>
+    <thead><tr><th>Job</th><th>Last Run</th><th>Status / Detail</th></tr></thead>
+    <tbody>${cronRows}</tbody>
+  </table>
+
+  <div class="links">
+    <a class="link" href="/status">Full Cron Status</a>
+    <a class="link" href="/health">Health JSON</a>
+    <a class="link" href="/social/status">Social Status</a>
+    <a class="link" href="/office">AI Office</a>
+  </div>
+</div>
+<footer>JRZ Marketing · Armando Bot · Orlando, FL</footer>
 </body></html>`);
 });
 
