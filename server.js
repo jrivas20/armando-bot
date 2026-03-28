@@ -12,6 +12,7 @@ const {
   SERVER_START_TIME, BUILD_HASH,
   withRetry,
   CRON_STATUS, logCron, runCron,
+  setCronErrorHandler,
 } = require('./modules/helpers');
 
 // ─── Data modules (edit client configs, scripts, IDs here) ───────────────────
@@ -8741,6 +8742,23 @@ app.listen(PORT, async () => {
   console.log(`6:30pm  EST daily     → Story (Instagram + Facebook)`);
   console.log(`24/7                  → Armando warm DMs on comments/follows`);
   await loadOfficeKPI(); // restore KPIs from Cloudinary on every startup
+
+  // ── Real-time cron failure alerts ─────────────────────────────────────────
+  // Any runCron() that throws will DM Jose immediately via GHL
+  setCronErrorHandler(async (cronName, errorMessage) => {
+    const time = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
+    const msg  = `🚨 Cron failed: [${cronName}] at ${time} EST\n\n${errorMessage.slice(0, 300)}`;
+    try {
+      await axios.post(
+        'https://services.leadconnectorhq.com/conversations/messages',
+        { type: 'SMS', contactId: OWNER_CONTACT_ID, message: msg },
+        { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
+      );
+      console.log(`[CronAlert] Sent failure alert for [${cronName}] to Jose`);
+    } catch (e) {
+      console.error('[CronAlert] Failed to send alert:', e.message);
+    }
+  });
 });
 
 // Save KPIs every 30 minutes so restarts lose at most 30 min of counts

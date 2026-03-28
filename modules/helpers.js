@@ -39,16 +39,39 @@ function logCron(name, status, detail = '') {
   };
 }
 
-// Wraps a cron fn: logs start → ok or error.
+// ─── Cron error handler ───────────────────────────────────────────────────────
+// Register once at startup via setCronErrorHandler(fn).
+// Called automatically whenever any runCron job fails.
+// Keeps helpers.js dependency-free — the handler lives in server.js.
+let _cronErrorHandler = null;
+function setCronErrorHandler(fn) { _cronErrorHandler = fn; }
+
+function _fireErrorHandler(name, message) {
+  if (!_cronErrorHandler) return;
+  try { _cronErrorHandler(name, message); } catch (_) {}
+}
+
+// Wraps a cron fn: logs start → ok or error → fires alert on failure.
 // nonBlocking=true = fire-and-forget, but result is still logged to CRON_STATUS.
 async function runCron(name, fn, nonBlocking = false) {
   if (nonBlocking) {
     fn()
-      .then(r  => logCron(name, 'ok',    r   ?? 'done'))
-      .catch(e => { logCron(name, 'error', e.message); console.error(`[Cron:${name}] ❌`, e.message); });
+      .then(r  => logCron(name, 'ok', r ?? 'done'))
+      .catch(e => {
+        logCron(name, 'error', e.message);
+        console.error(`[Cron:${name}] ❌`, e.message);
+        _fireErrorHandler(name, e.message);
+      });
   } else {
-    try   { const r = await fn(); logCron(name, 'ok', r ?? 'done'); }
-    catch (e) { logCron(name, 'error', e.message); console.error(`[Cron:${name}] ❌`, e.message); throw e; }
+    try {
+      const r = await fn();
+      logCron(name, 'ok', r ?? 'done');
+    } catch (e) {
+      logCron(name, 'error', e.message);
+      console.error(`[Cron:${name}] ❌`, e.message);
+      _fireErrorHandler(name, e.message);
+      throw e;
+    }
   }
 }
 
@@ -59,4 +82,5 @@ module.exports = {
   CRON_STATUS,
   logCron,
   runCron,
+  setCronErrorHandler,
 };
