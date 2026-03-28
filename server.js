@@ -540,7 +540,9 @@ Elige LA mejor para ellos — no copies, adapta. ${stillMissing}`;
     ? `\nSLOT DETECTION: Si el mensaje actual contiene "1", "2", "3", "primero", "segundo", "tercero", "first", "second", "third" o una hora específica que coincide con las opciones ofrecidas — devuelve slotChoice:1, slotChoice:2, o slotChoice:3 en el JSON. Si no están eligiendo un slot, devuelve slotChoice:0.`
     : '';
 
-  const systemWithContext = `${ARMANDO_PROMPT}
+  // Use persona-specific prompt if passed in (multi-tenant), otherwise default Armando
+  const basePrompt = prefetched.systemPrompt || ARMANDO_PROMPT;
+  const systemWithContext = `${basePrompt}
 
 --- CONTEXTO ACTUAL (solo para ti, no lo menciones) ---
 Nombre de la persona: ${contactName || 'desconocido'}
@@ -656,11 +658,11 @@ msgNumber: current message number in this conversation (${historyCount}).`;
   }
 }
 
-async function sendGHLReply(contactId, message, sendType) {
+async function sendGHLReply(contactId, message, sendType, apiKey = GHL_API_KEY) {
   await axios.post(
     'https://services.leadconnectorhq.com/conversations/messages',
     { type: sendType, contactId, message },
-    { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
+    { headers: { Authorization: `Bearer ${apiKey}`, Version: '2021-04-15', 'Content-Type': 'application/json' } }
   );
 }
 
@@ -3236,6 +3238,123 @@ app.post('/webhook', async (req, res) => {
     res.status(200).json({ status: 'ok', replied: shouldAutoReply, reply: shouldAutoReply ? reply : null, leadQuality, sentiment, foundPhone, foundEmail, messageNumber: msgCount });
   } catch (error) {
     console.error('Webhook error:', error?.response?.data || error.message);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// MULTI-TENANT WEBHOOK — /webhook/:locationId
+// Routes DMs from client sub-accounts to their persona bot.
+// Setup: client GHL → Settings → Webhooks → https://armando-bot-1.onrender.com/webhook/{locationId}
+// ═══════════════════════════════════════════════════════════
+
+app.post('/webhook/:locationId', async (req, res) => {
+  const { locationId } = req.params;
+  const persona = getPersona(locationId);
+
+  if (!persona) {
+    // No active persona for this locationId — ignore silently
+    return res.status(200).json({ status: 'skipped', reason: 'no_active_persona' });
+  }
+
+  try {
+    const payload = req.body;
+    console.log(`[Persona:${persona.name}] Incoming webhook:`, JSON.stringify(payload, null, 2));
+
+    const messageBody =
+      payload.body ||
+      payload.message?.body ||
+      payload.messageBody ||
+      payload.customData?.body ||
+      '';
+
+    const contactId =
+      payload.contactId ||
+      payload.contact_id ||
+      payload.contact?.id ||
+      payload.customData?.contactId ||
+      '';
+
+    const conversationId =
+      payload.conversationId ||
+      payload.conversation_id ||
+      payload.conversation?.id ||
+      '';
+
+    const messageType =
+      payload.message?.type ||
+      payload.messageType ||
+      payload.message_type ||
+      payload.type ||
+      payload.customData?.messageType ||
+      '';
+
+    const contactName =
+      payload.fullName ||
+      payload.full_name ||
+      payload.contactName ||
+      payload.firstName ||
+      payload.first_name ||
+      payload.customData?.fullName ||
+      '';
+
+    const messageId =
+      payload.messageId ||
+      payload.message_id ||
+      payload.message?.id ||
+      payload.id ||
+      '';
+
+    if (!messageBody || !contactId) {
+      return res.status(200).json({ status: 'skipped', reason: 'missing fields' });
+    }
+
+    if (messageId && repliedMessageIds.has(messageId)) {
+      return res.status(200).json({ status: 'skipped', reason: 'duplicate messageId' });
+    }
+
+    const sendType = getSendType(messageType);
+
+    // Pre-fetch history + contact using the client's own API key
+    const clientHeaders = { Authorization: `Bearer ${persona.apiKey}`, Version: '2021-07-28' };
+    const [priorHistory, priorContact] = await Promise.all([
+      conversationId
+        ? axios.get(`https://services.leadconnectorhq.com/conversations/${conversationId}/messages`, { headers: clientHeaders })
+            .then(r => (r.data.messages || []).map(m => ({ role: m.direction === 'outbound' ? 'assistant' : 'user', content: m.body || '', direction: m.direction })))
+            .catch(() => [])
+        : Promise.resolve([]),
+      axios.get(`https://services.leadconnectorhq.com/contacts/${contactId}`, { headers: clientHeaders })
+        .then(r => r.data.contact || r.data || {})
+        .catch(() => ({})),
+    ]);
+
+    // If a human already replied — stay silent
+    if (priorHistory.some(m => m.direction === 'outbound')) {
+      return res.status(200).json({ status: 'silent', reason: 'human_handling' });
+    }
+
+    // If already fully qualified — stay silent
+    if (priorContact.phone && priorContact.email) {
+      return res.status(200).json({ status: 'silent', reason: 'already_qualified' });
+    }
+
+    // Call Claude with persona's personality as the system prompt
+    const { reply, shouldEngage } = await getArmandoReply(
+      messageBody, contactName, contactId, conversationId, sendType,
+      { history: priorHistory, contact: priorContact, systemPrompt: persona.personality }
+    );
+
+    if (shouldEngage === false) {
+      return res.status(200).json({ status: 'silent', reason: 'non_business' });
+    }
+
+    await sendGHLReply(contactId, reply, sendType, persona.apiKey);
+    if (messageId) repliedMessageIds.add(messageId);
+    console.log(`[Persona:${persona.name}] ✅ Reply sent to ${contactName || contactId}`);
+
+    res.status(200).json({ status: 'ok', persona: persona.name, replied: true });
+  } catch (error) {
+    console.error(`[Persona webhook:${locationId}] Error:`, error?.response?.data || error.message);
     res.status(500).json({ status: 'error', message: error.message });
   }
 });
