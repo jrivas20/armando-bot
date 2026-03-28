@@ -5538,6 +5538,8 @@ const {
   runWeeklyRankTracking,
   runWeeklyBacklinkCheck,
   runBacklinkProspecting,
+  runClientDailySeoBlog,
+  runAllClientsDailyBlog,
 } = require('./modules/agents/sofia')({
   anthropic, axios, crypto, FormData,
   sendEmail, logActivity, setAgentBusy, setAgentIdle, agentChat,

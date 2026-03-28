@@ -2536,5 +2536,7 @@ async function runSofiaWeeklyCheck() {
     runWeeklyRankTracking,
     runWeeklyBacklinkCheck,
     runBacklinkProspecting,
+    runClientDailySeoBlog,
+    runAllClientsDailyBlog,
   };
 };
