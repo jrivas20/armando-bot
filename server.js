@@ -209,13 +209,44 @@ const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || 'IdUnHGrO7wYG
 // ─────────────────────────────────────────────────────────
 
 // ═══════════════════════════════════════════════════════════
-// ARMANDO DM BOT — EXISTING LOGIC (unchanged)
+// ARMANDO DM BOT — IN-MEMORY STATE
+// All sets/maps are persisted to Cloudinary every 5 min and
+// restored on startup so restarts don't lose conversation state.
 // ═══════════════════════════════════════════════════════════
 const contactMessageCount = new Map();
 const repliedMessageIds = new Set();
 const knownContactInfo = new Map();
 const thankYouEmailSent = new Set();
 const alertEmailSent = new Set();
+
+const DM_STATE_PID = 'jrz/dm_state';
+const DM_STATE_URL = `https://res.cloudinary.com/dbsuw1mfm/raw/upload/${DM_STATE_PID}.json`;
+
+async function loadDMState() {
+  try {
+    const res = await axios.get(DM_STATE_URL + '?t=' + Date.now(), { timeout: 8000 });
+    const saved = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+    if (saved.repliedMessageIds)    saved.repliedMessageIds.forEach(id => repliedMessageIds.add(id));
+    if (saved.thankYouEmailSent)    saved.thankYouEmailSent.forEach(id => thankYouEmailSent.add(id));
+    if (saved.alertEmailSent)       saved.alertEmailSent.forEach(id => alertEmailSent.add(id));
+    if (saved.contactMessageCount)  saved.contactMessageCount.forEach(([k, v]) => contactMessageCount.set(k, v));
+    console.log(`[DMState] Restored: ${repliedMessageIds.size} replied, ${alertEmailSent.size} alerted, ${contactMessageCount.size} contacts`);
+  } catch { console.log('[DMState] No saved state — starting fresh.'); }
+}
+
+async function saveDMState() {
+  try {
+    const data = {
+      repliedMessageIds: [...repliedMessageIds].slice(-2000), // keep last 2000 to cap size
+      thankYouEmailSent: [...thankYouEmailSent],
+      alertEmailSent:    [...alertEmailSent],
+      contactMessageCount: [...contactMessageCount.entries()],
+      savedAt: new Date().toISOString(),
+    };
+    await saveCloudinaryJSON(DM_STATE_PID, data);
+    console.log('[DMState] Saved to Cloudinary.');
+  } catch (err) { console.error('[DMState] Save failed:', err.message); }
+}
 
 const ARMANDO_PROMPT = `
 Eres Armando Rivas. Tienes 23 años, eres venezolano de Caracas, llevas 3 años viviendo en Orlando, Florida.
@@ -1188,19 +1219,47 @@ async function runEngagementLearning() {
     console.log('[Learning] Analyzing engagement patterns...');
     const res = await axios.get(
       `https://services.leadconnectorhq.com/social-media-posting/${GHL_LOCATION_ID}/posts`,
-      { params: { skip: 0, limit: 20, status: 'published' }, headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' }, timeout: 15000 }
+      { params: { skip: 0, limit: 50, status: 'published' }, headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' }, timeout: 15000 }
     );
     const posts = (res.data?.posts || res.data?.data || []).filter(p => p.caption || p.description);
     if (posts.length < 3) { console.log('[Learning] Not enough posts to analyze'); return; }
-    const topPosts = posts.slice(0, 10).map(p => p.caption || p.description || '').filter(Boolean).slice(0, 5).join('\n---\n');
+
+    // Score each post by real engagement (likes + comments + shares + views/10)
+    const scored = posts.map(p => {
+      const e = p.engagement || p.analytics || {};
+      const score = (e.likes || e.likeCount || 0)
+                  + (e.comments || e.commentCount || 0) * 2   // comments = stronger signal
+                  + (e.shares || e.shareCount || 0) * 3       // shares = strongest signal
+                  + Math.floor((e.views || e.viewCount || e.impressions || 0) / 10);
+      return { caption: p.caption || p.description || '', score, type: p.type || 'post', platform: p.platform || '' };
+    });
+
+    // Sort: top performers first, then take worst performers to learn what to avoid
+    scored.sort((a, b) => b.score - a.score);
+    const topPosts  = scored.slice(0, 5);
+    const flops     = scored.slice(-3).filter(p => p.score === 0);
+
+    const topSummary  = topPosts.map((p, i) => `#${i+1} (score ${p.score}): ${p.caption.slice(0, 200)}`).join('\n---\n');
+    const flopSummary = flops.length ? flops.map(p => p.caption.slice(0, 100)).join('\n---\n') : 'none';
+
     const msg = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001', max_tokens: 400,
-      messages: [{ role: 'user', content: `Analiza estos posts de JRZ Marketing y extrae los patrones que hacen que enganchen:\n${topPosts}\n\nDevuelve JSON: {"topHooks":["frase gancho 1","frase gancho 2"],"contentAngles":["ángulo 1","ángulo 2"],"emotionalTriggers":["disparador 1","disparador 2"]}` }]
+      model: 'claude-haiku-4-5-20251001', max_tokens: 500,
+      messages: [{ role: 'user', content: `Eres el director de contenido de JRZ Marketing. Analiza estos datos de engagement real y extrae los patrones ganadores.
+
+TOP POSTS (mayor engagement):
+${topSummary}
+
+POSTS QUE NO FUNCIONARON:
+${flopSummary}
+
+Devuelve SOLO JSON válido:
+{"topHooks":["hook ganador 1","hook ganador 2","hook ganador 3"],"contentAngles":["ángulo que funciona 1","ángulo 2"],"emotionalTriggers":["disparador emocional 1","disparador 2"],"avoidPatterns":["patrón a evitar 1","patrón 2"],"weeklyInsight":"observación clave sobre qué funciona esta semana"}` }]
     });
     const parsed = JSON.parse(msg.content[0].text.match(/\{[\s\S]*\}/)[0]);
     parsed.updatedAt = new Date().toISOString();
+    parsed.topPostScores = topPosts.map(p => ({ score: p.score, hook: p.caption.slice(0, 80) }));
     await saveEngagementPatterns(parsed);
-    console.log('[Learning] ✅ Engagement patterns saved');
+    console.log('[Learning] ✅ Engagement patterns updated from real data — top post score:', topPosts[0]?.score || 0);
   } catch (err) { console.error('[Learning] Engagement analysis failed:', err.message); }
 }
 
@@ -8459,6 +8518,125 @@ footer{padding:20px 32px;color:#333;font-size:12px;border-top:1px solid #1a1a1a;
 </body></html>`);
 });
 
+// ─── /client/:locationId — Live client portal ────────────────────────────────
+// Auth: ?key=<apiKey> must match the client's GHL API key
+// Shows: recent posts, DM bot status, upcoming scheduled posts
+app.get('/client/:locationId', async (req, res) => {
+  const { locationId } = req.params;
+  const { key } = req.query;
+
+  if (!key) {
+    return res.status(401).set('Content-Type', 'text/html').send(`
+      <html><body style="font-family:sans-serif;background:#0d0d0d;color:#e0e0e0;padding:40px;text-align:center">
+        <h2 style="color:#e94560">Access Denied</h2>
+        <p>Add your API key: <code>/client/${locationId}?key=YOUR_API_KEY</code></p>
+      </body></html>`);
+  }
+
+  try {
+    const headers = { Authorization: `Bearer ${key}`, Version: '2021-07-28' };
+
+    // Fetch location info + recent posts in parallel
+    const [locationRes, postsRes] = await Promise.all([
+      axios.get(`https://services.leadconnectorhq.com/locations/${locationId}`, { headers, timeout: 10000 }).catch(() => null),
+      axios.get(`https://services.leadconnectorhq.com/social-media-posting/${locationId}/posts`, {
+        params: { skip: 0, limit: 10, status: 'published' }, headers, timeout: 10000,
+      }).catch(() => null),
+    ]);
+
+    if (!locationRes) {
+      return res.status(403).set('Content-Type', 'text/html').send(`
+        <html><body style="font-family:sans-serif;background:#0d0d0d;color:#e0e0e0;padding:40px;text-align:center">
+          <h2 style="color:#e94560">Invalid credentials</h2>
+          <p>Check your locationId and API key.</p>
+        </body></html>`);
+    }
+
+    const location = locationRes.data?.location || locationRes.data || {};
+    const posts    = postsRes?.data?.posts || postsRes?.data?.data || [];
+
+    // Check if this location has a persona bot active
+    const persona   = getPersona(locationId);
+    const botStatus = persona ? `Active — ${persona.name} is handling DMs` : 'Not activated yet';
+    const botColor  = persona ? '#2ecc71' : '#f39c12';
+
+    const postRows = posts.slice(0, 8).map(p => {
+      const date    = p.publishedAt || p.scheduledAt || p.createdAt || '';
+      const caption = (p.caption || p.description || '').slice(0, 120);
+      const e       = p.engagement || p.analytics || {};
+      const eng     = [
+        e.likes || e.likeCount ? `❤️ ${e.likes || e.likeCount}` : '',
+        e.comments || e.commentCount ? `💬 ${e.comments || e.commentCount}` : '',
+        e.shares || e.shareCount ? `🔄 ${e.shares || e.shareCount}` : '',
+      ].filter(Boolean).join('  ') || '—';
+      const dateStr = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+      return `<tr>
+        <td style="color:#aaa;font-size:12px;white-space:nowrap">${dateStr}</td>
+        <td style="font-size:13px">${caption}${caption.length >= 120 ? '…' : ''}</td>
+        <td style="font-size:12px;white-space:nowrap">${eng}</td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="3" style="color:#555;padding:20px;text-align:center">No published posts yet</td></tr>`;
+
+    const now = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+
+    res.set('Content-Type', 'text/html').send(`<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${location.name || locationId} — Client Portal</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d0d0d;color:#e0e0e0}
+header{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:20px 32px;border-bottom:3px solid #e94560;display:flex;align-items:center;justify-content:space-between}
+header h1{color:#fff;font-size:1.3rem;font-weight:700}
+.sub{color:#aaa;font-size:12px;margin-top:3px}
+.now{color:#4ecca3;font-size:12px;padding:4px 12px;border:1px solid #4ecca3;border-radius:20px}
+.main{padding:28px 32px;max-width:960px;margin:0 auto}
+.section-title{color:#888;font-size:11px;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;margin-top:28px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.kpi{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:20px;text-align:center}
+.kpi .num{font-size:2rem;font-weight:800}
+.kpi .lbl{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+.bot-status{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:16px 20px;margin-top:16px;display:flex;align-items:center;gap:12px}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+table{width:100%;border-collapse:collapse;background:#111;border-radius:10px;overflow:hidden;border:1px solid #1e1e1e;margin-top:0}
+th{text-align:left;padding:10px 16px;background:#0f0f0f;color:#555;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+td{padding:9px 16px;border-bottom:1px solid #161616;vertical-align:top}
+tr:last-child td{border-bottom:none}
+footer{padding:20px 32px;color:#333;font-size:12px;border-top:1px solid #1a1a1a;margin-top:32px}
+</style></head><body>
+<header>
+  <div>
+    <h1>${location.name || 'Client Portal'}</h1>
+    <div class="sub">Powered by JRZ Marketing · Orlando, FL</div>
+  </div>
+  <div class="now">${now} EST</div>
+</header>
+<div class="main">
+
+  <div class="section-title">Automation Status</div>
+  <div class="bot-status">
+    <div class="dot" style="background:${botColor}"></div>
+    <div>
+      <strong style="font-size:14px">DM Bot:</strong>
+      <span style="color:${botColor};margin-left:8px">${botStatus}</span>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">Recent Posts</div>
+  <table>
+    <thead><tr><th>Date</th><th>Caption</th><th>Engagement</th></tr></thead>
+    <tbody>${postRows}</tbody>
+  </table>
+
+</div>
+<footer>JRZ Marketing · jrzmarketing.com · info@jrzmarketing.com</footer>
+</body></html>`);
+
+  } catch (err) {
+    console.error('[ClientPortal] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 setInterval(async () => {
   try {
     const nowEST      = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
@@ -8969,6 +9147,7 @@ app.listen(PORT, async () => {
   console.log(`6:30pm  EST daily     → Story (Instagram + Facebook)`);
   console.log(`24/7                  → Armando warm DMs on comments/follows`);
   await loadOfficeKPI(); // restore KPIs from Cloudinary on every startup
+  await loadDMState();  // restore DM dedup sets so Armando remembers conversations
 
   // ── Real-time cron failure alerts ─────────────────────────────────────────
   // Any runCron() that throws will DM Jose immediately via GHL
@@ -8991,9 +9170,12 @@ app.listen(PORT, async () => {
 // Save KPIs every 30 minutes so restarts lose at most 30 min of counts
 setInterval(saveOfficeKPI, 30 * 60 * 1000);
 
-// Save KPIs on graceful shutdown (Render sends SIGTERM before restarting)
+// Save DM state every 5 minutes — Armando remembers conversations across restarts
+setInterval(saveDMState, 5 * 60 * 1000);
+
+// Save KPIs + DM state on graceful shutdown (Render sends SIGTERM before restarting)
 process.on('SIGTERM', async () => {
-  console.log('[Office] SIGTERM received — saving KPIs before shutdown...');
-  await saveOfficeKPI();
+  console.log('[Office] SIGTERM received — saving state before shutdown...');
+  await Promise.all([saveOfficeKPI(), saveDMState()]);
   process.exit(0);
 });
