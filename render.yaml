@@ -3,7 +3,7 @@ services:
     name: armando-bot
     env: node
     plan: free
-    buildCommand: apt-get install -y ffmpeg fonts-liberation && pip3 install Pillow imageio imageio-ffmpeg numpy && npm install
+    buildCommand: (apt-get install -y ffmpeg fonts-liberation || true) && (pip3 install Pillow imageio imageio-ffmpeg numpy || true) && npm install
     startCommand: npm start
     envVars:
       - key: ANTHROPIC_API_KEY
