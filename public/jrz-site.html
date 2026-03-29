@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JRZ Marketing — AI Marketing Automation for Small Business | Orlando, FL</title>
+<meta name="description" content="JRZ Marketing builds AI-powered marketing systems for small businesses in Orlando and Central Florida. 127% more leads. 3.2x ROI. Book your free strategy call.">
+<meta property="og:title" content="JRZ Marketing — AI Marketing Automation">
+<meta property="og:description" content="We build marketing systems that run while you sleep. Lead capture, automation, SEO, social — all in one.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --black: #0a0a0a;
+  --dark: #111111;
+  --card: #161616;
+  --border: #222222;
+  --green: #37ca37;
+  --green-dim: #2aa82a;
+  --green-glow: rgba(55,202,55,0.15);
+  --white: #ffffff;
+  --gray: #888888;
+  --light: #f5f5f5;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--black);
+  color: var(--white);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ── */
+.cursor {
+  width: 10px; height: 10px;
+  background: var(--green);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease;
+  mix-blend-mode: difference;
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--green);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transition: transform 0.08s ease, width 0.2s, height 0.2s, opacity 0.2s;
+  opacity: 0.5;
+}
+body:has(a:hover) .cursor-ring,
+body:has(button:hover) .cursor-ring {
+  width: 56px; height: 56px; opacity: 0.8;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 0 48px;
+  height: 72px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.4s, backdrop-filter 0.4s, border-color 0.4s;
+  border-bottom: 1px solid transparent;
+}
+nav.scrolled {
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(20px);
+  border-color: var(--border);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 12px;
+  text-decoration: none;
+}
+.nav-logo img { height: 36px; }
+.nav-links {
+  display: flex; align-items: center; gap: 8px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--gray);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 8px 16px;
+  border-radius: 100px;
+  transition: color 0.2s, background 0.2s;
+  font-family: var(--font-body);
+}
+.nav-links a:hover, .nav-links a.active {
+  color: var(--white);
+  background: var(--card);
+}
+.nav-cta {
+  background: var(--green) !important;
+  color: var(--black) !important;
+  font-weight: 600 !important;
+  padding: 8px 20px !important;
+}
+.nav-cta:hover { background: var(--green-dim) !important; }
+
+.hamburger {
+  display: none;
+  flex-direction: column; gap: 5px;
+  cursor: pointer; padding: 8px;
+}
+.hamburger span {
+  display: block; width: 22px; height: 2px;
+  background: var(--white);
+  transition: 0.3s;
+}
+
+/* ── SECTIONS (tabs) ── */
+.tab { display: none; }
+.tab.active { display: block; }
+
+/* ── HOME ── */
+#home {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+
+/* Animated gradient mesh background */
+.mesh-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(55,202,55,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 80%, rgba(55,202,55,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 60% 30%, rgba(55,202,55,0.04) 0%, transparent 50%);
+  animation: meshMove 12s ease-in-out infinite alternate;
+}
+@keyframes meshMove {
+  0%   { transform: scale(1) translate(0,0); }
+  100% { transform: scale(1.08) translate(-20px, 10px); }
+}
+
+/* Grid lines */
+.grid-lines {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+.hero-inner {
+  position: relative; z-index: 1;
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 140px 48px 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(55,202,55,0.1);
+  border: 1px solid rgba(55,202,55,0.3);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--green);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+.hero-badge .dot {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 8vw, 96px);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+}
+.hero-headline .line-green { color: var(--green); }
+.hero-headline .line-outline {
+  -webkit-text-stroke: 1.5px rgba(255,255,255,0.25);
+  color: transparent;
+}
+
+.hero-sub {
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--gray);
+  max-width: 560px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+  font-weight: 300;
+}
+
+.hero-actions {
+  display: flex; align-items: center; gap: 16px;
+  flex-wrap: wrap; justify-content: center;
+}
+.btn-primary {
+  background: var(--green);
+  color: var(--black);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 16px 36px;
+  border-radius: 100px;
+  text-decoration: none;
+  border: none; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+  letter-spacing: 0.3px;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(55,202,55,0.4);
+  background: #42e042;
+}
+.btn-ghost {
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 16px 28px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  transition: border-color 0.2s, background 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-ghost:hover { border-color: var(--gray); background: var(--card); }
+
+/* Stats row */
+.hero-stats {
+  position: relative; z-index: 1;
+  width: 100%;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 0 48px;
+}
+.hero-stat {
+  padding: 32px 24px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+.hero-stat:last-child { border-right: none; }
+.hero-stat .num {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+  color: var(--green);
+  display: block;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.hero-stat .label {
+  font-size: 13px;
+  color: var(--gray);
+  font-weight: 400;
+}
+
+/* ── MARQUEE ── */
+.marquee-section {
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0;
+  background: var(--dark);
+}
+.marquee-track {
+  display: flex;
+  animation: marquee 25s linear infinite;
+  white-space: nowrap;
+}
+.marquee-track:hover { animation-play-state: paused; }
+.marquee-item {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 0 32px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+.marquee-item .sep {
+  width: 4px; height: 4px;
+  background: var(--green);
+  border-radius: 50%;
+}
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── SECTION COMMON ── */
+.section {
+  padding: 120px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.section-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 20px;
+}
+.section-label::before {
+  content: '';
+  display: block;
+  width: 24px; height: 1px;
+  background: var(--green);
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  margin-bottom: 20px;
+}
+.section-sub {
+  font-size: 18px;
+  color: var(--gray);
+  line-height: 1.7;
+  max-width: 560px;
+  font-weight: 300;
+}
+
+/* ── SERVICES TAB ── */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  margin-top: 72px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.service-card {
+  background: var(--dark);
+  padding: 48px;
+  transition: background 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--green), transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+.service-card:hover { background: var(--card); }
+.service-card:hover::before { transform: scaleX(1); }
+.service-num {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+  display: block;
+}
+.service-icon {
+  font-size: 32px;
+  margin-bottom: 20px;
+  display: block;
+}
+.service-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+.service-desc {
+  font-size: 15px;
+  color: var(--gray);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.service-features {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.service-features li {
+  font-size: 13px;
+  color: #aaa;
+  display: flex; align-items: center; gap: 10px;
+}
+.service-features li::before {
+  content: '';
+  width: 5px; height: 5px;
+  background: var(--green);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Full-width feature card */
+.service-card.full {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+/* ── PROCESS SECTION ── */
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-top: 72px;
+  position: relative;
+}
+.process-step {
+  background: var(--dark);
+  padding: 40px 32px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  position: relative;
+  transition: transform 0.3s, border-color 0.3s;
+}
+.process-step:hover {
+  transform: translateY(-4px);
+  border-color: rgba(55,202,55,0.3);
+}
+.step-num {
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 800;
+  color: rgba(55,202,55,0.12);
+  line-height: 1;
+  margin-bottom: 16px;
+  letter-spacing: -2px;
+}
+.step-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.step-desc {
+  font-size: 14px;
+  color: var(--gray);
+  line-height: 1.6;
+}
+
+/* ── ABOUT ── */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.about-visual {
+  position: relative;
+}
+.about-photo-frame {
+  width: 100%;
+  aspect-ratio: 4/5;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  position: relative;
+}
+.about-photo-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(10,10,10,0.8));
+}
+.about-photo-frame img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.about-photo-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--card), var(--dark));
+}
+.about-initials {
+  font-family: var(--font-display);
+  font-size: 96px;
+  font-weight: 800;
+  color: rgba(55,202,55,0.15);
+  letter-spacing: -4px;
+}
+.about-badge-float {
+  position: absolute;
+  bottom: -20px; right: -20px;
+  background: var(--green);
+  color: var(--black);
+  border-radius: 12px;
+  padding: 20px 24px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  z-index: 2;
+  box-shadow: 0 20px 60px rgba(55,202,55,0.3);
+}
+.about-badge-float .big { font-size: 32px; line-height: 1; display: block; }
+.about-badge-float .small { font-size: 13px; font-weight: 600; opacity: 0.8; }
+
+.about-content { }
+.about-bio {
+  font-size: 17px;
+  line-height: 1.8;
+  color: #ccc;
+  margin-bottom: 20px;
+  font-weight: 300;
+}
+.about-bio strong { color: var(--white); font-weight: 600; }
+
+.skills-list {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 32px;
+}
+.skill-tag {
+  padding: 8px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 13px;
+  color: #ccc;
+  transition: border-color 0.2s, color 0.2s;
+}
+.skill-tag:hover { border-color: var(--green); color: var(--green); }
+
+/* Values grid */
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 80px;
+}
+.value-card {
+  padding: 32px;
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.value-card:hover {
+  border-color: rgba(55,202,55,0.3);
+  transform: translateY(-3px);
+}
+.value-icon { font-size: 28px; margin-bottom: 16px; }
+.value-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.value-desc { font-size: 14px; color: var(--gray); line-height: 1.6; }
+
+/* ── RESULTS ── */
+.results-full {
+  background: var(--dark);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 72px;
+}
+.testimonial-card {
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  transition: border-color 0.3s, transform 0.3s;
+  position: relative;
+}
+.testimonial-card:hover {
+  border-color: rgba(55,202,55,0.25);
+  transform: translateY(-4px);
+}
+.testimonial-card.featured {
+  background: var(--green);
+  border-color: var(--green);
+}
+.testimonial-card.featured * { color: var(--black) !important; }
+.stars { font-size: 14px; margin-bottom: 16px; letter-spacing: 2px; }
+.testimonial-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #ccc;
+  margin-bottom: 24px;
+  font-style: italic;
+}
+.testimonial-author {
+  display: flex; align-items: center; gap: 12px;
+}
+.author-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--green);
+  flex-shrink: 0;
+}
+.author-name {
+  font-weight: 600;
+  font-size: 14px;
+  display: block;
+}
+.author-role { font-size: 12px; color: var(--gray); }
+
+/* Result metrics row */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 72px;
+}
+.metric-card {
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.metric-card:hover { border-color: rgba(55,202,55,0.3); }
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+}
+.metric-num {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--green);
+  line-height: 1;
+  margin-bottom: 8px;
+  display: block;
+}
+.metric-label {
+  font-size: 13px;
+  color: var(--gray);
+  line-height: 1.4;
+}
+
+/* ── CONTACT ── */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 80px;
+  align-items: start;
+}
+.contact-info { }
+.contact-info-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+}
+.contact-info-item:last-child { border-bottom: none; }
+.contact-icon {
+  width: 44px; height: 44px;
+  background: var(--green-glow);
+  border: 1px solid rgba(55,202,55,0.3);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.contact-info-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--green);
+  display: block;
+  margin-bottom: 4px;
+}
+.contact-info-value {
+  font-size: 16px;
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 400;
+}
+.contact-info-value:hover { color: var(--green); }
+
+.booking-frame {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 600px;
+}
+.booking-frame iframe {
+  width: 100%;
+  min-height: 600px;
+  border: none;
+  display: block;
+}
+
+/* Social row */
+.social-row {
+  display: flex; gap: 12px;
+  margin-top: 32px;
+}
+.social-link {
+  width: 44px; height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  font-size: 18px;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.social-link:hover {
+  border-color: var(--green);
+  background: var(--green-glow);
+  transform: translateY(-2px);
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.footer-logo img { height: 28px; opacity: 0.7; }
+.footer-copy {
+  font-size: 13px;
+  color: var(--gray);
+}
+.footer-links {
+  display: flex; gap: 24px;
+  list-style: none;
+}
+.footer-links a {
+  font-size: 13px;
+  color: var(--gray);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--white); }
+
+/* ── CTA BANNER ── */
+.cta-banner {
+  margin: 0 48px 80px;
+  background: var(--green);
+  border-radius: 20px;
+  padding: 72px 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  position: relative;
+  overflow: hidden;
+}
+.cta-banner::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 300px; height: 300px;
+  background: rgba(0,0,0,0.08);
+  border-radius: 50%;
+}
+.cta-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; right: 100px;
+  width: 200px; height: 200px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 50%;
+}
+.cta-banner-text { position: relative; z-index: 1; }
+.cta-banner-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+  color: var(--black);
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+.cta-banner-sub {
+  font-size: 17px;
+  color: rgba(0,0,0,0.65);
+  font-weight: 400;
+}
+.cta-banner-action { position: relative; z-index: 1; flex-shrink: 0; }
+.btn-dark {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 18px 40px;
+  border-radius: 100px;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+.btn-dark:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ── MOBILE ── */
+@media (max-width: 900px) {
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+
+  .hero-inner { padding: 120px 24px 60px; }
+  .hero-stats { grid-template-columns: repeat(2, 1fr); padding: 0 24px; }
+  .hero-stat { padding: 24px 16px; }
+
+  .section { padding: 80px 24px; }
+
+  .services-grid { grid-template-columns: 1fr; }
+  .service-card.full { grid-column: span 1; grid-template-columns: 1fr; }
+
+  .process-steps { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .about-grid { grid-template-columns: 1fr; gap: 40px; }
+  .about-badge-float { bottom: -12px; right: -12px; }
+  .values-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .metrics-row { grid-template-columns: repeat(2, 1fr); }
+  .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+
+  .cta-banner { margin: 0 24px 60px; padding: 48px 32px; flex-direction: column; }
+  footer { padding: 32px 24px; flex-direction: column; text-align: center; }
+}
+
+/* Mobile nav open */
+.nav-mobile {
+  display: none;
+  position: fixed; top: 72px; left: 0; right: 0;
+  background: rgba(10,10,10,0.97);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 24px;
+  z-index: 999;
+  flex-direction: column; gap: 4px;
+}
+.nav-mobile.open { display: flex; }
+.nav-mobile a {
+  color: var(--gray);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 14px 16px;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+.nav-mobile a:hover, .nav-mobile a.active {
+  color: var(--white);
+  background: var(--card);
+}
+.nav-mobile a.active { color: var(--green); }
+</style>
+</head>
+
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo" onclick="showTab('home')">
+    <img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing">
+  </a>
+  <ul class="nav-links">
+    <li><a href="#" onclick="showTab('home')" class="active" id="nav-home">Home</a></li>
+    <li><a href="#" onclick="showTab('services')" id="nav-services">Services</a></li>
+    <li><a href="#" onclick="showTab('about')" id="nav-about">About</a></li>
+    <li><a href="#" onclick="showTab('results')" id="nav-results">Results</a></li>
+    <li><a href="#" onclick="showTab('contact')" class="nav-cta" id="nav-contact">Book a Call</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleMobileNav()" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- Mobile nav -->
+<div class="nav-mobile" id="mobileNav">
+  <a href="#" onclick="showTab('home');toggleMobileNav()" id="mnav-home">Home</a>
+  <a href="#" onclick="showTab('services');toggleMobileNav()" id="mnav-services">Services</a>
+  <a href="#" onclick="showTab('about');toggleMobileNav()" id="mnav-about">About</a>
+  <a href="#" onclick="showTab('results');toggleMobileNav()" id="mnav-results">Results</a>
+  <a href="#" onclick="showTab('contact');toggleMobileNav()" id="mnav-contact">Book a Call</a>
+</div>
+
+<!-- ═══ HOME TAB ═══ -->
+<div class="tab active" id="tab-home">
+
+  <section id="home">
+    <div class="mesh-bg"></div>
+    <div class="grid-lines"></div>
+
+    <div class="hero-inner">
+      <div class="hero-badge reveal">
+        <span class="dot"></span>
+        AI-Powered Marketing — Orlando, FL
+      </div>
+
+      <h1 class="hero-headline reveal reveal-delay-1">
+        Marketing that<br>
+        <span class="line-green">works while</span><br>
+        <span class="line-outline">you sleep.</span>
+      </h1>
+
+      <p class="hero-sub reveal reveal-delay-2">
+        We build fully automated marketing systems for small businesses in Central Florida. Lead capture, AI bots, SEO, and social — running 24/7 without you touching it.
+      </p>
+
+      <div class="hero-actions reveal reveal-delay-3">
+        <a href="#" onclick="showTab('contact')" class="btn-primary">
+          Book a Free Strategy Call
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#" onclick="showTab('services')" class="btn-ghost">
+          See What We Do
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-stats reveal reveal-delay-4">
+      <div class="hero-stat">
+        <span class="num" data-target="127">0</span>
+        <span class="label">% more qualified leads</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num" data-target="3.2" data-suffix="x">0</span>
+        <span class="label">average ROI on paid ads</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num" data-target="68">0</span>
+        <span class="label">% higher conversion rate</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num" data-target="90">0</span>
+        <span class="label">days to see real results</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Marquee -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <span class="marquee-item">AI Automation <span class="sep"></span></span>
+      <span class="marquee-item">Lead Generation <span class="sep"></span></span>
+      <span class="marquee-item">Social Media <span class="sep"></span></span>
+      <span class="marquee-item">Local SEO <span class="sep"></span></span>
+      <span class="marquee-item">CRM Systems <span class="sep"></span></span>
+      <span class="marquee-item">GHL Agency <span class="sep"></span></span>
+      <span class="marquee-item">DM Bots <span class="sep"></span></span>
+      <span class="marquee-item">Bilingual Marketing <span class="sep"></span></span>
+      <span class="marquee-item">Orlando FL <span class="sep"></span></span>
+      <span class="marquee-item">AI Automation <span class="sep"></span></span>
+      <span class="marquee-item">Lead Generation <span class="sep"></span></span>
+      <span class="marquee-item">Social Media <span class="sep"></span></span>
+      <span class="marquee-item">Local SEO <span class="sep"></span></span>
+      <span class="marquee-item">CRM Systems <span class="sep"></span></span>
+      <span class="marquee-item">GHL Agency <span class="sep"></span></span>
+      <span class="marquee-item">DM Bots <span class="sep"></span></span>
+      <span class="marquee-item">Bilingual Marketing <span class="sep"></span></span>
+      <span class="marquee-item">Orlando FL <span class="sep"></span></span>
+    </div>
+  </div>
+
+  <!-- Services preview on home -->
+  <div class="section">
+    <div class="reveal">
+      <span class="section-label">What we do</span>
+      <h2 class="section-title">One system.<br>Everything included.</h2>
+      <p class="section-sub">Most agencies sell you pieces. We build the whole machine — and hand you the keys.</p>
+    </div>
+
+    <div class="services-grid" style="margin-top:64px">
+      <div class="service-card reveal reveal-delay-1">
+        <span class="service-num">01</span>
+        <span class="service-icon">🤖</span>
+        <div class="service-title">AI Automation</div>
+        <p class="service-desc">Your business responds to every lead in under 60 seconds — even at 3am on a Sunday.</p>
+        <ul class="service-features">
+          <li>24/7 DM bot that qualifies leads</li>
+          <li>Automated follow-up sequences</li>
+          <li>AI voice notes and outbound calls</li>
+        </ul>
+      </div>
+      <div class="service-card reveal reveal-delay-2">
+        <span class="service-num">02</span>
+        <span class="service-icon">📈</span>
+        <div class="service-title">Digital Advertising</div>
+        <p class="service-desc">Meta and Google ads that target buyers, not browsers — with creative that converts.</p>
+        <ul class="service-features">
+          <li>Meta (Facebook + Instagram) ads</li>
+          <li>Google Search and Local campaigns</li>
+          <li>Monthly reporting with real ROI data</li>
+        </ul>
+      </div>
+      <div class="service-card reveal reveal-delay-3">
+        <span class="service-num">03</span>
+        <span class="service-icon">📍</span>
+        <div class="service-title">Local SEO</div>
+        <p class="service-desc">Rank on page 1 of Google in every city around Orlando — without paying for every click.</p>
+        <ul class="service-features">
+          <li>Daily geo-targeted blog posts</li>
+          <li>Google Business Profile management</li>
+          <li>Schema markup + same-day indexing</li>
+        </ul>
+      </div>
+      <div class="service-card reveal reveal-delay-4">
+        <span class="service-num">04</span>
+        <span class="service-icon">⚙️</span>
+        <div class="service-title">CRM & Systems</div>
+        <p class="service-desc">Go High Level setup that tracks every lead from first click to closed deal — automatically.</p>
+        <ul class="service-features">
+          <li>Full GHL setup and configuration</li>
+          <li>Pipeline automation and tagging</li>
+          <li>Monthly performance reports</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Banner -->
+  <div class="cta-banner reveal">
+    <div class="cta-banner-text">
+      <div class="cta-banner-title">Ready to stop losing leads?</div>
+      <div class="cta-banner-sub">30-minute strategy call. Free. No pitch, just a plan.</div>
+    </div>
+    <div class="cta-banner-action">
+      <a href="#" onclick="showTab('contact')" class="btn-dark">
+        Book Your Free Call
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-logo">
+      <img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing">
+    </div>
+    <span class="footer-copy">© 2026 JRZ Marketing · Orlando, FL · All rights reserved</span>
+    <ul class="footer-links">
+      <li><a href="#" onclick="showTab('services')">Services</a></li>
+      <li><a href="#" onclick="showTab('about')">About</a></li>
+      <li><a href="#" onclick="showTab('contact')">Contact</a></li>
+      <li><a href="https://blog.jrzmarketing.com" target="_blank">Blog</a></li>
+    </ul>
+  </footer>
+</div>
+
+<!-- ═══ SERVICES TAB ═══ -->
+<div class="tab" id="tab-services">
+  <div style="padding-top:72px">
+    <div class="section">
+      <div class="reveal">
+        <span class="section-label">Services</span>
+        <h2 class="section-title">Everything your<br>business needs to grow.</h2>
+        <p class="section-sub">No picking and choosing — our system works because all the parts connect. Every service feeds the next one.</p>
+      </div>
+
+      <div class="services-grid">
+        <div class="service-card full reveal">
+          <div>
+            <span class="service-num">FLAGSHIP</span>
+            <span class="service-icon">🤖</span>
+            <div class="service-title">AI Marketing System</div>
+            <p class="service-desc">The full stack. Your own AI bot handles DMs and qualifies leads. Social content posts daily on 7 platforms. SEO blogs publish automatically. You get a monthly report showing exactly what happened and why.</p>
+            <ul class="service-features">
+              <li>24/7 AI DM bot (Instagram, Facebook, SMS)</li>
+              <li>Daily carousel posts on 7 platforms</li>
+              <li>Weekly reels with AI voiceover</li>
+              <li>Daily SEO-optimized blog posts</li>
+              <li>Google Business Profile posts (Mon–Fri)</li>
+              <li>Monthly performance report by Elena</li>
+              <li>Real-time lead alerts to your phone</li>
+            </ul>
+          </div>
+          <div style="background:var(--black);border-radius:12px;padding:32px;border:1px solid var(--border)">
+            <div style="font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">System Output / Month</div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--border)">
+                <span style="font-size:14px;color:#aaa">Social posts published</span>
+                <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--green)">30+</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--border)">
+                <span style="font-size:14px;color:#aaa">SEO blog posts</span>
+                <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--green)">30</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--border)">
+                <span style="font-size:14px;color:#aaa">DMs handled automatically</span>
+                <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--green)">All of them</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:14px;color:#aaa">Your time required</span>
+                <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--green)">~0 hrs</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="service-card reveal reveal-delay-1">
+          <span class="service-num">01</span>
+          <span class="service-icon">💬</span>
+          <div class="service-title">AI DM Bot</div>
+          <p class="service-desc">A bilingual AI persona responds to every DM within seconds. Qualifies leads through a natural 4-message conversation. Books calls, sends voice notes, and alerts you when someone's hot.</p>
+          <ul class="service-features">
+            <li>Spanish & English (auto-detects)</li>
+            <li>Lead scoring 0–10, SMS alert when ≥8</li>
+            <li>AI voice notes via ElevenLabs</li>
+            <li>Connects to your GHL pipeline</li>
+          </ul>
+        </div>
+        <div class="service-card reveal reveal-delay-2">
+          <span class="service-num">02</span>
+          <span class="service-icon">📱</span>
+          <div class="service-title">Social Media</div>
+          <p class="service-desc">Daily content on Instagram, Facebook, LinkedIn, YouTube, TikTok, and Google Business. AI-written, brand-consistent, with hooks and captions that drive saves and shares — not just views.</p>
+          <ul class="service-features">
+            <li>7 days/week carousel posts</li>
+            <li>3x/week viral reels with voiceover</li>
+            <li>Daily stories (IG + FB)</li>
+            <li>Learns what works from real data weekly</li>
+          </ul>
+        </div>
+        <div class="service-card reveal reveal-delay-3">
+          <span class="service-num">03</span>
+          <span class="service-icon">🔍</span>
+          <div class="service-title">Local SEO</div>
+          <p class="service-desc">One blog post per day. Each one targets a different city in Central Florida with a different keyword. In 90 days you have 90 pages covering every city your customers search from.</p>
+          <ul class="service-features">
+            <li>Daily 800-word expert blog posts</li>
+            <li>30 Central Florida cities in rotation</li>
+            <li>Schema markup + Google force-indexing</li>
+            <li>GBP posts 5 days/week</li>
+          </ul>
+        </div>
+        <div class="service-card reveal reveal-delay-4">
+          <span class="service-num">04</span>
+          <span class="service-icon">📊</span>
+          <div class="service-title">CRM & Paid Ads</div>
+          <p class="service-desc">Go High Level setup, pipeline automation, and paid ad management on Meta and Google. Every lead tracked from first click to closed deal — with monthly reports that actually mean something.</p>
+          <ul class="service-features">
+            <li>Full GHL build and configuration</li>
+            <li>Meta + Google campaign management</li>
+            <li>Monthly scorecard with real numbers</li>
+            <li>Lead attribution by source</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Process -->
+    <div style="background:var(--dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+      <div class="section">
+        <div class="reveal">
+          <span class="section-label">How it works</span>
+          <h2 class="section-title">Live in 14 days.</h2>
+          <p class="section-sub">From your first call to a fully automated system running in your business.</p>
+        </div>
+        <div class="process-steps">
+          <div class="process-step reveal reveal-delay-1">
+            <div class="step-num">01</div>
+            <div class="step-title">Strategy Call</div>
+            <p class="step-desc">30-minute call with Jose. We map your goals, gaps, and what a real system looks like for your business.</p>
+          </div>
+          <div class="process-step reveal reveal-delay-2">
+            <div class="step-num">02</div>
+            <div class="step-title">System Build</div>
+            <p class="step-desc">We set up GHL, build your bot persona, configure all integrations, and schedule your first 30 days of content.</p>
+          </div>
+          <div class="process-step reveal reveal-delay-3">
+            <div class="step-num">03</div>
+            <div class="step-title">Go Live</div>
+            <p class="step-desc">Everything activates. Your bot starts handling DMs. Content starts posting. SEO starts building. You watch it work.</p>
+          </div>
+          <div class="process-step reveal reveal-delay-4">
+            <div class="step-num">04</div>
+            <div class="step-title">Optimize & Grow</div>
+            <p class="step-desc">Monthly reports, A/B test results, and strategy adjustments. The system gets smarter every week.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-banner reveal" style="margin-top:0">
+      <div class="cta-banner-text">
+        <div class="cta-banner-title">Let's build your system.</div>
+        <div class="cta-banner-sub">Free 30-minute call with Jose. No commitment required.</div>
+      </div>
+      <div class="cta-banner-action">
+        <a href="#" onclick="showTab('contact')" class="btn-dark">Book Now — It's Free</a>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-logo"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing"></div>
+      <span class="footer-copy">© 2026 JRZ Marketing · Orlando, FL</span>
+      <ul class="footer-links">
+        <li><a href="#" onclick="showTab('home')">Home</a></li>
+        <li><a href="#" onclick="showTab('about')">About</a></li>
+        <li><a href="#" onclick="showTab('contact')">Contact</a></li>
+      </ul>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ ABOUT TAB ═══ -->
+<div class="tab" id="tab-about">
+  <div style="padding-top:72px">
+    <div class="section">
+      <div class="about-grid">
+        <div class="about-visual reveal">
+          <div class="about-photo-frame">
+            <div class="about-photo-placeholder">
+              <div class="about-initials">JR</div>
+            </div>
+          </div>
+          <div class="about-badge-float">
+            <span class="big">5+</span>
+            <span class="small">Years Building<br>AI Systems</span>
+          </div>
+        </div>
+
+        <div class="about-content reveal reveal-delay-2">
+          <span class="section-label">About</span>
+          <h2 class="section-title" style="font-size:clamp(32px,4vw,52px)">José Rivas.<br>Founder & Strategist.</h2>
+
+          <p class="about-bio">
+            I built JRZ Marketing because I was tired of watching small businesses — especially Latino-owned ones — get burned by agencies that overpromised and underdelivered.
+          </p>
+          <p class="about-bio">
+            <strong>My background is in systems.</strong> I don't just run ads or post on Instagram — I build machines that capture leads, qualify them, follow up automatically, and turn strangers into booked calls while you're running your actual business.
+          </p>
+          <p class="about-bio">
+            The AI systems we use today? I built them from scratch. The DM bot, the SEO pipeline, the automated reports — all of it runs 24/7 across 30+ client accounts in Florida and beyond.
+          </p>
+          <p class="about-bio">
+            <strong>Bilingual, Orlando-based, and obsessed with results that show up in your bank account</strong> — not just a PowerPoint deck.
+          </p>
+
+          <div class="skills-list">
+            <span class="skill-tag">AI Automation</span>
+            <span class="skill-tag">Go High Level</span>
+            <span class="skill-tag">Local SEO</span>
+            <span class="skill-tag">Meta Ads</span>
+            <span class="skill-tag">Google Ads</span>
+            <span class="skill-tag">Bilingual Strategy</span>
+            <span class="skill-tag">Content Systems</span>
+            <span class="skill-tag">Lead Generation</span>
+          </div>
+
+          <div style="margin-top:40px;display:flex;gap:16px;flex-wrap:wrap">
+            <a href="#" onclick="showTab('contact')" class="btn-primary">Book a Call</a>
+            <a href="tel:4078446376" class="btn-ghost">
+              📞 (407) 844-6376
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Values -->
+      <div class="reveal" style="margin-top:80px">
+        <span class="section-label">Our values</span>
+        <h2 class="section-title" style="font-size:clamp(28px,3.5vw,44px)">Built different.</h2>
+      </div>
+      <div class="values-grid">
+        <div class="value-card reveal reveal-delay-1">
+          <div class="value-icon">⚡</div>
+          <div class="value-title">Speed over perfection</div>
+          <p class="value-desc">A system running today beats a perfect plan that launches in 6 months. We move fast and optimize in real time.</p>
+        </div>
+        <div class="value-card reveal reveal-delay-2">
+          <div class="value-icon">📊</div>
+          <div class="value-title">Revenue over vanity</div>
+          <p class="value-desc">We don't celebrate follower counts or impressions. We celebrate booked calls, closed deals, and real ROI.</p>
+        </div>
+        <div class="value-card reveal reveal-delay-3">
+          <div class="value-icon">🤝</div>
+          <div class="value-title">Transparent always</div>
+          <p class="value-desc">Monthly reports show exactly what happened. If something didn't work, we tell you — and we fix it.</p>
+        </div>
+        <div class="value-card reveal reveal-delay-1">
+          <div class="value-icon">🌎</div>
+          <div class="value-title">Bilingual by default</div>
+          <p class="value-desc">Spanish and English aren't separate strategies — they're the same conversation, handled perfectly in both.</p>
+        </div>
+        <div class="value-card reveal reveal-delay-2">
+          <div class="value-icon">🔁</div>
+          <div class="value-title">Systems over hustle</div>
+          <p class="value-desc">The goal is a machine that runs while you sleep. Not more work — better leverage.</p>
+        </div>
+        <div class="value-card reveal reveal-delay-3">
+          <div class="value-icon">📍</div>
+          <div class="value-title">Local first</div>
+          <p class="value-desc">We know Orlando, Central Florida, and the businesses here. That local knowledge is in every strategy we build.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-banner reveal">
+      <div class="cta-banner-text">
+        <div class="cta-banner-title">Work with José directly.</div>
+        <div class="cta-banner-sub">Every client at JRZ talks to the founder. No account managers, no interns.</div>
+      </div>
+      <div class="cta-banner-action">
+        <a href="#" onclick="showTab('contact')" class="btn-dark">Schedule Your Call</a>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-logo"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing"></div>
+      <span class="footer-copy">© 2026 JRZ Marketing · Orlando, FL</span>
+      <ul class="footer-links">
+        <li><a href="#" onclick="showTab('home')">Home</a></li>
+        <li><a href="#" onclick="showTab('services')">Services</a></li>
+        <li><a href="#" onclick="showTab('contact')">Contact</a></li>
+      </ul>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ RESULTS TAB ═══ -->
+<div class="tab" id="tab-results">
+  <div style="padding-top:72px">
+    <div class="section">
+      <div class="reveal">
+        <span class="section-label">Results</span>
+        <h2 class="section-title">Numbers that<br>actually matter.</h2>
+        <p class="section-sub">Not reach. Not impressions. Revenue, leads, and growth — the only metrics that change your business.</p>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric-card reveal reveal-delay-1">
+          <span class="metric-num" data-target="127" data-suffix="%">0</span>
+          <span class="metric-label">Average increase in qualified leads within 90 days</span>
+        </div>
+        <div class="metric-card reveal reveal-delay-2">
+          <span class="metric-num" data-target="3.2" data-suffix="x">0</span>
+          <span class="metric-label">Average ROI on paid advertising campaigns</span>
+        </div>
+        <div class="metric-card reveal reveal-delay-3">
+          <span class="metric-num" data-target="68" data-suffix="%">0</span>
+          <span class="metric-label">Higher conversion rates after website + funnel optimization</span>
+        </div>
+        <div class="metric-card reveal reveal-delay-4">
+          <span class="metric-num" data-target="30" data-suffix="+">0</span>
+          <span class="metric-label">Active client accounts running automated systems</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Testimonials -->
+    <div class="results-full">
+      <div class="section">
+        <div class="reveal">
+          <span class="section-label">What clients say</span>
+          <h2 class="section-title">Real businesses.<br>Real results.</h2>
+        </div>
+
+        <div class="testimonials-grid">
+          <div class="testimonial-card featured reveal reveal-delay-1">
+            <div class="stars">★★★★★</div>
+            <p class="testimonial-text">"Jose built us a system that handles every Instagram DM automatically. We went from missing leads to booking 3-4 consultations a week without touching our phone."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar" style="background:rgba(0,0,0,0.2);color:var(--black)">CM</div>
+              <div>
+                <span class="author-name">Carlos M.</span>
+                <span class="author-role">Railing Max — Orlando, FL</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card reveal reveal-delay-2">
+            <div class="stars">★★★★★</div>
+            <p class="testimonial-text">"Before JRZ, we were posting on Instagram and getting nothing. Now we have content going out daily on 5 platforms and we're actually getting calls from Google."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar">AE</div>
+              <div>
+                <span class="author-name">Andres E.</span>
+                <span class="author-role">The Escobar Kitchen — Kissimmee, FL</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card reveal reveal-delay-3">
+            <div class="stars">★★★★★</div>
+            <p class="testimonial-text">"The monthly reports alone are worth it. I finally understand where my leads are coming from and what's actually converting. Jose doesn't hide behind vanity metrics."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar">MC</div>
+              <div>
+                <span class="author-name">Mike C.</span>
+                <span class="author-role">Cooney Homes — Central Florida</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Industries served -->
+        <div style="margin-top:80px">
+          <div class="reveal">
+            <span class="section-label">Industries</span>
+            <h2 class="section-title" style="font-size:clamp(28px,3.5vw,44px)">We know your business.</h2>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:40px">
+            <div class="value-card reveal reveal-delay-1" style="text-align:center;padding:24px">
+              <div style="font-size:32px;margin-bottom:12px">🏗️</div>
+              <div class="value-title" style="font-size:15px">Construction</div>
+            </div>
+            <div class="value-card reveal reveal-delay-2" style="text-align:center;padding:24px">
+              <div style="font-size:32px;margin-bottom:12px">🍽️</div>
+              <div class="value-title" style="font-size:15px">Restaurants</div>
+            </div>
+            <div class="value-card reveal reveal-delay-3" style="text-align:center;padding:24px">
+              <div style="font-size:32px;margin-bottom:12px">⚖️</div>
+              <div class="value-title" style="font-size:15px">Professional Services</div>
+            </div>
+            <div class="value-card reveal reveal-delay-4" style="text-align:center;padding:24px">
+              <div style="font-size:32px;margin-bottom:12px">🏠</div>
+              <div class="value-title" style="font-size:15px">Real Estate</div>
+            </div>
+            <div class="value-card reveal reveal-delay-1" style="text-align:center;padding:24px">
+              <div style="font-size:32px;margin-bottom:12px">💪</div>
+              <div class="value-title" style="font-size:15px">Health & Fitness</div>
+            </div>
+            <div class="value-card reveal reveal-delay-2" style="text-align:center;padding:24px">
+              <div style="font-size:32px;margin-bottom:12px">🚐</div>
+              <div class="value-title" style="font-size:15px">Home Services</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-banner reveal">
+      <div class="cta-banner-text">
+        <div class="cta-banner-title">Want results like these?</div>
+        <div class="cta-banner-sub">Book a free 30-minute call. We'll map out exactly what your business needs.</div>
+      </div>
+      <div class="cta-banner-action">
+        <a href="#" onclick="showTab('contact')" class="btn-dark">Get Your Free Strategy Call</a>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-logo"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing"></div>
+      <span class="footer-copy">© 2026 JRZ Marketing · Orlando, FL</span>
+      <ul class="footer-links">
+        <li><a href="#" onclick="showTab('home')">Home</a></li>
+        <li><a href="#" onclick="showTab('services')">Services</a></li>
+        <li><a href="#" onclick="showTab('about')">About</a></li>
+      </ul>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ CONTACT TAB ═══ -->
+<div class="tab" id="tab-contact">
+  <div style="padding-top:72px">
+    <div class="section">
+      <div class="reveal">
+        <span class="section-label">Contact</span>
+        <h2 class="section-title">Let's build<br>your system.</h2>
+        <p class="section-sub">30-minute call with Jose. Free. We'll figure out exactly what your business needs — no pressure, no pitch.</p>
+      </div>
+
+      <div class="contact-grid" style="margin-top:72px">
+        <div class="contact-info reveal">
+          <div class="contact-info-item">
+            <div class="contact-icon">📞</div>
+            <div>
+              <span class="contact-info-label">Phone</span>
+              <a href="tel:4078446376" class="contact-info-value">(407) 844-6376</a>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-icon">✉️</div>
+            <div>
+              <span class="contact-info-label">Email</span>
+              <a href="mailto:info@jrzmarketing.com" class="contact-info-value">info@jrzmarketing.com</a>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-icon">📍</div>
+            <div>
+              <span class="contact-info-label">Location</span>
+              <span class="contact-info-value">Orlando, Florida</span>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-icon">🕐</div>
+            <div>
+              <span class="contact-info-label">Hours</span>
+              <span class="contact-info-value">Sun–Fri · 8am–5pm EST</span>
+            </div>
+          </div>
+
+          <div class="social-row" style="margin-top:24px">
+            <a href="https://instagram.com/jrzmarketing" target="_blank" class="social-link" title="Instagram">📸</a>
+            <a href="https://facebook.com/jrzmarketing" target="_blank" class="social-link" title="Facebook">👥</a>
+            <a href="https://youtube.com/@jrzmarketing" target="_blank" class="social-link" title="YouTube">▶️</a>
+            <a href="https://linkedin.com/company/jrzmarketing" target="_blank" class="social-link" title="LinkedIn">💼</a>
+          </div>
+
+          <div style="margin-top:48px;padding:28px;background:var(--dark);border:1px solid var(--border);border-radius:12px">
+            <div style="font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">What happens next</div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <span style="width:24px;height:24px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--black);flex-shrink:0">1</span>
+                <span style="font-size:14px;color:#aaa;line-height:1.5">You book a 30-min call using the calendar on the right</span>
+              </div>
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <span style="width:24px;height:24px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--black);flex-shrink:0">2</span>
+                <span style="font-size:14px;color:#aaa;line-height:1.5">Jose audits your current setup and maps a system for your business</span>
+              </div>
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <span style="width:24px;height:24px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--black);flex-shrink:0">3</span>
+                <span style="font-size:14px;color:#aaa;line-height:1.5">If it's a fit, we build your system and go live in 14 days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="booking-frame reveal reveal-delay-2">
+          <iframe src="https://links.jrzmarketing.com/widget/booking/ZhRr8m58Ic0OPhXl9R2s" title="Book a Strategy Call with JRZ Marketing" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-logo"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing"></div>
+      <span class="footer-copy">© 2026 JRZ Marketing · Orlando, FL · All rights reserved</span>
+      <ul class="footer-links">
+        <li><a href="#" onclick="showTab('home')">Home</a></li>
+        <li><a href="#" onclick="showTab('services')">Services</a></li>
+        <li><a href="#" onclick="showTab('about')">About</a></li>
+        <li><a href="https://blog.jrzmarketing.com" target="_blank">Blog</a></li>
+      </ul>
+    </footer>
+  </div>
+</div>
+
+<!-- Schema markup -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "JRZ Marketing",
+  "description": "AI-powered marketing automation for small businesses in Orlando and Central Florida.",
+  "url": "https://jrzmarketing.com",
+  "telephone": "+14078446376",
+  "email": "info@jrzmarketing.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Orlando",
+    "addressRegion": "FL",
+    "addressCountry": "US"
+  },
+  "openingHours": "Su-Fr 08:00-17:00",
+  "sameAs": [
+    "https://instagram.com/jrzmarketing",
+    "https://facebook.com/jrzmarketing"
+  ]
+}
+</script>
+
+<script>
+// ── Custom Cursor ──
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.transform = `translate(${mx - 5}px, ${my - 5}px)`;
+});
+function animateRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.transform = `translate(${rx - 18}px, ${ry - 18}px)`;
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+// ── Tab switching ──
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.nav-links a, .nav-mobile a').forEach(a => a.classList.remove('active'));
+  const el = document.getElementById('nav-' + name);
+  const mel = document.getElementById('mnav-' + name);
+  if (el) el.classList.add('active');
+  if (mel) mel.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  // Trigger reveal for newly visible tab
+  setTimeout(triggerReveal, 50);
+  // Trigger counters
+  setTimeout(startCounters, 100);
+  return false;
+}
+
+// ── Scroll nav ──
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ── Mobile nav ──
+function toggleMobileNav() {
+  document.getElementById('mobileNav').classList.toggle('open');
+}
+
+// ── Scroll reveal ──
+function triggerReveal() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.tab.active .reveal').forEach(el => {
+    if (!el.classList.contains('visible')) observer.observe(el);
+  });
+}
+
+// ── Counter animation ──
+function startCounters() {
+  document.querySelectorAll('.tab.active [data-target]').forEach(el => {
+    if (el.dataset.counted) return;
+    el.dataset.counted = '1';
+    const target = parseFloat(el.dataset.target);
+    const suffix = el.dataset.suffix || '';
+    const isDecimal = target % 1 !== 0;
+    const duration = 1800;
+    const start = performance.now();
+    function update(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const val = isDecimal ? (eased * target).toFixed(1) : Math.floor(eased * target);
+      el.textContent = val + suffix;
+      if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  });
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  triggerReveal();
+  startCounters();
+  // Reveal on scroll too
+  window.addEventListener('scroll', triggerReveal, { passive: true });
+});
+</script>
+</body>
+</html>

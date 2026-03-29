@@ -28,8 +28,10 @@ const {
   GBP_POST_TYPES,
 } = require('./modules/constants');
 
+const path = require('path');
 const app = express();
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const GHL_API_KEY   = process.env.GHL_API_KEY;
@@ -3841,6 +3843,11 @@ app.get('/', (_req, res) => {
     health: 'https://armando-bot-1.onrender.com/health',
     status: 'https://armando-bot-1.onrender.com/status',
   });
+});
+
+// GET /site/jrz — JRZ Marketing website
+app.get('/site/jrz', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'jrz-site.html'));
 });
 
 // GET /office — 2D anime AI team office
