@@ -1940,6 +1940,30 @@ Write the full Spanish post (max 1,800 chars). Post text only, no explanations.`
   }
 }
 
+// Exchange agency key for a location-level OAuth token (scoped for Blog API write access)
+// PITs do not have blogs.write scope — GHL Blog API returns 403 unless you use an OAuth token.
+const _jrzTokenCache = { token: null, expires: 0 };
+async function getJRZOAuthToken() {
+  if (_jrzTokenCache.token && Date.now() < _jrzTokenCache.expires) return _jrzTokenCache.token;
+  try {
+    const res = await axios.post(
+      'https://services.leadconnectorhq.com/oauth/locationToken',
+      { companyId: GHL_COMPANY_ID, locationId: GHL_LOCATION_ID },
+      { headers: { Authorization: `Bearer ${GHL_AGENCY_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' }, timeout: 10000 }
+    );
+    const token = res.data?.access_token;
+    if (token) {
+      _jrzTokenCache.token = token;
+      _jrzTokenCache.expires = Date.now() + 23 * 60 * 60 * 1000;
+      console.log('[Blog] ✅ OAuth token exchanged for JRZ Marketing');
+      return token;
+    }
+  } catch (err) {
+    console.error('[Blog] ⚠️ OAuth exchange failed, falling back to PIT key:', err?.response?.data?.message || err.message);
+  }
+  return GHL_API_KEY; // fallback
+}
+
 // Generate and publish a daily English blog post via GHL Blogs API
 async function createDailyBlog(topic, caption) {
   try {
@@ -2002,6 +2026,7 @@ Format: Return ONLY the HTML body content (no <html>, <head>, or <body> tags). S
     const publishedAt = new Date();
     publishedAt.setUTCHours(13, 0, 0, 0); // 8am EST
 
+    const blogToken = await getJRZOAuthToken();
     const res = await axios.post(
       'https://services.leadconnectorhq.com/blogs/posts',
       {
@@ -2021,7 +2046,7 @@ Format: Return ONLY the HTML body content (no <html>, <head>, or <body> tags). S
       },
       {
         headers: {
-          Authorization: `Bearer ${GHL_API_KEY}`,
+          Authorization: `Bearer ${blogToken}`,
           Version: '2021-07-28',
           'Content-Type': 'application/json',
         },

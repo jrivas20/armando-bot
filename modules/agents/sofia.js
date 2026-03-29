@@ -130,8 +130,9 @@ async function runClientDailySeoBlog(locationId, config) {
   const todaysCity = getTodaysCity();
   console.log(`[Client SEO] ${name}: finding keyword for ${domain}...`);
 
-  // Step 1: Get token — use sub-account apiKey if available, else exchange via agency key
-  const token = config.apiKey || await getLocationToken(locationId);
+  // Step 1: Always use OAuth location token for blog posts — PITs lack blogs.write scope (403)
+  // config.apiKey is only used for non-blog GHL calls; blog API requires OAuth token
+  const token = await getLocationToken(locationId);
   if (!token) return { name, skipped: true, reason: 'no_location_token' };
 
   // Step 2: Find client's blog
