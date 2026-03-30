@@ -28,7 +28,6 @@ const {
   GBP_POST_TYPES,
 } = require('./modules/constants');
 
-const path = require('path');
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
