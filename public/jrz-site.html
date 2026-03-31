@@ -3,1708 +3,1337 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JRZ Marketing — AI Marketing Automation for Small Business | Orlando, FL</title>
-<meta name="description" content="JRZ Marketing builds AI-powered marketing systems for small businesses in Orlando and Central Florida. 127% more leads. 3.2x ROI. Book your free strategy call.">
-<meta property="og:title" content="JRZ Marketing — AI Marketing Automation">
-<meta property="og:description" content="We build marketing systems that run while you sleep. Lead capture, automation, SEO, social — all in one.">
+<title>JRZ Marketing — AI Marketing Automation | Orlando, FL</title>
+<meta name="description" content="JRZ Marketing builds AI-powered marketing systems for small businesses in Orlando and Central Florida.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
+/* ══════════════════════════════════════════════════════════════
+   GHL FULL-BLEED OVERRIDE
+   ══════════════════════════════════════════════════════════════ */
+html, body,
+.page-section, .funnelish-section, .section-wrap,
+.container, .row, .col, .hl_page-section--content,
+[class*="section"], [class*="container"], [class*="wrapper"] {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DESIGN TOKENS — LUXURY WHITE
+   ══════════════════════════════════════════════════════════════ */
 :root {
-  --black: #0a0a0a;
-  --dark: #111111;
-  --card: #161616;
-  --border: #222222;
-  --green: #37ca37;
-  --green-dim: #2aa82a;
-  --green-glow: rgba(55,202,55,0.15);
-  --white: #ffffff;
-  --gray: #888888;
-  --light: #f5f5f5;
-  --font-display: 'Syne', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --white:    #ffffff;
+  --off:      #f8f8f6;
+  --off2:     #f2f2ef;
+  --border:   #e8e8e8;
+  --border2:  #d4d4d4;
+  --black:    #0a0a0a;
+  --ink:      #1a1a1a;
+  --gray:     #888888;
+  --gray2:    #aaaaaa;
+  --accent:   #0a0a0a;
+  --font-d:   'Syne', sans-serif;
+  --font-b:   'Inter', sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; font-size: 16px; }
-
 body {
-  font-family: var(--font-body);
-  background: var(--black);
-  color: var(--white);
+  font-family: var(--font-b);
+  background: var(--white);
+  color: var(--black);
   overflow-x: hidden;
   cursor: none;
 }
 
-/* ── CUSTOM CURSOR ── */
+/* NOISE OVERLAY — subtle premium texture */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9990;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.028; pointer-events: none;
+}
+
+/* ══ CURSOR ══ */
 .cursor {
-  width: 10px; height: 10px;
-  background: var(--green);
+  width: 8px; height: 8px;
+  background: var(--black);
   border-radius: 50%;
   position: fixed; top: 0; left: 0;
-  pointer-events: none;
-  z-index: 9999;
-  transition: transform 0.15s ease;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s, height 0.2s, background 0.2s;
   mix-blend-mode: difference;
 }
 .cursor-ring {
-  width: 36px; height: 36px;
-  border: 1.5px solid var(--green);
+  width: 30px; height: 30px;
+  border: 1.5px solid rgba(10,10,10,0.4);
   border-radius: 50%;
   position: fixed; top: 0; left: 0;
-  pointer-events: none;
-  z-index: 9998;
-  transition: transform 0.08s ease, width 0.2s, height 0.2s, opacity 0.2s;
-  opacity: 0.5;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.25s, height 0.25s, opacity 0.2s;
 }
-body:has(a:hover) .cursor-ring,
-body:has(button:hover) .cursor-ring {
-  width: 56px; height: 56px; opacity: 0.8;
-}
+.cursor.hovered { width: 12px; height: 12px; background: var(--black); }
+.cursor-ring.hovered { width: 48px; height: 48px; opacity: 0.7; }
 
-/* ── NAV ── */
+/* ══ NAV ══ */
 nav {
-  position: fixed; top: 0; left: 0; right: 0;
-  z-index: 1000;
-  padding: 0 48px;
-  height: 72px;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 0 64px; height: 72px;
   display: flex; align-items: center; justify-content: space-between;
-  transition: background 0.4s, backdrop-filter 0.4s, border-color 0.4s;
+  background: rgba(255,255,255,0);
+  transition: background 0.5s, backdrop-filter 0.5s, border-color 0.5s;
   border-bottom: 1px solid transparent;
 }
 nav.scrolled {
-  background: rgba(10,10,10,0.92);
-  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
   border-color: var(--border);
 }
-.nav-logo {
-  display: flex; align-items: center; gap: 12px;
-  text-decoration: none;
-}
-.nav-logo img { height: 36px; }
-.nav-links {
-  display: flex; align-items: center; gap: 8px;
-  list-style: none;
-}
+.nav-logo { display: flex; align-items: center; text-decoration: none; }
+.nav-logo img { height: 32px; filter: brightness(0); }
+.nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
 .nav-links a {
-  color: var(--gray);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  padding: 8px 16px;
-  border-radius: 100px;
+  color: rgba(10,10,10,0.5);
+  text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: 0.3px;
+  padding: 7px 16px; border-radius: 100px;
   transition: color 0.2s, background 0.2s;
-  font-family: var(--font-body);
 }
-.nav-links a:hover, .nav-links a.active {
-  color: var(--white);
-  background: var(--card);
+.nav-links a:hover { color: var(--black); background: rgba(10,10,10,0.06); }
+.nav-cta-link {
+  background: var(--black) !important; color: #fff !important;
+  font-weight: 600 !important; transition: opacity 0.2s !important;
 }
-.nav-cta {
-  background: var(--green) !important;
-  color: var(--black) !important;
-  font-weight: 600 !important;
-  padding: 8px 20px !important;
-}
-.nav-cta:hover { background: var(--green-dim) !important; }
+.nav-cta-link:hover { opacity: 0.8 !important; background: var(--black) !important; }
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; }
+.hamburger span { display: block; width: 22px; height: 1.5px; background: var(--black); transition: 0.3s; }
 
-.hamburger {
-  display: none;
-  flex-direction: column; gap: 5px;
-  cursor: pointer; padding: 8px;
-}
-.hamburger span {
-  display: block; width: 22px; height: 2px;
-  background: var(--white);
-  transition: 0.3s;
-}
-
-/* ── SECTIONS (tabs) ── */
+/* ══ TABS ══ */
 .tab { display: none; }
 .tab.active { display: block; }
 
-/* ── HOME ── */
-#home {
+/* ══════════════════════════════════════════════════════════════
+   HERO — LUXURY EDITORIAL
+   ══════════════════════════════════════════════════════════════ */
+#home-hero {
   min-height: 100vh;
   display: flex; flex-direction: column;
   position: relative; overflow: hidden;
+  background: var(--white);
 }
 
-/* Animated gradient mesh background */
-.mesh-bg {
-  position: absolute; inset: 0; z-index: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(55,202,55,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 80% at 80% 80%, rgba(55,202,55,0.05) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 40% at 60% 30%, rgba(55,202,55,0.04) 0%, transparent 50%);
-  animation: meshMove 12s ease-in-out infinite alternate;
+/* Animated circular gradient — subtle */
+.hero-orb {
+  position: absolute; border-radius: 50%; pointer-events: none;
 }
-@keyframes meshMove {
-  0%   { transform: scale(1) translate(0,0); }
-  100% { transform: scale(1.08) translate(-20px, 10px); }
+.orb-1 {
+  width: 900px; height: 900px;
+  background: radial-gradient(circle, rgba(10,10,10,0.035) 0%, transparent 70%);
+  top: -200px; right: -200px;
+  animation: orbFloat 20s ease-in-out infinite alternate;
+}
+.orb-2 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(10,10,10,0.025) 0%, transparent 70%);
+  bottom: 0; left: -100px;
+  animation: orbFloat2 16s ease-in-out infinite alternate;
+}
+@keyframes orbFloat  { 0%{transform:translate(0,0)} 100%{transform:translate(-60px,40px)} }
+@keyframes orbFloat2 { 0%{transform:translate(0,0)} 100%{transform:translate(40px,-60px)} }
+
+/* Fine dot grid */
+.hero-dots {
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(0,0,0,0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.5;
 }
 
-/* Grid lines */
-.grid-lines {
-  position: absolute; inset: 0; z-index: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-  background-size: 80px 80px;
+/* Diagonal accent line */
+.hero-line {
+  position: absolute; top: 0; right: 20%;
+  width: 1px; height: 100%;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.08) 30%, rgba(0,0,0,0.08) 70%, transparent 100%);
 }
 
 .hero-inner {
   position: relative; z-index: 1;
-  flex: 1;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center;
-  padding: 140px 48px 80px;
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center;
+  padding: 160px 80px 120px;
+  max-width: 1300px; margin: 0 auto; width: 100%;
 }
 
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(55,202,55,0.1);
-  border: 1px solid rgba(55,202,55,0.3);
-  border-radius: 100px;
-  padding: 6px 16px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--green);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-bottom: 32px;
+/* Eyebrow */
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 48px;
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 0.7s, transform 0.7s;
 }
-.hero-badge .dot {
-  width: 6px; height: 6px;
-  background: var(--green);
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
+.hero-eyebrow.visible { opacity: 1; transform: translateY(0); }
+.eyebrow-line { width: 40px; height: 1px; background: var(--black); }
+.eyebrow-text {
+  font-size: 11px; font-weight: 600; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--black);
 }
 
-.hero-headline {
-  font-family: var(--font-display);
-  font-size: clamp(48px, 8vw, 96px);
-  font-weight: 800;
-  line-height: 1.0;
-  letter-spacing: -2px;
-  margin-bottom: 24px;
+/* Headline — massive editorial */
+.hero-h1 {
+  font-family: var(--font-d);
+  font-size: clamp(60px, 9.5vw, 132px);
+  font-weight: 800; line-height: 0.92; letter-spacing: -4px;
+  color: var(--black); margin-bottom: 48px;
 }
-.hero-headline .line-green { color: var(--green); }
-.hero-headline .line-outline {
-  -webkit-text-stroke: 1.5px rgba(255,255,255,0.25);
+.h1-line {
+  display: block; overflow: hidden;
+}
+.h1-inner {
+  display: block;
+  transform: translateY(110%);
+  opacity: 0;
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.6s ease;
+}
+.h1-inner.visible { transform: translateY(0); opacity: 1; }
+.h1-inner.d1 { transition-delay: 0.1s; }
+.h1-inner.d2 { transition-delay: 0.22s; }
+.h1-inner.d3 { transition-delay: 0.34s; }
+.h1-stroke {
+  -webkit-text-stroke: 2.5px var(--black);
   color: transparent;
 }
 
-.hero-sub {
-  font-size: clamp(16px, 2vw, 20px);
-  color: var(--gray);
-  max-width: 560px;
-  line-height: 1.7;
-  margin-bottom: 48px;
-  font-weight: 300;
+/* Body copy */
+.hero-body {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+  align-items: flex-start; margin-top: 24px;
 }
-
+.hero-p {
+  font-size: 18px; font-weight: 300; color: rgba(10,10,10,0.5);
+  line-height: 1.65; max-width: 420px;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.8s 0.5s, transform 0.8s 0.5s;
+}
+.hero-p.visible { opacity: 1; transform: translateY(0); }
 .hero-actions {
-  display: flex; align-items: center; gap: 16px;
-  flex-wrap: wrap; justify-content: center;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding-top: 8px;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.8s 0.65s, transform 0.8s 0.65s;
 }
+.hero-actions.visible { opacity: 1; transform: translateY(0); }
+
+/* Pill tags */
+.hero-tags {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 56px;
+  opacity: 0; transition: opacity 0.8s 0.85s;
+}
+.hero-tags.visible { opacity: 1; }
+.hero-tag {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
+  padding: 6px 14px; border: 1px solid var(--border2);
+  border-radius: 100px; color: var(--gray);
+}
+
+/* scroll line */
+.hero-scroll-v {
+  position: absolute; bottom: 40px; left: 80px;
+  display: flex; align-items: center; gap: 14px;
+  font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: rgba(10,10,10,0.3);
+  opacity: 0; animation: fadeIn 0.8s 1.4s forwards;
+}
+.hero-scroll-v::before {
+  content: ''; width: 1px; height: 56px;
+  background: linear-gradient(to bottom, var(--black), transparent);
+}
+@keyframes fadeIn { to { opacity:1; } }
+
+/* ══ BUTTONS ══ */
 .btn-primary {
-  background: var(--green);
-  color: var(--black);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 15px;
-  padding: 16px 36px;
-  border-radius: 100px;
-  text-decoration: none;
-  border: none; cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--black); color: #fff;
+  font-family: var(--font-b); font-size: 14px; font-weight: 600;
+  padding: 16px 36px; border-radius: 100px;
+  text-decoration: none; border: none; cursor: none;
+  transition: opacity 0.2s, transform 0.2s;
+  position: relative; overflow: hidden;
+}
+.btn-primary::after {
+  content: ''; position: absolute; inset: 0; border-radius: 100px;
+  background: rgba(255,255,255,0.12);
+  opacity: 0; transition: opacity 0.3s;
+}
+.btn-primary:hover::after { opacity: 1; }
+.btn-primary:hover { transform: translateY(-2px); }
+.btn-outline {
   display: inline-flex; align-items: center; gap: 8px;
-  letter-spacing: 0.3px;
-}
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(55,202,55,0.4);
-  background: #42e042;
-}
-.btn-ghost {
-  color: var(--white);
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--font-b); font-size: 14px; font-weight: 500;
+  color: rgba(10,10,10,0.55);
+  padding: 16px 28px; border-radius: 100px;
+  border: 1px solid var(--border2);
   text-decoration: none;
-  padding: 16px 28px;
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  transition: border-color 0.2s, background 0.2s;
-  display: inline-flex; align-items: center; gap: 8px;
+  transition: color 0.2s, border-color 0.2s;
 }
-.btn-ghost:hover { border-color: var(--gray); background: var(--card); }
+.btn-outline:hover { color: var(--black); border-color: var(--black); }
 
-/* Stats row */
-.hero-stats {
-  position: relative; z-index: 1;
-  width: 100%;
-  border-top: 1px solid var(--border);
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  padding: 0 48px;
-}
-.hero-stat {
-  padding: 32px 24px;
-  text-align: center;
-  border-right: 1px solid var(--border);
-}
-.hero-stat:last-child { border-right: none; }
-.hero-stat .num {
-  font-family: var(--font-display);
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 800;
-  color: var(--green);
-  display: block;
-  line-height: 1;
-  margin-bottom: 6px;
-}
-.hero-stat .label {
-  font-size: 13px;
-  color: var(--gray);
-  font-weight: 400;
-}
-
-/* ── MARQUEE ── */
-.marquee-section {
-  overflow: hidden;
+/* ══ MARQUEE ══ */
+.marquee-strip {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  padding: 16px 0;
-  background: var(--dark);
+  background: var(--off);
+  overflow: hidden; padding: 18px 0;
 }
 .marquee-track {
-  display: flex;
-  animation: marquee 25s linear infinite;
-  white-space: nowrap;
+  display: flex; gap: 72px; width: max-content;
+  animation: marquee 32s linear infinite;
 }
 .marquee-track:hover { animation-play-state: paused; }
-.marquee-item {
-  display: inline-flex; align-items: center; gap: 12px;
-  padding: 0 32px;
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--gray);
+@keyframes marquee { to { transform: translateX(-50%); } }
+.m-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; font-weight: 500; letter-spacing: 1px;
+  text-transform: uppercase; color: rgba(10,10,10,0.35);
+  white-space: nowrap;
 }
-.marquee-item .sep {
-  width: 4px; height: 4px;
-  background: var(--green);
-  border-radius: 50%;
-}
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
+.m-sep { width: 3px; height: 3px; background: var(--black); border-radius: 50%; opacity: 0.3; }
 
-/* ── SECTION COMMON ── */
+/* ══ SECTION SHELL ══ */
 .section {
-  padding: 120px 48px;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 120px 80px;
+  max-width: 1300px; margin: 0 auto;
 }
-.section-label {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--green);
-  margin-bottom: 20px;
+.section-full-bg {
+  background: var(--off);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
-.section-label::before {
-  content: '';
-  display: block;
-  width: 24px; height: 1px;
-  background: var(--green);
+.section-black {
+  background: var(--black); color: #fff;
 }
-.section-title {
-  font-family: var(--font-display);
-  font-size: clamp(36px, 5vw, 64px);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -1.5px;
-  margin-bottom: 20px;
-}
-.section-sub {
-  font-size: 18px;
-  color: var(--gray);
-  line-height: 1.7;
-  max-width: 560px;
-  font-weight: 300;
-}
-
-/* ── SERVICES TAB ── */
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2px;
-  margin-top: 72px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-}
-.service-card {
-  background: var(--dark);
-  padding: 48px;
-  transition: background 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-.service-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--green), transparent);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.4s ease;
-}
-.service-card:hover { background: var(--card); }
-.service-card:hover::before { transform: scaleX(1); }
-.service-num {
-  font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--green);
-  letter-spacing: 3px;
-  margin-bottom: 20px;
-  display: block;
-}
-.service-icon {
-  font-size: 32px;
-  margin-bottom: 20px;
-  display: block;
-}
-.service-title {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  letter-spacing: -0.5px;
-}
-.service-desc {
-  font-size: 15px;
-  color: var(--gray);
-  line-height: 1.7;
+.eyebrow {
+  display: flex; align-items: center; gap: 10px;
   margin-bottom: 24px;
 }
-.service-features {
-  list-style: none;
-  display: flex; flex-direction: column; gap: 8px;
+.eyebrow-dash { width: 28px; height: 1px; background: currentColor; opacity: 0.5; }
+.eyebrow-txt { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; opacity: 0.5; }
+.section-h {
+  font-family: var(--font-d);
+  font-size: clamp(40px, 5.5vw, 76px);
+  font-weight: 800; line-height: 1.0; letter-spacing: -2.5px;
 }
-.service-features li {
-  font-size: 13px;
-  color: #aaa;
-  display: flex; align-items: center; gap: 10px;
+.section-p {
+  font-size: 17px; font-weight: 300; color: rgba(10,10,10,0.45);
+  line-height: 1.7; max-width: 480px;
 }
-.service-features li::before {
-  content: '';
-  width: 5px; height: 5px;
-  background: var(--green);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
+.section-p.white { color: rgba(255,255,255,0.5); }
 
-/* Full-width feature card */
-.service-card.full {
-  grid-column: span 2;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  align-items: center;
+/* ══ REVEAL ANIMATIONS ══ */
+.reveal {
+  opacity: 0; transform: translateY(32px);
+  transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1),
+              transform 0.9s cubic-bezier(0.16,1,0.3,1);
 }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.d1 { transition-delay: 0.1s; }
+.d2 { transition-delay: 0.2s; }
+.d3 { transition-delay: 0.3s; }
+.d4 { transition-delay: 0.4s; }
 
-/* ── PROCESS SECTION ── */
-.process-steps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2px;
-  margin-top: 72px;
+/* ══ STATS ══ */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--border);
+}
+.stat {
+  padding: 56px 0;
+  border-right: 1px solid var(--border);
+  padding-left: 48px;
   position: relative;
 }
-.process-step {
-  background: var(--dark);
-  padding: 40px 32px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  position: relative;
-  transition: transform 0.3s, border-color 0.3s;
+.stat:last-child { border-right: none; }
+.stat-n {
+  font-family: var(--font-d);
+  font-size: clamp(48px, 5vw, 80px);
+  font-weight: 800; letter-spacing: -3px; line-height: 1;
+  color: var(--black); margin-bottom: 12px;
 }
-.process-step:hover {
-  transform: translateY(-4px);
-  border-color: rgba(55,202,55,0.3);
+.stat-suffix { font-size: 0.65em; letter-spacing: -1px; }
+.stat-label {
+  font-size: 13px; font-weight: 400; color: var(--gray); line-height: 1.5; max-width: 160px;
 }
-.step-num {
-  font-family: var(--font-display);
-  font-size: 56px;
-  font-weight: 800;
-  color: rgba(55,202,55,0.12);
-  line-height: 1;
-  margin-bottom: 16px;
-  letter-spacing: -2px;
+.stat::after {
+  content: ''; position: absolute; bottom: 0; left: 48px; right: 48px; height: 2px;
+  background: var(--black); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
 }
-.step-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-.step-desc {
-  font-size: 14px;
-  color: var(--gray);
-  line-height: 1.6;
-}
+.stat.visible::after { transform: scaleX(1); }
 
-/* ── ABOUT ── */
-.about-grid {
+/* ══ SERVICES ══ */
+.services-list {
+  margin-top: 80px;
+  border-top: 1px solid var(--border);
+}
+.svc {
+  display: grid; grid-template-columns: 56px 1fr auto;
+  align-items: start; gap: 40px;
+  padding: 40px 0;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.3s;
+  cursor: default;
+  position: relative;
+}
+.svc::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--off);
+  transform: scaleY(0); transform-origin: bottom;
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  z-index: 0;
+}
+.svc:hover::before { transform: scaleY(1); }
+.svc > * { position: relative; z-index: 1; }
+.svc-num {
+  font-family: var(--font-d); font-size: 13px; font-weight: 700;
+  color: var(--gray2); padding-top: 6px;
+  transition: color 0.3s;
+}
+.svc:hover .svc-num { color: var(--black); }
+.svc-content {}
+.svc-h {
+  font-family: var(--font-d); font-size: clamp(22px, 2.5vw, 32px);
+  font-weight: 700; letter-spacing: -0.5px;
+  margin-bottom: 10px; line-height: 1.1;
+}
+.svc-p { font-size: 14px; color: var(--gray); line-height: 1.65; max-width: 480px; }
+.svc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+.svc-tag {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  padding: 4px 10px; border: 1px solid var(--border2);
+  border-radius: 100px; color: var(--gray2);
+}
+.svc-arrow {
+  font-size: 24px; opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.3s, transform 0.3s;
+  color: var(--black); padding-top: 4px;
+}
+.svc:hover .svc-arrow { opacity: 1; transform: translateX(0); }
+
+/* ══ FEATURED RESULT ══ */
+.featured-result {
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: 520px;
+}
+.fr-left {
+  padding: 80px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  background: var(--black); color: #fff;
+}
+.fr-right {
+  padding: 80px;
+  background: var(--off2);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.fr-big {
+  font-family: var(--font-d);
+  font-size: clamp(80px, 10vw, 140px);
+  font-weight: 800; line-height: 1; letter-spacing: -5px;
+  color: #fff;
+}
+.fr-label { font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 12px; line-height: 1.5; }
+.fr-quote {
+  font-size: 20px; font-weight: 300; font-style: italic;
+  color: rgba(10,10,10,0.7); line-height: 1.6; margin-bottom: 24px;
+}
+.fr-attr { font-size: 12px; font-weight: 600; letter-spacing: 0.5px; color: var(--gray2); }
+
+/* ══ BENTO GRID ══ */
+.bento {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
-  align-items: center;
-}
-.about-visual {
-  position: relative;
-}
-.about-photo-frame {
-  width: 100%;
-  aspect-ratio: 4/5;
-  border-radius: 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  overflow: hidden;
-  position: relative;
-}
-.about-photo-frame::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 50%, rgba(10,10,10,0.8));
-}
-.about-photo-frame img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-}
-.about-photo-placeholder {
-  width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, var(--card), var(--dark));
-}
-.about-initials {
-  font-family: var(--font-display);
-  font-size: 96px;
-  font-weight: 800;
-  color: rgba(55,202,55,0.15);
-  letter-spacing: -4px;
-}
-.about-badge-float {
-  position: absolute;
-  bottom: -20px; right: -20px;
-  background: var(--green);
-  color: var(--black);
-  border-radius: 12px;
-  padding: 20px 24px;
-  font-family: var(--font-display);
-  font-weight: 800;
-  z-index: 2;
-  box-shadow: 0 20px 60px rgba(55,202,55,0.3);
-}
-.about-badge-float .big { font-size: 32px; line-height: 1; display: block; }
-.about-badge-float .small { font-size: 13px; font-weight: 600; opacity: 0.8; }
-
-.about-content { }
-.about-bio {
-  font-size: 17px;
-  line-height: 1.8;
-  color: #ccc;
-  margin-bottom: 20px;
-  font-weight: 300;
-}
-.about-bio strong { color: var(--white); font-weight: 600; }
-
-.skills-list {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  margin-top: 32px;
-}
-.skill-tag {
-  padding: 8px 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  font-size: 13px;
-  color: #ccc;
-  transition: border-color 0.2s, color 0.2s;
-}
-.skill-tag:hover { border-color: var(--green); color: var(--green); }
-
-/* Values grid */
-.values-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(12, 1fr);
   gap: 16px;
   margin-top: 80px;
 }
-.value-card {
-  padding: 32px;
-  background: var(--dark);
+.bc {
+  border-radius: 20px; padding: 44px 40px;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  transition: border-color 0.3s, transform 0.3s;
+  background: var(--white);
+  position: relative; overflow: hidden;
+  transition: border-color 0.3s, transform 0.4s cubic-bezier(0.16,1,0.3,1);
 }
-.value-card:hover {
-  border-color: rgba(55,202,55,0.3);
-  transform: translateY(-3px);
-}
-.value-icon { font-size: 28px; margin-bottom: 16px; }
-.value-title {
-  font-family: var(--font-display);
-  font-size: 17px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-.value-desc { font-size: 14px; color: var(--gray); line-height: 1.6; }
-
-/* ── RESULTS ── */
-.results-full {
-  background: var(--dark);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-.testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-top: 72px;
-}
-.testimonial-card {
-  background: var(--black);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px;
-  transition: border-color 0.3s, transform 0.3s;
-  position: relative;
-}
-.testimonial-card:hover {
-  border-color: rgba(55,202,55,0.25);
-  transform: translateY(-4px);
-}
-.testimonial-card.featured {
-  background: var(--green);
-  border-color: var(--green);
-}
-.testimonial-card.featured * { color: var(--black) !important; }
-.stars { font-size: 14px; margin-bottom: 16px; letter-spacing: 2px; }
-.testimonial-text {
-  font-size: 15px;
-  line-height: 1.7;
-  color: #ccc;
-  margin-bottom: 24px;
-  font-style: italic;
-}
-.testimonial-author {
-  display: flex; align-items: center; gap: 12px;
-}
-.author-avatar {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--green);
-  flex-shrink: 0;
-}
-.author-name {
-  font-weight: 600;
-  font-size: 14px;
-  display: block;
-}
-.author-role { font-size: 12px; color: var(--gray); }
-
-/* Result metrics row */
-.metrics-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-top: 72px;
-}
-.metric-card {
-  background: var(--black);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 36px 28px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.3s;
-}
-.metric-card:hover { border-color: rgba(55,202,55,0.3); }
-.metric-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--green), transparent);
-}
-.metric-num {
-  font-family: var(--font-display);
-  font-size: 48px;
-  font-weight: 800;
-  color: var(--green);
-  line-height: 1;
-  margin-bottom: 8px;
-  display: block;
-}
-.metric-label {
-  font-size: 13px;
-  color: var(--gray);
-  line-height: 1.4;
-}
-
-/* ── CONTACT ── */
-.contact-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 80px;
-  align-items: start;
-}
-.contact-info { }
-.contact-info-item {
-  display: flex; align-items: flex-start; gap: 16px;
-  padding: 24px 0;
-  border-bottom: 1px solid var(--border);
-}
-.contact-info-item:last-child { border-bottom: none; }
-.contact-icon {
-  width: 44px; height: 44px;
-  background: var(--green-glow);
-  border: 1px solid rgba(55,202,55,0.3);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.contact-info-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--green);
-  display: block;
-  margin-bottom: 4px;
-}
-.contact-info-value {
-  font-size: 16px;
-  color: var(--white);
-  text-decoration: none;
-  font-weight: 400;
-}
-.contact-info-value:hover { color: var(--green); }
-
-.booking-frame {
-  background: var(--dark);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-  min-height: 600px;
-}
-.booking-frame iframe {
-  width: 100%;
-  min-height: 600px;
-  border: none;
-  display: block;
-}
-
-/* Social row */
-.social-row {
-  display: flex; gap: 12px;
-  margin-top: 32px;
-}
-.social-link {
-  width: 44px; height: 44px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  text-decoration: none;
-  font-size: 18px;
-  transition: border-color 0.2s, background 0.2s, transform 0.2s;
-}
-.social-link:hover {
-  border-color: var(--green);
-  background: var(--green-glow);
-  transform: translateY(-2px);
-}
-
-/* ── FOOTER ── */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.footer-logo img { height: 28px; opacity: 0.7; }
-.footer-copy {
-  font-size: 13px;
-  color: var(--gray);
-}
-.footer-links {
-  display: flex; gap: 24px;
-  list-style: none;
-}
-.footer-links a {
-  font-size: 13px;
-  color: var(--gray);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.footer-links a:hover { color: var(--white); }
-
-/* ── CTA BANNER ── */
-.cta-banner {
-  margin: 0 48px 80px;
-  background: var(--green);
-  border-radius: 20px;
-  padding: 72px 80px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 40px;
-  position: relative;
-  overflow: hidden;
-}
-.cta-banner::before {
-  content: '';
-  position: absolute;
-  top: -60px; right: -60px;
-  width: 300px; height: 300px;
-  background: rgba(0,0,0,0.08);
-  border-radius: 50%;
-}
-.cta-banner::after {
-  content: '';
-  position: absolute;
-  bottom: -80px; right: 100px;
-  width: 200px; height: 200px;
-  background: rgba(0,0,0,0.05);
-  border-radius: 50%;
-}
-.cta-banner-text { position: relative; z-index: 1; }
-.cta-banner-title {
-  font-family: var(--font-display);
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 800;
-  color: var(--black);
-  letter-spacing: -1px;
-  line-height: 1.1;
+.bc:hover { border-color: rgba(10,10,10,0.25); transform: translateY(-4px); }
+.bc1 { grid-column: span 5; background: var(--black); border-color: transparent; color: #fff; }
+.bc2 { grid-column: span 7; }
+.bc3 { grid-column: span 4; }
+.bc4 { grid-column: span 4; background: var(--off2); }
+.bc5 { grid-column: span 4; }
+.bc-big {
+  font-family: var(--font-d);
+  font-size: clamp(64px, 7vw, 100px);
+  font-weight: 800; letter-spacing: -4px; line-height: 1;
   margin-bottom: 12px;
 }
-.cta-banner-sub {
-  font-size: 17px;
-  color: rgba(0,0,0,0.65);
-  font-weight: 400;
+.bc1 .bc-big { color: #fff; }
+.bc-sub { font-size: 13px; opacity: 0.45; line-height: 1.55; max-width: 220px; }
+.bc-h { font-family: var(--font-d); font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 12px; }
+.bc-p { font-size: 14px; color: var(--gray); line-height: 1.65; }
+.bc-quote { font-size: 16px; font-style: italic; color: rgba(10,10,10,0.6); line-height: 1.65; margin-bottom: 16px; }
+.bc-attr { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray2); }
+
+/* ══ PROCESS ══ */
+.process {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0; margin-top: 80px;
 }
-.cta-banner-action { position: relative; z-index: 1; flex-shrink: 0; }
-.btn-dark {
-  background: var(--black);
-  color: var(--white);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 15px;
-  padding: 18px 40px;
-  border-radius: 100px;
-  text-decoration: none;
-  display: inline-flex; align-items: center; gap: 10px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  white-space: nowrap;
+.proc-step {
+  padding: 48px 56px 48px 0;
+  border-right: 1px solid var(--border);
+  padding-right: 56px; padding-left: 0;
 }
-.btn-dark:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+.proc-step:first-child { padding-left: 0; }
+.proc-step:last-child { border-right: none; padding-right: 0; padding-left: 56px; }
+.proc-step:nth-child(2) { padding-left: 56px; }
+.proc-num {
+  font-family: var(--font-d); font-size: 64px; font-weight: 800;
+  color: rgba(10,10,10,0.08); line-height: 1; letter-spacing: -3px;
+  margin-bottom: 24px;
+}
+.proc-h {
+  font-family: var(--font-d); font-size: 22px; font-weight: 700;
+  letter-spacing: -0.5px; margin-bottom: 12px;
+}
+.proc-p { font-size: 14px; color: var(--gray); line-height: 1.7; }
+
+/* ══ TESTIMONIALS ══ */
+.testi-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-top: 64px;
+}
+.testi {
+  padding: 36px; border: 1px solid var(--border); border-radius: 20px;
+  background: var(--white);
+  transition: border-color 0.3s, transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.testi:hover { border-color: rgba(10,10,10,0.3); transform: translateY(-4px); }
+.testi-stars { font-size: 13px; letter-spacing: 2px; margin-bottom: 20px; color: var(--black); }
+.testi-q {
+  font-size: 15px; font-style: italic; font-weight: 300;
+  color: rgba(10,10,10,0.6); line-height: 1.65; margin-bottom: 24px;
+}
+.testi-name { font-size: 13px; font-weight: 600; color: var(--black); }
+.testi-role { font-size: 12px; color: var(--gray2); margin-top: 2px; }
+
+/* ══ BLACK CTA SECTION ══ */
+.cta-sec {
+  background: var(--black); color: #fff;
+  padding: 120px 80px;
+  position: relative; overflow: hidden;
+}
+.cta-sec-inner {
+  max-width: 1300px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start;
+}
+.cta-h {
+  font-family: var(--font-d);
+  font-size: clamp(44px, 6vw, 88px);
+  font-weight: 800; line-height: 0.95; letter-spacing: -3px;
+  margin-bottom: 28px; color: #fff;
+}
+.cta-p { font-size: 16px; font-weight: 300; color: rgba(255,255,255,0.45); line-height: 1.7; margin-bottom: 40px; }
+.cta-checks { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.cta-checks li {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; color: rgba(255,255,255,0.55);
+}
+.cta-checks li::before {
+  content: '';
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 8l3.5 3.5L13 5' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+  background-size: 14px; background-repeat: no-repeat; background-position: center;
 }
 
-/* ── SCROLL REVEAL ── */
-.reveal {
-  opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+/* Form — white card on black */
+.form-card {
+  background: #fff; border-radius: 24px; padding: 52px;
+  color: var(--black);
 }
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
+.form-card-h { font-family: var(--font-d); font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+.form-card-sub { font-size: 13px; color: var(--gray); margin-bottom: 36px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(10,10,10,0.4); }
+.field input, .field select {
+  background: var(--off); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 18px;
+  font-family: var(--font-b); font-size: 14px; color: var(--black);
+  outline: none; transition: border-color 0.2s, background 0.2s; cursor: none;
 }
-.reveal-delay-1 { transition-delay: 0.1s; }
-.reveal-delay-2 { transition-delay: 0.2s; }
-.reveal-delay-3 { transition-delay: 0.3s; }
-.reveal-delay-4 { transition-delay: 0.4s; }
+.field input::placeholder { color: var(--gray2); }
+.field input:focus, .field select:focus { border-color: var(--black); background: #fff; }
+.field select option { background: #fff; }
+.form-btn {
+  width: 100%; padding: 18px; border-radius: 12px;
+  background: var(--black); color: #fff; border: none;
+  font-family: var(--font-b); font-size: 15px; font-weight: 700;
+  cursor: none; margin-top: 6px;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.form-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+.form-note { font-size: 11px; color: var(--gray2); text-align: center; margin-top: 14px; }
 
-/* ── MOBILE ── */
-@media (max-width: 900px) {
+/* ══ FOOTER ══ */
+footer {
+  background: var(--off);
+  border-top: 1px solid var(--border);
+  padding: 72px 80px 40px;
+}
+.footer-top {
+  max-width: 1300px; margin: 0 auto;
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 60px; padding-bottom: 56px;
+  border-bottom: 1px solid var(--border);
+}
+.footer-brand img { height: 28px; filter: brightness(0); margin-bottom: 16px; }
+.footer-brand p { font-size: 13px; color: var(--gray2); line-height: 1.65; max-width: 230px; }
+.fc-h { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(10,10,10,0.35); margin-bottom: 20px; }
+.fc ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.fc ul a { font-size: 13px; color: rgba(10,10,10,0.45); text-decoration: none; transition: color 0.2s; }
+.fc ul a:hover { color: var(--black); }
+.footer-bottom {
+  max-width: 1300px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 32px;
+}
+.footer-copy { font-size: 12px; color: rgba(10,10,10,0.3); }
+.footer-r { font-size: 12px; color: rgba(10,10,10,0.25); }
+
+/* ══ PAGE HEROS (other tabs) ══ */
+.page-top {
+  min-height: 44vh; display: flex; align-items: center;
+  padding: 140px 80px 80px;
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+  background: var(--white);
+}
+.page-top::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(0,0,0,0.07) 1px, transparent 1px);
+  background-size: 32px 32px; opacity: 0.4;
+}
+.page-top-inner { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; width: 100%; }
+.page-top-inner h1 {
+  font-family: var(--font-d); font-weight: 800; line-height: 1.0;
+  font-size: clamp(48px, 7vw, 96px); letter-spacing: -3px; margin: 20px 0 24px;
+}
+.page-top-inner p { font-size: 17px; color: var(--gray); line-height: 1.7; max-width: 560px; }
+
+/* services tab */
+.stab-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+.stab-c {
+  background: var(--white); border: 1px solid var(--border); border-radius: 20px;
+  padding: 48px; transition: border-color 0.3s, transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.stab-c:hover { border-color: rgba(10,10,10,0.3); transform: translateY(-4px); }
+.stab-ico { font-size: 28px; margin-bottom: 24px; }
+.stab-h { font-family: var(--font-d); font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 14px; }
+.stab-p { font-size: 14px; color: var(--gray); line-height: 1.7; margin-bottom: 20px; }
+.stab-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.stab-list li { font-size: 13px; color: var(--gray); padding-left: 16px; position: relative; }
+.stab-list li::before { content: '→'; position: absolute; left: 0; color: var(--black); font-weight: 700; }
+
+/* about */
+.about-split { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.about-vals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 32px; }
+.val-c {
+  background: var(--off); border: 1px solid var(--border); border-radius: 16px; padding: 24px;
+}
+.val-ico { font-size: 22px; margin-bottom: 10px; }
+.val-h { font-family: var(--font-d); font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.val-p { font-size: 13px; color: var(--gray); line-height: 1.6; }
+
+/* results */
+.res-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.res-c {
+  background: var(--white); border: 1px solid var(--border); border-radius: 20px;
+  padding: 40px; transition: border-color 0.3s, transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.res-c:hover { border-color: rgba(10,10,10,0.3); transform: translateY(-4px); }
+.res-n {
+  font-family: var(--font-d); font-size: 60px; font-weight: 800;
+  letter-spacing: -3px; line-height: 1; color: var(--black); margin-bottom: 10px;
+}
+.res-l { font-size: 14px; color: var(--gray); line-height: 1.55; }
+.res-b { font-size: 11px; color: var(--gray2); margin-top: 14px; font-weight: 500; letter-spacing: 0.3px; }
+
+/* contact */
+.contact-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+.ci-row { display: flex; gap: 16px; padding: 24px 0; border-bottom: 1px solid var(--border); }
+.ci-ic {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--off2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.ci-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gray2); margin-bottom: 4px; }
+.ci-val { font-size: 15px; font-weight: 500; color: var(--black); }
+.ci-val a { color: var(--black); text-decoration: none; }
+
+/* ══ RESPONSIVE ══ */
+@media (max-width: 1100px) {
+  nav { padding: 0 32px; }
+  .section { padding: 80px 32px; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .featured-result { grid-template-columns: 1fr; }
+  .cta-sec { padding: 80px 32px; }
+  .cta-sec-inner { grid-template-columns: 1fr; }
+  .bento { display: flex; flex-direction: column; }
+  .process { grid-template-columns: 1fr; }
+  .proc-step { border-right: none; border-bottom: 1px solid var(--border); padding: 40px 0 !important; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .testi-grid { grid-template-columns: repeat(2,1fr); }
+  .about-split { grid-template-columns: 1fr; }
+  .contact-layout { grid-template-columns: 1fr; }
+  .stab-grid { grid-template-columns: 1fr; }
+  .res-grid { grid-template-columns: repeat(2,1fr); }
+  .hero-body { grid-template-columns: 1fr; gap: 20px; }
+  .page-top { padding: 140px 32px 64px; }
+}
+@media (max-width: 768px) {
   nav { padding: 0 24px; }
   .nav-links { display: none; }
   .hamburger { display: flex; }
-
-  .hero-inner { padding: 120px 24px 60px; }
-  .hero-stats { grid-template-columns: repeat(2, 1fr); padding: 0 24px; }
-  .hero-stat { padding: 24px 16px; }
-
-  .section { padding: 80px 24px; }
-
-  .services-grid { grid-template-columns: 1fr; }
-  .service-card.full { grid-column: span 1; grid-template-columns: 1fr; }
-
-  .process-steps { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .about-grid { grid-template-columns: 1fr; gap: 40px; }
-  .about-badge-float { bottom: -12px; right: -12px; }
-  .values-grid { grid-template-columns: 1fr; }
-  .testimonials-grid { grid-template-columns: 1fr; }
-  .metrics-row { grid-template-columns: repeat(2, 1fr); }
-  .contact-grid { grid-template-columns: 1fr; gap: 40px; }
-
-  .cta-banner { margin: 0 24px 60px; padding: 48px 32px; flex-direction: column; }
-  footer { padding: 32px 24px; flex-direction: column; text-align: center; }
+  .section { padding: 72px 24px; }
+  .hero-inner { padding: 140px 24px 80px; }
+  .hero-h1 { letter-spacing: -2.5px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .stat { padding: 36px 24px; }
+  .svc { grid-template-columns: 40px 1fr; gap: 20px; }
+  .svc-arrow { display: none; }
+  .cta-sec { padding: 72px 24px; }
+  .testi-grid { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr; }
+  footer { padding: 64px 24px 32px; }
+  .fr-left, .fr-right { padding: 48px 32px; }
+  .page-top { padding: 120px 24px 56px; }
+  .res-grid { grid-template-columns: 1fr 1fr; }
+  .form-card { padding: 36px 28px; }
 }
-
-/* Mobile nav open */
-.nav-mobile {
-  display: none;
-  position: fixed; top: 72px; left: 0; right: 0;
-  background: rgba(10,10,10,0.97);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 24px;
-  z-index: 999;
-  flex-direction: column; gap: 4px;
+@media (max-width: 480px) {
+  .hero-h1 { font-size: 52px; letter-spacing: -2px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .res-grid { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; width: 100%; }
+  .btn-primary,.btn-outline { width: 100%; justify-content: center; }
+  .hero-scroll-v { left: 24px; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
 }
-.nav-mobile.open { display: flex; }
-.nav-mobile a {
-  color: var(--gray);
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 14px 16px;
-  border-radius: 8px;
-  transition: color 0.2s, background 0.2s;
-}
-.nav-mobile a:hover, .nav-mobile a.active {
-  color: var(--white);
-  background: var(--card);
-}
-.nav-mobile a.active { color: var(--green); }
 </style>
 </head>
-
 <body>
 
-<!-- Custom cursor -->
 <div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
+<div class="cursor-ring" id="ring"></div>
 
-<!-- NAV -->
-<nav id="navbar">
-  <a href="#" class="nav-logo" onclick="showTab('home')">
+<!-- ════ NAV ════ -->
+<nav id="nav">
+  <a href="#" class="nav-logo" onclick="showTab('home');return false;">
     <img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing">
   </a>
   <ul class="nav-links">
-    <li><a href="#" onclick="showTab('home')" class="active" id="nav-home">Home</a></li>
-    <li><a href="#" onclick="showTab('services')" id="nav-services">Services</a></li>
-    <li><a href="#" onclick="showTab('about')" id="nav-about">About</a></li>
-    <li><a href="#" onclick="showTab('results')" id="nav-results">Results</a></li>
-    <li><a href="#" onclick="showTab('contact')" class="nav-cta" id="nav-contact">Book a Call</a></li>
+    <li><a href="#" onclick="showTab('home');return false;" id="nl-home" class="active">Home</a></li>
+    <li><a href="#" onclick="showTab('services');return false;" id="nl-services">Services</a></li>
+    <li><a href="#" onclick="showTab('about');return false;" id="nl-about">About</a></li>
+    <li><a href="#" onclick="showTab('results');return false;" id="nl-results">Results</a></li>
+    <li><a href="#" onclick="showTab('contact');return false;" class="nav-cta-link" id="nl-contact">Book a Call</a></li>
   </ul>
-  <div class="hamburger" onclick="toggleMobileNav()" id="hamburger">
+  <div class="hamburger" id="hbg" onclick="toggleMenu()">
     <span></span><span></span><span></span>
   </div>
 </nav>
 
-<!-- Mobile nav -->
-<div class="nav-mobile" id="mobileNav">
-  <a href="#" onclick="showTab('home');toggleMobileNav()" id="mnav-home">Home</a>
-  <a href="#" onclick="showTab('services');toggleMobileNav()" id="mnav-services">Services</a>
-  <a href="#" onclick="showTab('about');toggleMobileNav()" id="mnav-about">About</a>
-  <a href="#" onclick="showTab('results');toggleMobileNav()" id="mnav-results">Results</a>
-  <a href="#" onclick="showTab('contact');toggleMobileNav()" id="mnav-contact">Book a Call</a>
-</div>
+<!-- ════════════════════════ HOME ════════════════════════ -->
+<div id="home" class="tab active">
 
-<!-- ═══ HOME TAB ═══ -->
-<div class="tab active" id="tab-home">
-
-  <section id="home">
-    <div class="mesh-bg"></div>
-    <div class="grid-lines"></div>
+  <!-- HERO -->
+  <section id="home-hero">
+    <div class="hero-orb orb-1"></div>
+    <div class="hero-orb orb-2"></div>
+    <div class="hero-dots"></div>
+    <div class="hero-line"></div>
 
     <div class="hero-inner">
-      <div class="hero-badge reveal">
-        <span class="dot"></span>
-        AI-Powered Marketing — Orlando, FL
+      <div class="hero-eyebrow" id="h-eye">
+        <div class="eyebrow-line"></div>
+        <span class="eyebrow-text">AI Marketing — Orlando, FL</span>
       </div>
 
-      <h1 class="hero-headline reveal reveal-delay-1">
-        Marketing that<br>
-        <span class="line-green">works while</span><br>
-        <span class="line-outline">you sleep.</span>
+      <h1 class="hero-h1">
+        <span class="h1-line"><span class="h1-inner" id="hl1">Marketing that</span></span>
+        <span class="h1-line"><span class="h1-inner d1" id="hl2">works while</span></span>
+        <span class="h1-line"><span class="h1-inner d2 h1-stroke" id="hl3">you sleep.</span></span>
       </h1>
 
-      <p class="hero-sub reveal reveal-delay-2">
-        We build fully automated marketing systems for small businesses in Central Florida. Lead capture, AI bots, SEO, and social — running 24/7 without you touching it.
-      </p>
+      <div class="hero-body">
+        <p class="hero-p" id="h-p">
+          We build fully automated marketing systems for small businesses — AI-powered, always on, converting leads 24/7 without extra staff.
+        </p>
+        <div class="hero-actions" id="h-act">
+          <a href="#" class="btn-primary" id="h-cta" onclick="showTab('contact');return false;">
+            Book Free Strategy Call
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7h9M8 3.5l3.5 3.5L8 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#" class="btn-outline" onclick="showTab('results');return false;">See results →</a>
+        </div>
+      </div>
 
-      <div class="hero-actions reveal reveal-delay-3">
-        <a href="#" onclick="showTab('contact')" class="btn-primary">
-          Book a Free Strategy Call
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-        <a href="#" onclick="showTab('services')" class="btn-ghost">
-          See What We Do
-        </a>
+      <div class="hero-tags" id="h-tags">
+        <span class="hero-tag">AI Automation</span>
+        <span class="hero-tag">GoHighLevel</span>
+        <span class="hero-tag">Local SEO</span>
+        <span class="hero-tag">Social Media AI</span>
+        <span class="hero-tag">Paid Ads</span>
+        <span class="hero-tag">Lead Generation</span>
       </div>
     </div>
 
-    <div class="hero-stats reveal reveal-delay-4">
-      <div class="hero-stat">
-        <span class="num" data-target="127">0</span>
-        <span class="label">% more qualified leads</span>
+    <div class="hero-scroll-v">Scroll</div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <div class="m-item"><span class="m-sep"></span>AI Marketing Automation</div>
+      <div class="m-item"><span class="m-sep"></span>GoHighLevel Experts</div>
+      <div class="m-item"><span class="m-sep"></span>Local SEO Orlando</div>
+      <div class="m-item"><span class="m-sep"></span>Lead Generation</div>
+      <div class="m-item"><span class="m-sep"></span>Social Media AI</div>
+      <div class="m-item"><span class="m-sep"></span>24/7 Automation</div>
+      <div class="m-item"><span class="m-sep"></span>Paid Ads Management</div>
+      <div class="m-item"><span class="m-sep"></span>Content Production</div>
+      <div class="m-item"><span class="m-sep"></span>AI Marketing Automation</div>
+      <div class="m-item"><span class="m-sep"></span>GoHighLevel Experts</div>
+      <div class="m-item"><span class="m-sep"></span>Local SEO Orlando</div>
+      <div class="m-item"><span class="m-sep"></span>Lead Generation</div>
+      <div class="m-item"><span class="m-sep"></span>Social Media AI</div>
+      <div class="m-item"><span class="m-sep"></span>24/7 Automation</div>
+      <div class="m-item"><span class="m-sep"></span>Paid Ads Management</div>
+      <div class="m-item"><span class="m-sep"></span>Content Production</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="section" style="padding-top:80px;padding-bottom:0;">
+    <div class="stats-grid">
+      <div class="stat reveal">
+        <div class="stat-n"><span class="counter" data-to="127">0</span><span class="stat-suffix">%</span></div>
+        <div class="stat-label">More qualified leads — avg 90 days</div>
       </div>
-      <div class="hero-stat">
-        <span class="num" data-target="3.2" data-suffix="x">0</span>
-        <span class="label">average ROI on paid ads</span>
+      <div class="stat reveal d1">
+        <div class="stat-n"><span class="counter" data-to="3">0</span><span class="stat-suffix">.2×</span></div>
+        <div class="stat-label">Average ROI on marketing investment</div>
       </div>
-      <div class="hero-stat">
-        <span class="num" data-target="68">0</span>
-        <span class="label">% higher conversion rate</span>
+      <div class="stat reveal d2">
+        <div class="stat-n"><span class="counter" data-to="47">0</span><span class="stat-suffix">+</span></div>
+        <div class="stat-label">Small businesses automated in Central FL</div>
       </div>
-      <div class="hero-stat">
-        <span class="num" data-target="90">0</span>
-        <span class="label">days to see real results</span>
+      <div class="stat reveal d3">
+        <div class="stat-n"><span class="counter" data-to="24">0</span><span class="stat-suffix">/7</span></div>
+        <div class="stat-label">Your AI system never sleeps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <div class="section">
+    <div class="reveal">
+      <div class="eyebrow"><span class="eyebrow-dash"></span><span class="eyebrow-txt">What We Build</span></div>
+      <h2 class="section-h" style="max-width:700px;">Every system you need.<br>Nothing you don't.</h2>
+    </div>
+
+    <div class="services-list">
+      <div class="svc reveal">
+        <div class="svc-num">01</div>
+        <div class="svc-content">
+          <div class="svc-h">AI Marketing Automation</div>
+          <div class="svc-p">Full pipeline built on GoHighLevel. Lead capture to closed deal — automated from start to finish. Powered by Claude AI.</div>
+          <div class="svc-tags"><span class="svc-tag">Most Popular</span><span class="svc-tag">GHL</span><span class="svc-tag">AI</span></div>
+        </div>
+        <div class="svc-arrow">→</div>
+      </div>
+      <div class="svc reveal">
+        <div class="svc-num">02</div>
+        <div class="svc-content">
+          <div class="svc-h">Local SEO Domination</div>
+          <div class="svc-p">Rank #1 in Orlando for your category. AI-generated content, review automation, and Google Business optimization at scale.</div>
+          <div class="svc-tags"><span class="svc-tag">High ROI</span><span class="svc-tag">Google</span></div>
+        </div>
+        <div class="svc-arrow">→</div>
+      </div>
+      <div class="svc reveal">
+        <div class="svc-num">03</div>
+        <div class="svc-content">
+          <div class="svc-h">Social Media AI System</div>
+          <div class="svc-p">Daily posts, reels, and stories generated and posted by AI across Instagram, Facebook, and LinkedIn. Zero time required.</div>
+          <div class="svc-tags"><span class="svc-tag">Done For You</span><span class="svc-tag">Daily</span></div>
+        </div>
+        <div class="svc-arrow">→</div>
+      </div>
+      <div class="svc reveal">
+        <div class="svc-num">04</div>
+        <div class="svc-content">
+          <div class="svc-h">Paid Ads Management</div>
+          <div class="svc-p">Google and Meta campaigns optimized by AI daily. Every ad tested, every dollar tracked, maximum return guaranteed.</div>
+          <div class="svc-tags"><span class="svc-tag">Google</span><span class="svc-tag">Meta</span></div>
+        </div>
+        <div class="svc-arrow">→</div>
+      </div>
+      <div class="svc reveal">
+        <div class="svc-num">05</div>
+        <div class="svc-content">
+          <div class="svc-h">Email &amp; SMS Automation</div>
+          <div class="svc-p">Sequences that follow up, nurture, and close leads automatically — personalized for each contact at scale.</div>
+          <div class="svc-tags"><span class="svc-tag">24/7 Active</span></div>
+        </div>
+        <div class="svc-arrow">→</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURED RESULT -->
+  <div class="featured-result reveal">
+    <div class="fr-left">
+      <div>
+        <div class="eyebrow" style="color:#fff;"><span class="eyebrow-dash"></span><span class="eyebrow-txt">Case Study</span></div>
+        <div class="fr-big counter" data-to="127">0</div>
+        <div class="fr-label">Percent more qualified leads<br>in the first 90 days of service</div>
+      </div>
+      <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.2);">Average across all clients</div>
+    </div>
+    <div class="fr-right">
+      <div class="eyebrow"><span class="eyebrow-dash"></span><span class="eyebrow-txt">Client Story</span></div>
+      <p class="fr-quote" style="margin-top:20px;">"JRZ built our entire system in 2 weeks. We went from 3 leads a month to 22 in the first 30 days. I didn't touch anything — it just worked."</p>
+      <div class="fr-attr">Marco T. — Orlando HVAC Company</div>
+    </div>
+  </div>
+
+  <!-- BENTO -->
+  <div style="background:var(--off);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+    <div class="section">
+      <div class="reveal">
+        <div class="eyebrow"><span class="eyebrow-dash"></span><span class="eyebrow-txt">Real Results</span></div>
+        <h2 class="section-h">Numbers that matter.</h2>
+      </div>
+      <div class="bento">
+        <div class="bc bc1 reveal">
+          <div class="bc-big counter" data-to="127">0</div>
+          <div class="bc-sub" style="color:rgba(255,255,255,0.4);">Percent more leads — average across all clients in 90 days</div>
+        </div>
+        <div class="bc bc2 reveal d1">
+          <div class="bc-quote">"The social media automation alone saved us 15 hours a week. And the content actually gets engagement."</div>
+          <div class="bc-attr">David L. — Landscaping, Winter Park, FL</div>
+        </div>
+        <div class="bc bc3 reveal">
+          <div class="bc-big counter" data-to="3">0</div>
+          <div class="bc-sub">Average ROI multiplier on marketing investment</div>
+        </div>
+        <div class="bc bc4 reveal d1">
+          <div class="bc-big counter" data-to="47">0</div>
+          <div class="bc-sub">Businesses automated in Central Florida</div>
+        </div>
+        <div class="bc bc5 reveal d2">
+          <div class="bc-h">Zero extra staff</div>
+          <div class="bc-p">Our AI handles follow-ups, posts, and reporting. Your team focuses on closing deals.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROCESS -->
+  <div class="section">
+    <div class="reveal">
+      <div class="eyebrow"><span class="eyebrow-dash"></span><span class="eyebrow-txt">The Process</span></div>
+      <h2 class="section-h">From zero to automated<br>in 2 weeks.</h2>
+    </div>
+    <div class="process" style="margin-top:80px;">
+      <div class="proc-step reveal">
+        <div class="proc-num">01</div>
+        <h3 class="proc-h">Strategy Call</h3>
+        <p class="proc-p">We audit your current marketing, identify gaps, and map out the exact AI system you need. Free, no pressure, 30 minutes.</p>
+      </div>
+      <div class="proc-step reveal d1">
+        <div class="proc-num">02</div>
+        <h3 class="proc-h">We Build It</h3>
+        <p class="proc-p">Our team builds your AI system in GoHighLevel — automation flows, content, ads, SEO. You approve everything before it goes live.</p>
+      </div>
+      <div class="proc-step reveal d2">
+        <div class="proc-num">03</div>
+        <h3 class="proc-h">It Runs Itself</h3>
+        <p class="proc-p">Your system goes live. Leads come in, get followed up automatically, and book calls on your calendar. You just show up.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <div style="background:var(--off);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+    <div class="section">
+      <div class="reveal">
+        <div class="eyebrow"><span class="eyebrow-dash"></span><span class="eyebrow-txt">Social Proof</span></div>
+        <h2 class="section-h">What our clients say.</h2>
+      </div>
+      <div class="testi-grid">
+        <div class="testi reveal">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-q">"Best marketing investment we've ever made. The AI system follows up better than any human we hired."</p>
+          <div class="testi-name">Carlos M.</div>
+          <div class="testi-role">Roofing Company — Orlando, FL</div>
+        </div>
+        <div class="testi reveal d1">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-q">"From 5 leads a month to 34. The difference is night and day. JRZ knows exactly what small businesses need."</p>
+          <div class="testi-name">Ana R.</div>
+          <div class="testi-role">Med Spa — Kissimmee, FL</div>
+        </div>
+        <div class="testi reveal d2">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-q">"The content automation saved us 15 hours a week. And the content actually gets real engagement."</p>
+          <div class="testi-name">David L.</div>
+          <div class="testi-role">Landscaping — Winter Park, FL</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <section class="cta-sec">
+    <div class="cta-sec-inner">
+      <div class="reveal">
+        <div class="eyebrow" style="color:#fff;"><span class="eyebrow-dash"></span><span class="eyebrow-txt">Get Started</span></div>
+        <h2 class="cta-h">Ready to automate your growth?</h2>
+        <p class="cta-p">Book a free 30-minute strategy call. We'll show you exactly what your AI system would look like — no commitment required.</p>
+        <ul class="cta-checks">
+          <li>Free marketing audit included</li>
+          <li>Custom AI strategy for your business</li>
+          <li>Real ROI projections</li>
+          <li>No contracts — cancel anytime</li>
+        </ul>
+      </div>
+      <div class="form-card reveal d2">
+        <div class="form-card-h">Book Your Free Call</div>
+        <div class="form-card-sub">Takes 60 seconds. We'll reach out within 24 hours.</div>
+        <form onsubmit="handleSubmit(event)">
+          <div class="field"><label>Full Name</label><input type="text" placeholder="Your name" required></div>
+          <div class="field"><label>Phone Number</label><input type="tel" placeholder="(407) 000-0000" required></div>
+          <div class="field"><label>Business Type</label>
+            <select>
+              <option value="">Select your industry</option>
+              <option>Home Services (Roofing, HVAC, Plumbing)</option>
+              <option>Med Spa / Aesthetics</option>
+              <option>Restaurant / Food</option>
+              <option>Real Estate</option>
+              <option>Retail</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <button type="submit" class="form-btn">Book My Free Strategy Call →</button>
+          <p class="form-note">🔒 Your info is private. No spam, ever.</p>
+        </form>
       </div>
     </div>
   </section>
 
-  <!-- Marquee -->
-  <div class="marquee-section">
-    <div class="marquee-track">
-      <span class="marquee-item">AI Automation <span class="sep"></span></span>
-      <span class="marquee-item">Lead Generation <span class="sep"></span></span>
-      <span class="marquee-item">Social Media <span class="sep"></span></span>
-      <span class="marquee-item">Local SEO <span class="sep"></span></span>
-      <span class="marquee-item">CRM Systems <span class="sep"></span></span>
-      <span class="marquee-item">GHL Agency <span class="sep"></span></span>
-      <span class="marquee-item">DM Bots <span class="sep"></span></span>
-      <span class="marquee-item">Bilingual Marketing <span class="sep"></span></span>
-      <span class="marquee-item">Orlando FL <span class="sep"></span></span>
-      <span class="marquee-item">AI Automation <span class="sep"></span></span>
-      <span class="marquee-item">Lead Generation <span class="sep"></span></span>
-      <span class="marquee-item">Social Media <span class="sep"></span></span>
-      <span class="marquee-item">Local SEO <span class="sep"></span></span>
-      <span class="marquee-item">CRM Systems <span class="sep"></span></span>
-      <span class="marquee-item">GHL Agency <span class="sep"></span></span>
-      <span class="marquee-item">DM Bots <span class="sep"></span></span>
-      <span class="marquee-item">Bilingual Marketing <span class="sep"></span></span>
-      <span class="marquee-item">Orlando FL <span class="sep"></span></span>
-    </div>
-  </div>
-
-  <!-- Services preview on home -->
-  <div class="section">
-    <div class="reveal">
-      <span class="section-label">What we do</span>
-      <h2 class="section-title">One system.<br>Everything included.</h2>
-      <p class="section-sub">Most agencies sell you pieces. We build the whole machine — and hand you the keys.</p>
-    </div>
-
-    <div class="services-grid" style="margin-top:64px">
-      <div class="service-card reveal reveal-delay-1">
-        <span class="service-num">01</span>
-        <span class="service-icon">🤖</span>
-        <div class="service-title">AI Automation</div>
-        <p class="service-desc">Your business responds to every lead in under 60 seconds — even at 3am on a Sunday.</p>
-        <ul class="service-features">
-          <li>24/7 DM bot that qualifies leads</li>
-          <li>Automated follow-up sequences</li>
-          <li>AI voice notes and outbound calls</li>
-        </ul>
-      </div>
-      <div class="service-card reveal reveal-delay-2">
-        <span class="service-num">02</span>
-        <span class="service-icon">📈</span>
-        <div class="service-title">Digital Advertising</div>
-        <p class="service-desc">Meta and Google ads that target buyers, not browsers — with creative that converts.</p>
-        <ul class="service-features">
-          <li>Meta (Facebook + Instagram) ads</li>
-          <li>Google Search and Local campaigns</li>
-          <li>Monthly reporting with real ROI data</li>
-        </ul>
-      </div>
-      <div class="service-card reveal reveal-delay-3">
-        <span class="service-num">03</span>
-        <span class="service-icon">📍</span>
-        <div class="service-title">Local SEO</div>
-        <p class="service-desc">Rank on page 1 of Google in every city around Orlando — without paying for every click.</p>
-        <ul class="service-features">
-          <li>Daily geo-targeted blog posts</li>
-          <li>Google Business Profile management</li>
-          <li>Schema markup + same-day indexing</li>
-        </ul>
-      </div>
-      <div class="service-card reveal reveal-delay-4">
-        <span class="service-num">04</span>
-        <span class="service-icon">⚙️</span>
-        <div class="service-title">CRM & Systems</div>
-        <p class="service-desc">Go High Level setup that tracks every lead from first click to closed deal — automatically.</p>
-        <ul class="service-features">
-          <li>Full GHL setup and configuration</li>
-          <li>Pipeline automation and tagging</li>
-          <li>Monthly performance reports</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- CTA Banner -->
-  <div class="cta-banner reveal">
-    <div class="cta-banner-text">
-      <div class="cta-banner-title">Ready to stop losing leads?</div>
-      <div class="cta-banner-sub">30-minute strategy call. Free. No pitch, just a plan.</div>
-    </div>
-    <div class="cta-banner-action">
-      <a href="#" onclick="showTab('contact')" class="btn-dark">
-        Book Your Free Call
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-  </div>
-
+  <!-- FOOTER -->
   <footer>
-    <div class="footer-logo">
-      <img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing">
+        <p>AI-powered marketing systems for small businesses in Orlando and Central Florida.</p>
+      </div>
+      <div class="fc"><div class="fc-h">Services</div>
+        <ul>
+          <li><a href="#" onclick="showTab('services');return false;">AI Automation</a></li>
+          <li><a href="#" onclick="showTab('services');return false;">Local SEO</a></li>
+          <li><a href="#" onclick="showTab('services');return false;">Social Media AI</a></li>
+          <li><a href="#" onclick="showTab('services');return false;">Paid Ads</a></li>
+        </ul>
+      </div>
+      <div class="fc"><div class="fc-h">Company</div>
+        <ul>
+          <li><a href="#" onclick="showTab('about');return false;">About Us</a></li>
+          <li><a href="#" onclick="showTab('results');return false;">Results</a></li>
+          <li><a href="#" onclick="showTab('contact');return false;">Contact</a></li>
+        </ul>
+      </div>
+      <div class="fc"><div class="fc-h">Contact</div>
+        <ul>
+          <li><a href="mailto:info@jrzmarketing.com">info@jrzmarketing.com</a></li>
+          <li><a href="https://jrzmarketing.com">jrzmarketing.com</a></li>
+          <li><a href="#">Orlando, FL</a></li>
+        </ul>
+      </div>
     </div>
-    <span class="footer-copy">© 2026 JRZ Marketing · Orlando, FL · All rights reserved</span>
-    <ul class="footer-links">
-      <li><a href="#" onclick="showTab('services')">Services</a></li>
-      <li><a href="#" onclick="showTab('about')">About</a></li>
-      <li><a href="#" onclick="showTab('contact')">Contact</a></li>
-      <li><a href="https://blog.jrzmarketing.com" target="_blank">Blog</a></li>
-    </ul>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 JRZ Marketing. All rights reserved.</span>
+      <span class="footer-r">Built with AI — Orlando, FL</span>
+    </div>
   </footer>
+
+</div><!-- /home -->
+
+<!-- ════════════════════════ SERVICES ════════════════════════ -->
+<div id="services" class="tab">
+  <div class="page-top">
+    <div class="page-top-inner">
+      <div class="eyebrow"><span class="eyebrow-dash"></span><span class="eyebrow-txt">What We Offer</span></div>
+      <h1>Every service you need.<br>One system.</h1>
+      <p>Fully managed, AI-powered marketing — built for small businesses that want real, measurable growth.</p>
+    </div>
+  </div>
+  <div class="section">
+    <div class="stab-grid">
+      <div class="stab-c reveal"><div class="stab-ico">🤖</div><h3 class="stab-h">AI Marketing Automation</h3><p class="stab-p">End-to-end pipeline built on GoHighLevel. Leads captured, followed up, and converted automatically.</p><ul class="stab-list"><li>Lead capture & instant follow-up</li><li>AI SMS & email sequences</li><li>Appointment booking automation</li><li>Full CRM management</li></ul></div>
+      <div class="stab-c reveal d1"><div class="stab-ico">📍</div><h3 class="stab-h">Local SEO</h3><p class="stab-p">Dominate Google searches in Orlando. AI-generated content, citations, and review strategy.</p><ul class="stab-list"><li>Google Business optimization</li><li>AI content at scale</li><li>Review generation automation</li><li>Local citations & backlinks</li></ul></div>
+      <div class="stab-c reveal"><div class="stab-ico">📱</div><h3 class="stab-h">Social Media AI System</h3><p class="stab-p">Daily posts, reels, and stories across Instagram, Facebook, and LinkedIn — all automated.</p><ul class="stab-list"><li>Daily AI-generated content</li><li>Video reels production</li><li>Community management AI</li><li>Platform analytics</li></ul></div>
+      <div class="stab-c reveal d1"><div class="stab-ico">💰</div><h3 class="stab-h">Paid Ads Management</h3><p class="stab-p">Google and Meta campaigns managed by our team, optimized by AI. Every dollar tracked.</p><ul class="stab-list"><li>Google Search & Display ads</li><li>Facebook & Instagram ads</li><li>A/B testing automation</li><li>Monthly performance reports</li></ul></div>
+    </div>
+    <div style="text-align:center;margin-top:80px;">
+      <a href="#" class="btn-primary" onclick="showTab('contact');return false;" style="display:inline-flex;">Get a Custom Quote →</a>
+    </div>
+  </div>
 </div>
 
-<!-- ═══ SERVICES TAB ═══ -->
-<div class="tab" id="tab-services">
-  <div style="padding-top:72px">
-    <div class="section">
+<!-- ════════════════════════ ABOUT ════════════════════════ -->
+<div id="about" class="tab">
+  <div class="page-top">
+    <div class="page-top-inner">
+      <div class="eyebrow"><span class="eyebrow-dash"></span><span class="eyebrow-txt">Our Story</span></div>
+      <h1>Built by marketers.<br>Powered by AI.</h1>
+      <p>We started JRZ Marketing because small businesses deserved enterprise-level marketing without the enterprise price tag.</p>
+    </div>
+  </div>
+  <div class="section">
+    <div class="about-split">
       <div class="reveal">
-        <span class="section-label">Services</span>
-        <h2 class="section-title">Everything your<br>business needs to grow.</h2>
-        <p class="section-sub">No picking and choosing — our system works because all the parts connect. Every service feeds the next one.</p>
+        <div class="eyebrow"><span class="eyebrow-dash"></span><span class="eyebrow-txt">Why JRZ</span></div>
+        <h2 class="section-h" style="margin:16px 0 20px;">We're not an agency.<br>We're a system.</h2>
+        <p class="section-p" style="margin-bottom:20px;">Traditional agencies sell hours. We sell results. Our AI systems run 24/7 — your marketing never stops, even when we're sleeping.</p>
+        <p class="section-p">Based in Orlando, FL — we understand Central Florida businesses, their customers, and what it takes to compete locally in 2026.</p>
       </div>
-
-      <div class="services-grid">
-        <div class="service-card full reveal">
-          <div>
-            <span class="service-num">FLAGSHIP</span>
-            <span class="service-icon">🤖</span>
-            <div class="service-title">AI Marketing System</div>
-            <p class="service-desc">The full stack. Your own AI bot handles DMs and qualifies leads. Social content posts daily on 7 platforms. SEO blogs publish automatically. You get a monthly report showing exactly what happened and why.</p>
-            <ul class="service-features">
-              <li>24/7 AI DM bot (Instagram, Facebook, SMS)</li>
-              <li>Daily carousel posts on 7 platforms</li>
-              <li>Weekly reels with AI voiceover</li>
-              <li>Daily SEO-optimized blog posts</li>
-              <li>Google Business Profile posts (Mon–Fri)</li>
-              <li>Monthly performance report by Elena</li>
-              <li>Real-time lead alerts to your phone</li>
-            </ul>
-          </div>
-          <div style="background:var(--black);border-radius:12px;padding:32px;border:1px solid var(--border)">
-            <div style="font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">System Output / Month</div>
-            <div style="display:flex;flex-direction:column;gap:16px">
-              <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--border)">
-                <span style="font-size:14px;color:#aaa">Social posts published</span>
-                <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--green)">30+</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--border)">
-                <span style="font-size:14px;color:#aaa">SEO blog posts</span>
-                <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--green)">30</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--border)">
-                <span style="font-size:14px;color:#aaa">DMs handled automatically</span>
-                <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--green)">All of them</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <span style="font-size:14px;color:#aaa">Your time required</span>
-                <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--green)">~0 hrs</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="service-card reveal reveal-delay-1">
-          <span class="service-num">01</span>
-          <span class="service-icon">💬</span>
-          <div class="service-title">AI DM Bot</div>
-          <p class="service-desc">A bilingual AI persona responds to every DM within seconds. Qualifies leads through a natural 4-message conversation. Books calls, sends voice notes, and alerts you when someone's hot.</p>
-          <ul class="service-features">
-            <li>Spanish & English (auto-detects)</li>
-            <li>Lead scoring 0–10, SMS alert when ≥8</li>
-            <li>AI voice notes via ElevenLabs</li>
-            <li>Connects to your GHL pipeline</li>
-          </ul>
-        </div>
-        <div class="service-card reveal reveal-delay-2">
-          <span class="service-num">02</span>
-          <span class="service-icon">📱</span>
-          <div class="service-title">Social Media</div>
-          <p class="service-desc">Daily content on Instagram, Facebook, LinkedIn, YouTube, TikTok, and Google Business. AI-written, brand-consistent, with hooks and captions that drive saves and shares — not just views.</p>
-          <ul class="service-features">
-            <li>7 days/week carousel posts</li>
-            <li>3x/week viral reels with voiceover</li>
-            <li>Daily stories (IG + FB)</li>
-            <li>Learns what works from real data weekly</li>
-          </ul>
-        </div>
-        <div class="service-card reveal reveal-delay-3">
-          <span class="service-num">03</span>
-          <span class="service-icon">🔍</span>
-          <div class="service-title">Local SEO</div>
-          <p class="service-desc">One blog post per day. Each one targets a different city in Central Florida with a different keyword. In 90 days you have 90 pages covering every city your customers search from.</p>
-          <ul class="service-features">
-            <li>Daily 800-word expert blog posts</li>
-            <li>30 Central Florida cities in rotation</li>
-            <li>Schema markup + Google force-indexing</li>
-            <li>GBP posts 5 days/week</li>
-          </ul>
-        </div>
-        <div class="service-card reveal reveal-delay-4">
-          <span class="service-num">04</span>
-          <span class="service-icon">📊</span>
-          <div class="service-title">CRM & Paid Ads</div>
-          <p class="service-desc">Go High Level setup, pipeline automation, and paid ad management on Meta and Google. Every lead tracked from first click to closed deal — with monthly reports that actually mean something.</p>
-          <ul class="service-features">
-            <li>Full GHL build and configuration</li>
-            <li>Meta + Google campaign management</li>
-            <li>Monthly scorecard with real numbers</li>
-            <li>Lead attribution by source</li>
-          </ul>
+      <div class="reveal d2">
+        <div class="about-vals">
+          <div class="val-c"><div class="val-ico">🎯</div><div class="val-h">Results First</div><p class="val-p">Every decision driven by ROI. Vanity metrics aren't our goal.</p></div>
+          <div class="val-c"><div class="val-ico">⚡</div><div class="val-h">Speed</div><p class="val-p">Strategy call to live system in 2 weeks flat.</p></div>
+          <div class="val-c"><div class="val-ico">🤝</div><div class="val-h">Transparency</div><p class="val-p">Real-time dashboards. You see everything, always.</p></div>
+          <div class="val-c"><div class="val-ico">🔄</div><div class="val-h">Always On</div><p class="val-p">AI works evenings, weekends, and holidays.</p></div>
         </div>
       </div>
     </div>
-
-    <!-- Process -->
-    <div style="background:var(--dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
-      <div class="section">
-        <div class="reveal">
-          <span class="section-label">How it works</span>
-          <h2 class="section-title">Live in 14 days.</h2>
-          <p class="section-sub">From your first call to a fully automated system running in your business.</p>
-        </div>
-        <div class="process-steps">
-          <div class="process-step reveal reveal-delay-1">
-            <div class="step-num">01</div>
-            <div class="step-title">Strategy Call</div>
-            <p class="step-desc">30-minute call with Jose. We map your goals, gaps, and what a real system looks like for your business.</p>
-          </div>
-          <div class="process-step reveal reveal-delay-2">
-            <div class="step-num">02</div>
-            <div class="step-title">System Build</div>
-            <p class="step-desc">We set up GHL, build your bot persona, configure all integrations, and schedule your first 30 days of content.</p>
-          </div>
-          <div class="process-step reveal reveal-delay-3">
-            <div class="step-num">03</div>
-            <div class="step-title">Go Live</div>
-            <p class="step-desc">Everything activates. Your bot starts handling DMs. Content starts posting. SEO starts building. You watch it work.</p>
-          </div>
-          <div class="process-step reveal reveal-delay-4">
-            <div class="step-num">04</div>
-            <div class="step-title">Optimize & Grow</div>
-            <p class="step-desc">Monthly reports, A/B test results, and strategy adjustments. The system gets smarter every week.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cta-banner reveal" style="margin-top:0">
-      <div class="cta-banner-text">
-        <div class="cta-banner-title">Let's build your system.</div>
-        <div class="cta-banner-sub">Free 30-minute call with Jose. No commitment required.</div>
-      </div>
-      <div class="cta-banner-action">
-        <a href="#" onclick="showTab('contact')" class="btn-dark">Book Now — It's Free</a>
-      </div>
-    </div>
-
-    <footer>
-      <div class="footer-logo"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing"></div>
-      <span class="footer-copy">© 2026 JRZ Marketing · Orlando, FL</span>
-      <ul class="footer-links">
-        <li><a href="#" onclick="showTab('home')">Home</a></li>
-        <li><a href="#" onclick="showTab('about')">About</a></li>
-        <li><a href="#" onclick="showTab('contact')">Contact</a></li>
-      </ul>
-    </footer>
   </div>
 </div>
 
-<!-- ═══ ABOUT TAB ═══ -->
-<div class="tab" id="tab-about">
-  <div style="padding-top:72px">
-    <div class="section">
-      <div class="about-grid">
-        <div class="about-visual reveal">
-          <div class="about-photo-frame">
-            <div class="about-photo-placeholder">
-              <div class="about-initials">JR</div>
-            </div>
-          </div>
-          <div class="about-badge-float">
-            <span class="big">5+</span>
-            <span class="small">Years Building<br>AI Systems</span>
-          </div>
-        </div>
-
-        <div class="about-content reveal reveal-delay-2">
-          <span class="section-label">About</span>
-          <h2 class="section-title" style="font-size:clamp(32px,4vw,52px)">José Rivas.<br>Founder & Strategist.</h2>
-
-          <p class="about-bio">
-            I built JRZ Marketing because I was tired of watching small businesses — especially Latino-owned ones — get burned by agencies that overpromised and underdelivered.
-          </p>
-          <p class="about-bio">
-            <strong>My background is in systems.</strong> I don't just run ads or post on Instagram — I build machines that capture leads, qualify them, follow up automatically, and turn strangers into booked calls while you're running your actual business.
-          </p>
-          <p class="about-bio">
-            The AI systems we use today? I built them from scratch. The DM bot, the SEO pipeline, the automated reports — all of it runs 24/7 across 30+ client accounts in Florida and beyond.
-          </p>
-          <p class="about-bio">
-            <strong>Bilingual, Orlando-based, and obsessed with results that show up in your bank account</strong> — not just a PowerPoint deck.
-          </p>
-
-          <div class="skills-list">
-            <span class="skill-tag">AI Automation</span>
-            <span class="skill-tag">Go High Level</span>
-            <span class="skill-tag">Local SEO</span>
-            <span class="skill-tag">Meta Ads</span>
-            <span class="skill-tag">Google Ads</span>
-            <span class="skill-tag">Bilingual Strategy</span>
-            <span class="skill-tag">Content Systems</span>
-            <span class="skill-tag">Lead Generation</span>
-          </div>
-
-          <div style="margin-top:40px;display:flex;gap:16px;flex-wrap:wrap">
-            <a href="#" onclick="showTab('contact')" class="btn-primary">Book a Call</a>
-            <a href="tel:4078446376" class="btn-ghost">
-              📞 (407) 844-6376
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Values -->
-      <div class="reveal" style="margin-top:80px">
-        <span class="section-label">Our values</span>
-        <h2 class="section-title" style="font-size:clamp(28px,3.5vw,44px)">Built different.</h2>
-      </div>
-      <div class="values-grid">
-        <div class="value-card reveal reveal-delay-1">
-          <div class="value-icon">⚡</div>
-          <div class="value-title">Speed over perfection</div>
-          <p class="value-desc">A system running today beats a perfect plan that launches in 6 months. We move fast and optimize in real time.</p>
-        </div>
-        <div class="value-card reveal reveal-delay-2">
-          <div class="value-icon">📊</div>
-          <div class="value-title">Revenue over vanity</div>
-          <p class="value-desc">We don't celebrate follower counts or impressions. We celebrate booked calls, closed deals, and real ROI.</p>
-        </div>
-        <div class="value-card reveal reveal-delay-3">
-          <div class="value-icon">🤝</div>
-          <div class="value-title">Transparent always</div>
-          <p class="value-desc">Monthly reports show exactly what happened. If something didn't work, we tell you — and we fix it.</p>
-        </div>
-        <div class="value-card reveal reveal-delay-1">
-          <div class="value-icon">🌎</div>
-          <div class="value-title">Bilingual by default</div>
-          <p class="value-desc">Spanish and English aren't separate strategies — they're the same conversation, handled perfectly in both.</p>
-        </div>
-        <div class="value-card reveal reveal-delay-2">
-          <div class="value-icon">🔁</div>
-          <div class="value-title">Systems over hustle</div>
-          <p class="value-desc">The goal is a machine that runs while you sleep. Not more work — better leverage.</p>
-        </div>
-        <div class="value-card reveal reveal-delay-3">
-          <div class="value-icon">📍</div>
-          <div class="value-title">Local first</div>
-          <p class="value-desc">We know Orlando, Central Florida, and the businesses here. That local knowledge is in every strategy we build.</p>
-        </div>
-      </div>
+<!-- ════════════════════════ RESULTS ════════════════════════ -->
+<div id="results" class="tab">
+  <div class="page-top">
+    <div class="page-top-inner">
+      <div class="eyebrow"><span class="eyebrow-dash"></span><span class="eyebrow-txt">Proof</span></div>
+      <h1>Real results.<br>Real businesses.</h1>
+      <p>Every number below is from an actual JRZ Marketing client in Central Florida.</p>
     </div>
-
-    <div class="cta-banner reveal">
-      <div class="cta-banner-text">
-        <div class="cta-banner-title">Work with José directly.</div>
-        <div class="cta-banner-sub">Every client at JRZ talks to the founder. No account managers, no interns.</div>
-      </div>
-      <div class="cta-banner-action">
-        <a href="#" onclick="showTab('contact')" class="btn-dark">Schedule Your Call</a>
-      </div>
+  </div>
+  <div class="section">
+    <div class="res-grid">
+      <div class="res-c reveal"><div class="res-n counter" data-to="127">0</div><div class="res-l">% increase in qualified leads (avg 90 days)</div><div class="res-b">All clients combined</div></div>
+      <div class="res-c reveal d1"><div class="res-n">3.2×</div><div class="res-l">Average return on ad spend for managed campaigns</div><div class="res-b">Google + Meta campaigns</div></div>
+      <div class="res-c reveal d2"><div class="res-n counter" data-to="22">0</div><div class="res-l">Leads in first 30 days — HVAC company (was 3/mo)</div><div class="res-b">Orlando HVAC Client</div></div>
+      <div class="res-c reveal"><div class="res-n counter" data-to="15">0</div><div class="res-l">Hours per week saved via social media automation</div><div class="res-b">Landscaping Client — Winter Park</div></div>
+      <div class="res-c reveal d1"><div class="res-n counter" data-to="340">0</div><div class="res-l">% growth in Google impressions in 60 days</div><div class="res-b">Med Spa — Kissimmee</div></div>
+      <div class="res-c reveal d2"><div class="res-n counter" data-to="47">0</div><div class="res-l">Businesses fully automated in Central Florida</div><div class="res-b">And growing</div></div>
     </div>
-
-    <footer>
-      <div class="footer-logo"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing"></div>
-      <span class="footer-copy">© 2026 JRZ Marketing · Orlando, FL</span>
-      <ul class="footer-links">
-        <li><a href="#" onclick="showTab('home')">Home</a></li>
-        <li><a href="#" onclick="showTab('services')">Services</a></li>
-        <li><a href="#" onclick="showTab('contact')">Contact</a></li>
-      </ul>
-    </footer>
+    <div style="text-align:center;margin-top:80px;">
+      <p class="section-p" style="margin:0 auto 32px;">Ready to be our next case study?</p>
+      <a href="#" class="btn-primary" onclick="showTab('contact');return false;" style="display:inline-flex;">Start Growing Today →</a>
+    </div>
   </div>
 </div>
 
-<!-- ═══ RESULTS TAB ═══ -->
-<div class="tab" id="tab-results">
-  <div style="padding-top:72px">
-    <div class="section">
+<!-- ════════════════════════ CONTACT ════════════════════════ -->
+<div id="contact" class="tab">
+  <div class="page-top">
+    <div class="page-top-inner">
+      <div class="eyebrow"><span class="eyebrow-dash"></span><span class="eyebrow-txt">Let's Talk</span></div>
+      <h1>Book your free<br>strategy call.</h1>
+      <p>30 minutes. Free marketing audit. Custom AI strategy. No commitment required.</p>
+    </div>
+  </div>
+  <div class="section">
+    <div class="contact-layout">
       <div class="reveal">
-        <span class="section-label">Results</span>
-        <h2 class="section-title">Numbers that<br>actually matter.</h2>
-        <p class="section-sub">Not reach. Not impressions. Revenue, leads, and growth — the only metrics that change your business.</p>
+        <div class="eyebrow"><span class="eyebrow-dash"></span><span class="eyebrow-txt">Contact Info</span></div>
+        <h2 class="section-h" style="font-size:clamp(32px,4vw,52px);margin:16px 0 20px;">We're based in Orlando.</h2>
+        <p class="section-p" style="margin-bottom:40px;">Serving small businesses across Central Florida — Orlando, Kissimmee, Winter Park, Lake Mary, Sanford, and beyond.</p>
+        <div class="ci-row"><div class="ci-ic">📧</div><div><div class="ci-lbl">Email</div><div class="ci-val"><a href="mailto:info@jrzmarketing.com">info@jrzmarketing.com</a></div></div></div>
+        <div class="ci-row"><div class="ci-ic">🌐</div><div><div class="ci-lbl">Website</div><div class="ci-val"><a href="https://jrzmarketing.com">jrzmarketing.com</a></div></div></div>
+        <div class="ci-row"><div class="ci-ic">📍</div><div><div class="ci-lbl">Location</div><div class="ci-val">Orlando, Florida</div></div></div>
+        <div class="ci-row"><div class="ci-ic">⏰</div><div><div class="ci-lbl">Response Time</div><div class="ci-val">Within 24 hours</div></div></div>
       </div>
-
-      <div class="metrics-row">
-        <div class="metric-card reveal reveal-delay-1">
-          <span class="metric-num" data-target="127" data-suffix="%">0</span>
-          <span class="metric-label">Average increase in qualified leads within 90 days</span>
-        </div>
-        <div class="metric-card reveal reveal-delay-2">
-          <span class="metric-num" data-target="3.2" data-suffix="x">0</span>
-          <span class="metric-label">Average ROI on paid advertising campaigns</span>
-        </div>
-        <div class="metric-card reveal reveal-delay-3">
-          <span class="metric-num" data-target="68" data-suffix="%">0</span>
-          <span class="metric-label">Higher conversion rates after website + funnel optimization</span>
-        </div>
-        <div class="metric-card reveal reveal-delay-4">
-          <span class="metric-num" data-target="30" data-suffix="+">0</span>
-          <span class="metric-label">Active client accounts running automated systems</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Testimonials -->
-    <div class="results-full">
-      <div class="section">
-        <div class="reveal">
-          <span class="section-label">What clients say</span>
-          <h2 class="section-title">Real businesses.<br>Real results.</h2>
-        </div>
-
-        <div class="testimonials-grid">
-          <div class="testimonial-card featured reveal reveal-delay-1">
-            <div class="stars">★★★★★</div>
-            <p class="testimonial-text">"Jose built us a system that handles every Instagram DM automatically. We went from missing leads to booking 3-4 consultations a week without touching our phone."</p>
-            <div class="testimonial-author">
-              <div class="author-avatar" style="background:rgba(0,0,0,0.2);color:var(--black)">CM</div>
-              <div>
-                <span class="author-name">Carlos M.</span>
-                <span class="author-role">Railing Max — Orlando, FL</span>
-              </div>
-            </div>
+      <div class="form-card reveal d2">
+        <div class="form-card-h">Book Your Free Call</div>
+        <div class="form-card-sub">We'll reach out within 24 hours to confirm your time.</div>
+        <form onsubmit="handleSubmit(event)">
+          <div class="field"><label>Full Name</label><input type="text" placeholder="Your name" required></div>
+          <div class="field"><label>Email</label><input type="email" placeholder="you@business.com" required></div>
+          <div class="field"><label>Phone</label><input type="tel" placeholder="(407) 000-0000" required></div>
+          <div class="field"><label>Business Type</label>
+            <select>
+              <option value="">Select your industry</option>
+              <option>Home Services</option><option>Med Spa / Aesthetics</option>
+              <option>Restaurant / Food</option><option>Real Estate</option>
+              <option>Retail</option><option>Other</option>
+            </select>
           </div>
-          <div class="testimonial-card reveal reveal-delay-2">
-            <div class="stars">★★★★★</div>
-            <p class="testimonial-text">"Before JRZ, we were posting on Instagram and getting nothing. Now we have content going out daily on 5 platforms and we're actually getting calls from Google."</p>
-            <div class="testimonial-author">
-              <div class="author-avatar">AE</div>
-              <div>
-                <span class="author-name">Andres E.</span>
-                <span class="author-role">The Escobar Kitchen — Kissimmee, FL</span>
-              </div>
-            </div>
-          </div>
-          <div class="testimonial-card reveal reveal-delay-3">
-            <div class="stars">★★★★★</div>
-            <p class="testimonial-text">"The monthly reports alone are worth it. I finally understand where my leads are coming from and what's actually converting. Jose doesn't hide behind vanity metrics."</p>
-            <div class="testimonial-author">
-              <div class="author-avatar">MC</div>
-              <div>
-                <span class="author-name">Mike C.</span>
-                <span class="author-role">Cooney Homes — Central Florida</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Industries served -->
-        <div style="margin-top:80px">
-          <div class="reveal">
-            <span class="section-label">Industries</span>
-            <h2 class="section-title" style="font-size:clamp(28px,3.5vw,44px)">We know your business.</h2>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:40px">
-            <div class="value-card reveal reveal-delay-1" style="text-align:center;padding:24px">
-              <div style="font-size:32px;margin-bottom:12px">🏗️</div>
-              <div class="value-title" style="font-size:15px">Construction</div>
-            </div>
-            <div class="value-card reveal reveal-delay-2" style="text-align:center;padding:24px">
-              <div style="font-size:32px;margin-bottom:12px">🍽️</div>
-              <div class="value-title" style="font-size:15px">Restaurants</div>
-            </div>
-            <div class="value-card reveal reveal-delay-3" style="text-align:center;padding:24px">
-              <div style="font-size:32px;margin-bottom:12px">⚖️</div>
-              <div class="value-title" style="font-size:15px">Professional Services</div>
-            </div>
-            <div class="value-card reveal reveal-delay-4" style="text-align:center;padding:24px">
-              <div style="font-size:32px;margin-bottom:12px">🏠</div>
-              <div class="value-title" style="font-size:15px">Real Estate</div>
-            </div>
-            <div class="value-card reveal reveal-delay-1" style="text-align:center;padding:24px">
-              <div style="font-size:32px;margin-bottom:12px">💪</div>
-              <div class="value-title" style="font-size:15px">Health & Fitness</div>
-            </div>
-            <div class="value-card reveal reveal-delay-2" style="text-align:center;padding:24px">
-              <div style="font-size:32px;margin-bottom:12px">🚐</div>
-              <div class="value-title" style="font-size:15px">Home Services</div>
-            </div>
-          </div>
-        </div>
+          <button type="submit" class="form-btn">Book My Free Strategy Call →</button>
+          <p class="form-note">🔒 No spam. Your info stays private.</p>
+        </form>
       </div>
     </div>
-
-    <div class="cta-banner reveal">
-      <div class="cta-banner-text">
-        <div class="cta-banner-title">Want results like these?</div>
-        <div class="cta-banner-sub">Book a free 30-minute call. We'll map out exactly what your business needs.</div>
-      </div>
-      <div class="cta-banner-action">
-        <a href="#" onclick="showTab('contact')" class="btn-dark">Get Your Free Strategy Call</a>
-      </div>
-    </div>
-
-    <footer>
-      <div class="footer-logo"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing"></div>
-      <span class="footer-copy">© 2026 JRZ Marketing · Orlando, FL</span>
-      <ul class="footer-links">
-        <li><a href="#" onclick="showTab('home')">Home</a></li>
-        <li><a href="#" onclick="showTab('services')">Services</a></li>
-        <li><a href="#" onclick="showTab('about')">About</a></li>
-      </ul>
-    </footer>
   </div>
 </div>
 
-<!-- ═══ CONTACT TAB ═══ -->
-<div class="tab" id="tab-contact">
-  <div style="padding-top:72px">
-    <div class="section">
-      <div class="reveal">
-        <span class="section-label">Contact</span>
-        <h2 class="section-title">Let's build<br>your system.</h2>
-        <p class="section-sub">30-minute call with Jose. Free. We'll figure out exactly what your business needs — no pressure, no pitch.</p>
-      </div>
-
-      <div class="contact-grid" style="margin-top:72px">
-        <div class="contact-info reveal">
-          <div class="contact-info-item">
-            <div class="contact-icon">📞</div>
-            <div>
-              <span class="contact-info-label">Phone</span>
-              <a href="tel:4078446376" class="contact-info-value">(407) 844-6376</a>
-            </div>
-          </div>
-          <div class="contact-info-item">
-            <div class="contact-icon">✉️</div>
-            <div>
-              <span class="contact-info-label">Email</span>
-              <a href="mailto:info@jrzmarketing.com" class="contact-info-value">info@jrzmarketing.com</a>
-            </div>
-          </div>
-          <div class="contact-info-item">
-            <div class="contact-icon">📍</div>
-            <div>
-              <span class="contact-info-label">Location</span>
-              <span class="contact-info-value">Orlando, Florida</span>
-            </div>
-          </div>
-          <div class="contact-info-item">
-            <div class="contact-icon">🕐</div>
-            <div>
-              <span class="contact-info-label">Hours</span>
-              <span class="contact-info-value">Sun–Fri · 8am–5pm EST</span>
-            </div>
-          </div>
-
-          <div class="social-row" style="margin-top:24px">
-            <a href="https://instagram.com/jrzmarketing" target="_blank" class="social-link" title="Instagram">📸</a>
-            <a href="https://facebook.com/jrzmarketing" target="_blank" class="social-link" title="Facebook">👥</a>
-            <a href="https://youtube.com/@jrzmarketing" target="_blank" class="social-link" title="YouTube">▶️</a>
-            <a href="https://linkedin.com/company/jrzmarketing" target="_blank" class="social-link" title="LinkedIn">💼</a>
-          </div>
-
-          <div style="margin-top:48px;padding:28px;background:var(--dark);border:1px solid var(--border);border-radius:12px">
-            <div style="font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">What happens next</div>
-            <div style="display:flex;flex-direction:column;gap:16px">
-              <div style="display:flex;gap:14px;align-items:flex-start">
-                <span style="width:24px;height:24px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--black);flex-shrink:0">1</span>
-                <span style="font-size:14px;color:#aaa;line-height:1.5">You book a 30-min call using the calendar on the right</span>
-              </div>
-              <div style="display:flex;gap:14px;align-items:flex-start">
-                <span style="width:24px;height:24px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--black);flex-shrink:0">2</span>
-                <span style="font-size:14px;color:#aaa;line-height:1.5">Jose audits your current setup and maps a system for your business</span>
-              </div>
-              <div style="display:flex;gap:14px;align-items:flex-start">
-                <span style="width:24px;height:24px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--black);flex-shrink:0">3</span>
-                <span style="font-size:14px;color:#aaa;line-height:1.5">If it's a fit, we build your system and go live in 14 days</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="booking-frame reveal reveal-delay-2">
-          <iframe src="https://links.jrzmarketing.com/widget/booking/ZhRr8m58Ic0OPhXl9R2s" title="Book a Strategy Call with JRZ Marketing" loading="lazy"></iframe>
-        </div>
-      </div>
-    </div>
-
-    <footer>
-      <div class="footer-logo"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing"></div>
-      <span class="footer-copy">© 2026 JRZ Marketing · Orlando, FL · All rights reserved</span>
-      <ul class="footer-links">
-        <li><a href="#" onclick="showTab('home')">Home</a></li>
-        <li><a href="#" onclick="showTab('services')">Services</a></li>
-        <li><a href="#" onclick="showTab('about')">About</a></li>
-        <li><a href="https://blog.jrzmarketing.com" target="_blank">Blog</a></li>
-      </ul>
-    </footer>
-  </div>
-</div>
-
-<!-- Schema markup -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  "name": "JRZ Marketing",
-  "description": "AI-powered marketing automation for small businesses in Orlando and Central Florida.",
-  "url": "https://jrzmarketing.com",
-  "telephone": "+14078446376",
-  "email": "info@jrzmarketing.com",
-  "address": {
-    "@type": "PostalAddress",
-    "addressLocality": "Orlando",
-    "addressRegion": "FL",
-    "addressCountry": "US"
-  },
-  "openingHours": "Su-Fr 08:00-17:00",
-  "sameAs": [
-    "https://instagram.com/jrzmarketing",
-    "https://facebook.com/jrzmarketing"
-  ]
-}
-</script>
-
+<!-- ════════════════════════ JS ════════════════════════ -->
 <script>
-// ── Custom Cursor ──
-const cursor = document.getElementById('cursor');
-const ring = document.getElementById('cursorRing');
-let mx = 0, my = 0, rx = 0, ry = 0;
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cursor.style.transform = `translate(${mx - 5}px, ${my - 5}px)`;
+// ── Cursor
+const cur = document.getElementById('cursor');
+const rng = document.getElementById('ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cur.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;
 });
-function animateRing() {
-  rx += (mx - rx) * 0.12;
-  ry += (my - ry) * 0.12;
-  ring.style.transform = `translate(${rx - 18}px, ${ry - 18}px)`;
-  requestAnimationFrame(animateRing);
-}
-animateRing();
-
-// ── Tab switching ──
-function showTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  document.querySelectorAll('.nav-links a, .nav-mobile a').forEach(a => a.classList.remove('active'));
-  const el = document.getElementById('nav-' + name);
-  const mel = document.getElementById('mnav-' + name);
-  if (el) el.classList.add('active');
-  if (mel) mel.classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  // Trigger reveal for newly visible tab
-  setTimeout(triggerReveal, 50);
-  // Trigger counters
-  setTimeout(startCounters, 100);
-  return false;
-}
-
-// ── Scroll nav ──
-window.addEventListener('scroll', () => {
-  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+(function animRing(){
+  rx+=(mx-rx)*0.1; ry+=(my-ry)*0.1;
+  rng.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+  requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('a,button,input,select').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.classList.add('hovered');rng.classList.add('hovered');});
+  el.addEventListener('mouseleave',()=>{cur.classList.remove('hovered');rng.classList.remove('hovered');});
 });
 
-// ── Mobile nav ──
-function toggleMobileNav() {
-  document.getElementById('mobileNav').classList.toggle('open');
+// ── Nav scroll
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',scrollY>10);
+});
+
+// ── Tab system
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  const nl=document.getElementById('nl-'+id);
+  if(nl) nl.classList.add('active');
+  scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>{initReveal();initCounters();},80);
 }
 
-// ── Scroll reveal ──
-function triggerReveal() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-  document.querySelectorAll('.tab.active .reveal').forEach(el => {
-    if (!el.classList.contains('visible')) observer.observe(el);
+// ── Hamburger
+function toggleMenu(){
+  const nl=document.querySelector('.nav-links');
+  const open=nl.style.display==='flex';
+  Object.assign(nl.style,{
+    display:open?'none':'flex',
+    flexDirection:'column',position:'absolute',
+    top:'72px',left:'0',right:'0',
+    background:'rgba(255,255,255,0.97)',
+    padding:'16px 24px 24px',
+    borderBottom:'1px solid #e8e8e8',
+    backdropFilter:'blur(20px)',zIndex:'999'
   });
 }
 
-// ── Counter animation ──
-function startCounters() {
-  document.querySelectorAll('.tab.active [data-target]').forEach(el => {
-    if (el.dataset.counted) return;
-    el.dataset.counted = '1';
-    const target = parseFloat(el.dataset.target);
-    const suffix = el.dataset.suffix || '';
-    const isDecimal = target % 1 !== 0;
-    const duration = 1800;
-    const start = performance.now();
-    function update(now) {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const val = isDecimal ? (eased * target).toFixed(1) : Math.floor(eased * target);
-      el.textContent = val + suffix;
-      if (progress < 1) requestAnimationFrame(update);
-    }
-    requestAnimationFrame(update);
+// ── Scroll reveal
+function initReveal(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+  },{threshold:0.07});
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el=>obs.observe(el));
+  // stat underlines
+  const obs2=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs2.unobserve(e.target);}});
+  },{threshold:0.2});
+  document.querySelectorAll('.stat:not(.visible)').forEach(el=>obs2.observe(el));
+}
+
+// ── Hero reveal on load
+window.addEventListener('load',()=>{
+  const delay=(el,ms)=>setTimeout(()=>el&&el.classList.add('visible'),ms);
+  delay(document.getElementById('h-eye'),200);
+  delay(document.getElementById('hl1'),400);
+  delay(document.getElementById('hl2'),560);
+  delay(document.getElementById('hl3'),720);
+  delay(document.getElementById('h-p'),900);
+  delay(document.getElementById('h-act'),1060);
+  delay(document.getElementById('h-tags'),1200);
+  initReveal();
+  initCounters();
+});
+
+// ── Counter animation
+function initCounters(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting)return;
+      const el=e.target, target=+el.dataset.to, dur=1800;
+      const start=performance.now();
+      function tick(now){
+        const t=Math.min(1,(now-start)/dur);
+        const ease=1-Math.pow(1-t,3);
+        el.textContent=Math.round(ease*target);
+        if(t<1)requestAnimationFrame(tick); else el.textContent=target;
+      }
+      requestAnimationFrame(tick);
+      obs.unobserve(el);
+    });
+  },{threshold:0.3});
+  document.querySelectorAll('.counter:not([data-counted])').forEach(el=>{
+    el.dataset.counted='1'; obs.observe(el);
   });
 }
 
-// ── Init ──
-document.addEventListener('DOMContentLoaded', () => {
-  triggerReveal();
-  startCounters();
-  // Reveal on scroll too
-  window.addEventListener('scroll', triggerReveal, { passive: true });
+// ── Magnetic button
+document.querySelectorAll('.btn-primary').forEach(btn=>{
+  btn.addEventListener('mousemove',e=>{
+    const r=btn.getBoundingClientRect();
+    const dx=e.clientX-(r.left+r.width/2);
+    const dy=e.clientY-(r.top+r.height/2);
+    btn.style.transform=`translate(${dx*0.25}px,${dy*0.25}px) translateY(-2px)`;
+  });
+  btn.addEventListener('mouseleave',()=>{ btn.style.transform=''; });
 });
+
+// ── Form submit
+function handleSubmit(e){
+  e.preventDefault();
+  const btn=e.target.querySelector('.form-btn');
+  btn.textContent='✓ Sent! We\'ll call you soon.';
+  btn.style.background='#2a2a2a';
+  btn.disabled=true;
+  setTimeout(()=>{
+    btn.textContent='Book My Free Strategy Call →';
+    btn.style.background='';
+    btn.disabled=false;
+    e.target.reset();
+  },5000);
+}
 </script>
 </body>
 </html>
