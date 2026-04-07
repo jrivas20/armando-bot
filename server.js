@@ -39,6 +39,11 @@ const APOLLO_API_KEY = process.env.APOLLO_API_KEY || 'pHTTmBc8ljBQFxaa0YcUQQ';
 const BOOKING_URL = 'https://jrzmarketing.com/contact-us';
 const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
 
+// ─── Blocked usernames — Armando will never message these ────────────────────
+const BLOCKED_USERS = [
+  'luisadlc_',
+];
+
 // ── GHL Agency (all subaccounts) ───────────────────────────
 const GHL_AGENCY_KEY = process.env.GHL_AGENCY_KEY || 'pit-7a8b4631-2249-4683-b15b-57a661400caa';
 const GHL_COMPANY_ID = 'VMjVKN63tXxZxQ21jlC4';
@@ -3194,6 +3199,13 @@ app.post('/webhook', async (req, res) => {
     if (!messageBody || !contactId) {
       console.log('Missing messageBody or contactId, skipping.');
       return res.status(200).json({ status: 'skipped', reason: 'missing fields' });
+    }
+
+    // ── Blocked users — never engage with these usernames ──
+    const normalizedName = (contactName || '').toLowerCase().replace(/\s+/g, '');
+    if (BLOCKED_USERS.some(u => normalizedName.includes(u.toLowerCase()))) {
+      console.log(`[Armando] Blocked user detected: ${contactName} — staying silent.`);
+      return res.status(200).json({ status: 'blocked', reason: 'blocked_user', user: contactName });
     }
 
     if (messageId && repliedMessageIds.has(messageId)) {

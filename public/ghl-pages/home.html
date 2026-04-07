@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JRZ Marketing — AI Marketing | Orlando, FL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body,.page-section,.funnelish-section,.section-wrap,.container,.row,.col,.hl_page-section--content,[class*="section"],[class*="container"],[class*="wrapper"]{max-width:100%!important;width:100%!important;padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important}
+:root{--w:#fff;--off:#f8f8f6;--off2:#f2f2ef;--b:#e8e8e8;--b2:#d4d4d4;--k:#0a0a0a;--g:#888;--g2:#aaa;--fd:'Syne',sans-serif;--fb:'Inter',sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--w);color:var(--k);overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;z-index:9990;opacity:.025;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 64px;height:72px;display:flex;align-items:center;justify-content:space-between;transition:background .4s,border-color .4s;border-bottom:1px solid transparent}
+nav.sc{background:rgba(255,255,255,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-color:var(--b)}
+.logo img{height:32px;filter:brightness(0)}
+.nl{display:flex;align-items:center;gap:4px;list-style:none}
+.nl a{color:rgba(10,10,10,.5);text-decoration:none;font-size:13px;font-weight:500;padding:7px 16px;border-radius:100px;transition:color .2s,background .2s}
+.nl a:hover,.nl a.on{color:var(--k);background:rgba(10,10,10,.06)}
+.nl .cta{background:var(--k)!important;color:#fff!important;font-weight:600!important}
+.nl .cta:hover{opacity:.8!important}
+.hbg{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;border:none;background:none}
+.hbg span{display:block;width:22px;height:1.5px;background:var(--k);transition:.3s}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--w)}
+.orb{position:absolute;border-radius:50%;pointer-events:none}
+.o1{width:900px;height:900px;background:radial-gradient(circle,rgba(10,10,10,.032) 0%,transparent 70%);top:-200px;right:-200px;animation:oa 20s ease-in-out infinite alternate}
+.o2{width:600px;height:600px;background:radial-gradient(circle,rgba(10,10,10,.022) 0%,transparent 70%);bottom:0;left:-100px;animation:ob 16s ease-in-out infinite alternate}
+@keyframes oa{to{transform:translate(-60px,40px)}}@keyframes ob{to{transform:translate(40px,-60px)}}
+.dots{position:absolute;inset:0;background-image:radial-gradient(rgba(0,0,0,.07) 1px,transparent 1px);background-size:32px 32px;opacity:.45}
+.vl{position:absolute;top:0;right:20%;width:1px;height:100%;background:linear-gradient(to bottom,transparent,rgba(0,0,0,.07) 30%,rgba(0,0,0,.07) 70%,transparent)}
+.hi{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center;padding:160px 80px 120px;max-width:1300px;margin:0 auto;width:100%}
+
+.ew{display:flex;align-items:center;gap:12px;margin-bottom:48px;opacity:0;transform:translateY(16px);transition:opacity .7s,transform .7s}
+.ew.v{opacity:1;transform:translateY(0)}
+.ed{width:40px;height:1px;background:var(--k)}
+.et{font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase}
+
+.h1{font-family:var(--fd);font-size:clamp(56px,9vw,128px);font-weight:800;line-height:.93;letter-spacing:-4px;color:var(--k);margin-bottom:48px}
+.hl{display:block;overflow:hidden}
+.hi2{display:block;transform:translateY(110%);opacity:0;transition:transform 1s cubic-bezier(.16,1,.3,1),opacity .6s}
+.hi2.v{transform:translateY(0);opacity:1}
+.hi2.d1{transition-delay:.12s}.hi2.d2{transition-delay:.24s}
+.sk{-webkit-text-stroke:2.5px var(--k);color:transparent}
+
+.hb{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;margin-top:8px}
+.hp{font-size:18px;font-weight:300;color:rgba(10,10,10,.5);line-height:1.65;max-width:420px;opacity:0;transform:translateY(20px);transition:opacity .8s .5s,transform .8s .5s}
+.hp.v{opacity:1;transform:translateY(0)}
+.ha{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:8px;opacity:0;transform:translateY(20px);transition:opacity .8s .65s,transform .8s .65s}
+.ha.v{opacity:1;transform:translateY(0)}
+.tgs{display:flex;flex-wrap:wrap;gap:8px;margin-top:56px;opacity:0;transition:opacity .8s .9s}
+.tgs.v{opacity:1}
+.tg{font-size:11px;font-weight:500;letter-spacing:.5px;padding:6px 14px;border:1px solid var(--b2);border-radius:100px;color:var(--g)}
+.sv{position:absolute;bottom:40px;left:80px;display:flex;align-items:center;gap:14px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(10,10,10,.3);opacity:0;animation:fi .8s 1.5s forwards}
+.sv::before{content:'';width:1px;height:56px;background:linear-gradient(to bottom,var(--k),transparent)}
+@keyframes fi{to{opacity:1}}
+
+/* BUTTONS */
+.bb{display:inline-flex;align-items:center;gap:10px;background:var(--k);color:#fff;font-family:var(--fb);font-size:14px;font-weight:600;padding:16px 36px;border-radius:100px;text-decoration:none;transition:opacity .2s,transform .2s;position:relative;overflow:hidden}
+.bb::after{content:'';position:absolute;inset:0;border-radius:100px;background:rgba(255,255,255,.12);opacity:0;transition:opacity .3s}
+.bb:hover::after{opacity:1}
+.bb:hover{transform:translateY(-2px)}
+.bo{display:inline-flex;align-items:center;gap:8px;font-family:var(--fb);font-size:14px;font-weight:500;color:rgba(10,10,10,.5);padding:16px 28px;border-radius:100px;border:1px solid var(--b2);text-decoration:none;transition:color .2s,border-color .2s}
+.bo:hover{color:var(--k);border-color:var(--k)}
+
+/* MARQUEE */
+.mq{border-top:1px solid var(--b);border-bottom:1px solid var(--b);background:var(--off);overflow:hidden;padding:18px 0}
+.mt{display:flex;gap:72px;width:max-content;animation:mq 32s linear infinite}
+.mt:hover{animation-play-state:paused}
+@keyframes mq{to{transform:translateX(-50%)}}
+.mi{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:rgba(10,10,10,.35);white-space:nowrap}
+.ms{width:3px;height:3px;background:var(--k);border-radius:50%;opacity:.3}
+
+/* SECTIONS */
+.sec{padding:120px 80px;max-width:1300px;margin:0 auto}
+.sh{font-family:var(--fd);font-size:clamp(40px,5.5vw,76px);font-weight:800;line-height:1;letter-spacing:-2.5px;margin:16px 0 20px}
+.sp{font-size:17px;font-weight:300;color:rgba(10,10,10,.45);line-height:1.7;max-width:480px}
+.ey{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ey-d{width:28px;height:1px;background:currentColor;opacity:.5}
+.ey-t{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:.5}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(32px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+.rv.v{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--b)}
+.st{padding:56px 0 56px 48px;border-right:1px solid var(--b);position:relative}
+.st:last-child{border-right:none}
+.sn{font-family:var(--fd);font-size:clamp(48px,5vw,80px);font-weight:800;letter-spacing:-3px;line-height:1;margin-bottom:12px}
+.ss{font-size:.62em;letter-spacing:-1px}
+.sl{font-size:13px;color:var(--g);line-height:1.5;max-width:160px}
+.st::after{content:'';position:absolute;bottom:0;left:48px;right:48px;height:2px;background:var(--k);transform:scaleX(0);transform-origin:left;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+.st.v::after{transform:scaleX(1)}
+
+/* SERVICES */
+.svl{margin-top:80px;border-top:1px solid var(--b)}
+.svc{display:grid;grid-template-columns:56px 1fr auto;align-items:start;gap:40px;padding:40px 0;border-bottom:1px solid var(--b);position:relative}
+.svc::before{content:'';position:absolute;inset:0;background:var(--off);transform:scaleY(0);transform-origin:bottom;transition:transform .4s cubic-bezier(.16,1,.3,1);z-index:0}
+.svc:hover::before{transform:scaleY(1)}
+.svc>*{position:relative;z-index:1}
+.sn2{font-family:var(--fd);font-size:13px;font-weight:700;color:var(--g2);padding-top:6px;transition:color .3s}
+.svc:hover .sn2{color:var(--k)}
+.svh{font-family:var(--fd);font-size:clamp(22px,2.5vw,32px);font-weight:700;letter-spacing:-.5px;margin-bottom:10px;line-height:1.1}
+.svp{font-size:14px;color:var(--g);line-height:1.65;max-width:480px}
+.svtg{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.svt{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border:1px solid var(--b2);border-radius:100px;color:var(--g2)}
+.sva{font-size:24px;opacity:0;transform:translateX(-8px);transition:opacity .3s,transform .3s;color:var(--k);padding-top:4px}
+.svc:hover .sva{opacity:1;transform:translateX(0)}
+
+/* FEATURED */
+.ft2{display:grid;grid-template-columns:1fr 1fr;min-height:520px}
+.fl{padding:80px;display:flex;flex-direction:column;justify-content:space-between;background:var(--k);color:#fff}
+.fr{padding:80px;background:var(--off2);display:flex;flex-direction:column;justify-content:center}
+.fb2{font-family:var(--fd);font-size:clamp(80px,10vw,140px);font-weight:800;line-height:1;letter-spacing:-5px;color:#fff}
+.flbl{font-size:14px;color:rgba(255,255,255,.4);margin-top:12px;line-height:1.5}
+.fq{font-size:20px;font-weight:300;font-style:italic;color:rgba(10,10,10,.65);line-height:1.6;margin-bottom:24px}
+.fa{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--g2)}
+
+/* BENTO */
+.bn{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:80px}
+.bc{border-radius:20px;padding:44px 40px;border:1px solid var(--b);background:var(--w);position:relative;overflow:hidden;transition:border-color .3s,transform .4s cubic-bezier(.16,1,.3,1)}
+.bc:hover{border-color:rgba(10,10,10,.25);transform:translateY(-4px)}
+.bc1{grid-column:span 5;background:var(--k);border-color:transparent;color:#fff}
+.bc2{grid-column:span 7}.bc3{grid-column:span 4}.bc4{grid-column:span 4;background:var(--off2)}.bc5{grid-column:span 4}
+.bbi{font-family:var(--fd);font-size:clamp(64px,7vw,100px);font-weight:800;letter-spacing:-4px;line-height:1;margin-bottom:12px}
+.bc1 .bbi{color:#fff}
+.bsu{font-size:13px;opacity:.45;line-height:1.55;max-width:220px}
+.bh{font-family:var(--fd);font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:12px}
+.bp{font-size:14px;color:var(--g);line-height:1.65}
+.bq{font-size:16px;font-style:italic;color:rgba(10,10,10,.6);line-height:1.65;margin-bottom:16px}
+.bat{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--g2)}
+
+/* PROCESS */
+.pr{display:grid;grid-template-columns:repeat(3,1fr);margin-top:80px}
+.ps{border-right:1px solid var(--b);padding:0 56px 0 0}
+.ps:nth-child(2){padding:0 56px}
+.ps:last-child{border-right:none;padding:0 0 0 56px}
+.pn{font-family:var(--fd);font-size:64px;font-weight:800;color:rgba(10,10,10,.08);line-height:1;letter-spacing:-3px;margin-bottom:24px}
+.ph{font-family:var(--fd);font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:12px}
+.pp{font-size:14px;color:var(--g);line-height:1.7}
+
+/* TESTIMONIALS */
+.tg2{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:64px}
+.ti{padding:36px;border:1px solid var(--b);border-radius:20px;transition:border-color .3s,transform .4s cubic-bezier(.16,1,.3,1)}
+.ti:hover{border-color:rgba(10,10,10,.3);transform:translateY(-4px)}
+.ts{font-size:13px;letter-spacing:2px;margin-bottom:20px}
+.tq{font-size:15px;font-style:italic;font-weight:300;color:rgba(10,10,10,.6);line-height:1.65;margin-bottom:24px}
+.tn{font-size:13px;font-weight:600}
+.tr{font-size:12px;color:var(--g2);margin-top:2px}
+
+/* CTA */
+.cs{background:var(--k);color:#fff;padding:120px 80px}
+.ci{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.ch{font-family:var(--fd);font-size:clamp(44px,6vw,88px);font-weight:800;line-height:.95;letter-spacing:-3px;margin-bottom:28px}
+.cp{font-size:16px;font-weight:300;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:40px}
+.cu{list-style:none;display:flex;flex-direction:column;gap:14px}
+.cu li{display:flex;align-items:center;gap:12px;font-size:14px;color:rgba(255,255,255,.55)}
+.cu li::before{content:'';width:18px;height:18px;border-radius:50%;flex-shrink:0;background:rgba(255,255,255,.08) url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 8l3.5 3.5L13 5' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") center/14px no-repeat;border:1px solid rgba(255,255,255,.2)}
+.fcd{background:#fff;border-radius:24px;padding:52px;color:var(--k)}
+.fch{font-family:var(--fd);font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px}
+.fcs{font-size:13px;color:var(--g);margin-bottom:36px}
+.fi2{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.fi2 label{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:rgba(10,10,10,.4)}
+.fi2 input,.fi2 select{background:var(--off);border:1px solid var(--b);border-radius:12px;padding:14px 18px;font-family:var(--fb);font-size:14px;color:var(--k);outline:none;transition:border-color .2s;appearance:none;-webkit-appearance:none}
+.fi2 input::placeholder{color:var(--g2)}
+.fi2 input:focus,.fi2 select:focus{border-color:var(--k);background:#fff}
+.fi2 select option{background:#fff}
+.fsb{width:100%;padding:18px;border-radius:12px;background:var(--k);color:#fff;border:none;font-family:var(--fb);font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;transition:opacity .2s,transform .15s}
+.fsb:hover{opacity:.85;transform:translateY(-1px)}
+.fn{font-size:11px;color:var(--g2);text-align:center;margin-top:14px}
+
+/* FOOTER */
+footer{background:var(--off);border-top:1px solid var(--b);padding:72px 80px 40px}
+.ftr{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;padding-bottom:56px;border-bottom:1px solid var(--b)}
+.fbr img{height:28px;filter:brightness(0);margin-bottom:16px}
+.fbr p{font-size:13px;color:var(--g2);line-height:1.65;max-width:230px}
+.fch2{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(10,10,10,.35);margin-bottom:20px}
+.fcc ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.fcc ul a{font-size:13px;color:rgba(10,10,10,.45);text-decoration:none;transition:color .2s}
+.fcc ul a:hover{color:var(--k)}
+.fbt2{max-width:1300px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding-top:32px}
+.cp2{font-size:12px;color:rgba(10,10,10,.3)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){nav{padding:0 32px}.sec{padding:80px 32px}.sg{grid-template-columns:repeat(2,1fr)}.ft2{grid-template-columns:1fr}.cs{padding:80px 32px}.ci{grid-template-columns:1fr}.bn{display:flex;flex-direction:column}.pr{grid-template-columns:1fr}.ps{border-right:none;border-bottom:1px solid var(--b);padding:40px 0!important}.ftr{grid-template-columns:1fr 1fr;gap:40px}.tg2{grid-template-columns:repeat(2,1fr)}.hb{grid-template-columns:1fr}}
+@media(max-width:768px){nav{padding:0 24px}.nl{display:none}.hbg{display:flex}.sec{padding:72px 24px}.hi{padding:140px 24px 80px}.st{padding:36px 24px}.svc{grid-template-columns:40px 1fr;gap:20px}.sva{display:none}.cs{padding:72px 24px}.tg2{grid-template-columns:1fr}.ftr{grid-template-columns:1fr}footer{padding:64px 24px 32px}.fl,.fr{padding:48px 32px}.sv{left:24px}.fcd{padding:36px 28px}}
+@media(max-width:480px){.sg{grid-template-columns:1fr}.ha{flex-direction:column;width:100%}.bb,.bo{width:100%;justify-content:center}}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="YOUR_HOME_URL" class="logo"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing"></a>
+  <ul class="nl">
+    <li><a href="YOUR_HOME_URL" class="on">Home</a></li>
+    <li><a href="YOUR_SERVICES_URL">Services</a></li>
+    <li><a href="YOUR_ABOUT_URL">About</a></li>
+    <li><a href="YOUR_RESULTS_URL">Results</a></li>
+    <li><a href="YOUR_CONTACT_URL" class="cta">Book a Call</a></li>
+  </ul>
+  <button class="hbg" onclick="toggleNav()"><span></span><span></span><span></span></button>
+</nav>
+
+<section class="hero">
+  <div class="orb o1"></div><div class="orb o2"></div>
+  <div class="dots"></div><div class="vl"></div>
+  <div class="hi">
+    <div class="ew" id="ew"><div class="ed"></div><span class="et">AI Marketing — Orlando, FL</span></div>
+    <h1 class="h1">
+      <span class="hl"><span class="hi2" id="l1">Marketing that</span></span>
+      <span class="hl"><span class="hi2 d1" id="l2">works while</span></span>
+      <span class="hl"><span class="hi2 d2 sk" id="l3">you sleep.</span></span>
+    </h1>
+    <div class="hb">
+      <p class="hp" id="hp">We build fully automated marketing systems for small businesses — AI-powered, always on, converting leads 24/7 without extra staff.</p>
+      <div class="ha" id="ha">
+        <a href="YOUR_CONTACT_URL" class="bb">Book Free Strategy Call <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7h9M8 3.5l3.5 3.5L8 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a href="YOUR_RESULTS_URL" class="bo">See results →</a>
+      </div>
+    </div>
+    <div class="tgs" id="tgs"><span class="tg">AI Automation</span><span class="tg">GoHighLevel</span><span class="tg">Local SEO</span><span class="tg">Social Media AI</span><span class="tg">Paid Ads</span><span class="tg">Lead Generation</span></div>
+  </div>
+  <div class="sv">Scroll</div>
+</section>
+
+<div class="mq"><div class="mt">
+  <div class="mi"><span class="ms"></span>AI Marketing Automation</div><div class="mi"><span class="ms"></span>GoHighLevel Experts</div><div class="mi"><span class="ms"></span>Local SEO Orlando</div><div class="mi"><span class="ms"></span>Lead Generation</div><div class="mi"><span class="ms"></span>Social Media AI</div><div class="mi"><span class="ms"></span>24/7 Automation</div><div class="mi"><span class="ms"></span>Paid Ads Management</div><div class="mi"><span class="ms"></span>Content Production</div>
+  <div class="mi"><span class="ms"></span>AI Marketing Automation</div><div class="mi"><span class="ms"></span>GoHighLevel Experts</div><div class="mi"><span class="ms"></span>Local SEO Orlando</div><div class="mi"><span class="ms"></span>Lead Generation</div><div class="mi"><span class="ms"></span>Social Media AI</div><div class="mi"><span class="ms"></span>24/7 Automation</div><div class="mi"><span class="ms"></span>Paid Ads Management</div><div class="mi"><span class="ms"></span>Content Production</div>
+</div></div>
+
+<div class="sec" style="padding-top:80px;padding-bottom:0">
+  <div class="sg">
+    <div class="st rv"><div class="sn"><span class="ctr" data-to="127">0</span><span class="ss">%</span></div><div class="sl">More qualified leads — avg 90 days</div></div>
+    <div class="st rv d1"><div class="sn"><span class="ctr" data-to="3">0</span><span class="ss">.2×</span></div><div class="sl">Average ROI on marketing investment</div></div>
+    <div class="st rv d2"><div class="sn"><span class="ctr" data-to="47">0</span><span class="ss">+</span></div><div class="sl">Small businesses automated in Central FL</div></div>
+    <div class="st rv d3"><div class="sn"><span class="ctr" data-to="24">0</span><span class="ss">/7</span></div><div class="sl">Your AI system never sleeps</div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="rv"><div class="ey"><span class="ey-d"></span><span class="ey-t">What We Build</span></div><h2 class="sh">Every system you need.<br>Nothing you don't.</h2></div>
+  <div class="svl">
+    <div class="svc rv"><div class="sn2">01</div><div><div class="svh">AI Marketing Automation</div><div class="svp">Full pipeline on GoHighLevel. Lead capture to closed deal — automated start to finish.</div><div class="svtg"><span class="svt">Most Popular</span><span class="svt">GHL</span></div></div><div class="sva">→</div></div>
+    <div class="svc rv"><div class="sn2">02</div><div><div class="svh">Local SEO Domination</div><div class="svp">Rank #1 in Orlando. AI content, review automation, and Google Business optimization.</div><div class="svtg"><span class="svt">High ROI</span><span class="svt">Google</span></div></div><div class="sva">→</div></div>
+    <div class="svc rv"><div class="sn2">03</div><div><div class="svh">Social Media AI System</div><div class="svp">Daily posts, reels, and stories generated and published by AI. Zero time from you.</div><div class="svtg"><span class="svt">Done For You</span></div></div><div class="sva">→</div></div>
+    <div class="svc rv"><div class="sn2">04</div><div><div class="svh">Paid Ads Management</div><div class="svp">Google and Meta campaigns optimized by AI daily. Every dollar tracked.</div><div class="svtg"><span class="svt">Google</span><span class="svt">Meta</span></div></div><div class="sva">→</div></div>
+    <div class="svc rv"><div class="sn2">05</div><div><div class="svh">Email &amp; SMS Automation</div><div class="svp">Follow-up sequences that nurture and close leads automatically at scale.</div><div class="svtg"><span class="svt">24/7 Active</span></div></div><div class="sva">→</div></div>
+  </div>
+</div>
+
+<div class="ft2 rv">
+  <div class="fl">
+    <div>
+      <div class="ey" style="color:#fff"><span class="ey-d"></span><span class="ey-t">Case Study</span></div>
+      <div class="fb2 ctr" data-to="127" style="margin-top:16px">0</div>
+      <div class="flbl">Percent more leads in the first 90 days</div>
+    </div>
+    <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.2)">Average across all clients</div>
+  </div>
+  <div class="fr">
+    <div class="ey"><span class="ey-d"></span><span class="ey-t">Client Story</span></div>
+    <p class="fq" style="margin-top:20px">"JRZ built our entire system in 2 weeks. We went from 3 leads a month to 22 in the first 30 days. It just worked."</p>
+    <div class="fa">Marco T. — Orlando HVAC Company</div>
+  </div>
+</div>
+
+<div style="background:var(--off);border-top:1px solid var(--b);border-bottom:1px solid var(--b)">
+  <div class="sec">
+    <div class="rv"><div class="ey"><span class="ey-d"></span><span class="ey-t">Real Results</span></div><h2 class="sh">Numbers that matter.</h2></div>
+    <div class="bn">
+      <div class="bc bc1 rv"><div class="bbi ctr" data-to="127">0</div><div class="bsu" style="color:rgba(255,255,255,.4)">% more leads across all clients in 90 days</div></div>
+      <div class="bc bc2 rv d1"><div class="bq">"The social media automation alone saved us 15 hours a week. The content actually gets engagement."</div><div class="bat">David L. — Landscaping, Winter Park FL</div></div>
+      <div class="bc bc3 rv"><div class="bbi ctr" data-to="3">0</div><div class="bsu">Average ROI multiplier on marketing spend</div></div>
+      <div class="bc bc4 rv d1"><div class="bbi ctr" data-to="47">0</div><div class="bsu">Businesses automated in Central Florida</div></div>
+      <div class="bc bc5 rv d2"><div class="bh">Zero extra staff</div><div class="bp">Our AI handles follow-ups, posts, and reporting. Your team closes deals.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="rv"><div class="ey"><span class="ey-d"></span><span class="ey-t">The Process</span></div><h2 class="sh">From zero to automated<br>in 2 weeks.</h2></div>
+  <div class="pr" style="margin-top:80px">
+    <div class="ps rv"><div class="pn">01</div><h3 class="ph">Strategy Call</h3><p class="pp">Free 30-minute audit. We map your exact AI system — no pressure.</p></div>
+    <div class="ps rv d1"><div class="pn">02</div><h3 class="ph">We Build It</h3><p class="pp">Your system built in GoHighLevel in 2 weeks. You approve everything.</p></div>
+    <div class="ps rv d2"><div class="pn">03</div><h3 class="ph">It Runs Itself</h3><p class="pp">Leads come in, get followed up automatically, book on your calendar.</p></div>
+  </div>
+</div>
+
+<div style="background:var(--off);border-top:1px solid var(--b);border-bottom:1px solid var(--b)">
+  <div class="sec">
+    <div class="rv"><div class="ey"><span class="ey-d"></span><span class="ey-t">Social Proof</span></div><h2 class="sh">What our clients say.</h2></div>
+    <div class="tg2">
+      <div class="ti rv"><div class="ts">★★★★★</div><p class="tq">"Best marketing investment we've ever made. The AI follows up better than any human we hired."</p><div class="tn">Carlos M.</div><div class="tr">Roofing Company — Orlando, FL</div></div>
+      <div class="ti rv d1"><div class="ts">★★★★★</div><p class="tq">"From 5 leads a month to 34. The difference is night and day. JRZ knows exactly what small businesses need."</p><div class="tn">Ana R.</div><div class="tr">Med Spa — Kissimmee, FL</div></div>
+      <div class="ti rv d2"><div class="ts">★★★★★</div><p class="tq">"Content automation saved us 15 hours a week and it actually gets real engagement."</p><div class="tn">David L.</div><div class="tr">Landscaping — Winter Park, FL</div></div>
+    </div>
+  </div>
+</div>
+
+<section class="cs">
+  <div class="ci">
+    <div class="rv">
+      <div class="ey" style="color:#fff"><span class="ey-d"></span><span class="ey-t">Get Started</span></div>
+      <h2 class="ch">Ready to automate your growth?</h2>
+      <p class="cp">Book a free 30-minute strategy call. We'll show you exactly what your AI system looks like — no commitment.</p>
+      <ul class="cu"><li>Free marketing audit included</li><li>Custom AI strategy for your business</li><li>Real ROI projections</li><li>No contracts — cancel anytime</li></ul>
+    </div>
+    <div class="fcd rv d2">
+      <div class="fch">Book Your Free Call</div>
+      <div class="fcs">Takes 60 seconds. We'll reach out within 24 hours.</div>
+      <form onsubmit="sf(event)">
+        <div class="fi2"><label>Full Name</label><input type="text" placeholder="Your name" required></div>
+        <div class="fi2"><label>Phone</label><input type="tel" placeholder="(407) 000-0000" required></div>
+        <div class="fi2"><label>Business Type</label><select><option value="">Select your industry</option><option>Home Services</option><option>Med Spa / Aesthetics</option><option>Restaurant / Food</option><option>Real Estate</option><option>Retail</option><option>Other</option></select></div>
+        <button type="submit" class="fsb">Book My Free Strategy Call →</button>
+        <p class="fn">🔒 No spam. Your info stays private.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="ftr">
+    <div class="fbr"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957072d035c3a047c37bf66.png" alt="JRZ Marketing"><p>AI-powered marketing systems for small businesses in Orlando and Central Florida.</p></div>
+    <div class="fcc"><div class="fch2">Services</div><ul><li><a href="YOUR_SERVICES_URL">AI Automation</a></li><li><a href="YOUR_SERVICES_URL">Local SEO</a></li><li><a href="YOUR_SERVICES_URL">Social Media AI</a></li><li><a href="YOUR_SERVICES_URL">Paid Ads</a></li></ul></div>
+    <div class="fcc"><div class="fch2">Company</div><ul><li><a href="YOUR_ABOUT_URL">About Us</a></li><li><a href="YOUR_RESULTS_URL">Results</a></li><li><a href="YOUR_CONTACT_URL">Contact</a></li></ul></div>
+    <div class="fcc"><div class="fch2">Contact</div><ul><li><a href="mailto:info@jrzmarketing.com">info@jrzmarketing.com</a></li><li><a href="https://jrzmarketing.com">jrzmarketing.com</a></li><li><a>Orlando, FL</a></li></ul></div>
+  </div>
+  <div class="fbt2"><span class="cp2">© 2026 JRZ Marketing. All rights reserved.</span><span style="font-size:12px;color:rgba(10,10,10,.25)">Built with AI — Orlando, FL</span></div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('sc',scrollY>10));
+function toggleNav(){const nl=document.querySelector('.nl');const o=nl.style.display==='flex';Object.assign(nl.style,{display:o?'none':'flex',flexDirection:'column',position:'absolute',top:'72px',left:'0',right:'0',background:'rgba(255,255,255,.97)',padding:'16px 24px 24px',borderBottom:'1px solid #e8e8e8',backdropFilter:'blur(20px)',zIndex:'999'});}
+const ob=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('v');ob.unobserve(x.target);}});},{threshold:.07});
+document.querySelectorAll('.rv,.st').forEach(el=>ob.observe(el));
+const d=(id,ms)=>setTimeout(()=>{const el=document.getElementById(id);if(el)el.classList.add('v');},ms);
+window.addEventListener('load',()=>{d('ew',200);d('l1',400);d('l2',560);d('l3',720);d('hp',900);d('ha',1060);d('tgs',1200);});
+const co=new IntersectionObserver(e=>{e.forEach(x=>{if(!x.isIntersecting)return;const el=x.target,to=+el.dataset.to,dur=1800,s=performance.now();(function t(n){const p=Math.min(1,(n-s)/dur),ease=1-Math.pow(1-p,3);el.textContent=Math.round(ease*to);if(p<1)requestAnimationFrame(t);else el.textContent=to;})(s);co.unobserve(el);});},{threshold:.3});
+document.querySelectorAll('.ctr').forEach(el=>co.observe(el));
+document.querySelectorAll('.bb').forEach(b=>{b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);b.style.transform=`translate(${dx*.25}px,${dy*.25}px) translateY(-2px)`;});b.addEventListener('mouseleave',()=>b.style.transform='');});
+function sf(e){e.preventDefault();const b=e.target.querySelector('.fsb');b.textContent='✓ Sent! We\'ll call you soon.';b.disabled=true;setTimeout(()=>{b.textContent='Book My Free Strategy Call →';b.disabled=false;e.target.reset();},5000);}
+</script>
+</body>
+</html>
