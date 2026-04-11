@@ -19,7 +19,6 @@ function getTodaysCity() {
 // Add clients here to run daily blogs + weekly SEO plan for them.
 // blogEnabled: false → skips daily blog but keeps GBP posts + all other automation
 const SEO_CLIENTS = {
-  /* Railing Max — ALL automation paused per Jose 2026-04-08
   'iipUT8kmVxJZzGBzvkZm': {
     name: 'Railing Max',
     domain: 'railingmax.com',
@@ -76,7 +75,6 @@ const SEO_CLIENTS = {
       phone: '(407) 412-5421',
     },
   },
-  */
   'rJKRuyayc6Z6twr9X20v': {
     name: 'The Escobar Kitchen',
     domain: 'theescobarkitchen.com',
