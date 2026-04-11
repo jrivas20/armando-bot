@@ -38,6 +38,7 @@ const NEWS_API_KEY  = process.env.NEWS_API_KEY  || 'dff54f64e9eb4087aa7c215a1c67
 const APOLLO_API_KEY = process.env.APOLLO_API_KEY || 'pHTTmBc8ljBQFxaa0YcUQQ';
 const BOOKING_URL = 'https://jrzmarketing.com/contact-us';
 const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
+const GHL_FORM_ID = process.env.GHL_FORM_ID || '5XhL0vWCuJ59HWHQoHGG'; // universal lead capture form
 
 // ─── Blocked usernames — Armando will never message these ────────────────────
 const BLOCKED_USERS = [
