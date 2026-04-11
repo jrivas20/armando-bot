@@ -14,6 +14,7 @@ module.exports = function createSofia({
   GOOGLE_PLACES_API_KEY, GOOGLE_PLACES_BASE,
   APOLLO_API_KEY, NEWS_API_KEY,
   OFFICE_KPI, SEO_CLIENTS,
+  onBlogPublished = null, // optional: function(signal) — called after blog publish or rank win (wired to Marco)
 }) {
 
 // ═══════════════════════════════════════════════════════════
@@ -348,6 +349,11 @@ ${schemaBlock}
 
   // Force-index the new blog post via Google Indexing API (ranks same day instead of 2 weeks)
   const blogUrl = `https://${domain}/${urlSlug}`;
+
+  // Signal Marco — repurpose this blog into social content + paid ad creative
+  if (onBlogPublished) {
+    onBlogPublished({ type: 'blog_published', clientName: name, keyword: targetKeyword, title, blogUrl, industry, domain }).catch(() => null);
+  }
   forceIndexUrl(blogUrl).catch(() => null); // non-blocking
 
   // Save to blog history (non-blocking — learning loop)
@@ -451,6 +457,15 @@ async function runWeeklyRankTracking() {
 
   await sendEmail(OWNER_CONTACT_ID, `Weekly Rank Report — ${reportRows.length} keywords checked`, html);
   console.log(`[Rank Tracking] Done — ${reportRows.length} checked.`);
+
+  // Signal Marco for every post that hit page 1 — double down with social + ads
+  if (onBlogPublished) {
+    const page1Winners = reportRows.filter(r => r.position != null && r.position <= 10);
+    for (const winner of page1Winners) {
+      onBlogPublished({ type: 'rank_win', clientName: winner.client, keyword: winner.keyword, title: winner.title, position: winner.position, change: winner.change }).catch(() => null);
+    }
+  }
+
   return { checked: reportRows.length };
 }
 

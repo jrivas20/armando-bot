@@ -5738,6 +5738,7 @@ const {
 const {
   runMarcoContentBrief,
   runMarcoTrendAlert,
+  runMarcoRepurposeBrief,
 } = require('./modules/agents/marco')({
   app,
   anthropic, axios,
@@ -5776,6 +5777,7 @@ const {
   GOOGLE_PLACES_API_KEY, GOOGLE_PLACES_BASE,
   APOLLO_API_KEY, NEWS_API_KEY,
   OFFICE_KPI, SEO_CLIENTS,
+  onBlogPublished: runMarcoRepurposeBrief,
 });
 
 app.post('/sofia/website-check', async (_req, res) => {

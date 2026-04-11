@@ -298,6 +298,138 @@ async function runMarcoTrendAlert() {
   console.log('[Marco] ✅ Trend alert sent.');
 }
 
+// ─── REPURPOSE BRIEF — triggered by Sofia after blog publish or rank win ──────
+// signal: { type: 'blog_published'|'rank_win', clientName, keyword, title, blogUrl?, industry?, position?, change? }
+async function runMarcoRepurposeBrief(signal) {
+  if (!signal || !signal.keyword) return;
+  const { type, clientName, keyword, title, blogUrl, industry, position, change } = signal;
+  const isRankWin = type === 'rank_win';
+  const context = isRankWin
+    ? `Sofia's rank tracking found "${title}" is now ranking at position #${position} for "${keyword}"${change > 0 ? ` (up ${change} spots)` : ''}.`
+    : `Sofia just published a new blog post: "${title}" targeting keyword "${keyword}" for ${clientName} (${industry || 'local business'}). Post URL: ${blogUrl || 'n/a'}`;
+
+  console.log(`[Marco] Repurpose brief triggered — ${type} | ${keyword}`);
+  logActivity('marco', 'action', `Repurpose brief: ${type} signal for "${keyword}" (${clientName})`);
+
+  const aiRes = await anthropic.messages.create({
+    model: 'claude-opus-4-6',
+    max_tokens: 1000,
+    messages: [{ role: 'user', content: `You are Marco, Content Director at JRZ Marketing. A performance signal just came in from Sofia (Web/SEO agent).
+
+SIGNAL:
+${context}
+
+Your job: Generate a repurpose brief so José can immediately turn this SEO content into paid + organic social assets.
+
+Return ONLY valid JSON:
+{
+  "signalSummary": "1 sentence: why this content is worth repurposing right now",
+  "socialIdeas": [
+    {
+      "hook": "scroll-stopping hook (Who/What/How format)",
+      "format": "carousel or reel",
+      "caption_start": "first 2 sentences of the caption — emotional, direct, save trigger",
+      "platform": "Instagram or TikTok",
+      "angle": "what specific angle makes this social-native (not just blog summary)"
+    },
+    {
+      "hook": "different hook, different angle",
+      "format": "carousel or reel",
+      "caption_start": "first 2 sentences",
+      "platform": "Instagram or Facebook",
+      "angle": "angle"
+    },
+    {
+      "hook": "third hook — contrarian or story-based",
+      "format": "carousel or reel or story",
+      "caption_start": "first 2 sentences",
+      "platform": "Instagram",
+      "angle": "angle"
+    }
+  ],
+  "adCreative": [
+    {
+      "platform": "Meta (Facebook/Instagram Ads)",
+      "objective": "Traffic or Lead Gen",
+      "headline": "30-char Meta ad headline",
+      "primaryText": "125-char primary text — emotional hook, specific benefit, no fluff",
+      "cta": "Learn More or Book Now or Get Quote",
+      "targetAudience": "who to target (age, interest, location)"
+    },
+    {
+      "platform": "Google Search Ads",
+      "objective": "Search intent — bottom of funnel",
+      "headline1": "30-char headline (include keyword)",
+      "headline2": "30-char headline (benefit)",
+      "headline3": "30-char headline (CTA)",
+      "description1": "90-char description 1",
+      "description2": "90-char description 2"
+    }
+  ],
+  "marcoNote": "1 sentence direct recommendation to José on where to put budget first"
+}` }],
+  });
+
+  const brief = JSON.parse(aiRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+  const logoUrl = 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  const signalBadge = isRankWin ? `🏆 Rank Win — #${position}` : '📝 Blog Published';
+  const signalColor = isRankWin ? '#16a34a' : '#2563eb';
+
+  const socialCards = (brief.socialIdeas || []).map((idea, i) => `
+    <div style="background:#f9fafb;border-radius:10px;padding:18px 22px;margin-bottom:10px;border-left:4px solid #0a0a0a">
+      <div style="font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Idea ${i + 1} · ${idea.platform} · ${idea.format}</div>
+      <p style="font-size:15px;font-weight:700;color:#0a0a0a;margin:0 0 6px">"${idea.hook}"</p>
+      <p style="font-size:13px;color:#555;line-height:1.6;margin:0 0 8px">${idea.caption_start}</p>
+      <p style="font-size:12px;color:#7c3aed;font-style:italic;margin:0">↳ ${idea.angle}</p>
+    </div>`).join('');
+
+  const adCards = (brief.adCreative || []).map(ad => `
+    <div style="background:#f0f9ff;border-radius:10px;padding:18px 22px;margin-bottom:10px;border-left:4px solid #0ea5e9">
+      <div style="font-size:10px;font-weight:700;color:#0284c7;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">${ad.platform} · ${ad.objective}</div>
+      ${ad.headline ? `<p style="font-size:15px;font-weight:700;color:#0a0a0a;margin:0 0 4px">${ad.headline}</p>
+      <p style="font-size:13px;color:#555;margin:0 0 6px">${ad.primaryText}</p>
+      <span style="background:#0ea5e9;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px">${ad.cta}</span>
+      <p style="font-size:12px;color:#666;margin:8px 0 0">🎯 ${ad.targetAudience}</p>` : ''}
+      ${ad.headline1 ? `<p style="font-size:14px;font-weight:700;color:#0a0a0a;margin:0 0 4px">${ad.headline1} | ${ad.headline2} | ${ad.headline3}</p>
+      <p style="font-size:13px;color:#555;margin:0 0 4px">${ad.description1}</p>
+      <p style="font-size:13px;color:#555;margin:0">${ad.description2}</p>` : ''}
+    </div>`).join('');
+
+  const html = `<!DOCTYPE html><html><body style="font-family:Inter,Arial,sans-serif;background:#f4f4f4;padding:32px 20px;">
+<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+  <div style="background:#0a0a0a;padding:22px 32px;display:flex;align-items:center;justify-content:space-between">
+    <img src="${logoUrl}" style="height:32px"/>
+    <span style="background:${signalColor};color:#fff;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:5px 12px;border-radius:100px">${signalBadge}</span>
+  </div>
+  <div style="background:#0a0a0a;padding:22px 32px;border-bottom:3px solid ${signalColor}">
+    <h1 style="color:#fff;font-size:20px;font-weight:800;margin:0 0 6px">Repurpose Brief — ${clientName}</h1>
+    <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">Keyword: "${keyword}"</p>
+  </div>
+  <div style="padding:28px 32px">
+    <div style="background:#f9fafb;border-radius:10px;padding:16px 20px;margin-bottom:24px;border-left:4px solid ${signalColor}">
+      <p style="font-size:14px;color:#0a0a0a;margin:0;line-height:1.6">${brief.signalSummary}</p>
+    </div>
+    <p style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px">📱 3 Social Content Ideas</p>
+    ${socialCards}
+    <p style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.08em;margin:24px 0 12px">💰 Paid Ad Creative (Ready to Launch)</p>
+    ${adCards}
+    <div style="background:#0a0a0a;border-radius:10px;padding:16px 20px;margin-top:24px">
+      <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Marco's Recommendation</p>
+      <p style="font-size:14px;color:#fff;font-style:italic;margin:0">"${brief.marcoNote}"</p>
+    </div>
+    ${blogUrl ? `<p style="margin-top:16px;font-size:13px;color:#6b7280">Blog: <a href="${blogUrl}" style="color:#2563eb">${blogUrl}</a></p>` : ''}
+  </div>
+  <div style="background:#0a0a0a;padding:18px 32px;text-align:center">
+    <p style="font-size:11px;color:rgba(255,255,255,0.25)">Marco — JRZ Marketing AI Content Director</p>
+  </div>
+</div></body></html>`;
+
+  const subjectEmoji = isRankWin ? '🏆' : '📝';
+  await sendEmail(OWNER_CONTACT_ID, `${subjectEmoji} Marco: Repurpose Brief — "${keyword}" (${clientName})`, html);
+  console.log(`[Marco] ✅ Repurpose brief sent — ${type} | ${keyword}`);
+  logActivity('marco', 'success', `Repurpose brief delivered — ${keyword} for ${clientName} (${type})`);
+}
+
 app.post('/marco/content-brief', async (_req, res) => {
   try {
     runMarcoContentBrief();
@@ -316,9 +448,21 @@ app.post('/marco/trend-alert', async (_req, res) => {
   }
 });
 
+app.post('/marco/repurpose-brief', async (req, res) => {
+  try {
+    const signal = req.body;
+    if (!signal || !signal.keyword) return res.status(400).json({ status: 'error', message: 'signal.keyword required' });
+    runMarcoRepurposeBrief(signal); // non-blocking
+    res.json({ status: 'ok', message: 'Marco is building your repurpose brief' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
 
   return {
     runMarcoContentBrief,
     runMarcoTrendAlert,
+    runMarcoRepurposeBrief,
   };
 };
