@@ -8036,6 +8036,17 @@ app.post('/sofia/build-website', async (req, res) => {
   }
 });
 
+// GET /sofia/test-stitch — quick Stitch connectivity check
+app.get('/sofia/test-stitch', async (req, res) => {
+  if (!STITCH_API_KEY) return res.json({ ok: false, reason: 'STITCH_API_KEY env var not set' });
+  try {
+    const result = await generateStitchDesignSystem('Test Co', req.query.industry || 'roofing', req.query.city || 'Orlando');
+    res.json({ ok: !!result, result });
+  } catch (e) {
+    res.json({ ok: false, error: e.message });
+  }
+});
+
 // GET /sofia/preview-website?page=home&industry=roofing&city=Orlando&name=TestCo&phone=4071234567
 // Preview any of the 5 pages directly in the browser
 app.get('/sofia/preview-website', async (req, res) => {
