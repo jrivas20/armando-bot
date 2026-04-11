@@ -591,6 +591,64 @@ async function elenaHealthCheck() {
   await sendEmail(OWNER_CONTACT_ID, `⚠️ Elena: ${alerts.length} Accounts Need Attention (${dGrades} Churn Risk)`, html);
   console.log(`[Elena] Health alert sent — ${alerts.length} flagged, ${dGrades} churn risk`);
   logActivity('elena', `Health check: ${alerts.length} accounts flagged, ${dGrades} grade D`);
+
+  // ── Cross-agent signals ────────────────────────────────────────────────────
+  // Signal Diego: create GHL task per at-risk client (delivery review)
+  // Signal Armando: add 'at-risk' tag to contact (triggers re-engagement workflow)
+  fireElenaSignals(alerts); // non-blocking
+}
+
+async function fireElenaSignals(alerts) {
+  if (!alerts || alerts.length === 0) return;
+  console.log(`[Elena → Diego+Armando] Firing cross-agent signals for ${alerts.length} at-risk accounts...`);
+
+  for (const alert of alerts) {
+    try {
+      // Find this client's contact in JRZ Marketing main account
+      const search = await axios.get('https://services.leadconnectorhq.com/contacts/', {
+        headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' },
+        params: { locationId: GHL_LOCATION_ID, query: alert.name, limit: 5 },
+      });
+
+      const contact = (search.data?.contacts || [])[0];
+      if (!contact) {
+        console.log(`[Elena] No contact found for "${alert.name}" — skipping signal`);
+        continue;
+      }
+
+      const contactId = contact.id;
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 2);
+
+      // Signal Diego → create delivery review task in GHL
+      await axios.post(
+        `https://services.leadconnectorhq.com/contacts/${contactId}/tasks`,
+        {
+          title: `[Diego] Delivery review — ${alert.name} (Grade ${alert.grade})`,
+          body: `Elena health check flagged this account.\nGrade: ${alert.grade} (${alert.gradeLabel}) | Score: ${alert.score}/100\nOpp drop: ${alert.oppDrop > 0 ? `−${alert.oppDrop}` : 'none'} | Contact drop: ${alert.contactDrop > 0 ? `−${alert.contactDrop}` : 'none'} | Last activity: ${alert.daysSinceActivity >= 999 ? 'no opps' : `${alert.daysSinceActivity} days ago`}\n\nAction: Check delivery status, resolve any blockers, confirm active work is moving.`,
+          dueDate: dueDate.toISOString(),
+          status: 'incompleted',
+        },
+        { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+      );
+
+      // Signal Armando → add 'at-risk' tag (triggers GHL re-engagement workflow)
+      const currentTags = Array.isArray(contact.tags) ? contact.tags : [];
+      if (!currentTags.includes('at-risk')) {
+        await axios.put(
+          `https://services.leadconnectorhq.com/contacts/${contactId}`,
+          { tags: [...currentTags, 'at-risk'] },
+          { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log(`[Elena → Diego+Armando] Signals fired for ${alert.name} — task created + at-risk tag applied`);
+      await new Promise(r => setTimeout(r, 600));
+    } catch (err) {
+      console.error(`[Elena] Cross-agent signal failed for ${alert.name}:`, err.message);
+    }
+  }
+  console.log('[Elena] Cross-agent signals complete.');
 }
 
 // Mid-month proactive check-in — reaches out to quiet/at-risk clients on the 15th
