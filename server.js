@@ -6814,7 +6814,21 @@ async function generateWebsiteContent(clientName, industry, city) {
   "metaDescription": "SEO meta description under 160 chars"
 }` }],
   });
-  return JSON.parse(res.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+  const raw = res.content[0].text.trim().match(/\{[\s\S]*\}/)?.[0] || '{}';
+  const cleaned = raw.replace(/,\s*([}\]])/g, '$1'); // strip trailing commas
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    // Retry once with Sonnet for better JSON accuracy
+    console.warn('[Sofia] generateWebsiteContent JSON parse failed, retrying with Sonnet...');
+    const retry = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 2500,
+      messages: [{ role: 'user', content: `Generate complete website content for a ${industry} business called "${clientName}" in ${city}. Return ONLY valid JSON with no trailing commas:\n{"tagline":"...","heroHeadline":"...","heroSub":"...","stats":[{"number":"150+","label":"Happy Clients"},{"number":"5\u2605","label":"Avg Rating"},{"number":"3yr","label":"Avg Retention"},{"number":"24/7","label":"Support"}],"services":[{"title":"Service","icon":"\uD83C\uDFAF","description":"2 sentences.","features":["f1","f2","f3"]}],"whyUs":[{"title":"Reason","description":"2 sentences."}],"testimonials":[{"name":"Name","business":"Type","text":"2 sentences.","rating":5}],"aboutStory":"3 sentences.","founderBio":"2 sentences.","values":[{"icon":"\uD83C\uDFC6","title":"Value","description":"1 sentence."}],"processSteps":[{"step":"01","title":"Step","description":"2 sentences."}],"faqs":[{"q":"Question?","a":"Answer."}],"areas":["${city}","Area 2","Area 3"],"contactHours":"Mon-Fri 8am-6pm","metaDescription":"Under 160 chars."}` }],
+    });
+    const raw2 = retry.content[0].text.trim().match(/\{[\s\S]*\}/)?.[0] || '{}';
+    return JSON.parse(raw2.replace(/,\s*([}\]])/g, '$1'));
+  }
 }
 
 // Fetch Pexels images for website gallery section
