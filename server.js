@@ -6158,6 +6158,88 @@ async function runSofiaCROReport() {
 
 // ─── Sofia: GHL Landing Page Creator ─────────────────────
 
+// ─── Stitch Design System (Google AI) ────────────────────
+// Calls Google Stitch to generate a professional color/font design system
+// for a client before building HTML. Falls back gracefully if unavailable.
+const STITCH_API_KEY = process.env.STITCH_API_KEY;
+const STITCH_BASE    = 'https://stitch.googleapis.com/mcp';
+
+const STITCH_FONT_MAP = {
+  INTER: 'Inter', MANROPE: 'Manrope', WORK_SANS: 'Work Sans', MONTSERRAT: 'Montserrat',
+  PLUS_JAKARTA_SANS: 'Plus Jakarta Sans', GEIST: 'Geist', DM_SANS: 'DM Sans',
+  SPACE_GROTESK: 'Space Grotesk', NUNITO_SANS: 'Nunito Sans', IBM_PLEX_SANS: 'IBM Plex Sans',
+  RUBIK: 'Rubik', SORA: 'Sora', SOURCE_SANS_THREE: 'Source Sans 3', EPILOGUE: 'Epilogue',
+};
+
+async function callStitchAPI(method, params) {
+  const res = await axios.post(STITCH_BASE,
+    { jsonrpc: '2.0', id: Date.now(), method, params },
+    { headers: { 'X-Goog-Api-Key': STITCH_API_KEY, 'Content-Type': 'application/json' }, timeout: 35000 }
+  );
+  const result = res.data?.result;
+  if (result?.isError) throw new Error(result.content?.[0]?.text || 'Stitch error');
+  return result;
+}
+
+async function generateStitchDesignSystem(clientName, industry, city = 'Orlando') {
+  if (!STITCH_API_KEY) return null;
+  try {
+    // Step 1: Create a Stitch project for this client
+    const projResult = await callStitchAPI('tools/call', {
+      name: 'create_project',
+      arguments: { title: `${clientName} — ${new Date().toISOString().split('T')[0]}` },
+    });
+    const projectId = JSON.parse(projResult.content[0].text).name.replace('projects/', '');
+
+    // Step 2: Generate a screen — Stitch returns a design system as part of the output
+    const screenResult = await callStitchAPI('tools/call', {
+      name: 'generate_screen_from_text',
+      arguments: {
+        projectId,
+        prompt: `Professional landing page for ${clientName}, a ${industry} company in ${city}, FL. Hero with lead capture form, services grid, social proof, contact section.`,
+        deviceType: 'DESKTOP',
+        modelId: 'GEMINI_3_1_PRO',
+      },
+    });
+
+    const output    = JSON.parse(screenResult.content[0].text);
+    const dsComp    = (output.outputComponents || []).find(c => c.designSystem);
+    if (!dsComp) return null;
+
+    const ds     = dsComp.designSystem.designSystem;
+    const theme  = ds.theme || {};
+    const colors = theme.namedColors || {};
+
+    const headlineFontKey = theme.headlineFont || theme.font || 'INTER';
+    const bodyFontKey     = theme.bodyFont     || theme.font || 'INTER';
+    const headlineFont    = STITCH_FONT_MAP[headlineFontKey] || 'Inter';
+    const bodyFont        = STITCH_FONT_MAP[bodyFontKey]     || 'Inter';
+    const roundness       = { ROUND_ZERO: '0px', ROUND_FOUR: '4px', ROUND_EIGHT: '8px', ROUND_SIXTEEN: '16px', ROUND_FULL: '9999px' }[theme.roundness] || '6px';
+
+    console.log(`[Stitch] ✅ Design system "${ds.displayName}" generated for ${clientName} — primary: ${colors.primary}, fonts: ${headlineFont}/${bodyFont}`);
+
+    return {
+      designName:       ds.displayName,
+      primary:          colors.primary           || '#1a3a6b',
+      primaryContainer: colors.primary_container || '#2e476f',
+      secondary:        colors.secondary         || '#50606f',
+      background:       colors.background        || '#f8fafc',
+      surface:          colors.surface           || '#ffffff',
+      onPrimary:        colors.on_primary        || '#ffffff',
+      onSurface:        colors.on_surface        || '#1a1a1a',
+      outline:          colors.outline           || '#74777f',
+      error:            colors.error             || '#ba1a1a',
+      headlineFont,
+      bodyFont,
+      borderRadius:     roundness,
+      projectId,
+    };
+  } catch (e) {
+    console.error('[Stitch] Design system failed (falling back to defaults):', e.message);
+    return null;
+  }
+}
+
 // ─── Sofia: AI Content Generator for Landing Pages ───────
 async function generateLandingContent(clientName, industry, city) {
   try {
@@ -6259,10 +6341,27 @@ Return ONLY valid JSON — no markdown, no explanation:
 async function buildLandingHTML(clientName, phone, email, city, industry, logoUrl, formId) {
   city   = city   || 'Orlando';
   formId = formId || '5XhL0vWCuJ59HWHQoHGG';
-  const c = await generateLandingContent(clientName, industry, city);
+
+  // Step 0: Generate Stitch design system — AI-designed colors + fonts for this industry
+  const stitch = await generateStitchDesignSystem(clientName, industry, city);
+
+  const [c] = await Promise.all([generateLandingContent(clientName, industry, city)]);
   const stars = n => '★'.repeat(n) + '☆'.repeat(5 - n);
   const phoneClean = (phone || '').replace(/\D/g, '');
   const logoSrc = logoUrl || 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+
+  // Use Stitch tokens if available, otherwise fall back to defaults
+  const primary    = stitch?.primary          || '#1a3a6b';
+  const primaryDk  = stitch?.primaryContainer || '#2e476f';
+  const secondary  = stitch?.secondary        || '#2563a8';
+  const bgColor    = stitch?.background       || '#f8fafc';
+  const surfColor  = stitch?.surface          || '#ffffff';
+  const textColor  = stitch?.onSurface        || '#374151';
+  const borderRad  = stitch?.borderRadius     || '6px';
+  const hFont      = stitch?.headlineFont     || 'Montserrat';
+  const bFont      = stitch?.bodyFont         || 'Open Sans';
+  // Google Fonts import string
+  const fontImport = `https://fonts.googleapis.com/css2?family=${hFont.replace(/ /g,'+')}:wght@400;600;700;800;900&family=${bFont.replace(/ /g,'+')}:wght@400;500;600&display=swap`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -6271,12 +6370,13 @@ async function buildLandingHTML(clientName, phone, email, city, industry, logoUr
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta name="description" content="${c.heroSubtitle}"/>
 <title>${clientName} | ${industry} in ${city}, FL</title>
+${stitch?.designName ? `<!-- Design system: ${stitch.designName} (Google Stitch AI) -->` : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="${fontImport}" rel="stylesheet"/>
 <style>
-:root{--blue-dark:#1a3a6b;--blue-mid:#2563a8;--blue-light:#3b82f6;--orange:#f97316;--gray-bg:#f8fafc;--gray-dark:#1e293b;--text:#374151;--white:#ffffff;}
+:root{--blue-dark:${primary};--blue-mid:${primaryDk};--blue-light:${secondary};--orange:#f97316;--gray-bg:${bgColor};--gray-dark:#1e293b;--text:${textColor};--white:${surfColor};--radius:${borderRad};--font-headline:'${hFont}',sans-serif;--font-body:'${bFont}',sans-serif;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Open Sans',sans-serif;color:var(--text);background:#fff;}
+body{font-family:var(--font-body);color:var(--text);background:#fff;}
 /* TOPBAR */
 .topbar{background:var(--blue-dark);padding:9px 24px;display:flex;align-items:center;justify-content:space-between;}
 .topbar-left{font-size:12px;color:rgba(255,255,255,0.75);letter-spacing:0.02em;}
@@ -6402,6 +6502,10 @@ footer{background:var(--gray-dark);padding:48px 24px 24px;}
   .topbar{display:none;}
   .about-stats{grid-template-columns:1fr 1fr;}
 }
+/* ── Stitch font tokens — override hardcoded Montserrat with AI-selected headline font ── */
+.nav-logo span,.hero h1,.form-card h3,.section-title,.stat-num,.srv-card h3,.why-card h3,.step-num,.step h3,.faq-q,.cta-banner h2,.cta-banner a,.footer-col h4,.mobile-bar a,.hero-phone a{font-family:var(--font-headline)!important;}
+/* ── Stitch border-radius token ── */
+.nav-cta a,.form-card,.srv-card,.why-card,.step,.review-card,.cta-banner a,.hero-phone a{border-radius:var(--radius)!important;}
 </style>
 </head>
 <body>
