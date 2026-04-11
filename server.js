@@ -6968,7 +6968,20 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
   return { styles, nav, footer, scripts };
 }
 
-function wrapPage(title, metaDesc, industry, city, bodyHtml, layout) {
+function wrapPage(title, metaDesc, industry, city, bodyHtml, layout, client = {}) {
+  const { name = '', phone = '' } = client;
+  const schema = name ? `<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    'name': name,
+    'description': metaDesc,
+    '@id': '#business',
+    'telephone': phone || undefined,
+    'address': { '@type': 'PostalAddress', 'addressLocality': city, 'addressRegion': 'FL', 'addressCountry': 'US' },
+    'areaServed': { '@type': 'City', 'name': city },
+    'knowsAbout': industry,
+    'priceRange': '$$',
+  })}<\/script>` : '';
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6977,6 +6990,7 @@ function wrapPage(title, metaDesc, industry, city, bodyHtml, layout) {
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${metaDesc}">
 <title>${title}</title>
+${schema}
 <style>${layout.styles}</style>
 </head>
 <body>
@@ -6987,8 +7001,16 @@ ${layout.scripts}
 </body></html>`;
 }
 
+// Deterministically pick hero layout 0/1/2 based on client name hash
+function getLayoutVariant(clientName) {
+  let h = 0;
+  for (let i = 0; i < clientName.length; i++) h = (h * 31 + clientName.charCodeAt(i)) | 0;
+  return Math.abs(h) % 3;
+}
+
 function buildHomePage(client, c, layout) {
   const { name, phone, city, industry, formId, galleryImages } = client;
+  const variant = getLayoutVariant(name);
   const serviceCards = c.services.slice(0, 3).map(s => `
     <div class="card">
       <div style="font-size:36px;margin-bottom:16px;">${s.icon}</div>
@@ -7021,8 +7043,49 @@ function buildHomePage(client, c, layout) {
       <div><h4 style="font-size:17px;margin-bottom:6px;">${w.title}</h4><p style="font-size:15px;color:var(--gray);line-height:1.7;">${w.description}</p></div>
     </div>`).join('');
 
-  const body = `
-<section style="background:var(--black);padding:100px 0 80px;overflow:hidden;position:relative;">
+  // Hero: 3 layout variants selected deterministically per client
+  const heroHtml = variant === 1
+    // Variant 1 — Split: text left, trust panel right
+    ? `<section style="background:var(--black);padding:80px 0;overflow:hidden;">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;">
+      <div>
+        <div class="badge" style="margin-bottom:20px;">${city} ${industry}</div>
+        <h1 style="font-size:clamp(32px,5vw,56px);color:#fff;line-height:1.1;margin-bottom:20px;">${c.heroHeadline}</h1>
+        <p style="font-size:17px;color:rgba(255,255,255,0.55);line-height:1.75;margin-bottom:32px;">${c.heroSub}</p>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;">
+          <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="font-size:16px;padding:16px 36px;">Get a Free Quote →</a>
+          ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:16px;padding:16px 32px;">📞 ${phone}</a>` : ''}
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:40px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+          ${c.stats.map(s => `<div style="text-align:center;padding:20px;background:rgba(255,255,255,0.04);border-radius:12px;"><div style="font-size:28px;font-weight:900;color:var(--orange);">${s.number}</div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">${s.label}</div></div>`).join('')}
+        </div>
+        <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="width:100%;justify-content:center;padding:16px;">Book Free Consultation →</a>
+      </div>
+    </div>
+  </div>
+</section>`
+    : variant === 2
+    // Variant 2 — Gradient: bold centered, brand gradient wash
+    ? `<section style="background:linear-gradient(135deg,var(--black) 0%,var(--orange-dark) 60%,var(--orange) 100%);padding:120px 0 100px;text-align:center;overflow:hidden;position:relative;">
+  <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,0,0,0.5),transparent 70%);pointer-events:none;"></div>
+  <div class="container" style="position:relative;">
+    <div class="badge" style="margin-bottom:24px;background:rgba(255,255,255,0.15);color:#fff;">${city} ${industry}</div>
+    <h1 style="font-size:clamp(40px,7vw,72px);color:#fff;line-height:1.06;margin-bottom:24px;max-width:800px;margin-left:auto;margin-right:auto;">${c.heroHeadline}</h1>
+    <p style="font-size:19px;color:rgba(255,255,255,0.75);line-height:1.7;margin-bottom:40px;max-width:560px;margin-left:auto;margin-right:auto;">${c.heroSub}</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="${(client.siteBase||'')}/contact-us" class="btn" style="background:#fff;color:var(--orange);font-size:17px;padding:18px 44px;font-weight:700;">Get a Free Quote →</a>
+      ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:17px;padding:18px 36px;">📞 ${phone}</a>` : ''}
+    </div>
+    <div style="display:flex;justify-content:center;gap:40px;margin-top:56px;flex-wrap:wrap;">
+      ${c.stats.map(s => `<div style="text-align:center;"><div style="font-size:32px;font-weight:900;color:#fff;">${s.number}</div><div style="font-size:12px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">${s.label}</div></div>`).join('')}
+    </div>
+  </div>
+</section>`
+    // Variant 0 (default) — Dark full-bleed with radial glow
+    : `<section style="background:var(--black);padding:100px 0 80px;overflow:hidden;position:relative;">
   <div style="position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(249,115,22,0.06) 0%,transparent 60%);pointer-events:none;"></div>
   <div class="container" style="position:relative;">
     <div style="max-width:720px;">
@@ -7030,18 +7093,20 @@ function buildHomePage(client, c, layout) {
       <h1 style="font-size:clamp(36px,6vw,64px);color:#fff;line-height:1.08;margin-bottom:20px;">${c.heroHeadline}</h1>
       <p style="font-size:18px;color:rgba(255,255,255,0.55);line-height:1.75;margin-bottom:36px;max-width:560px;">${c.heroSub}</p>
       <div style="display:flex;gap:14px;flex-wrap:wrap;">
-        <a href="${layout.nav.includes('/contact-us') ? '#contact' : '#'}" class="btn btn-primary" style="font-size:16px;padding:16px 36px;">Get a Free Quote →</a>
+        <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="font-size:16px;padding:16px 36px;">Get a Free Quote →</a>
         ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:16px;padding:16px 32px;">📞 ${phone}</a>` : ''}
       </div>
     </div>
   </div>
-</section>
+</section>`;
 
-<section style="background:var(--dark);padding:40px 0;">
+  const body = `${heroHtml}
+
+${variant === 0 ? `<section style="background:var(--dark);padding:40px 0;">
   <div class="container">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">${statItems}</div>
   </div>
-</section>
+</section>` : ''}
 
 <section class="section" style="background:var(--light);">
   <div class="container">
@@ -7107,7 +7172,7 @@ ${galleryImages && galleryImages.length ? `
   </div>
 </section>`;
 
-  return wrapPage(`${name} — ${city} ${industry}`, c.metaDescription, industry, city, body, layout);
+  return wrapPage(`${name} — ${city} ${industry}`, c.metaDescription, industry, city, body, layout, client);
 }
 
 function buildAboutPage(client, c, layout) {
@@ -7192,7 +7257,7 @@ function buildAboutPage(client, c, layout) {
   </div>
 </section>`;
 
-  return wrapPage(`About Us — ${name} | ${city} ${industry}`, `Learn about ${name}, a trusted ${industry} company in ${city}.`, industry, city, body, layout);
+  return wrapPage(`About Us — ${name} | ${city} ${industry}`, `Learn about ${name}, a trusted ${industry} company in ${city}.`, industry, city, body, layout, client);
 }
 
 function buildServicesPage(client, c, layout) {
@@ -7257,7 +7322,7 @@ function buildServicesPage(client, c, layout) {
   </div>
 </section>`;
 
-  return wrapPage(`Services — ${name} | ${city} ${industry}`, `Explore all ${industry} services offered by ${name} in ${city}.`, industry, city, body, layout);
+  return wrapPage(`Services — ${name} | ${city} ${industry}`, `Explore all ${industry} services offered by ${name} in ${city}.`, industry, city, body, layout, client);
 }
 
 function buildContactPage(client, c, layout) {
@@ -7304,6 +7369,9 @@ function buildContactPage(client, c, layout) {
             <div><p style="font-weight:600;font-size:16px;margin-bottom:4px;">Response Time</p><p style="color:var(--gray);font-size:15px;">We reply within 2 hours during business hours</p></div>
           </div>
         </div>
+        <div style="border-radius:var(--radius);overflow:hidden;height:200px;margin-bottom:20px;">
+          <iframe src="https://maps.google.com/maps?q=${encodeURIComponent(name + ' ' + city + ' FL')}&output=embed&z=14" width="100%" height="200" style="border:0;display:block;" allowfullscreen loading="lazy" title="Map"></iframe>
+        </div>
         <div style="background:var(--black);border-radius:var(--radius);padding:28px;">
           <h4 style="color:#fff;font-size:18px;margin-bottom:12px;">Service Areas</h4>
           <div style="display:flex;flex-wrap:wrap;gap:8px;">${c.areas.map(a => `<span style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-radius:100px;padding:5px 14px;font-size:13px;">${a}</span>`).join('')}</div>
@@ -7313,7 +7381,7 @@ function buildContactPage(client, c, layout) {
   </div>
 </section>`;
 
-  return wrapPage(`Contact Us — ${name} | ${city}`, `Contact ${name} for ${industry} services in ${city}. Free quotes, fast response.`, industry, city, body, layout);
+  return wrapPage(`Contact Us — ${name} | ${city}`, `Contact ${name} for ${industry} services in ${city}. Free quotes, fast response.`, industry, city, body, layout, client);
 }
 
 function buildFAQPage(client, c, layout) {
@@ -7379,7 +7447,7 @@ function filterFaqs(q) {
 }
 </script>`;
 
-  return wrapPage(`FAQ — ${name} | ${city} ${industry}`, `Common questions about ${name}'s ${industry} services in ${city}.`, industry, city, body, layout);
+  return wrapPage(`FAQ — ${name} | ${city} ${industry}`, `Common questions about ${name}'s ${industry} services in ${city}.`, industry, city, body, layout, client);
 }
 
 // Main orchestrator — generates all 5 pages
@@ -8044,7 +8112,13 @@ app.get('/sofia/website-package', async (req, res) => {
     1. Download each HTML file below<br>
     2. In GHL → Sites → Websites → open your site<br>
     3. Add a new page → switch to <strong>Custom Code</strong> mode<br>
-    4. Paste the full HTML content → Save<br>
+    4. Paste the full HTML → Save<br><br>
+    <strong>⚠️ Set these exact page slugs in GHL or nav links break:</strong><br>
+    <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px;">index.html</code> → Homepage (root)<br>
+    <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px;">about-us.html</code> → slug: <strong>about-us</strong><br>
+    <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px;">services.html</code> → slug: <strong>services</strong><br>
+    <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px;">contact-us.html</code> → slug: <strong>contact-us</strong><br>
+    <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px;">faq.html</code> → slug: <strong>faq</strong><br><br>
     <em style="color:#94a3b8;font-size:12px;">Links expire in 10 minutes. Re-run this URL to regenerate.</em>
   </div>
 </div>
