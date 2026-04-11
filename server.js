@@ -6757,7 +6757,7 @@ async function createGHLLandingPage(locationId, clientName, industry, phone = ''
 async function generateWebsiteContent(clientName, industry, city) {
   const res = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 2000,
+    max_tokens: 4096,
     messages: [{ role: 'user', content: `Generate complete website content for a ${industry} business called "${clientName}" in ${city}. Return ONLY valid JSON:
 {
   "tagline": "short powerful tagline (under 8 words)",
