@@ -333,7 +333,7 @@ ${schemaBlock}
   const urlSlug = title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').slice(0, 60) + '-' + Date.now().toString(36);
   const publishedAt = new Date(); publishedAt.setUTCHours(14, 0, 0, 0);
 
-  await axios.post(
+  const publishRes = await axios.post(
     'https://services.leadconnectorhq.com/blogs/posts',
     {
       title, locationId, blogId: blog.blogId, description: metaDescription,
@@ -345,7 +345,8 @@ ${schemaBlock}
     { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
   );
 
-  console.log(`[Client SEO] ✅ ${name}: published "${title}"`);
+  const postId = publishRes.data?.blogPost?._id || publishRes.data?._id || null;
+  console.log(`[Client SEO] ✅ ${name}: published "${title}"${postId ? ` (ID: ${postId})` : ''}`);
 
   // Force-index the new blog post via Google Indexing API (ranks same day instead of 2 weeks)
   const blogUrl = `https://${domain}/${urlSlug}`;
@@ -360,7 +361,7 @@ ${schemaBlock}
   loadBlogHistory().then(hist => {
     if (!hist[locationId]) hist[locationId] = [];
     const baseKeyword = (config.keywords || []).find(k => targetKeyword.toLowerCase().includes(k.toLowerCase())) || targetKeyword.split(' ').slice(0,2).join(' ');
-    hist[locationId].push({ keyword: targetKeyword, baseKeyword, title, url: blogUrl, urlSlug, date: new Date().toISOString().split('T')[0], clicks: null, impressions: null, position: null, gscChecked: false });
+    hist[locationId].push({ keyword: targetKeyword, baseKeyword, title, url: blogUrl, urlSlug, postId, date: new Date().toISOString().split('T')[0], clicks: null, impressions: null, position: null, gscChecked: false, improved: false, lastImproved: null });
     return saveBlogHistory(hist);
   }).catch(() => null);
 
@@ -466,7 +467,160 @@ async function runWeeklyRankTracking() {
     }
   }
 
+  // Trigger improvement loop for page 2 posts (positions 11-30) — non-blocking
+  runSofiaRankImprovementLoop().catch(e => console.error('[Rank Improvement] Loop error:', e.message));
+
   return { checked: reportRows.length };
+}
+
+// ─── RANK IMPROVEMENT LOOP ───────────────────────────────────────────────────
+// Finds posts stuck on page 2 (positions 11-30) and rewrites them:
+// longer, more city-specific, stronger E-E-A-T, new FAQ section.
+// Only fires once per post every 14 days. PUTs updated content to GHL.
+async function runSofiaRankImprovementLoop() {
+  console.log('[Rank Improvement] Scanning for page-2 posts to improve...');
+  const hist = await loadBlogHistory();
+  const today = new Date().toISOString().split('T')[0];
+  const fourteenDaysAgo = new Date(Date.now() - 14 * 86400000).toISOString().split('T')[0];
+  let improved = 0;
+
+  for (const [locationId, config] of Object.entries(SEO_CLIENTS)) {
+    if (config.blogEnabled === false) continue;
+    const posts = (hist[locationId] || []).filter(p =>
+      p.position != null && p.position >= 11 && p.position <= 30 &&
+      (!p.lastImproved || p.lastImproved < fourteenDaysAgo)
+    );
+    if (!posts.length) continue;
+
+    const token = await getLocationToken(locationId).catch(() => null);
+    if (!token) continue;
+
+    for (const post of posts) {
+      try {
+        await improveBlogPost(locationId, config, post, token, hist);
+        improved++;
+        await new Promise(r => setTimeout(r, 4000)); // 4s gap between improvements
+      } catch (e) {
+        console.error(`[Rank Improvement] Failed for "${post.keyword}":`, e.message);
+      }
+    }
+  }
+
+  await saveBlogHistory(hist);
+  console.log(`[Rank Improvement] Done — ${improved} post(s) improved.`);
+  return { improved };
+}
+
+async function improveBlogPost(locationId, config, post, token, hist) {
+  const { name, domain, lang = 'en', industry = 'local business', voice = '', audience = '', cta = `visit ${domain}`, author = null } = config;
+  const { keyword, title: oldTitle, urlSlug, position } = post;
+  const isSpanish = lang === 'es';
+  const authorName  = author?.name  || name;
+  const authorTitle = author?.title || `${industry} expert`;
+  const authorCreds = author?.credentials || '';
+  const todaysCity  = getTodaysCity();
+
+  console.log(`[Rank Improvement] Improving "${keyword}" (pos #${position}) for ${name}...`);
+
+  // Resolve the GHL post ID — stored on new posts, need list lookup for old ones
+  let postId = post.postId || null;
+  if (!postId) {
+    try {
+      const blog = await getClientBlog(locationId, token);
+      if (blog?.blogId) {
+        const listRes = await axios.get(
+          `https://services.leadconnectorhq.com/blogs/posts?locationId=${locationId}&blogId=${blog.blogId}&limit=100`,
+          { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' } }
+        );
+        const match = (listRes.data?.data || listRes.data?.posts || []).find(p => p.urlSlug === urlSlug);
+        postId = match?._id || match?.id || null;
+      }
+    } catch (e) { console.error(`[Rank Improvement] Could not resolve postId for ${urlSlug}:`, e.message); }
+  }
+  if (!postId) { console.warn(`[Rank Improvement] No postId for "${keyword}" — skipping`); return; }
+
+  // Internal links from recent posts
+  const clientHistory = (hist[locationId] || []).filter(p => p.urlSlug || p.url).slice(-5).map(p => `- "${p.title}" → ${p.url || `https://${domain}/post/${p.urlSlug}`}`);
+  const internalLinksBlock = clientHistory.length > 0 ? `\nEXISTING POSTS TO LINK TO:\n${clientHistory.join('\n')}` : '';
+
+  // Claude rewrites the post — longer, stronger, with FAQ
+  const improveRes = await anthropic.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 3200,
+    messages: [{ role: 'user', content: `You are ${authorName}, ${authorTitle}.
+
+YOUR BACKGROUND & CREDENTIALS:
+${authorCreds}
+
+CONTEXT: A blog post targeting "${keyword}" for ${name} (${domain}) is currently ranking at position #${position} on Google — stuck on page 2. Your job is to rewrite and expand it to push it to page 1.
+
+WHAT TO DO:
+1. Write a COMPLETE rewrite — 1400-1600 words (current post is ~900 words — this expanded version needs to be significantly more thorough)
+2. Keep targeting the same keyword: "${keyword}"
+3. TODAY'S TARGET CITY: ${todaysCity}, FL — mention it at least 5 times
+4. Add a genuine FAQ section at the end (4-5 questions real people search, with real answers from an expert perspective)
+5. Strengthen E-E-A-T: more specific personal anecdotes, real numbers, Florida-specific details (weather, HOA rules, seasonal patterns, local permits)
+6. Add 1-2 more internal links where relevant
+7. Write in FIRST PERSON as ${authorName} — real expert, not marketing copy
+
+BRAND VOICE: ${voice || 'Knowledgeable, helpful, real. Direct. No jargon.'}
+TARGET AUDIENCE: ${audience || `Local customers in ${todaysCity} area looking for ${industry} services.`}
+${internalLinksBlock}
+
+SEO REQUIREMENTS:
+- Use exact keyword "${keyword}" in: title, first paragraph, 3+ headings, FAQ, conclusion
+- Mention "${todaysCity}" at least 5 times — reference real nearby streets or landmarks
+- End with this CTA naturally: "${cta}"
+- Include 3 natural internal links: one to https://${domain}, one to https://${domain}/contact, one to an existing post above
+
+NEVER WRITE: "In today's world", "It's no secret", "In conclusion", "Furthermore", "Moreover", "Game-changing", "Leverage", "Seamlessly", "Delve", "Robust", "Navigate", "Empower", "Unlock"
+
+Return ONLY valid JSON, no markdown:
+{ "title": "improved 50-60 char SEO title with keyword", "metaDescription": "150-160 char meta description", "htmlContent": "full improved HTML using h2/h3/p/ul/li/ol/strong/em/a tags only — no html/head/body wrapper" }
+
+${isSpanish ? 'Write entirely in SPANISH.' : 'Write entirely in ENGLISH.'}` }],
+  });
+
+  const parsed = JSON.parse(improveRes.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
+  const { title: newTitle, metaDescription: newMeta, htmlContent: newHtml } = parsed;
+
+  const brand = config.brand || { primary: '#0f172a', accent: '#2563eb', bg: '#ffffff', logoUrl: '' };
+  const authorBioBlock = author ? `<hr><p><strong>About the Author</strong></p><p><strong>${author.name}</strong> — ${author.title}</p><p>${author.bio}</p>` : '';
+  const _schemaBlog = JSON.stringify({ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: newTitle, dateModified: new Date().toISOString().split('T')[0], description: newMeta, author: { '@type': 'Person', name: authorName, jobTitle: authorTitle, url: `https://${domain}/about` }, publisher: { '@type': 'Organization', name, url: `https://${domain}` } });
+  const schemaBlock = `<script type="application/ld+json">${_schemaBlog}</script>`;
+
+  let updatedHTML;
+  if (brand.plainHtml) {
+    updatedHTML = `${brand.logoUrl ? `<p><img src="${brand.logoUrl}" alt="${name} logo"></p>` : ''}${newHtml}<p><strong>${cta}</strong></p><p><a href="https://${domain}/contact">Contact Us</a></p>${authorBioBlock}${schemaBlock}`;
+  } else {
+    const fontDisplay = brand.fontDisplay || 'Georgia';
+    const fontBody    = brand.fontBody    || 'Arial';
+    const bodyColor   = brand.bodyColor   || '#374151';
+    updatedHTML = `<div style="font-family:'${fontBody}',sans-serif;max-width:820px;margin:0 auto;color:${brand.textColor||'#1a1a1a'};line-height:1.8;background:${brand.bg}">${brand.logoUrl ? `<div style="padding:24px 32px 16px"><img src="${brand.logoUrl}" alt="${name} logo" style="height:52px;object-fit:contain;display:block"></div>` : ''}<div style="padding:36px 40px 0">${newHtml.replace(/<h2/g,`<h2 style="font-family:'${fontDisplay}',serif;font-size:28px;font-weight:900;color:${brand.primary};margin:40px 0 14px;padding-bottom:10px;border-bottom:3px solid ${brand.accent}"`).replace(/<h3/g,`<h3 style="font-family:'${fontDisplay}',serif;font-size:21px;font-weight:700;color:${brand.primary};margin:28px 0 10px"`).replace(/<p>/g,`<p style="margin:0 0 18px;font-size:17px;line-height:1.85;color:${bodyColor}">`).replace(/<ul>/g,'<ul style="margin:0 0 20px;padding-left:24px">').replace(/<li>/g,`<li style="margin-bottom:10px;font-size:16px;color:${bodyColor}">`).replace(/<strong>/g,`<strong style="color:${brand.primary}">`).replace(/<a /g,`<a style="color:${brand.accent};text-decoration:underline" `)}</div>${author ? `<div style="border-top:2px solid ${brand.accent}20;padding:28px 32px;background:${brand.grayLight||'#f9fafb'}"><p style="font-size:13px;font-weight:700;color:${brand.accent};text-transform:uppercase;margin:0 0 6px">About the Author</p><p style="font-size:18px;font-weight:700;color:${brand.primary};margin:0 0 2px">${author.name}</p><p style="font-size:15px;color:${brand.bodyColor||'#374151'};line-height:1.7;margin:0">${author.bio}</p></div>` : ''}${schemaBlock}</div>`;
+  }
+
+  // PUT updated content to GHL
+  await axios.put(
+    `https://services.leadconnectorhq.com/blogs/posts/${postId}`,
+    { title: newTitle, description: newMeta, rawHTML: updatedHTML, status: 'PUBLISHED' },
+    { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
+  );
+
+  // Force re-index the updated URL
+  const blogUrl = post.url || `https://${domain}/${urlSlug}`;
+  forceIndexUrl(blogUrl).catch(() => null);
+
+  // Update history in-place — mark as improved
+  const record = (hist[locationId] || []).find(p => p.urlSlug === urlSlug);
+  if (record) {
+    record.title       = newTitle;
+    record.improved    = true;
+    record.lastImproved = new Date().toISOString().split('T')[0];
+    record.postId       = postId;
+  }
+
+  console.log(`[Rank Improvement] ✅ "${keyword}" → "${newTitle}" updated and re-indexed.`);
+  logActivity('sofia', 'success', `Rank improvement: "${keyword}" at pos #${position} for ${name} — rewritten (1400+ words, FAQ added)`);
 }
 
 // ─── WEEKLY BACKLINK MONITORING ──────────────────────────────────────────────

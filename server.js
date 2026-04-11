@@ -5766,6 +5766,7 @@ const {
   runBacklinkProspecting,
   runClientDailySeoBlog,
   runAllClientsDailyBlog,
+  runSofiaRankImprovementLoop,
 } = require('./modules/agents/sofia')({
   anthropic, axios, crypto, FormData,
   sendEmail, logActivity, setAgentBusy, setAgentIdle, agentChat,
@@ -8046,6 +8047,14 @@ app.post('/cron/rank-tracking', (_req, res) => {
   runWeeklyRankTracking()
     .then(r => logCron('rank-tracking', 'ok', r))
     .catch(e => { logCron('rank-tracking', 'error', e.message); console.error('[Rank Tracking] Manual error:', e.message); });
+});
+
+// POST /cron/rank-improvement — manually trigger the page-2 improvement loop
+app.post('/cron/rank-improvement', (_req, res) => {
+  res.json({ status: 'started', message: 'Rank improvement loop running — rewrites page-2 posts' });
+  runSofiaRankImprovementLoop()
+    .then(r => logCron('rank-improvement', 'ok', r))
+    .catch(e => { logCron('rank-improvement', 'error', e.message); console.error('[Rank Improvement] Manual error:', e.message); });
 });
 
 // POST /cron/gbp-posts — trigger GBP posting now for all connected clients
