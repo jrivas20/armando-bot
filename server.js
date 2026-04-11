@@ -1716,6 +1716,7 @@ async function createOpportunity(contactId, contactName, stageId) {
 // ═══════════════════════════════════════════════════════════
 
 const dmCooldown = new Map(); // contactId → last DM timestamp
+const websitePackageCache = new Map(); // cacheId → { pages, clientName, expires }
 
 async function sendWarmDM(contactId, triggerType, context = {}) {
   // Cooldown check — 7 days
@@ -6815,8 +6816,24 @@ async function generateWebsiteContent(clientName, industry, city) {
   return JSON.parse(res.content[0].text.trim().match(/\{[\s\S]*\}/)[0]);
 }
 
+// Fetch Pexels images for website gallery section
+async function fetchPexelsGallery(industry, city, count = 6) {
+  try {
+    const res = await axios.get('https://api.pexels.com/v1/search', {
+      params: { query: `${industry} ${city} professional`, per_page: count, orientation: 'landscape' },
+      headers: { Authorization: PEXELS_API_KEY },
+      timeout: 8000,
+    });
+    return (res.data?.photos || []).map(p => ({
+      url: p.src?.large2x || p.src?.large || p.src?.medium,
+      alt: p.alt || industry,
+    }));
+  } catch { return []; }
+}
+
 // Shared CSS design system + nav + footer used on every page
-function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase = '.') {
+// tokens = Stitch design system object (optional). Falls back to orange/Montserrat defaults.
+function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase = '.', tokens = null) {
   const navLinks = [
     { label: 'Home',       href: siteBase || '/' },
     { label: 'About Us',   href: (siteBase || '') + '/about-us' },
@@ -6828,13 +6845,25 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
     `<a href="${l.href}" class="nav-link">${l.label}</a>`
   ).join('');
 
+  // Apply Stitch design tokens if available, fall back to defaults
+  const hFont     = tokens?.headlineFont || 'Montserrat';
+  const bFont     = tokens?.bodyFont     || 'Inter';
+  const brand     = tokens?.primary          || '#f97316';
+  const brandDark = tokens?.primaryContainer || '#ea6c0a';
+  const bgLight   = tokens?.background       || '#f9fafb';
+  const surface   = tokens?.surface          || '#ffffff';
+  const radius    = tokens?.borderRadius     || '14px';
+  const fontPairs = hFont === bFont
+    ? `family=${hFont.replace(/ /g,'+')}:wght@400;600;700;800;900`
+    : `family=${hFont.replace(/ /g,'+')}:wght@700;800;900&family=${bFont.replace(/ /g,'+')}:wght@400;500;600`;
+
   const styles = `
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?${fontPairs}&display=swap');
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-    :root{--black:#0a0a0a;--dark:#111827;--gray:#6b7280;--light:#f9fafb;--white:#ffffff;--orange:#f97316;--orange-dark:#ea6c0a;--radius:14px;--shadow:0 4px 24px rgba(0,0,0,0.08)}
+    :root{--black:#0a0a0a;--dark:#111827;--gray:#6b7280;--light:${bgLight};--white:${surface};--orange:${brand};--orange-dark:${brandDark};--radius:${radius};--shadow:0 4px 24px rgba(0,0,0,0.08)}
     html{scroll-behavior:smooth}
-    body{font-family:'Inter',system-ui,sans-serif;color:var(--dark);background:var(--white);line-height:1.6}
-    h1,h2,h3,h4{font-family:'Montserrat',sans-serif;font-weight:800;line-height:1.15}
+    body{font-family:'${bFont}',system-ui,sans-serif;color:var(--dark);background:var(--white);line-height:1.6}
+    h1,h2,h3,h4{font-family:'${hFont}',sans-serif;font-weight:800;line-height:1.15}
     a{text-decoration:none;color:inherit}
     img{max-width:100%;display:block}
     .container{max-width:1140px;margin:0 auto;padding:0 24px}
@@ -6959,7 +6988,7 @@ ${layout.scripts}
 }
 
 function buildHomePage(client, c, layout) {
-  const { name, phone, city, industry, formId } = client;
+  const { name, phone, city, industry, formId, galleryImages } = client;
   const serviceCards = c.services.slice(0, 3).map(s => `
     <div class="card">
       <div style="font-size:36px;margin-bottom:16px;">${s.icon}</div>
@@ -7055,6 +7084,20 @@ function buildHomePage(client, c, layout) {
     <div class="grid-3">${testimonialCards}</div>
   </div>
 </section>
+
+${galleryImages && galleryImages.length ? `
+<section class="section" style="background:var(--light);">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:48px;">
+      <p class="section-label">Our Work</p>
+      <h2 class="section-title">Real Results in ${city}</h2>
+      <p class="section-sub" style="margin:0 auto;">Every project is a commitment to quality and craftsmanship.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+      ${galleryImages.map(img => `<div style="aspect-ratio:4/3;overflow:hidden;border-radius:12px;background:#eee;"><img loading="lazy" src="${img.url}" alt="${img.alt}" style="width:100%;height:100%;object-fit:cover;transition:transform .4s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></div>`).join('')}
+    </div>
+  </div>
+</section>` : ''}
 
 <section style="background:var(--orange);padding:72px 0;">
   <div class="container" style="text-align:center;">
@@ -7344,16 +7387,26 @@ async function buildWebsite(clientName, phone, email, city, industry, logoUrl = 
   city = city || 'Orlando';
   formId = formId || GHL_FORM_ID;
   console.log(`[Sofia] Building 5-page website for ${clientName} (${industry}, ${city})...`);
-  const content = await generateWebsiteContent(clientName, industry, city);
-  const client = { name: clientName, phone, email, city, industry, logoUrl, formId, siteBase };
-  const layout = buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase);
+
+  // Run all async work in parallel: content, Stitch design system, gallery images
+  const [content, tokens, galleryImages] = await Promise.all([
+    generateWebsiteContent(clientName, industry, city),
+    generateStitchDesignSystem(clientName, industry, city).catch(() => null),
+    fetchPexelsGallery(industry, city, 6).catch(() => []),
+  ]);
+
+  if (tokens) console.log(`[Sofia] Stitch design "${tokens.designName}" — ${tokens.primary}, ${tokens.headlineFont}/${tokens.bodyFont}`);
+
+  const client = { name: clientName, phone, email, city, industry, logoUrl, formId, siteBase, galleryImages };
+  const layout = buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase, tokens);
   return {
     home:     buildHomePage(client, content, layout),
     about:    buildAboutPage(client, content, layout),
     services: buildServicesPage(client, content, layout),
     contact:  buildContactPage(client, content, layout),
     faq:      buildFAQPage(client, content, layout),
-    content, // expose for debugging
+    content,
+    tokens,
   };
 }
 
@@ -7917,6 +7970,107 @@ app.get('/sofia/preview-website', async (req, res) => {
   } catch (err) {
     res.status(500).send(`<pre>Error: ${err.message}\n${err.stack}</pre>`);
   }
+});
+
+// GET /sofia/website-package?name=...&industry=...&city=...&phone=...&email=...&formId=...
+// Builds a full 5-page website and returns a download hub. Each page downloads as a standalone HTML file.
+// Use this when you can't push pages via API — download the HTML and paste into GHL Website builder manually.
+app.get('/sofia/website-package', async (req, res) => {
+  try {
+    const {
+      name = 'Test Company', industry = 'roofing', city = 'Orlando',
+      phone = '', email = '', formId,
+    } = req.query;
+
+    // Purge expired cache entries
+    for (const [k, v] of websitePackageCache) {
+      if (v.expires < Date.now()) websitePackageCache.delete(k);
+    }
+
+    const pages = await buildWebsite(name, phone, email, city, industry, '', formId || GHL_FORM_ID, '');
+    const cacheId = require('crypto').randomBytes(8).toString('hex');
+    websitePackageCache.set(cacheId, { pages, clientName: name, expires: Date.now() + 600000 }); // 10 min TTL
+
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const fileMap = [
+      { label: 'Home Page',    page: 'home',     filename: 'index.html' },
+      { label: 'About Us',     page: 'about',    filename: 'about-us.html' },
+      { label: 'Services',     page: 'services', filename: 'services.html' },
+      { label: 'Contact Us',   page: 'contact',  filename: 'contact-us.html' },
+      { label: 'FAQ',          page: 'faq',      filename: 'faq.html' },
+    ];
+
+    const tokenInfo = pages.tokens
+      ? `<p style="font-size:13px;color:#6b7280;margin-top:8px;">🎨 Stitch design: <strong style="color:#1a1a1a;">${pages.tokens.designName}</strong> — ${pages.tokens.headlineFont}/${pages.tokens.bodyFont}, ${pages.tokens.primary}</p>`
+      : '<p style="font-size:13px;color:#6b7280;margin-top:8px;">ℹ️ Default design (Stitch unavailable)</p>';
+
+    const buttons = fileMap.map(f => `
+      <a href="/sofia/website-download?id=${cacheId}&page=${f.page}&filename=${f.filename}"
+         style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:18px 24px;text-decoration:none;color:#1a1a1a;transition:all .15s;margin-bottom:10px;"
+         onmouseover="this.style.borderColor='#6366f1';this.style.background='#f5f3ff'"
+         onmouseout="this.style.borderColor='#e5e7eb';this.style.background='#fff'">
+        <div>
+          <div style="font-weight:600;font-size:15px;">${f.label}</div>
+          <div style="font-size:12px;color:#9ca3af;margin-top:2px;">${f.filename}</div>
+        </div>
+        <div style="background:#6366f1;color:#fff;border-radius:6px;padding:6px 14px;font-size:13px;font-weight:600;">↓ Download</div>
+      </a>`).join('');
+
+    const hubHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Website Package — ${name}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:system-ui,sans-serif;background:#f8fafc;color:#1a1a1a;padding:40px 20px;min-height:100vh;}
+  .card{background:#fff;border-radius:16px;padding:36px;max-width:560px;margin:0 auto;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
+  h1{font-size:22px;font-weight:800;margin-bottom:4px;}
+  .sub{font-size:14px;color:#6b7280;margin-bottom:24px;}
+  .badge{display:inline-block;background:#dcfce7;color:#166534;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:12px;}
+  .how{background:#f1f5f9;border-radius:10px;padding:16px 20px;margin-top:24px;font-size:13px;color:#475569;line-height:1.7;}
+  .how strong{color:#1a1a1a;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="badge">✓ Ready to Deploy</div>
+  <h1>${name}</h1>
+  <p class="sub">${industry} · ${city} · 5 pages</p>
+  ${tokenInfo}
+  <div style="margin-top:24px;">${buttons}</div>
+  <div class="how">
+    <strong>How to upload to GHL Websites:</strong><br>
+    1. Download each HTML file below<br>
+    2. In GHL → Sites → Websites → open your site<br>
+    3. Add a new page → switch to <strong>Custom Code</strong> mode<br>
+    4. Paste the full HTML content → Save<br>
+    <em style="color:#94a3b8;font-size:12px;">Links expire in 10 minutes. Re-run this URL to regenerate.</em>
+  </div>
+</div>
+</body>
+</html>`;
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(hubHtml);
+  } catch (err) {
+    res.status(500).send(`<pre>Error: ${err.message}\n${err.stack}</pre>`);
+  }
+});
+
+// GET /sofia/website-download?id=CACHE_ID&page=home&filename=index.html
+// Returns a single page HTML file as a download (served from websitePackageCache)
+app.get('/sofia/website-download', (req, res) => {
+  const { id, page, filename = 'page.html' } = req.query;
+  const cached = websitePackageCache.get(id);
+  if (!cached || cached.expires < Date.now()) {
+    return res.status(404).send('<pre>Link expired. Re-run /sofia/website-package to get fresh download links.</pre>');
+  }
+  const html = cached.pages[page];
+  if (!html) return res.status(400).send(`<pre>Unknown page: "${page}"</pre>`);
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.send(html);
 });
 
 // POST /sofia/build-funnel — create a lead gen funnel in GHL
