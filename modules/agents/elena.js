@@ -503,6 +503,8 @@ async function elenaHealthCheck() {
       if (isAtRisk || isStalled) {
         alerts.push({
           name: client.name,
+          locationId: client.locationId,
+          lang: client.lang || 'es',
           grade: risk.grade,
           gradeColor: risk.color,
           gradeLabel: risk.label,
@@ -632,17 +634,76 @@ async function fireElenaSignals(alerts) {
         { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
       );
 
-      // Signal Armando → add 'at-risk' tag (triggers GHL re-engagement workflow)
+      // Signal Armando → add 'at-risk' tag + send re-engagement message directly to client
       const currentTags = Array.isArray(contact.tags) ? contact.tags : [];
-      if (!currentTags.includes('at-risk')) {
+      const alreadyTagged    = currentTags.includes('at-risk');
+      const alreadyMessaged  = currentTags.includes('re-engaged');
+
+      const newTags = [...currentTags];
+      if (!alreadyTagged)   newTags.push('at-risk');
+      if (!alreadyMessaged) newTags.push('re-engaged');
+
+      if (!alreadyTagged || !alreadyMessaged) {
         await axios.put(
           `https://services.leadconnectorhq.com/contacts/${contactId}`,
-          { tags: [...currentTags, 'at-risk'] },
+          { tags: newTags },
           { headers: { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' } }
         );
       }
 
-      console.log(`[Elena → Diego+Armando] Signals fired for ${alert.name} — task created + at-risk tag applied`);
+      // Only send re-engagement message once (skip if already messaged this cycle)
+      if (!alreadyMessaged) {
+        const isSpanish  = (alert.lang || 'es') === 'es';
+        const isChurn    = alert.grade === 'D';
+        const clientName = alert.name;
+        const contactFirstName = contact.firstName || contact.name?.split(' ')[0] || clientName;
+
+        // Build internal context for Claude — never exposed to client
+        const internalContext = [
+          isChurn ? 'This client is at serious churn risk.' : 'This client is showing early churn signals.',
+          alert.oppDrop > 0 ? `Pipeline dropped by ${alert.oppDrop} opportunities.` : '',
+          alert.contactDrop > 0 ? `Contact database shrank by ${alert.contactDrop}.` : '',
+          alert.isInactive ? `No meaningful account activity in ${alert.daysSinceActivity} days.` : '',
+        ].filter(Boolean).join(' ');
+
+        const msgRes = await anthropic.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 400,
+          messages: [{ role: 'user', content: `You are Armando, writing a re-engagement message on behalf of José Rivas (founder of JRZ Marketing) to a client named ${contactFirstName} from ${clientName}.
+
+INTERNAL CONTEXT (never mention this to the client):
+${internalContext}
+
+RULES:
+- Write in ${isSpanish ? 'Spanish' : 'English'}
+- Sound like a genuine personal message from José, NOT a template
+- NEVER mention scores, grades, health checks, metrics, or any internal data
+- Tone: warm, human, slightly concerned — like a founder checking in on a relationship
+- If Grade D (churn risk): slightly more direct — "I wanted to connect personally to make sure we're on the right track"
+- If Grade C (at risk): lighter — "I realized I haven't personally checked in recently"
+- End with one soft CTA: ask for 15 minutes this week or ask them to reply
+- Max 4 sentences total. No greetings like "Dear" — start with their first name directly.
+- NO subject line, NO HTML — plain text message body only.
+
+Return ONLY the message text, nothing else.` }],
+        });
+
+        const messageBody = msgRes.content[0].text.trim();
+        const subject = isSpanish
+          ? `${contactFirstName}, quería conectar contigo personalmente`
+          : `${contactFirstName}, wanted to connect with you personally`;
+
+        const emailHtml = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7;color:#1a1a1a;max-width:520px">
+<p>${messageBody.replace(/\n/g, '</p><p>')}</p>
+<p style="margin-top:24px;color:#555;font-size:13px">—<br><strong>José Rivas</strong><br>JRZ Marketing<br><a href="https://jrzmarketing.com" style="color:#2563eb">jrzmarketing.com</a></p>
+</div>`;
+
+        await sendEmail(contactId, subject, emailHtml);
+        console.log(`[Elena → Armando] Re-engagement message sent to ${contactFirstName} (${clientName})`);
+        logActivity('elena', 'action', `Re-engagement sent to ${clientName} — Grade ${alert.grade}, personal message delivered by Armando`);
+      }
+
+      console.log(`[Elena → Diego+Armando] Signals fired for ${alert.name} — task created, at-risk tag + re-engagement message sent`);
       await new Promise(r => setTimeout(r, 600));
     } catch (err) {
       console.error(`[Elena] Cross-agent signal failed for ${alert.name}:`, err.message);
