@@ -9419,13 +9419,13 @@ const EK = {
 
 function ekCSS() {
   return `<style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 :root{
-  --black:#0a0804;--dark:#111008;--surface:#1a1610;
-  --gold:#c8973a;--gold2:#e8b84b;--red:#c0392b;--cream:#faf6f0;
+  --black:#080608;--dark:#100e10;--surface:#1a161a;
+  --red:#e00103;--red2:#ff2d30;--cta:#c50002;
   --text:#fff;--muted:rgba(255,255,255,0.55);--soft:rgba(255,255,255,0.35);
   --line:rgba(255,255,255,0.08);--line2:rgba(255,255,255,0.12);
-  --display:'Bebas Neue',sans-serif;--body:'DM Sans',sans-serif;--serif:'Playfair Display',serif;
+  --display:'Bebas Neue',sans-serif;--body:'DM Sans',sans-serif;
   --max:1200px;--r:10px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -9435,83 +9435,126 @@ a{text-decoration:none;color:inherit;}
 img{max-width:100%;display:block;}
 
 /* NAV */
-.ek-nav-wrap{position:sticky;top:0;z-index:1000;background:rgba(10,8,4,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+.ek-nav-wrap{position:sticky;top:0;z-index:1000;background:rgba(8,6,8,0.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);}
 .ek-c{width:min(var(--max),calc(100% - 40px));margin:0 auto;}
-.ek-nav{display:flex;align-items:center;justify-content:space-between;height:68px;gap:20px;}
-.ek-brand img{height:38px;width:auto;object-fit:contain;}
+.ek-nav{display:flex;align-items:center;justify-content:space-between;height:66px;gap:20px;}
+.ek-brand img{height:36px;width:auto;object-fit:contain;}
 .ek-nav-links{display:flex;align-items:center;gap:28px;}
-.ek-nav-links a{font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);transition:color .2s;}
+.ek-nav-links a{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);transition:color .2s;}
 .ek-nav-links a:hover,.ek-nav-links a.act{color:#fff;}
-.ek-order-btn{background:var(--red);color:#fff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:0 20px;height:38px;border-radius:4px;display:inline-flex;align-items:center;transition:background .2s;}
-.ek-order-btn:hover{background:#a93226;}
-.ek-mob{display:none;background:none;border:0;color:#fff;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
+.ek-order-btn{background:var(--red);color:#fff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:0 20px;height:38px;border-radius:4px;display:inline-flex;align-items:center;transition:background .18s;}
+.ek-order-btn:hover{background:var(--cta);}
+.ek-mob{display:none;background:none;border:0;color:#fff;font-size:20px;cursor:pointer;padding:4px;}
 
-/* HERO */
+/* HERO SLIDESHOW */
 .ek-hero{position:relative;height:100vh;min-height:600px;overflow:hidden;display:flex;align-items:center;}
-.ek-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
-.ek-hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(10,8,4,0.85) 40%,rgba(10,8,4,0.3));z-index:1;}
+.ek-hero-slides{position:absolute;inset:0;z-index:0;}
+.ek-hero-slide{position:absolute;inset:0;opacity:0;will-change:opacity;}
+.ek-hero-slide img{width:100%;height:100%;object-fit:cover;object-position:center;}
+/* 6 slides × 5s = 30s — CSS pure crossfade */
+.ek-hero-slide:nth-child(1){animation:ekHFade 30s 0s infinite;}
+.ek-hero-slide:nth-child(2){animation:ekHFade 30s 5s infinite;}
+.ek-hero-slide:nth-child(3){animation:ekHFade 30s 10s infinite;}
+.ek-hero-slide:nth-child(4){animation:ekHFade 30s 15s infinite;}
+.ek-hero-slide:nth-child(5){animation:ekHFade 30s 20s infinite;}
+.ek-hero-slide:nth-child(6){animation:ekHFade 30s 25s infinite;}
+@keyframes ekHFade{
+  0%,100%{opacity:0;transform:scale(1.04);}
+  6%,28%{opacity:1;transform:scale(1);}
+  33%{opacity:0;transform:scale(1);}
+}
+.ek-hero-overlay{position:absolute;inset:0;background:linear-gradient(105deg,rgba(8,6,8,.88) 38%,rgba(8,6,8,.35));z-index:1;}
 .ek-hero-content{position:relative;z-index:2;padding:0 0 60px;}
-.ek-hero-kicker{font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
-.ek-hero-kicker::before{content:'';display:inline-block;width:32px;height:1px;background:var(--gold);}
-.ek-hero h1{font:400 clamp(72px,10vw,140px)/0.9 var(--display);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;}
-.ek-hero h1 em{color:var(--gold);font-style:normal;}
-.ek-hero-sub{font-size:18px;color:var(--muted);line-height:1.6;max-width:480px;margin-bottom:36px;}
-.ek-hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
-.ek-btn{display:inline-flex;align-items:center;justify-content:center;height:52px;padding:0 28px;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;border-radius:4px;transition:.22s ease;border:1px solid transparent;white-space:nowrap;}
+.ek-hero-kicker{font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--red);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.ek-hero-kicker::before{content:'';display:inline-block;width:32px;height:1px;background:var(--red);}
+.ek-hero h1{font:400 clamp(68px,9vw,130px)/0.88 var(--display);text-transform:uppercase;letter-spacing:2px;margin-bottom:20px;}
+.ek-hero h1 em{color:var(--red);font-style:normal;}
+.ek-hero-sub{font-size:17px;color:var(--muted);line-height:1.65;max-width:500px;margin-bottom:32px;}
+.ek-hero-btns{display:flex;gap:12px;flex-wrap:wrap;}
+.ek-btn{display:inline-flex;align-items:center;justify-content:center;height:52px;padding:0 28px;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;border-radius:4px;transition:.2s ease;border:1px solid transparent;white-space:nowrap;}
 .ek-btn-red{background:var(--red);color:#fff;border-color:var(--red);}
-.ek-btn-red:hover{background:#a93226;}
-.ek-btn-gold{background:var(--gold);color:#000;border-color:var(--gold);}
-.ek-btn-gold:hover{background:var(--gold2);}
+.ek-btn-red:hover{background:var(--cta);}
+.ek-btn-acc{background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.25);backdrop-filter:blur(8px);}
+.ek-btn-acc:hover{background:rgba(255,255,255,0.2);border-color:#fff;}
 .ek-btn-line{background:transparent;color:#fff;border-color:rgba(255,255,255,0.3);}
 .ek-btn-line:hover{border-color:#fff;}
-.ek-hero-social-proof{margin-top:48px;display:flex;align-items:center;gap:20px;padding-top:28px;border-top:1px solid var(--line);}
-.ek-stars{color:var(--gold);font-size:18px;letter-spacing:2px;}
+.ek-hero-proof{margin-top:44px;display:flex;align-items:center;gap:20px;padding-top:24px;border-top:1px solid var(--line);}
+.ek-stars{color:var(--red);font-size:17px;letter-spacing:2px;}
 .ek-proof-text{font-size:13px;color:var(--muted);}
 .ek-proof-text strong{color:#fff;}
 
 /* TRUST MARQUEE */
-.ek-marquee{overflow:hidden;background:var(--red);padding:12px 0;border-top:1px solid rgba(255,255,255,0.1);}
-.ek-marquee-inner{display:flex;width:max-content;animation:ekMarquee 30s linear infinite;}
-.ek-marquee-item{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;padding:0 32px;white-space:nowrap;}
-.ek-marquee-item::after{content:'✦';margin-left:32px;opacity:0.6;}
+.ek-marquee{overflow:hidden;background:var(--red);padding:11px 0;}
+.ek-marquee-inner{display:flex;width:max-content;animation:ekMarquee 28s linear infinite;}
+.ek-marquee-item{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;padding:0 28px;white-space:nowrap;}
+.ek-marquee-item::after{content:'◆';margin-left:28px;opacity:0.5;}
 @keyframes ekMarquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
+/* ORDER DIRECT BANNER */
+.ek-save-banner{background:var(--dark);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:64px 0;}
+.ek-save-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.ek-save-col{padding:32px 28px;text-align:center;position:relative;}
+.ek-save-col::after{content:'';position:absolute;top:20%;right:0;height:60%;width:1px;background:var(--line);}
+.ek-save-col:last-child::after{display:none;}
+.ek-save-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;}
+.ek-save-num{font:400 clamp(48px,5vw,72px)/1 var(--display);letter-spacing:1px;margin-bottom:8px;}
+.ek-save-sub{font-size:13px;color:var(--muted);line-height:1.5;}
+.ek-save-col.bad .ek-save-label{color:rgba(255,255,255,0.35);}
+.ek-save-col.bad .ek-save-num{color:rgba(255,255,255,0.3);text-decoration:line-through;text-decoration-color:rgba(255,255,255,0.2);}
+.ek-save-col.good .ek-save-label{color:var(--red);}
+.ek-save-col.good .ek-save-num{color:var(--red);}
+.ek-save-col.win .ek-save-label{color:#4ade80;}
+.ek-save-col.win .ek-save-num{color:#4ade80;}
+
 /* SECTIONS */
-.ek-s{padding:96px 0;}
-.ek-sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:56px;gap:20px;flex-wrap:wrap;}
-.ek-ey{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.ek-s{padding:88px 0;}
+.ek-sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:52px;gap:20px;flex-wrap:wrap;}
+.ek-ey{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--red);margin-bottom:10px;}
 .ek-title{font:400 clamp(36px,5vw,64px)/1 var(--display);text-transform:uppercase;letter-spacing:1px;}
-.ek-title em{color:var(--gold);font-style:normal;}
+.ek-title em{color:var(--red);font-style:normal;}
 .ek-sub{font-size:16px;color:var(--muted);line-height:1.7;max-width:560px;margin-top:14px;}
 
-/* ORDER HERO STRIP */
-.ek-order-strip{background:var(--gold);padding:36px 0;}
+/* ORDER STRIP */
+.ek-order-strip{background:var(--red);padding:32px 0;}
 .ek-order-strip-in{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
-.ek-order-strip h2{font:400 clamp(28px,4vw,52px)/1 var(--display);text-transform:uppercase;color:#000;letter-spacing:1px;}
-.ek-order-strip p{font-size:14px;color:rgba(0,0,0,0.65);margin-top:6px;}
-.ek-order-strip .ek-btn-red{height:56px;padding:0 36px;font-size:12px;}
+.ek-order-strip h2{font:400 clamp(26px,4vw,48px)/1 var(--display);text-transform:uppercase;color:#fff;letter-spacing:1px;}
+.ek-order-strip p{font-size:14px;color:rgba(255,255,255,0.7);margin-top:6px;}
+.ek-order-strip .ek-btn-acc{height:52px;padding:0 32px;font-size:11px;}
 
 /* MENU GRID */
-.ek-menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.ek-menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
 .ek-menu-card{position:relative;overflow:hidden;aspect-ratio:1;cursor:pointer;}
 .ek-menu-card img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
 .ek-menu-card:hover img{transform:scale(1.06);}
-.ek-menu-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,8,4,0.9) 0%,transparent 50%);opacity:0;transition:opacity .3s;}
+.ek-menu-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,6,8,0.92) 0%,transparent 55%);opacity:0;transition:opacity .3s;}
 .ek-menu-card:hover .ek-menu-overlay{opacity:1;}
 .ek-menu-info{position:absolute;bottom:0;left:0;right:0;padding:20px;transform:translateY(8px);transition:transform .3s;}
 .ek-menu-card:hover .ek-menu-info{transform:translateY(0);}
 .ek-menu-name{font:400 22px/1 var(--display);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
 .ek-menu-desc{font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:10px;}
-.ek-menu-price{font-size:13px;font-weight:700;color:var(--gold);}
+.ek-menu-price{font-size:13px;font-weight:700;color:var(--red);}
+
+/* FOOD SLIDESHOW */
+.ek-fslide-wrap{position:relative;overflow:hidden;background:var(--black);}
+.ek-fslide-track{display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1);will-change:transform;}
+.ek-fslide-item{flex:0 0 calc(100%/3);aspect-ratio:.85;overflow:hidden;}
+.ek-fslide-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s;}
+.ek-fslide-item:hover img{transform:scale(1.04);}
+.ek-fslide-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:10;background:rgba(8,6,8,.7);border:1px solid rgba(255,255,255,.15);color:#fff;width:44px;height:44px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;backdrop-filter:blur(6px);}
+.ek-fslide-nav:hover{background:var(--red);}
+.ek-fslide-prev{left:16px;}
+.ek-fslide-next{right:16px;}
+@media(max-width:768px){.ek-fslide-item{flex:0 0 calc(100%/2);}}
+@media(max-width:480px){.ek-fslide-item{flex:0 0 100%;}}
 
 /* FULL BLEED FOOD PHOTO */
-.ek-food-feature{display:grid;grid-template-columns:1fr 1fr;min-height:560px;}
+.ek-food-feature{display:grid;grid-template-columns:1fr 1fr;min-height:540px;}
 .ek-food-img{overflow:hidden;}
 .ek-food-img img{width:100%;height:100%;object-fit:cover;}
-.ek-food-copy{background:var(--dark);display:flex;flex-direction:column;justify-content:center;padding:72px 64px;}
+.ek-food-copy{background:var(--dark);display:flex;flex-direction:column;justify-content:center;padding:72px 60px;}
 .ek-food-copy .ek-ey{margin-bottom:14px;}
 
-/* PHOTO GRID */
+/* PHOTO GRID (used on inner pages) */
 .ek-photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
 .ek-photo-item{aspect-ratio:.8;overflow:hidden;}
 .ek-photo-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
@@ -9519,60 +9562,60 @@ img{max-width:100%;display:block;}
 .ek-photo-item.tall{grid-row:span 2;aspect-ratio:auto;}
 
 /* LOCATIONS */
-.ek-loc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.ek-loc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
 .ek-loc-card{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;}
-.ek-loc-map{height:200px;}
-.ek-loc-map iframe{width:100%;height:100%;border:0;filter:grayscale(1) brightness(0.6);}
-.ek-loc-info{padding:24px;}
-.ek-loc-name{font:400 22px/1 var(--display);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-.ek-loc-addr{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
-.ek-loc-hours{font-size:12px;font-weight:600;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;}
-.ek-loc-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.ek-loc-map{height:190px;}
+.ek-loc-map iframe{width:100%;height:100%;border:0;filter:grayscale(1) brightness(0.55);}
+.ek-loc-info{padding:22px;}
+.ek-loc-name{font:400 20px/1 var(--display);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.ek-loc-addr{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+.ek-loc-hours{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--red);text-transform:uppercase;margin-bottom:14px;}
+.ek-loc-actions{display:flex;gap:8px;flex-wrap:wrap;}
 
 /* REVIEWS */
-.ek-rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.ek-rev-card{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:28px;}
-.ek-rev-stars{color:var(--gold);font-size:16px;letter-spacing:2px;margin-bottom:14px;}
-.ek-rev-text{font-size:15px;line-height:1.7;color:rgba(255,255,255,0.8);margin-bottom:18px;font-style:italic;}
-.ek-rev-name{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.ek-rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.ek-rev-card{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:26px;}
+.ek-rev-stars{color:var(--red);font-size:15px;letter-spacing:2px;margin-bottom:13px;}
+.ek-rev-text{font-size:14px;line-height:1.75;color:rgba(255,255,255,0.8);margin-bottom:16px;font-style:italic;}
+.ek-rev-name{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
 
 /* CATERING */
 .ek-catering{background:var(--surface);border-radius:var(--r);overflow:hidden;display:grid;grid-template-columns:1fr 1fr;}
-.ek-catering-img img{width:100%;height:100%;object-fit:cover;min-height:440px;}
-.ek-catering-copy{padding:72px 56px;display:flex;flex-direction:column;justify-content:center;}
+.ek-catering-img img{width:100%;height:100%;object-fit:cover;min-height:420px;}
+.ek-catering-copy{padding:64px 52px;display:flex;flex-direction:column;justify-content:center;}
 
 /* FAQ */
 .ek-faq-list{max-width:800px;margin:0 auto;}
-.ek-faq-item{border-bottom:1px solid var(--line2);padding:22px 0;}
-.ek-faq-btn{width:100%;text-align:left;background:transparent;border:0;color:#fff;font-size:16px;font-weight:600;padding:0;display:flex;justify-content:space-between;align-items:center;gap:16px;cursor:pointer;}
-.ek-faq-icon{font-size:22px;color:var(--gold);flex-shrink:0;}
+.ek-faq-item{border-bottom:1px solid var(--line2);padding:20px 0;}
+.ek-faq-btn{width:100%;text-align:left;background:transparent;border:0;color:#fff;font-size:15px;font-weight:600;padding:0;display:flex;justify-content:space-between;align-items:center;gap:16px;cursor:pointer;}
+.ek-faq-icon{font-size:22px;color:var(--red);flex-shrink:0;}
 .ek-faq-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
-.ek-faq-item.open .ek-faq-body{max-height:200px;}
+.ek-faq-item.open .ek-faq-body{max-height:240px;}
 .ek-faq-body p{font-size:14px;color:var(--muted);line-height:1.8;padding-top:14px;}
 
 /* FOOTER */
-.ek-footer{background:#050503;border-top:1px solid var(--line);padding:48px 0 32px;}
-.ek-footer-in{display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px;margin-bottom:36px;}
-.ek-footer-brand img{height:34px;margin-bottom:14px;}
+.ek-footer{background:#050305;border-top:1px solid var(--line);padding:48px 0 28px;}
+.ek-footer-in{display:grid;grid-template-columns:1fr 1fr 1fr;gap:36px;margin-bottom:32px;}
+.ek-footer-brand img{height:32px;margin-bottom:14px;}
 .ek-footer-brand p{font-size:13px;color:var(--soft);line-height:1.7;}
-.ek-footer-col h4{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.ek-footer-col h4{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
 .ek-footer-col a,.ek-footer-col p{font-size:13px;color:var(--muted);display:block;margin-bottom:8px;transition:color .2s;}
 .ek-footer-col a:hover{color:#fff;}
-.ek-footer-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.ek-footer-bottom{border-top:1px solid var(--line);padding-top:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
 .ek-footer-copy{font-size:11px;color:var(--soft);letter-spacing:1px;}
 
 /* STICKY ORDER BAR (mobile) */
-.ek-sticky-order{display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:var(--red);padding:12px 20px;text-align:center;}
+.ek-sticky-order{display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:var(--red);padding:13px 20px;text-align:center;}
 .ek-sticky-order a{color:#fff;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
 
 /* CTA BAND */
-.ek-cta-band{background:linear-gradient(135deg,var(--dark) 0%,#1a0a06 100%);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:72px 0;text-align:center;}
-.ek-cta-band h2{font:400 clamp(40px,6vw,80px)/1 var(--display);text-transform:uppercase;letter-spacing:2px;margin-bottom:18px;}
-.ek-cta-band p{font-size:16px;color:var(--muted);margin-bottom:32px;}
-.ek-cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.ek-cta-band{background:linear-gradient(135deg,var(--dark) 0%,#160608 100%);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:72px 0;text-align:center;}
+.ek-cta-band h2{font:400 clamp(40px,6vw,80px)/1 var(--display);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;}
+.ek-cta-band p{font-size:16px;color:var(--muted);margin-bottom:30px;}
+.ek-cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
 
-/* REVEAL ANIMATION */
-.ek-reveal{opacity:0;transform:translateY(32px);transition:opacity .8s ease,transform .8s ease;}
+/* REVEAL */
+.ek-reveal{opacity:0;transform:translateY(28px);transition:opacity .75s ease,transform .75s ease;}
 .ek-reveal.in{opacity:1;transform:translateY(0);}
 
 /* RESPONSIVE */
@@ -9582,29 +9625,30 @@ img{max-width:100%;display:block;}
   .ek-rev-grid{grid-template-columns:repeat(2,1fr);}
   .ek-food-feature{grid-template-columns:1fr;}
   .ek-catering{grid-template-columns:1fr;}
-  .ek-catering-img img{min-height:300px;}
+  .ek-catering-img img{min-height:280px;}
   .ek-footer-in{grid-template-columns:1fr 1fr;}
+  .ek-save-grid{grid-template-columns:1fr;}
+  .ek-save-col::after{display:none;}
   .ek-photo-grid{grid-template-columns:repeat(3,1fr);}
 }
 @media(max-width:768px){
   .ek-nav-links{display:none;}
   .ek-mob{display:block;}
-  .ek-hero{height:90vh;}
+  .ek-hero{height:92vh;}
   .ek-menu-grid{grid-template-columns:repeat(2,1fr);}
   .ek-loc-grid,.ek-rev-grid{grid-template-columns:1fr;}
   .ek-photo-grid{grid-template-columns:repeat(2,1fr);}
   .ek-footer-in{grid-template-columns:1fr;}
   .ek-order-strip-in{flex-direction:column;text-align:center;}
-  .ek-food-copy{padding:48px 32px;}
+  .ek-food-copy{padding:44px 28px;}
   .ek-sticky-order{display:block;}
-  body{padding-bottom:52px;}
+  body{padding-bottom:54px;}
   .ek-sec-head{flex-direction:column;align-items:flex-start;}
-  .ek-catering-copy{padding:40px 28px;}
+  .ek-catering-copy{padding:36px 24px;}
 }
 @media(max-width:500px){
-  .ek-hero h1{font-size:60px;}
+  .ek-hero h1{font-size:58px;}
   .ek-menu-grid{grid-template-columns:1fr;}
-  .ek-photo-grid{grid-template-columns:repeat(2,1fr);}
   .ek-btn{width:100%;justify-content:center;}
   .ek-hero-btns,.ek-cta-btns{flex-direction:column;}
 }
@@ -9721,6 +9765,8 @@ if(document.startViewTransition){
 }
 
 function ekWrap(title, metaDesc, keywords, schema, body) {
+  // Preload first 2 hero photos for LCP
+  const preloads = EK.photos.slice(0,2).map(p=>`<link rel="preload" as="image" href="${p}" fetchpriority="high">`).join('');
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -9735,7 +9781,7 @@ function ekWrap(title, metaDesc, keywords, schema, body) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="dns-prefetch" href="https://assets.cdn.filesafe.space">
-<link rel="preload" as="video" href="${EK.heroVideo}" type="video/mp4">
+${preloads}
 ${ekCSS()}
 <script type="application/ld+json">${JSON.stringify(schema)}</script>
 <script type="application/ld+json">${JSON.stringify({
@@ -9744,12 +9790,12 @@ ${ekCSS()}
 })}</script>
 <script type="application/ld+json">${JSON.stringify({
   "@context":"https://schema.org","@type":"Restaurant",
-  "name":"The Escobar Kitchen","servesCuisine":["Latin","Asian Fusion","Sushi"],
+  "name":"The Escobar Kitchen","servesCuisine":["Latin","Asian Fusion"],
   "priceRange":"$$","telephone":EK.phone,"email":EK.email,
-  "aggregateRating":{"@type":"AggregateRating","ratingValue":"4.6","reviewCount":"452","bestRating":"5"},
+  "aggregateRating":{"@type":"AggregateRating","ratingValue":"4.6","reviewCount":"600","bestRating":"5"},
   "review": EK.reviews.map(r=>({ "@type":"Review","author":{"@type":"Person","name":r.name},"reviewRating":{"@type":"Rating","ratingValue":"5"},"reviewBody":r.text })),
   "hasMenu": EK.orderUrl,
-  "location": EK.locations.map(l=>({ "@type":"Place","name":`The Escobar Kitchen — ${l.name}`,"address":{"@type":"PostalAddress","streetAddress":l.address,"addressCountry":"US"} }))
+  "location": EK.locations.map(l=>({ "@type":"Place","name":`The Escobar Kitchen — ${l.name}`,"address":{"@type":"PostalAddress","streetAddress":l.address,"addressLocality":"Orlando","addressRegion":"FL","addressCountry":"US"} }))
 })}</script>
 </head>
 <body>${body}
@@ -9760,12 +9806,29 @@ ${ekScript()}
 </body></html>`;
 }
 
-function ekBuildHome() {
-  const marqueeItems = ['Order Online','3 Orlando Locations','Latin-Asian Fusion','Hunters Creek · Lake Nona · Downtown','Pickup & Delivery','Catering Available','4.6 Stars on Google'];
-  const marqueeHtml = [...marqueeItems,...marqueeItems].map(i=>`<span class="ek-marquee-item">${i}</span>`).join('');
-  const menuGrid = EK.menu.map(m=>`
-  <div class="ek-menu-card">
-    <img src="${m.photo}" alt="${m.name} — The Escobar Kitchen" loading="lazy">
+function ekBuildHome(kwData = []) {
+  // SEO keywords from DataForSEO
+  const primaryKw  = kwData[0]?.keyword || 'latin asian fusion orlando';
+  const titleKws   = kwData.slice(0,3).map(k=>k.keyword).join(', ') || 'latin asian fusion orlando, escobar kitchen, latin food orlando';
+  const metaKws    = kwData.slice(0,8).map(k=>k.keyword).join(',') || 'latin asian fusion orlando,escobar kitchen,latin restaurant orlando fl,latin food near me orlando,order latin food online orlando,latin asian fusion restaurant near me,latin food delivery orlando,best latin food orlando';
+
+  // Hero — 6-photo crossfade slideshow (first 2 eager, rest lazy)
+  const heroSlides = EK.photos.slice(0,6).map((p,i)=>`<div class="ek-hero-slide">
+    <img src="${p}" alt="Escobar Kitchen ${EK.locations[i%3].name} Orlando food" width="1400" height="900"${i<2?' fetchpriority="high" loading="eager"':' loading="lazy"'}>
+  </div>`).join('');
+
+  // Food slideshow (replaces photo grid) — 18 photos
+  const slideItems = EK.photos.slice(0,18).map((p,i)=>`<div class="ek-fslide-item">
+    <img src="${p}" alt="Escobar Kitchen food Orlando" loading="${i<3?'eager':'lazy'}" width="400" height="470">
+  </div>`).join('');
+
+  // Marquee — order-direct focused
+  const mItems = ['Order Direct & Save','No App Fees','Pickup in 15 Min','Hunters Creek','Lake Nona','Downtown Orlando','4.6 Stars on Google','Skip the DoorDash Fees','Save $5–$12 Per Order','600+ Reviews'];
+  const marqueeHtml = [...mItems,...mItems].map(i=>`<span class="ek-marquee-item">${i}</span>`).join('');
+
+  // Menu grid — first image eager
+  const menuGrid = EK.menu.map((m,i)=>`<div class="ek-menu-card">
+    <img src="${m.photo}" alt="${m.name} — Order Direct Escobar Kitchen" width="400" height="400"${i===0?' loading="eager"':' loading="lazy"'}>
     <div class="ek-menu-overlay"></div>
     <div class="ek-menu-info">
       <div class="ek-menu-name">${m.name}</div>
@@ -9773,184 +9836,267 @@ function ekBuildHome() {
       <div class="ek-menu-price">${m.price}</div>
     </div>
   </div>`).join('');
-  const photoGrid = EK.photos.slice(6,18).map((p,i)=>`<div class="ek-photo-item${i===0||i===5?' tall':''}"><img src="${p}" alt="Escobar Kitchen food Orlando" loading="lazy"></div>`).join('');
+
+  // Reviews
   const revHtml = EK.reviews.map(r=>`<div class="ek-rev-card ek-reveal">
     <div class="ek-rev-stars">★★★★★</div>
     <p class="ek-rev-text">"${r.text}"</p>
     <div class="ek-rev-name">— ${r.name}</div>
   </div>`).join('');
+
+  // Locations strip
   const locHtml = EK.locations.map(l=>`<div class="ek-loc-card ek-reveal">
     <div class="ek-loc-map"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${l.mapSrc}" title="${l.name} location"></iframe></div>
     <div class="ek-loc-info">
       <div class="ek-loc-name">${l.name}</div>
-      <div class="ek-loc-addr">${l.address}${l.note?`<br><small style="color:var(--gold);font-size:11px;">${l.note}</small>`:''}</div>
+      <div class="ek-loc-addr">${l.address}${l.note?`<br><small style="color:var(--red);font-size:11px;">${l.note}</small>`:''}</div>
       <div class="ek-loc-hours">${l.hours}</div>
       <div class="ek-loc-actions">
-        <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red" style="height:38px;padding:0 16px;font-size:10px;">Order Now</a>
-        <a href="tel:${l.phone}" class="ek-btn ek-btn-line" style="height:38px;padding:0 16px;font-size:10px;">Call</a>
-        <a href="${l.slug}" class="ek-btn ek-btn-line" style="height:38px;padding:0 16px;font-size:10px;">Details →</a>
+        <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red" style="height:38px;padding:0 14px;font-size:10px;">Order Now</a>
+        <a href="tel:${l.phone}" class="ek-btn ek-btn-line" style="height:38px;padding:0 14px;font-size:10px;">Call</a>
+        <a href="${l.slug}" class="ek-btn ek-btn-line" style="height:38px;padding:0 14px;font-size:10px;">Details →</a>
       </div>
     </div>
   </div>`).join('');
-  const faqHtml = EK.faqs.map((f,i)=>`<div class="ek-faq-item${i===0?' open':''}">
+
+  // FAQ
+  const faqHtml = EK.faqs.slice(0,5).map((f,i)=>`<div class="ek-faq-item${i===0?' open':''}">
     <button class="ek-faq-btn" type="button"><span>${f.q}</span><span class="ek-faq-icon">${i===0?'−':'+'}</span></button>
     <div class="ek-faq-body"><p>${f.a}</p></div>
   </div>`).join('');
-  const schema = {"@context":"https://schema.org","@type":"Restaurant","name":"The Escobar Kitchen","image":EK.photos[0],"description":"Orlando's boldest Latin-Asian fusion restaurant. 3 locations in Kissimmee, Orlando, and Lake Nona. Order online for pickup or delivery.","telephone":EK.phone,"email":EK.email,"url":"https://www.theescobarkitchen.com","servesCuisine":["Latin","Asian Fusion"],"priceRange":"$$","openingHours":"Mo-Su 11:00-22:00"};
+
+  const schema = {"@context":"https://schema.org","@type":"Restaurant","name":"The Escobar Kitchen","image":EK.photos[0],"description":`Orlando's boldest ${primaryKw} restaurant. Order direct online for pickup or delivery. 3 locations: Hunters Creek, Lake Nona & Downtown. 4.6 stars.`,"telephone":EK.phone,"email":EK.email,"url":"https://www.theescobarkitchen.com","servesCuisine":["Latin","Asian Fusion"],"priceRange":"$$","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.6","reviewCount":"600","bestRating":"5"}};
+
   const body = `${ekNav('/')}
-<!-- HERO -->
+
+<!-- ═══ HERO: FOOD SLIDESHOW ═══ -->
 <section class="ek-hero">
-  <video class="ek-hero-video" autoplay muted loop playsinline preload="auto">
-    <source src="${EK.heroVideo}" type="video/mp4">
-    <source src="${EK.heroVideo2}" type="video/mp4">
-  </video>
+  <div class="ek-hero-slides">${heroSlides}</div>
   <div class="ek-hero-overlay"></div>
   <div class="ek-c ek-hero-content">
-    <div class="ek-hero-kicker">3 Locations · Central Florida</div>
-    <h1>Latin<br><em>Asian</em><br>Fusion</h1>
-    <p class="ek-hero-sub">Bold flavors. Real ingredients. Orlando's most unique culinary experience — Hunters Creek, Lake Nona &amp; Downtown. Order online now.</p>
+    <div class="ek-hero-kicker">Order Direct &amp; Save — 3 Orlando Locations</div>
+    <h1>Order<br><em>Direct.</em><br>Save More.</h1>
+    <p class="ek-hero-sub">Skip the DoorDash fees. Skip the Uber Eats markup. Order directly from The Escobar Kitchen and save up to 15% on every order — straight from us to you.</p>
     <div class="ek-hero-btns">
-      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Now — Pickup &amp; Delivery</a>
-      <a href="/menu" class="ek-btn ek-btn-line">See The Menu</a>
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red" style="height:56px;padding:0 36px;font-size:12px;">Order Direct — No App Fees →</a>
+      <a href="/menu" class="ek-btn ek-btn-acc">See The Menu</a>
     </div>
-    <div class="ek-hero-social-proof">
+    <div class="ek-hero-proof">
       <div class="ek-stars">★★★★★</div>
-      <div class="ek-proof-text"><strong>4.6 stars</strong> · 600+ Google reviews · <strong>3 Orlando locations</strong></div>
+      <div class="ek-proof-text"><strong>4.6 stars</strong> · 600+ Google reviews · <strong>Pickup in 15 min</strong></div>
     </div>
   </div>
 </section>
 
-<!-- MARQUEE -->
+<!-- ═══ MARQUEE ═══ -->
 <div class="ek-marquee"><div class="ek-marquee-inner">${marqueeHtml}</div></div>
 
-<!-- ORDER STRIP -->
-<div class="ek-order-strip">
-  <div class="ek-c ek-order-strip-in">
-    <div>
-      <h2>Ready to Order?</h2>
-      <p>Online ordering · Pickup ready in 15 min · Delivery available</p>
+<!-- ═══ WHY ORDER DIRECT ═══ -->
+<div class="ek-save-banner">
+  <div class="ek-c">
+    <div style="text-align:center;margin-bottom:40px;">
+      <div class="ek-ey" style="justify-content:center;">Why Order Direct?</div>
+      <h2 class="ek-title">You <em>Save</em> Every Time</h2>
+      <p style="font-size:15px;color:var(--muted);max-width:460px;margin:14px auto 0;line-height:1.6;">DoorDash and Uber Eats charge 25–30% in fees. When you order directly from us, 100% goes to the food and our team.</p>
     </div>
-    <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Online Now →</a>
+    <div class="ek-save-grid">
+      <div class="ek-save-col bad">
+        <div class="ek-save-label">DoorDash / Uber Eats</div>
+        <div class="ek-save-num">+30%</div>
+        <div class="ek-save-sub">Hidden fees, service charges, and markups added to your total</div>
+      </div>
+      <div class="ek-save-col good">
+        <div class="ek-save-label">Order Direct (Our Site)</div>
+        <div class="ek-save-num">$0 Fees</div>
+        <div class="ek-save-sub">Order direct and pay the real price — no platform markup, no service fees</div>
+      </div>
+      <div class="ek-save-col win">
+        <div class="ek-save-label">You Save Per Order</div>
+        <div class="ek-save-num">$5–$12</div>
+        <div class="ek-save-sub">On a typical $40 order. That's money back in your pocket, every time</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px;">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red" style="height:56px;padding:0 40px;font-size:12px;">Order Direct Now — Save Today →</a>
+      <p style="font-size:12px;color:var(--muted);margin-top:14px;">Pickup ready in 15 minutes · Delivery available · 3 Orlando locations</p>
+    </div>
   </div>
 </div>
 
-<!-- MENU -->
+<!-- ═══ ORDER STRIP ═══ -->
+<div class="ek-order-strip">
+  <div class="ek-c ek-order-strip-in">
+    <div>
+      <h2>Hungry? Order Direct &amp; Save.</h2>
+      <p>Skip the app fees — order from us directly. Pickup in 15 min or delivery to your door.</p>
+    </div>
+    <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-acc" style="height:52px;padding:0 32px;">Order Now — No Fees →</a>
+  </div>
+</div>
+
+<!-- ═══ MENU GRID ═══ -->
 <section class="ek-s" id="menu" style="background:var(--dark);padding-bottom:0;">
   <div class="ek-c">
     <div class="ek-sec-head ek-reveal">
       <div>
-        <div class="ek-ey">What We Serve</div>
+        <div class="ek-ey">Latin-Asian Fusion Orlando</div>
         <h2 class="ek-title">The <em>Menu</em></h2>
-        <p class="ek-sub">Latin-Asian fusion done bold. Every dish crafted with real ingredients and no shortcuts.</p>
+        <p class="ek-sub">Bold ${primaryKw} dishes. Real ingredients. No shortcuts. Order direct and get it fresh.</p>
       </div>
-      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-gold">Order Full Menu →</a>
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Full Menu →</a>
     </div>
   </div>
   <div class="ek-menu-grid">${menuGrid}</div>
+  <div style="text-align:center;padding:40px 0;background:var(--dark);">
+    <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red" style="height:56px;padding:0 40px;font-size:12px;">Order Now — Skip the App Fees →</a>
+    <p style="font-size:12px;color:var(--muted);margin-top:12px;">Pickup in 15 minutes · Delivery available · 3 Orlando locations</p>
+  </div>
 </section>
 
-<!-- FOOD FEATURE -->
+<!-- ═══ FOOD PHOTO SLIDESHOW ═══ -->
+<div class="ek-fslide-wrap">
+  <div class="ek-fslide-track" id="ekFtrack">${slideItems}</div>
+  <button class="ek-fslide-nav ek-fslide-prev" id="ekFprev" aria-label="Previous">&#8592;</button>
+  <button class="ek-fslide-nav ek-fslide-next" id="ekFnext" aria-label="Next">&#8594;</button>
+</div>
+
+<!-- ═══ ORDER DIRECT FEATURE ═══ -->
 <div class="ek-food-feature">
-  <div class="ek-food-img"><img src="${EK.photos[7]}" alt="Escobar Kitchen food Orlando" loading="lazy"></div>
+  <div class="ek-food-img"><img src="${EK.photos[8]}" alt="Escobar Kitchen latin asian fusion orlando" loading="lazy" width="700" height="540"></div>
   <div class="ek-food-copy ek-reveal">
-    <div class="ek-ey">Our Story</div>
-    <h2 class="ek-title">Born From <em>Bold</em> Flavors</h2>
-    <p class="ek-sub" style="margin-top:18px;">The Escobar Kitchen brings together the vibrant spirit of Latin cuisine and the precision of Asian cooking. The result? Dishes you've never tasted anywhere else in Orlando.</p>
-    <p class="ek-sub" style="margin-top:12px;">3 locations across Orlando — Hunters Creek, Lake Nona, and Downtown — each serving the same bold menu with the same uncompromising standards.</p>
-    <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap;">
-      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Now</a>
-      <a href="tel:${EK.phone}" class="ek-btn ek-btn-line">${EK.phoneDisplay}</a>
+    <div class="ek-ey">Order Direct &amp; Save</div>
+    <h2 class="ek-title">Same Food.<br><em>Better Price.</em></h2>
+    <p class="ek-sub" style="margin-top:16px;">When you order from DoorDash or Uber Eats, you're paying 25–30% more. Order directly from The Escobar Kitchen and pay the real price — every single time.</p>
+    <div style="margin-top:24px;display:flex;flex-direction:column;gap:12px;">
+      ${[
+        { icon:'✓', t:'No delivery app fees or markups' },
+        { icon:'✓', t:'Pickup ready in 15 minutes' },
+        { icon:'✓', t:'Same great food, better value' },
+        { icon:'✓', t:'Earn Toast Rewards on every direct order' },
+      ].map(x=>`<div style="display:flex;align-items:center;gap:10px;font-size:14px;"><span style="color:var(--red);font-weight:700;">${x.icon}</span>${x.t}</div>`).join('')}
+    </div>
+    <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Direct Now →</a>
+      <a href="${EK.toast.rewardsSignup}" target="_blank" rel="noopener" class="ek-btn ek-btn-line">Join Rewards</a>
     </div>
   </div>
 </div>
 
-<!-- PHOTO GRID -->
-<div class="ek-photo-grid">${photoGrid}</div>
-
-<!-- REVIEWS -->
+<!-- ═══ REVIEWS ═══ -->
 <section class="ek-s" id="reviews" style="background:var(--dark);">
   <div class="ek-c">
     <div class="ek-sec-head ek-reveal">
       <div>
         <div class="ek-ey">What Orlando Is Saying</div>
-        <h2 class="ek-title">4.6 Stars · <em>452</em> Reviews</h2>
+        <h2 class="ek-title">4.6 Stars · <em>600+</em> Reviews</h2>
       </div>
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Now →</a>
     </div>
     <div class="ek-rev-grid">${revHtml}</div>
   </div>
 </section>
 
-<!-- CATERING -->
+<!-- ═══ ORDER STRIP 2 ═══ -->
+<div class="ek-order-strip">
+  <div class="ek-c ek-order-strip-in">
+    <div>
+      <h2>Ready to Order?</h2>
+      <p>Direct ordering · No fees · Pickup in 15 min or delivery · 3 Orlando locations</p>
+    </div>
+    <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-acc" style="height:52px;padding:0 32px;">Order Direct →</a>
+  </div>
+</div>
+
+<!-- ═══ CATERING ═══ -->
 <section class="ek-s" id="catering" style="background:var(--black);">
   <div class="ek-c">
-    <div class="ek-sec-head ek-reveal">
-      <div>
-        <div class="ek-ey">Events & Groups</div>
-        <h2 class="ek-title">Catering <em>Available</em></h2>
-        <p class="ek-sub">From corporate lunches to weddings — we bring the boldest Latin-Asian flavors to your event.</p>
-      </div>
-    </div>
     <div class="ek-catering ek-reveal">
-      <div class="ek-catering-img"><img src="${EK.photos[5]}" alt="Escobar Kitchen catering Orlando" loading="lazy"></div>
+      <div class="ek-catering-img"><img src="${EK.photos[5]}" alt="Escobar Kitchen catering Orlando events" loading="lazy" width="700" height="420"></div>
       <div class="ek-catering-copy">
-        <div class="ek-ey">Catering</div>
-        <h2 class="ek-title" style="font-size:clamp(32px,4vw,52px);">Your Event,<br>Our <em>Food</em></h2>
-        <p class="ek-sub" style="margin-top:18px;">Serving 10 to 500+. Customizable menus, delivery included, setup available. Let us handle the food so you can focus on your guests.</p>
-        <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">
-          <a href="mailto:${EK.email}" class="ek-btn ek-btn-gold">Request Catering Quote</a>
-          <a href="tel:${EK.phone}" class="ek-btn ek-btn-line">Call ${EK.phoneDisplay}</a>
+        <div class="ek-ey">Events &amp; Groups</div>
+        <h2 class="ek-title" style="font-size:clamp(32px,4vw,52px);">Catering<br>for Any <em>Event</em></h2>
+        <p class="ek-sub" style="margin-top:16px;">Corporate lunches, birthday parties, weddings, office events. Bold Latin-Asian fusion platters from $180. Serving 10 to 500+.</p>
+        <div style="margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          ${['Corporate Events','Birthday Parties','Weddings','Office Lunches','Holiday Events','Graduation Parties'].map(i=>`<div style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;"><span style="color:var(--red);">✓</span>${i}</div>`).join('')}
         </div>
-        <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          ${['Corporate Events','Birthday Parties','Weddings','Office Lunches'].map(i=>`<div style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;"><span style="color:var(--gold);">✓</span>${i}</div>`).join('')}
+        <div style="margin-top:26px;display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="/catering" class="ek-btn ek-btn-red">Catering Info →</a>
+          <a href="mailto:${EK.email}" class="ek-btn ek-btn-line">Request Quote</a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- LOCATIONS -->
+<!-- ═══ LOCATIONS ═══ -->
 <section class="ek-s" id="locations" style="background:var(--dark);">
   <div class="ek-c">
     <div class="ek-sec-head ek-reveal">
       <div>
         <div class="ek-ey">Find Us</div>
-        <h2 class="ek-title">3 <em>Locations</em></h2>
-        <p class="ek-sub">Hunters Creek · Lake Nona · Downtown Orlando — <a href="/locations" style="color:var(--gold);">View all hours →</a></p>
+        <h2 class="ek-title">3 Orlando <em>Locations</em></h2>
+        <p class="ek-sub">Hunters Creek · Lake Nona · Downtown — <a href="/locations" style="color:var(--red);">View all hours →</a></p>
       </div>
     </div>
     <div class="ek-loc-grid">${locHtml}</div>
   </div>
 </section>
 
-<!-- FAQ -->
+<!-- ═══ FAQ ═══ -->
 <section class="ek-s" style="background:var(--black);">
   <div class="ek-c ek-reveal">
-    <div style="text-align:center;margin-bottom:48px;">
-      <div class="ek-ey" style="justify-content:center;">FAQ</div>
-      <h2 class="ek-title">Questions?</h2>
+    <div style="text-align:center;margin-bottom:44px;">
+      <div class="ek-ey">FAQ</div>
+      <h2 class="ek-title">Common <em>Questions</em></h2>
     </div>
     <div class="ek-faq-list">${faqHtml}</div>
   </div>
 </section>
 
-<!-- CTA BAND -->
+<!-- ═══ FINAL CTA ═══ -->
 <div class="ek-cta-band">
   <div class="ek-c">
-    <h2>Hungry? <em>Order Now.</em></h2>
-    <p>Pickup in 15 minutes or delivery to your door. 3 locations across Central Florida.</p>
+    <div class="ek-ey" style="justify-content:center;">Order Direct &amp; Save</div>
+    <h2>Skip the Fees.<br><em>Order Direct.</em></h2>
+    <p>The Escobar Kitchen — Orlando's boldest Latin-Asian fusion. Pickup in 15 min or delivery. No app fees.</p>
     <div class="ek-cta-btns">
-      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Online →</a>
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red" style="height:56px;padding:0 40px;font-size:12px;">Order Direct Now →</a>
       <a href="tel:${EK.phone}" class="ek-btn ek-btn-line">Call ${EK.phoneDisplay}</a>
-      <a href="mailto:${EK.email}" class="ek-btn ek-btn-line">Book Catering</a>
+      <a href="/catering" class="ek-btn ek-btn-line">Book Catering</a>
     </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:18px;">3 Orlando locations · Hunters Creek · Lake Nona · Downtown</p>
   </div>
 </div>
 
-${ekFooter()}`;
+${ekFooter()}
+<script>(function(){
+  // Food photo slideshow
+  var track=document.getElementById('ekFtrack');
+  if(!track)return;
+  var items=track.querySelectorAll('.ek-fslide-item');
+  var perView=window.innerWidth>1100?3:window.innerWidth>480?2:1;
+  var idx=0,total=items.length,isDown=false,startX=0,scrollLeft=0;
+  function slides(){return Math.max(0,total-perView);}
+  function go(n){idx=Math.max(0,Math.min(n,slides()));track.style.transform='translateX(-'+idx*(100/perView)+'%)';}
+  var btn1=document.getElementById('ekFprev'),btn2=document.getElementById('ekFnext');
+  if(btn1)btn1.addEventListener('click',function(){go(idx-1);});
+  if(btn2)btn2.addEventListener('click',function(){go(idx+1);});
+  // Auto-advance
+  var timer=setInterval(function(){go(idx>=slides()?0:idx+1);},3200);
+  track.parentElement.addEventListener('mouseenter',function(){clearInterval(timer);});
+  track.parentElement.addEventListener('mouseleave',function(){timer=setInterval(function(){go(idx>=slides()?0:idx+1);},3200);});
+  // Touch/drag
+  track.addEventListener('mousedown',function(e){isDown=true;startX=e.pageX-track.offsetLeft;scrollLeft=idx;track.style.cursor='grabbing';});
+  track.addEventListener('mouseleave',function(){isDown=false;track.style.cursor='';});
+  track.addEventListener('mouseup',function(){isDown=false;track.style.cursor='';});
+  track.addEventListener('mousemove',function(e){if(!isDown)return;e.preventDefault();var x=e.pageX-track.offsetLeft,diff=startX-x;if(Math.abs(diff)>40)go(diff>0?scrollLeft+1:scrollLeft-1);});
+  window.addEventListener('resize',function(){perView=window.innerWidth>1100?3:window.innerWidth>480?2:1;go(0);});
+})();</script>`;
+
   return ekWrap(
-    'The Escobar Kitchen | Latin Asian Fusion Restaurant Orlando FL | 3 Locations',
-    "Orlando's boldest Latin-Asian fusion restaurant. Order online for pickup or delivery. 3 locations in Orlando: Hunters Creek, Lake Nona & Downtown. 4.6 stars.",
-    'latin asian fusion orlando,escobar kitchen,latin restaurant orlando fl,latin asian food orlando,order latin food online orlando,latin asian fusion restaurant near me',
+    `The Escobar Kitchen | Order Direct & Save | Latin Asian Fusion Orlando FL`,
+    `Order direct from The Escobar Kitchen — no app fees, no markup. Orlando's boldest Latin-Asian fusion. 3 locations: Hunters Creek, Lake Nona & Downtown. 4.6 stars, 600+ reviews.`,
+    metaKws,
     schema, body
   );
 }
@@ -10510,56 +10656,61 @@ ${ekFooter()}`;
   return ekWrap('Contact — The Escobar Kitchen | Orlando FL | 3 Locations', "Contact The Escobar Kitchen. 3 Orlando locations — Hunters Creek, Lake Nona & Downtown. Book catering, get directions, or place an online order.", 'contact escobar kitchen,escobar kitchen phone,escobar kitchen address,escobar kitchen catering contact,escobar kitchen orlando', schema, body);
 }
 
-// GET /sofia/escobar-kitchen — download hub
-app.get('/sofia/escobar-kitchen', (req, res) => {
+// GET /sofia/escobar-kitchen — download hub (async — pulls DataForSEO keywords for homepage)
+app.get('/sofia/escobar-kitchen', async (req, res) => {
   try {
+    // Pull real keyword data for "latin asian fusion" in Orlando before building homepage
+    let kwData = [];
+    try { kwData = await getKeywordData('latin asian fusion', 'orlando', 2840); } catch(e) { /* non-fatal */ }
+    const topKws = kwData.slice(0,5).map(k=>`${k.keyword} (${(k.search_volume||k.volume||0).toLocaleString()}/mo)`).join(' · ') || 'DataForSEO unavailable';
+
     const cacheId = crypto.randomBytes(8).toString('hex');
     const pages = {
-      home:           ekBuildHome(),
-      about:          ekBuildAbout(),
-      locations:      ekBuildLocations(),
-      'hunters-creek':ekBuildHuntersCreek(),
-      'lake-nona':    ekBuildLakeNona(),
+      home:               ekBuildHome(kwData),
+      about:              ekBuildAbout(),
+      locations:          ekBuildLocations(),
+      'hunters-creek':    ekBuildHuntersCreek(),
+      'lake-nona':        ekBuildLakeNona(),
       'downtown-orlando': ekBuildDowntown(),
-      catering:       ekBuildCatering(),
-      menu:           ekBuildMenu(),
-      contact:        ekBuildContact(),
+      catering:           ekBuildCatering(),
+      menu:               ekBuildMenu(),
+      contact:            ekBuildContact(),
     };
     websitePackageCache.set(cacheId, { pages, clientName: 'The Escobar Kitchen', expires: Date.now() + 600000 });
     const pageList = [
-      { key:'home',             label:'Home Page',             file:'index.html',            slug:'Homepage (root /)',          desc:'Hero video, menu grid, locations, reviews, CTA' },
+      { key:'home',             label:'Home Page',             file:'index.html',            slug:'Homepage (root /)',          desc:'Photo slideshow hero · Order Direct & Save · Menu · Reviews · Locations' },
       { key:'about',            label:'About',                 file:'about.html',             slug:'/about',                     desc:'Story, values, stats, photo collage' },
       { key:'locations',        label:'Locations',             file:'locations.html',         slug:'/locations',                 desc:'All 3 locations — maps, hours, order buttons' },
-      { key:'hunters-creek',    label:'Hunters Creek',         file:'hunters-creek.html',     slug:'/hunters-creek',             desc:'Dedicated location page — SEO + map + menu preview' },
-      { key:'lake-nona',        label:'Lake Nona',             file:'lake-nona.html',         slug:'/lake-nona',                 desc:'Dedicated location page — SEO + map + menu preview' },
-      { key:'downtown-orlando', label:'Downtown Orlando',      file:'downtown-orlando.html',  slug:'/downtown-orlando',          desc:'Dedicated location page — Wine bar, cocktails' },
-      { key:'catering',         label:'Catering',              file:'catering.html',          slug:'/catering',                  desc:'Packages, event types, how it works, quote CTA' },
-      { key:'menu',             label:'Menu',                  file:'menu.html',              slug:'/menu',                      desc:'Full menu by category — inline order buttons' },
-      { key:'contact',          label:'Contact',               file:'contact.html',           slug:'/contact',                   desc:'All 3 location contacts, Toast rewards links, FAQ' },
+      { key:'hunters-creek',    label:'Hunters Creek',         file:'hunters-creek.html',     slug:'/hunters-creek',             desc:'SEO location page — map, hours, menu preview, reviews' },
+      { key:'lake-nona',        label:'Lake Nona',             file:'lake-nona.html',         slug:'/lake-nona',                 desc:'SEO location page — Inside The Bravo Market' },
+      { key:'downtown-orlando', label:'Downtown Orlando',      file:'downtown-orlando.html',  slug:'/downtown-orlando',          desc:'SEO location page — Wine Bar, Craft Cocktails' },
+      { key:'catering',         label:'Catering',              file:'catering.html',          slug:'/catering',                  desc:'3 packages, event types, how it works, quote CTA' },
+      { key:'menu',             label:'Menu',                  file:'menu.html',              slug:'/menu',                      desc:'12 items across 3 categories — inline order buttons' },
+      { key:'contact',          label:'Contact',               file:'contact.html',           slug:'/contact',                   desc:'3 location contacts, Toast rewards, gift cards, FAQ' },
     ];
     const hub = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Escobar Kitchen — Website Hub</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,sans-serif;background:#0a0804;color:#fff;padding:40px 20px}
-.wrap{max-width:700px;margin:0 auto;}
-.logo{height:40px;margin-bottom:20px}
-.badge{display:inline-block;background:#c0392b;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:16px}
-h1{font-size:26px;font-weight:800;margin-bottom:6px}
-.sub{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:10px}
-.count{font-size:13px;color:#c8973a;font-weight:700;margin-bottom:28px;}
-.section-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#c8973a;margin:24px 0 10px;}
-.dl-btn{display:flex;align-items:center;justify-content:space-between;background:#1a1610;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 22px;text-decoration:none;color:#fff;margin-bottom:8px;transition:all .15s;gap:12px;}
-.dl-btn:hover{border-color:#c8973a;background:rgba(200,151,58,0.06)}
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,sans-serif;background:#080608;color:#fff;padding:40px 20px}
+.wrap{max-width:720px;margin:0 auto;}
+.logo{height:38px;margin-bottom:18px}
+.badge{display:inline-block;background:#e00103;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:14px}
+h1{font-size:26px;font-weight:800;margin-bottom:5px}
+.sub{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:8px}
+.kws{background:rgba(224,1,3,0.08);border:1px solid rgba(224,1,3,0.25);border-radius:8px;padding:12px 16px;margin-bottom:24px;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.9}
+.section-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#e00103;margin:22px 0 10px;}
+.dl-btn{display:flex;align-items:center;justify-content:space-between;background:#14101a;border:1px solid rgba(255,255,255,0.09);border-radius:10px;padding:15px 20px;text-decoration:none;color:#fff;margin-bottom:7px;transition:all .15s;gap:12px;}
+.dl-btn:hover{border-color:#e00103;background:rgba(224,1,3,0.06)}
 .dl-left{flex:1;min-width:0;}
-.dl-name{font-weight:700;font-size:15px;margin-bottom:2px;}
-.dl-slug{font-size:11px;color:#c8973a;font-weight:600;margin-bottom:2px;}
-.dl-desc{font-size:11px;color:rgba(255,255,255,0.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.dl-tag{background:#c8973a;color:#000;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:700;flex-shrink:0;}
-.how{background:rgba(255,255,255,0.04);border-radius:10px;padding:16px 20px;margin-top:24px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8}
+.dl-name{font-weight:700;font-size:14px;margin-bottom:2px;}
+.dl-slug{font-size:11px;color:#e00103;font-weight:600;margin-bottom:2px;}
+.dl-desc{font-size:11px;color:rgba(255,255,255,0.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dl-tag{background:#e00103;color:#fff;border-radius:6px;padding:5px 14px;font-size:11px;font-weight:700;flex-shrink:0;}
+.how{background:rgba(255,255,255,0.04);border-radius:10px;padding:14px 18px;margin-top:22px;font-size:12px;color:rgba(255,255,255,0.45);line-height:1.8}
 </style></head><body><div class="wrap">
 <img src="${EK.logo}" class="logo" alt="Escobar Kitchen">
-<div class="badge">9 Pages · Ready to Deploy</div>
+<div class="badge">v2 · 9 Pages · DataForSEO Keywords Applied</div>
 <h1>The Escobar Kitchen</h1>
-<p class="sub">Owner.com-style · Food-first · Full SEO · Latin-Asian Fusion Orlando</p>
-<p class="count">9 pages built · Hunters Creek · Lake Nona · Downtown Orlando · All Toast links included</p>
+<p class="sub">Order Direct & Save · Photo Slideshow · #e00103 Red · Food-First · Full SEO</p>
+<div class="kws"><strong style="color:#e00103;display:block;margin-bottom:6px;">DataForSEO — Top Keywords Wired Into Homepage</strong>${topKws}</div>
 <div class="section-label">All 9 Pages</div>
 ${pageList.map(p=>`<a href="/sofia/website-download?id=${cacheId}&page=${p.key}&filename=${p.file}" class="dl-btn">
   <div class="dl-left">
@@ -10574,7 +10725,7 @@ ${pageList.map(p=>`<a href="/sofia/website-download?id=${cacheId}&page=${p.key}&
 2. GHL → Sites → Websites → The Escobar Kitchen → select page<br>
 3. Open page → Custom Code tab → paste full HTML → Save &amp; Publish<br>
 4. Set the page slug to match the GHL slug shown above<br><br>
-<em style="color:rgba(255,255,255,0.3);font-size:11px;">Download links expire in 10 minutes. Refresh this page to regenerate.</em>
+<em style="color:rgba(255,255,255,0.25);font-size:11px;">Links expire in 10 minutes. Refresh to regenerate.</em>
 </div>
 </div></body></html>`;
     res.setHeader('Content-Type','text/html');
