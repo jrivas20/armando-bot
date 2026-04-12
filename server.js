@@ -7161,7 +7161,7 @@ function getLayoutVariant(clientName) {
 }
 
 function buildHomePage(client, c, layout) {
-  const { name, phone, city, industry, formId, galleryImages } = client;
+  const { name, phone, city, industry, formId, galleryImages, videoUrl } = client;
   const variant = getLayoutVariant(name);
   const serviceCards = c.services.slice(0, 3).map(s => `
     <div class="card">
@@ -7365,7 +7365,7 @@ ${galleryImages && galleryImages.length ? `
           </div>
           <p style="color:var(--text-muted);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;">Watch Our Work</p>
         </div>
-        <iframe src="https://www.youtube.com/embed/?listType=search&list=${encodeURIComponent(industry + ' ' + city + ' FL contractor')}&autoplay=0" style="display:none;position:absolute;inset:0;width:100%;height:100%;border:0;" allowfullscreen title="${industry} in ${city}"></iframe>
+        <iframe src="${videoUrl ? videoUrl.replace('watch?v=','embed/').replace('youtu.be/','www.youtube.com/embed/') + '?autoplay=1' : 'https://www.youtube.com/embed/?listType=search&list=' + encodeURIComponent(industry + ' ' + city + ' FL contractor') + '&autoplay=0'}" style="display:none;position:absolute;inset:0;width:100%;height:100%;border:0;" allowfullscreen title="${industry} in ${city}"></iframe>
       </div>
     </div>
   </div>
@@ -7663,21 +7663,39 @@ function filterFaqs(q) {
 }
 
 // Main orchestrator — generates all 5 pages
-async function buildWebsite(clientName, phone, email, city, industry, logoUrl = '', formId = GHL_FORM_ID, siteBase = '.') {
+async function buildWebsite(clientName, phone, email, city, industry, logoUrl = '', formId = GHL_FORM_ID, siteBase = '.', assets = {}) {
   city = city || 'Orlando';
   formId = formId || GHL_FORM_ID;
   console.log(`[Sofia] Building 5-page website for ${clientName} (${industry}, ${city})...`);
 
-  // Run all async work in parallel: content, AI design system, gallery images
-  const [content, tokens, galleryImages] = await Promise.all([
+  // assets: { photos: string[], placeId: string, video: string }
+  const { photos = [], placeId = '', video = '' } = assets;
+
+  // Run all async work in parallel: content, AI design tokens, gallery, reviews
+  const [content, tokens, galleryImages, reviews] = await Promise.all([
     generateWebsiteContent(clientName, industry, city),
     generateStitchDesignSystem(clientName, industry, city).catch(() => null),
-    fetchPexelsGallery(industry, city, 6).catch(() => []),
+    photos.length
+      ? Promise.resolve(photos.map((url, i) => ({ url, alt: `${clientName} ${industry} ${i + 1}` })))
+      : fetchPexelsGallery(industry, city, 6).catch(() => []),
+    placeId ? fetchGoogleReviews(placeId).catch(() => []) : Promise.resolve([]),
   ]);
 
   if (tokens) console.log(`[Sofia] Design: "${tokens.designName}" — ${tokens.primary}, ${tokens.headlineFont}/${tokens.bodyFont}`);
+  if (reviews.length) console.log(`[Sofia] Loaded ${reviews.length} real Google reviews`);
+  if (photos.length) console.log(`[Sofia] Using ${photos.length} client photos`);
 
-  const client = { name: clientName, phone, email, city, industry, logoUrl, formId, siteBase, galleryImages };
+  // If we have real Google reviews, replace AI testimonials
+  if (reviews.length >= 2) {
+    content.testimonials = reviews.map(r => ({
+      name: r.name,
+      business: city,
+      rating: r.rating,
+      text: r.text,
+    }));
+  }
+
+  const client = { name: clientName, phone, email, city, industry, logoUrl, formId, siteBase, galleryImages, videoUrl: video };
   const layout = buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase, tokens);
   return {
     home:     buildHomePage(client, content, layout),
@@ -7687,6 +7705,9 @@ async function buildWebsite(clientName, phone, email, city, industry, logoUrl = 
     faq:      buildFAQPage(client, content, layout),
     content,
     tokens,
+    hasRealPhotos: photos.length > 0,
+    hasRealReviews: reviews.length >= 2,
+    hasVideo: !!video,
   };
 }
 
@@ -8263,21 +8284,27 @@ app.get('/sofia/preview-website', async (req, res) => {
 });
 
 // GET /sofia/website-package?name=...&industry=...&city=...&phone=...&email=...&formId=...
-// Builds a full 5-page website and returns a download hub. Each page downloads as a standalone HTML file.
-// Use this when you can't push pages via API — download the HTML and paste into GHL Website builder manually.
+//   &logo=URL          — client logo URL (optional)
+//   &photos=URL,URL    — comma-separated client photo URLs (optional, replaces Pexels)
+//   &placeId=ChIJ...   — Google Place ID for real reviews (optional)
+//   &video=youtu.be/.. — YouTube video URL for client video section (optional)
 app.get('/sofia/website-package', async (req, res) => {
   try {
     const {
       name = 'Test Company', industry = 'roofing', city = 'Orlando',
       phone = '', email = '', formId,
+      logo = '', photos = '', placeId = '', video = '',
     } = req.query;
+
+    const photoList = photos ? photos.split(',').map(u => u.trim()).filter(Boolean) : [];
+    const assets = { photos: photoList, placeId, video };
 
     // Purge expired cache entries
     for (const [k, v] of websitePackageCache) {
       if (v.expires < Date.now()) websitePackageCache.delete(k);
     }
 
-    const pages = await buildWebsite(name, phone, email, city, industry, '', formId || GHL_FORM_ID, '');
+    const pages = await buildWebsite(name, phone, email, city, industry, logo, formId || GHL_FORM_ID, '', assets);
     const cacheId = crypto.randomBytes(8).toString('hex');
     websitePackageCache.set(cacheId, { pages, clientName: name, expires: Date.now() + 600000 }); // 10 min TTL
 
@@ -8293,6 +8320,13 @@ app.get('/sofia/website-package', async (req, res) => {
     const tokenInfo = pages.tokens
       ? `<p style="font-size:13px;color:#6b7280;margin-top:8px;">🎨 Design: <strong style="color:#1a1a1a;">${pages.tokens.designName}</strong> — ${pages.tokens.headlineFont}/${pages.tokens.bodyFont} <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${pages.tokens.primary};margin-left:4px;vertical-align:middle;"></span> ${pages.tokens.primary}</p>`
       : '<p style="font-size:13px;color:#6b7280;margin-top:8px;">ℹ️ Default design (generation failed)</p>';
+
+    const assetBadges = [
+      logo         ? `<span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;margin-right:6px;">✓ Logo</span>` : `<span style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;margin-right:6px;">⚠ No Logo</span>`,
+      pages.hasRealPhotos   ? `<span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;margin-right:6px;">✓ Client Photos</span>` : `<span style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;margin-right:6px;">⚠ Stock Photos</span>`,
+      pages.hasRealReviews  ? `<span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;margin-right:6px;">✓ Real Reviews</span>` : `<span style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;margin-right:6px;">⚠ AI Reviews</span>`,
+      pages.hasVideo        ? `<span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;margin-right:6px;">✓ Video</span>` : `<span style="background:#f1f5f9;color:#64748b;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;margin-right:6px;">– No Video</span>`,
+    ].join('');
 
     const buttons = fileMap.map(f => `
       <a href="/sofia/website-download?id=${cacheId}&page=${f.page}&filename=${f.filename}"
@@ -8328,6 +8362,7 @@ app.get('/sofia/website-package', async (req, res) => {
   <h1>${name}</h1>
   <p class="sub">${industry} · ${city} · 5 pages</p>
   ${tokenInfo}
+  <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:4px;">${assetBadges}</div>
   <div style="margin-top:24px;">${buttons}</div>
   <div class="how">
     <strong>How to upload to GHL Websites:</strong><br>
