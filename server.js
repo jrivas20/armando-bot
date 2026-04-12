@@ -6861,6 +6861,17 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
     .page-hero h1{color:#fff;font-size:clamp(32px,5vw,52px);margin-bottom:16px}
     .page-hero p{color:rgba(255,255,255,0.55);font-size:17px;max-width:560px;margin:0 auto}
     .stars{color:#f59e0b;font-size:14px;letter-spacing:2px}
+    /* ── Animations ── */
+    @keyframes heroGlow{0%,100%{opacity:.06}50%{opacity:.12}}
+    @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+    .fade-in{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+    .card.fade-in{transition-delay:calc(var(--i,0) * 80ms)}
+    .btn-primary{position:relative;overflow:hidden}
+    .btn-primary::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);transform:skewX(-20deg);animation:shimmer 3.2s infinite 1.5s}
+    .hero-glow{position:absolute;inset:0;background:radial-gradient(circle at 65% 45%,var(--orange),transparent 55%);animation:heroGlow 5s ease-in-out infinite;pointer-events:none}
+    header{transition:background .3s,box-shadow .3s,backdrop-filter .3s}
     @media(max-width:768px){
       .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
       .section{padding:56px 0}
@@ -6928,17 +6939,67 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
 
   const scripts = `
 <script>
-  // Close nav on link click (mobile)
+  // ── Nav: close on mobile link click + active highlight ──
   document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => {
     document.getElementById('navMenu').classList.remove('open');
   }));
-  // Highlight active nav link
   const path = window.location.pathname;
   document.querySelectorAll('.nav-link').forEach(l => {
     if (l.getAttribute('href') === path || (path.endsWith(l.getAttribute('href').split('/').pop()) && l.getAttribute('href') !== '/')) {
-      l.style.color = '#fff'; l.style.background = 'rgba(249,115,22,0.15)'; l.style.color = 'var(--orange)';
+      l.style.color = 'var(--orange)'; l.style.background = 'rgba(249,115,22,0.1)';
     }
   });
+
+  // ── Nav: shrink on scroll ──
+  const header = document.querySelector('header');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 60) {
+      header.style.boxShadow = '0 4px 32px rgba(0,0,0,0.25)';
+      header.style.background = 'rgba(10,10,10,0.97)';
+      header.style.backdropFilter = 'blur(12px)';
+    } else {
+      header.style.boxShadow = 'none';
+      header.style.background = 'var(--black)';
+      header.style.backdropFilter = 'none';
+    }
+  }, { passive: true });
+
+  // ── Scroll fade-in (Intersection Observer) ──
+  const fadeEls = document.querySelectorAll('.section, .card, .page-hero, section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  fadeEls.forEach(el => { el.classList.add('fade-in'); observer.observe(el); });
+
+  // ── Stat counter animation ──
+  function animateCount(el) {
+    const target = parseFloat(el.dataset.target);
+    const suffix = el.dataset.suffix || '';
+    const prefix = el.dataset.prefix || '';
+    if (isNaN(target)) return;
+    const duration = 1800;
+    const start = performance.now();
+    const isDecimal = target % 1 !== 0;
+    function step(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      const val = isDecimal ? (target * ease).toFixed(1) : Math.round(target * ease);
+      el.textContent = prefix + val + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  const statObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('[data-target]').forEach(animateCount);
+        statObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.4 });
+  document.querySelectorAll('.stat-block').forEach(el => statObserver.observe(el));
 </script>`;
 
   return { styles, nav, footer, scripts };
@@ -6995,11 +7056,14 @@ function buildHomePage(client, c, layout) {
       <ul style="list-style:none;padding:0;">${s.features.map(f => `<li style="font-size:14px;color:var(--gray);padding:4px 0;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--orange);font-weight:700;">✓</span>${f}</li>`).join('')}</ul>
     </div>`).join('');
 
-  const statItems = c.stats.map(s => `
-    <div style="text-align:center;">
-      <div style="font-size:36px;font-weight:900;font-family:Montserrat,sans-serif;color:var(--orange);">${s.number}</div>
+  const statItems = c.stats.map(s => {
+    const num = parseFloat(s.number.replace(/[^0-9.]/g,''));
+    const suffix = s.number.replace(/[0-9.]/g,'');
+    return `<div style="text-align:center;">
+      <div style="font-size:36px;font-weight:900;color:var(--orange);" data-target="${num}" data-suffix="${suffix}">${s.number}</div>
       <div style="font-size:13px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">${s.label}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   const testimonialCards = c.testimonials.map(t => `
     <div class="card">
@@ -7035,8 +7099,8 @@ function buildHomePage(client, c, layout) {
         </div>
       </div>
       <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:40px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
-          ${c.stats.map(s => `<div style="text-align:center;padding:20px;background:rgba(255,255,255,0.04);border-radius:12px;"><div style="font-size:28px;font-weight:900;color:var(--orange);">${s.number}</div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">${s.label}</div></div>`).join('')}
+        <div class="stat-block" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+          ${c.stats.map(s => { const n=parseFloat(s.number.replace(/[^0-9.]/g,'')); const sx=s.number.replace(/[0-9.]/g,''); return `<div style="text-align:center;padding:20px;background:rgba(255,255,255,0.04);border-radius:12px;"><div style="font-size:28px;font-weight:900;color:var(--orange);" data-target="${n}" data-suffix="${sx}">${s.number}</div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">${s.label}</div></div>`; }).join('')}
         </div>
         <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="width:100%;justify-content:center;padding:16px;">Book Free Consultation →</a>
       </div>
@@ -7055,14 +7119,14 @@ function buildHomePage(client, c, layout) {
       <a href="${(client.siteBase||'')}/contact-us" class="btn" style="background:#fff;color:var(--orange);font-size:17px;padding:18px 44px;font-weight:700;">Get a Free Quote →</a>
       ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:17px;padding:18px 36px;">📞 ${phone}</a>` : ''}
     </div>
-    <div style="display:flex;justify-content:center;gap:40px;margin-top:56px;flex-wrap:wrap;">
-      ${c.stats.map(s => `<div style="text-align:center;"><div style="font-size:32px;font-weight:900;color:#fff;">${s.number}</div><div style="font-size:12px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">${s.label}</div></div>`).join('')}
+    <div class="stat-block" style="display:flex;justify-content:center;gap:40px;margin-top:56px;flex-wrap:wrap;">
+      ${c.stats.map(s => { const n=parseFloat(s.number.replace(/[^0-9.]/g,'')); const sx=s.number.replace(/[0-9.]/g,''); return `<div style="text-align:center;"><div style="font-size:32px;font-weight:900;color:#fff;" data-target="${n}" data-suffix="${sx}">${s.number}</div><div style="font-size:12px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">${s.label}</div></div>`; }).join('')}
     </div>
   </div>
 </section>`
-    // Variant 0 (default) — Dark full-bleed with radial glow
+    // Variant 0 (default) — Dark full-bleed with animated radial glow
     : `<section style="background:var(--black);padding:100px 0 80px;overflow:hidden;position:relative;">
-  <div style="position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(249,115,22,0.06) 0%,transparent 60%);pointer-events:none;"></div>
+  <div class="hero-glow"></div>
   <div class="container" style="position:relative;">
     <div style="max-width:720px;">
       <div class="badge" style="margin-bottom:20px;">${city} ${industry}</div>
@@ -7080,7 +7144,7 @@ function buildHomePage(client, c, layout) {
 
 ${variant === 0 ? `<section style="background:var(--dark);padding:40px 0;">
   <div class="container">
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">${statItems}</div>
+    <div class="stat-block" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">${statItems}</div>
   </div>
 </section>` : ''}
 
