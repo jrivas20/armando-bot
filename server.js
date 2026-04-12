@@ -6970,6 +6970,47 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
     .trust-badge{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:12px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase}
     .trust-badge span{font-size:14px;color:var(--gold)}
 
+    /* ── Marquee trust strip ── */
+    .marquee-outer{overflow:hidden;width:100%;background:var(--surface);border-bottom:1px solid var(--border)}
+    .marquee-inner{display:flex;width:max-content;animation:marqueeScroll 36s linear infinite}
+    .marquee-inner:hover{animation-play-state:paused}
+    .marquee-item{display:flex;align-items:center;gap:10px;padding:14px 40px;white-space:nowrap;color:var(--text-muted);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-right:1px solid var(--border)}
+    .marquee-item .mi-icon{font-size:15px;color:var(--gold)}
+    .marquee-item strong{color:var(--cream)}
+
+    /* ── Split hero headline ── */
+    .hero-split-text .word{display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.1;margin-right:0.25em}
+    .hero-split-text .word span{display:inline-block;animation:slideUpWord .75s cubic-bezier(.16,1,.3,1) both}
+
+    /* ── Stagger card reveals ── */
+    .grid-3 .card:nth-child(1){--i:0}.grid-3 .card:nth-child(2){--i:1}.grid-3 .card:nth-child(3){--i:2}
+    .grid-4 .card:nth-child(1){--i:0}.grid-4 .card:nth-child(2){--i:1}.grid-4 .card:nth-child(3){--i:2}.grid-4 .card:nth-child(4){--i:3}
+    .card.fade-in{transition-delay:calc(var(--i,0) * 110ms)}
+
+    /* ── Gold left-border reveal on card hover ── */
+    .card{position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;left:0;top:10%;height:80%;width:2px;background:var(--gold);transform:scaleY(0);transform-origin:bottom;transition:transform .35s cubic-bezier(.16,1,.3,1)}
+    .card:hover::before{transform:scaleY(1)}
+
+    /* ── Magnetic CTA ── */
+    .btn-primary{isolation:isolate;transition:transform .15s ease,box-shadow .15s ease,background .25s,color .25s}
+    .btn-primary.is-magnetic{will-change:transform}
+
+    /* ── Pulse ring on primary CTA ── */
+    .btn-primary.pulse-ring{animation:pulseRing 2.4s ease infinite}
+
+    /* ── Page entrance fade ── */
+    body{animation:pageFade .5s ease both}
+
+    /* ── Parallax hero ── */
+    .parallax-bg{will-change:transform;transition:transform .1s linear}
+
+    /* ── Additional keyframes ── */
+    @keyframes slideUpWord{from{opacity:0;transform:translateY(110%)}to{opacity:1;transform:translateY(0)}}
+    @keyframes marqueeScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    @keyframes pageFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(196,164,107,0.5)}70%{box-shadow:0 0 0 16px rgba(196,164,107,0)}100%{box-shadow:0 0 0 0 rgba(196,164,107,0)}}
+
     @media(max-width:768px){
       .mobile-cta-bar{display:flex}
       .float-cta{display:none}
@@ -7115,6 +7156,38 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
     });
   }, { threshold: 0.4 });
   document.querySelectorAll('.stat-block').forEach(el => statObserver.observe(el));
+
+  // ── Parallax hero ──
+  const parallaxEl = document.querySelector('.parallax-bg');
+  if (parallaxEl) {
+    window.addEventListener('scroll', () => {
+      parallaxEl.style.transform = 'translateY(' + (window.scrollY * 0.28) + 'px)';
+    }, { passive: true });
+  }
+
+  // ── Magnetic CTA buttons ──
+  document.querySelectorAll('.btn-primary').forEach(btn => {
+    btn.classList.add('is-magnetic');
+    btn.addEventListener('mousemove', e => {
+      const r = btn.getBoundingClientRect();
+      const dx = (e.clientX - r.left - r.width / 2) * 0.28;
+      const dy = (e.clientY - r.top - r.height / 2) * 0.28;
+      btn.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+    });
+    btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+  });
+
+  // ── Pulse ring on first visible CTA ──
+  const firstCta = document.querySelector('.btn-primary');
+  if (firstCta) setTimeout(() => firstCta.classList.add('pulse-ring'), 2200);
+
+  // ── Split hero text ──
+  document.querySelectorAll('.hero-split-text').forEach(el => {
+    const words = el.innerText.split(' ');
+    el.innerHTML = words.map((w, i) =>
+      '<span class="word"><span style="animation-delay:' + (i * 0.08) + 's">' + w + '</span></span>'
+    ).join(' ');
+  });
 </script>`;
 
   return { styles, nav, footer, scripts };
@@ -7142,6 +7215,9 @@ function wrapPage(title, metaDesc, industry, city, bodyHtml, layout, client = {}
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${metaDesc}">
 <title>${title}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://fonts.googleapis.com">
 ${schema}
 <style>${layout.styles}</style>
 </head>
@@ -7208,7 +7284,7 @@ function buildHomePage(client, c, layout) {
       <div>
         <div class="badge" style="margin-bottom:24px;">${city} ${industry}</div>
         <div class="divider-gold"></div>
-        <h1 style="font-size:clamp(32px,5vw,56px);color:var(--cream);line-height:1.08;margin-bottom:20px;">${c.heroHeadline}</h1>
+        <h1 class="hero-split-text" style="font-size:clamp(32px,5vw,56px);color:var(--cream);line-height:1.08;margin-bottom:20px;">${c.heroHeadline}</h1>
         <p style="font-size:17px;color:var(--text-muted);line-height:1.8;margin-bottom:36px;max-width:480px;">${c.heroSub}</p>
         <div style="display:flex;gap:14px;flex-wrap:wrap;">
           <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="font-size:14px;padding:15px 36px;">Get a Free Quote</a>
@@ -7233,7 +7309,7 @@ function buildHomePage(client, c, layout) {
     <div style="display:inline-block;width:40px;height:1px;background:var(--gold);margin-bottom:24px;vertical-align:middle;margin-right:12px;opacity:0.7;"></div>
     <span class="section-label" style="display:inline;vertical-align:middle;">${city} ${industry}</span>
     <div style="display:inline-block;width:40px;height:1px;background:var(--gold);margin-bottom:24px;vertical-align:middle;margin-left:12px;opacity:0.7;"></div>
-    <h1 style="font-size:clamp(40px,7vw,76px);color:var(--cream);line-height:1.04;margin-bottom:24px;max-width:860px;margin-left:auto;margin-right:auto;">${c.heroHeadline}</h1>
+    <h1 class="hero-split-text" style="font-size:clamp(40px,7vw,76px);color:var(--cream);line-height:1.04;margin-bottom:24px;max-width:860px;margin-left:auto;margin-right:auto;">${c.heroHeadline}</h1>
     <p style="font-size:19px;color:var(--text-muted);line-height:1.75;margin-bottom:44px;max-width:520px;margin-left:auto;margin-right:auto;">${c.heroSub}</p>
     <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
       <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="font-size:15px;padding:17px 44px;">Get a Free Quote</a>
@@ -7247,11 +7323,12 @@ function buildHomePage(client, c, layout) {
     // Variant 0 (default) — Dark editorial with gold glow
     : `<section style="background:var(--black);padding:112px 0 88px;overflow:hidden;position:relative;border-bottom:1px solid var(--border);">
   <div class="hero-glow"></div>
+  <div class="parallax-bg" style="position:absolute;inset:0;pointer-events:none;"></div>
   <div class="container" style="position:relative;">
     <div style="max-width:740px;">
       <div class="badge" style="margin-bottom:24px;">${city} ${industry}</div>
       <div class="divider-gold"></div>
-      <h1 style="font-size:clamp(36px,6vw,68px);color:var(--cream);line-height:1.06;margin-bottom:22px;letter-spacing:-0.02em;">${c.heroHeadline}</h1>
+      <h1 class="hero-split-text" style="font-size:clamp(36px,6vw,68px);color:var(--cream);line-height:1.06;margin-bottom:22px;letter-spacing:-0.02em;">${c.heroHeadline}</h1>
       <p style="font-size:18px;color:var(--text-muted);line-height:1.8;margin-bottom:40px;max-width:520px;">${c.heroSub}</p>
       <div style="display:flex;gap:14px;flex-wrap:wrap;">
         <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="font-size:14px;padding:15px 36px;">Get a Free Quote</a>
@@ -7263,16 +7340,21 @@ function buildHomePage(client, c, layout) {
 
   const body = `${heroHtml}
 
-<!-- Trust badges strip -->
-<div class="trust-strip">
-  <div class="container">
-    <div class="trust-strip-inner">
-      <div class="trust-badge"><span>⭐</span> Google 5-Star Rated</div>
-      <div class="trust-badge"><span>🛡️</span> Licensed & Insured</div>
-      <div class="trust-badge"><span>✅</span> Free Estimates</div>
-      <div class="trust-badge"><span>📍</span> Serving ${city} & Surrounding</div>
-      <div class="trust-badge"><span>⚡</span> Same-Day Response</div>
-    </div>
+<!-- Marquee trust strip -->
+<div class="marquee-outer">
+  <div class="marquee-inner">
+    <div class="marquee-item"><span class="mi-icon">★</span> <strong>Google 5-Star Rated</strong></div>
+    <div class="marquee-item"><span class="mi-icon">✦</span> <strong>Licensed & Insured</strong></div>
+    <div class="marquee-item"><span class="mi-icon">✓</span> <strong>Free Estimates</strong></div>
+    <div class="marquee-item"><span class="mi-icon">◈</span> Serving <strong>${city}</strong> & Surrounding</div>
+    <div class="marquee-item"><span class="mi-icon">⚡</span> <strong>Same-Day Response</strong></div>
+    <div class="marquee-item"><span class="mi-icon">✦</span> <strong>Trusted Local Experts</strong></div>
+    <div class="marquee-item"><span class="mi-icon">★</span> <strong>Google 5-Star Rated</strong></div>
+    <div class="marquee-item"><span class="mi-icon">✦</span> <strong>Licensed & Insured</strong></div>
+    <div class="marquee-item"><span class="mi-icon">✓</span> <strong>Free Estimates</strong></div>
+    <div class="marquee-item"><span class="mi-icon">◈</span> Serving <strong>${city}</strong> & Surrounding</div>
+    <div class="marquee-item"><span class="mi-icon">⚡</span> <strong>Same-Day Response</strong></div>
+    <div class="marquee-item"><span class="mi-icon">✦</span> <strong>Trusted Local Experts</strong></div>
   </div>
 </div>
 
@@ -8558,6 +8640,12 @@ img,video,iframe{display:block;max-width:100%}a{color:inherit;text-decoration:no
 @media(max-width:1200px){.lf-hero-in,.lf-bio-grid,.lf-contact-grid{grid-template-columns:1fr}.lf-hero-side{justify-self:start;width:min(100%,340px)}.lf-bio-photo img{min-height:380px}.lf-gallery-grid{grid-template-columns:repeat(3,1fr)}.lf-rev-track{grid-auto-columns:calc((100% - 10px)/2)}.lf-stats{grid-template-columns:repeat(2,1fr)}.lf-svc-grid{grid-template-columns:1fr 1fr}.lf-proc{grid-template-columns:1fr 1fr}}
 @media(max-width:900px){.lf-nav-links{display:none}.lf-mob{display:block}.lf-reel-row{grid-auto-columns:minmax(200px,70vw)}.lf-gallery-grid{grid-template-columns:repeat(2,1fr)}.lf-rev-track{grid-auto-columns:100%}.lf-bio-inline{grid-template-columns:1fr}.lf-svc-grid,.lf-proc{grid-template-columns:1fr}}
 @media(max-width:640px){.lf-c{width:min(var(--max),calc(100% - 20px))}.lf-s{padding:72px 0}.lf-hero-copy h1{font-size:clamp(52px,16vw,86px)}.lf-gallery-grid{grid-template-columns:1fr}.lf-stats{grid-template-columns:1fr 1fr}.lf-hero-actions{width:100%}.lf-btn{width:100%}}
+/* ── Premium agency animations ── */
+@keyframes lfPulse{0%{box-shadow:0 0 0 0 rgba(207,169,71,0.5)}70%{box-shadow:0 0 0 16px rgba(207,169,71,0)}100%{box-shadow:0 0 0 0 rgba(207,169,71,0)}}
+@keyframes lfPageFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+body{animation:lfPageFade .45s ease both}
+.lf-btn-gold{isolation:isolate;transition:transform .15s ease,box-shadow .15s ease,background .25s,color .25s}
+.lf-page-hero-bg{will-change:transform;transition:transform .1s linear}
 </style>`;
 }
 
@@ -8595,6 +8683,17 @@ if(pv&&tr)pv.addEventListener('click',function(){tr.scrollBy({left:-sa(),behavio
 if(nx&&tr)nx.addEventListener('click',function(){tr.scrollBy({left:sa(),behavior:'smooth'});});
 var ai=null;function startA(){if(!tr)return;clearInterval(ai);ai=setInterval(function(){tr.scrollBy({left:sa(),behavior:'smooth'});},4200);}
 if(tr){startA();tr.addEventListener('mouseenter',function(){clearInterval(ai);});tr.addEventListener('mouseleave',startA);}
+// ── Parallax hero ──
+var ph=document.querySelector('.lf-page-hero-bg');
+if(ph)window.addEventListener('scroll',function(){ph.style.transform='translateY('+(window.scrollY*0.22)+'px)';},{passive:true});
+// ── Magnetic CTAs ──
+document.querySelectorAll('.lf-btn-gold').forEach(function(b){
+  b.addEventListener('mousemove',function(e){var r=b.getBoundingClientRect();b.style.transform='translate('+(e.clientX-r.left-r.width/2)*0.25+'px,'+(e.clientY-r.top-r.height/2)*0.25+'px)';});
+  b.addEventListener('mouseleave',function(){b.style.transform='';});
+});
+// ── Pulse ring on hero CTA ──
+var fc=document.querySelector('.lf-hero-cta .lf-btn-gold');
+if(fc)setTimeout(function(){fc.style.animation='lfPulse 2.4s ease infinite';},2000);
 })();</script>`;
 }
 
@@ -8608,6 +8707,9 @@ function lfWrap(title, metaDesc, keywords, schema, body) {
 <meta property="og:title" content="${title}"><meta property="og:description" content="${metaDesc}">
 <meta property="og:image" content="${LF.heroBg}"><meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://assets.cdn.filesafe.space">
 ${lfCSS()}
 <script type="application/ld+json">${JSON.stringify(schema)}</script>
 </head><body>${body}${lfScript()}</body></html>`;
