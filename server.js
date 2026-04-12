@@ -3855,6 +3855,7 @@ app.get('/', (_req, res) => {
     office: 'https://armando-bot-1.onrender.com/office',
     health: 'https://armando-bot-1.onrender.com/health',
     status: 'https://armando-bot-1.onrender.com/status',
+    buildHash: '2c82e84',
   });
 });
 
