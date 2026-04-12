@@ -6183,61 +6183,44 @@ async function callStitchAPI(method, params) {
   return result;
 }
 
+// generateStitchDesignSystem — uses Claude Haiku to generate an industry-specific design system.
+// Stitch's generate_screen_from_text API hangs indefinitely (confirmed: 17min timeout, 0 bytes).
+// Claude is faster (<1s), more reliable, and understands industry color psychology better.
 async function generateStitchDesignSystem(clientName, industry, city = 'Orlando') {
-  if (!STITCH_API_KEY) return null;
   try {
-    // Step 1: Create a Stitch project for this client
-    const projResult = await callStitchAPI('tools/call', {
-      name: 'create_project',
-      arguments: { title: `${clientName} — ${new Date().toISOString().split('T')[0]}` },
+    const res = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      messages: [{ role: 'user', content: `You are a professional brand designer. Generate a design system for a ${industry} business called "${clientName}" in ${city}. Return ONLY valid JSON (no trailing commas):
+{"primary":"#hex","primaryContainer":"#hex","background":"#hex","surface":"#ffffff","headlineFont":"font","bodyFont":"font","borderRadius":"Xpx","designName":"Name"}
+
+Rules:
+- primary: strong brand color that fits ${industry} psychology (NOT generic orange — e.g. medical=blue, landscaping=green, legal=navy, food=warm red, tech=purple, construction=dark orange, cleaning=teal)
+- primaryContainer: 15% darker shade of primary
+- background: very light tint of primary (#f8-#fc range)
+- headlineFont: one of: Montserrat, Playfair Display, Raleway, Oswald, Merriweather, Poppins, Lato, Roboto Slab
+- bodyFont: one of: Inter, Open Sans, Roboto, Source Sans 3, Lato, Nunito Sans
+- borderRadius: 6px (corporate/legal), 10px (general), 16px (friendly/consumer)
+- designName: 3-word creative name e.g. "Pacific Blue Modern"` }],
     });
-    const projectId = JSON.parse(projResult.content[0].text).name.replace('projects/', '');
-
-    // Step 2: Generate a screen — Stitch returns a design system as part of the output
-    const screenResult = await callStitchAPI('tools/call', {
-      name: 'generate_screen_from_text',
-      arguments: {
-        projectId,
-        prompt: `Professional landing page for ${clientName}, a ${industry} company in ${city}, FL. Hero with lead capture form, services grid, social proof, contact section.`,
-        deviceType: 'DESKTOP',
-        modelId: 'GEMINI_3_1_PRO',
-      },
-    });
-
-    const output    = JSON.parse(screenResult.content[0].text);
-    const dsComp    = (output.outputComponents || []).find(c => c.designSystem);
-    if (!dsComp) return null;
-
-    const ds     = dsComp.designSystem.designSystem;
-    const theme  = ds.theme || {};
-    const colors = theme.namedColors || {};
-
-    const headlineFontKey = theme.headlineFont || theme.font || 'INTER';
-    const bodyFontKey     = theme.bodyFont     || theme.font || 'INTER';
-    const headlineFont    = STITCH_FONT_MAP[headlineFontKey] || 'Inter';
-    const bodyFont        = STITCH_FONT_MAP[bodyFontKey]     || 'Inter';
-    const roundness       = { ROUND_ZERO: '0px', ROUND_FOUR: '4px', ROUND_EIGHT: '8px', ROUND_SIXTEEN: '16px', ROUND_FULL: '9999px' }[theme.roundness] || '6px';
-
-    console.log(`[Stitch] ✅ Design system "${ds.displayName}" generated for ${clientName} — primary: ${colors.primary}, fonts: ${headlineFont}/${bodyFont}`);
-
+    const raw = res.content[0].text.trim().match(/\{[\s\S]*?\}/)?.[0];
+    if (!raw) return null;
+    const t = JSON.parse(raw.replace(/,\s*([}\]])/g, '$1'));
+    console.log(`[Design] ✅ "${t.designName}" for ${clientName} — ${t.primary}, ${t.headlineFont}/${t.bodyFont}`);
     return {
-      designName:       ds.displayName,
-      primary:          colors.primary           || '#1a3a6b',
-      primaryContainer: colors.primary_container || '#2e476f',
-      secondary:        colors.secondary         || '#50606f',
-      background:       colors.background        || '#f8fafc',
-      surface:          colors.surface           || '#ffffff',
-      onPrimary:        colors.on_primary        || '#ffffff',
-      onSurface:        colors.on_surface        || '#1a1a1a',
-      outline:          colors.outline           || '#74777f',
-      error:            colors.error             || '#ba1a1a',
-      headlineFont,
-      bodyFont,
-      borderRadius:     roundness,
-      projectId,
+      designName:       t.designName,
+      primary:          t.primary          || '#1a3a6b',
+      primaryContainer: t.primaryContainer || '#2e476f',
+      background:       t.background       || '#f8fafc',
+      surface:          t.surface          || '#ffffff',
+      onPrimary:        '#ffffff',
+      onSurface:        '#1a1a1a',
+      headlineFont:     t.headlineFont     || 'Montserrat',
+      bodyFont:         t.bodyFont         || 'Inter',
+      borderRadius:     t.borderRadius     || '10px',
     };
   } catch (e) {
-    console.error('[Stitch] Design system failed (falling back to defaults):', e.message);
+    console.error('[Design] Design system failed:', e.message);
     return null;
   }
 }
