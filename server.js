@@ -6792,6 +6792,22 @@ async function generateWebsiteContent(clientName, industry, city) {
   }
 }
 
+// Fetch real Google Reviews for a business via Places API
+async function fetchGoogleReviews(placeId) {
+  if (!placeId) return [];
+  try {
+    const res = await axios.get('https://maps.googleapis.com/maps/api/place/details/json', {
+      params: { place_id: placeId, fields: 'reviews,rating,user_ratings_total', key: GOOGLE_PLACES_API_KEY },
+      timeout: 8000,
+    });
+    const reviews = res.data?.result?.reviews || [];
+    return reviews
+      .filter(r => r.rating >= 4)
+      .slice(0, 3)
+      .map(r => ({ name: r.author_name, text: r.text, rating: r.rating, time: r.relative_time_description }));
+  } catch { return []; }
+}
+
 // Fetch Pexels images for website gallery section
 async function fetchPexelsGallery(industry, city, count = 6) {
   try {
@@ -6836,66 +6852,132 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
   const styles = `
     @import url('https://fonts.googleapis.com/css2?${fontPairs}&display=swap');
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-    :root{--black:#0a0a0a;--dark:#111827;--gray:#6b7280;--light:${bgLight};--white:${surface};--orange:${brand};--orange-dark:${brandDark};--radius:${radius};--shadow:0 4px 24px rgba(0,0,0,0.08)}
+
+    /* ── Luxury Design Tokens ── */
+    :root{
+      --black:#080808;
+      --dark:#111111;
+      --gray:#9e9891;
+      --light:#f5f0e8;
+      --white:#faf7f2;
+      --surface:#161616;
+      --orange:${brand !== '#f97316' ? brand : '#c4a46b'};
+      --orange-dark:${brandDark !== '#ea6c0a' ? brandDark : '#a8894f'};
+      --gold:#c4a46b;
+      --gold-dark:#a8894f;
+      --gold-glow:rgba(196,164,107,0.12);
+      --cream:#f5f0e8;
+      --cream-2:#ede8df;
+      --ink:#080808;
+      --text:#e8e2d5;
+      --text-muted:rgba(232,226,213,0.55);
+      --text-soft:rgba(232,226,213,0.3);
+      --radius:${radius !== '14px' ? radius : '3px'};
+      --shadow:0 8px 48px rgba(0,0,0,0.55);
+      --border:rgba(255,255,255,0.07);
+      --border-gold:rgba(196,164,107,0.3);
+    }
+
+    /* ── Grain texture overlay ── */
+    body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0.028;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size:256px 256px}
+
     html{scroll-behavior:smooth}
-    body{font-family:'${bFont}',system-ui,sans-serif;color:var(--dark);background:var(--white);line-height:1.6}
-    h1,h2,h3,h4{font-family:'${hFont}',sans-serif;font-weight:800;line-height:1.15}
+    body{font-family:'${bFont}',system-ui,sans-serif;color:var(--text);background:var(--black);line-height:1.65}
+    h1,h2,h3,h4{font-family:'${hFont}',sans-serif;font-weight:800;line-height:1.12;color:var(--cream)}
     a{text-decoration:none;color:inherit}
     img{max-width:100%;display:block}
-    .container{max-width:1140px;margin:0 auto;padding:0 24px}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;transition:all .2s;border:none}
-    .btn-primary{background:var(--orange);color:#fff}.btn-primary:hover{background:var(--orange-dark);transform:translateY(-1px)}
-    .btn-outline{background:transparent;color:var(--white);border:2px solid rgba(255,255,255,0.4)}.btn-outline:hover{background:rgba(255,255,255,0.1)}
-    .btn-dark{background:var(--black);color:#fff}.btn-dark:hover{background:#222;transform:translateY(-1px)}
-    .section{padding:80px 0}
-    .section-label{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--orange);margin-bottom:12px}
-    .section-title{font-size:clamp(28px,4vw,42px);color:var(--black);margin-bottom:16px}
-    .section-sub{font-size:17px;color:var(--gray);max-width:600px;line-height:1.7}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
-    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+
+    .container{max-width:1140px;margin:0 auto;padding:0 28px}
+
+    /* ── Buttons ── */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:15px 36px;border-radius:var(--radius);font-weight:600;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all .22s;border:none}
+    .btn-primary{background:var(--gold);color:#000;border:1px solid var(--gold)}
+    .btn-primary:hover{background:var(--gold-dark);transform:translateY(-2px);box-shadow:0 8px 32px rgba(196,164,107,0.35)}
+    .btn-outline{background:transparent;color:var(--cream);border:1px solid var(--border-gold)}
+    .btn-outline:hover{background:var(--gold-glow);border-color:var(--gold);color:var(--gold)}
+    .btn-dark{background:var(--surface);color:var(--cream);border:1px solid var(--border)}
+    .btn-dark:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-1px)}
+
+    /* ── Sections ── */
+    .section{padding:96px 0}
+    .section-label{font-size:10px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:block}
+    .section-title{font-size:clamp(28px,4vw,46px);color:var(--cream);margin-bottom:18px;line-height:1.1}
+    .section-sub{font-size:17px;color:var(--text-muted);max-width:560px;line-height:1.75}
+
+    /* ── Light cream section variant ── */
+    .section-light{background:var(--cream);color:#1a1a1a}
+    .section-light h2,.section-light h3,.section-light .section-title{color:#0d0d0d}
+    .section-light .section-label{color:var(--gold-dark)}
+    .section-light .section-sub,.section-light p{color:rgba(0,0,0,0.6)}
+    .section-light .card{background:#fff;border-color:rgba(0,0,0,0.07);box-shadow:0 2px 24px rgba(0,0,0,0.07)}
+    .section-light .card:hover{border-color:var(--gold-dark)}
+
+    /* ── Grids ── */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
     .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
-    .card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:32px;border:1px solid #f0f0f0;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s,border-color .25s}
-    .card:hover{transform:translateY(-6px) scale(1.01);box-shadow:0 20px 56px rgba(0,0,0,0.13);border-color:var(--orange)}
-    .badge{display:inline-block;background:rgba(249,115,22,0.1);color:var(--orange);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:6px 14px;border-radius:100px}
-    .page-hero{background:var(--black);padding:80px 0 60px;text-align:center}
-    .page-hero h1{color:#fff;font-size:clamp(32px,5vw,52px);margin-bottom:16px}
-    .page-hero p{color:rgba(255,255,255,0.55);font-size:17px;max-width:560px;margin:0 auto}
-    .stars{color:#f59e0b;font-size:14px;letter-spacing:2px}
+
+    /* ── Cards ── */
+    .card{background:var(--surface);border-radius:var(--radius);padding:36px;border:1px solid var(--border);transition:transform .25s,box-shadow .25s,border-color .25s}
+    .card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:var(--border-gold)}
+
+    /* ── Badges ── */
+    .badge{display:inline-block;background:var(--gold-glow);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:6px 16px;border-radius:2px;border:1px solid var(--border-gold)}
+
+    /* ── Page hero (inner pages) ── */
+    .page-hero{background:var(--black);padding:88px 0 64px;text-align:center;border-bottom:1px solid var(--border)}
+    .page-hero h1{color:var(--cream);font-size:clamp(32px,5vw,52px);margin-bottom:16px}
+    .page-hero p{color:var(--text-muted);font-size:17px;max-width:560px;margin:0 auto}
+
+    .stars{color:var(--gold);font-size:13px;letter-spacing:3px}
+
+    /* ── Divider ── */
+    .divider-gold{width:48px;height:2px;background:var(--gold);margin:20px 0 32px}
+
     /* ── Animations ── */
-    @keyframes heroGlow{0%,100%{opacity:.06}50%{opacity:.12}}
+    @keyframes heroGlow{0%,100%{opacity:.04}50%{opacity:.09}}
     @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
-    .fade-in{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes floatPulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+    @keyframes goldPulse{0%,100%{box-shadow:0 0 0 0 rgba(196,164,107,0)}50%{box-shadow:0 0 0 8px rgba(196,164,107,0)}}
+
+    .fade-in{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
     .fade-in.visible{opacity:1;transform:translateY(0)}
-    .card.fade-in{transition-delay:calc(var(--i,0) * 80ms)}
+    .card.fade-in{transition-delay:calc(var(--i,0) * 90ms)}
+
     .btn-primary{position:relative;overflow:hidden}
-    .btn-primary::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);transform:skewX(-20deg);animation:shimmer 3.2s infinite 1.5s}
-    .hero-glow{position:absolute;inset:0;background:radial-gradient(circle at 65% 45%,var(--orange),transparent 55%);animation:heroGlow 5s ease-in-out infinite;pointer-events:none}
+    .btn-primary::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transform:skewX(-20deg);animation:shimmer 3.5s infinite 2s}
+
+    .hero-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 60% 50%,rgba(196,164,107,0.08),transparent 65%);animation:heroGlow 6s ease-in-out infinite;pointer-events:none}
+
     header{transition:background .3s,box-shadow .3s,backdrop-filter .3s}
+
     /* ── Floating CTA ── */
-    .float-cta{position:fixed;bottom:88px;right:24px;z-index:997;display:flex;flex-direction:column;align-items:center;gap:8px}
-    .float-cta a{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.25);transition:transform .2s,box-shadow .2s;font-size:20px;text-decoration:none}
-    .float-cta a:hover{transform:scale(1.12);box-shadow:0 8px 28px rgba(0,0,0,0.3)}
-    .float-cta .fcta-quote{background:var(--orange);color:#fff;}
-    .float-cta .fcta-call{background:#22c55e;color:#fff;}
+    .float-cta{position:fixed;bottom:96px;right:28px;z-index:997;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .float-cta a{width:52px;height:52px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,0.4);transition:transform .2s,box-shadow .2s;font-size:18px;text-decoration:none;border:1px solid rgba(255,255,255,0.1)}
+    .float-cta a:hover{transform:scale(1.1) translateY(-2px);box-shadow:0 10px 32px rgba(0,0,0,0.5)}
+    .float-cta .fcta-quote{background:var(--gold);color:#000;border-color:var(--gold);animation:floatPulse 3s ease-in-out infinite}
+    .float-cta .fcta-call{background:#166534;color:#fff;}
+
     /* ── Mobile sticky CTA bar ── */
-    .mobile-cta-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:998;background:var(--black);border-top:1px solid rgba(255,255,255,0.1);padding:10px 16px;gap:10px}
+    .mobile-cta-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:998;background:var(--black);border-top:1px solid var(--border-gold);padding:10px 16px;gap:10px}
+
     /* ── Trust badges ── */
-    .trust-strip{background:var(--dark);padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
-    .trust-strip-inner{display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap}
-    .trust-badge{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.6);font-size:13px;font-weight:500}
-    .trust-badge span{font-size:16px}
-    @keyframes floatPulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-    .float-cta .fcta-quote{animation:floatPulse 3s ease-in-out infinite}
+    .trust-strip{background:var(--surface);padding:12px 0;border-bottom:1px solid var(--border)}
+    .trust-strip-inner{display:flex;align-items:center;justify-content:center;gap:36px;flex-wrap:wrap}
+    .trust-badge{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:12px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase}
+    .trust-badge span{font-size:14px;color:var(--gold)}
+
     @media(max-width:768px){
       .mobile-cta-bar{display:flex}
       .float-cta{display:none}
       body{padding-bottom:72px}
-    }
       .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
-      .section{padding:56px 0}
+      .section{padding:64px 0}
       .hide-mobile{display:none!important}
-      .nav-menu{display:none;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--black);padding:16px 24px;gap:8px;border-top:1px solid rgba(255,255,255,0.08)}
+      .nav-menu{display:none;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:rgba(8,8,8,0.98);backdrop-filter:blur(16px);padding:20px 28px;gap:6px;border-top:1px solid var(--border-gold)}
       .nav-menu.open{display:flex}
       .hamburger{display:flex!important}
     }
@@ -6906,52 +6988,54 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
     : `<span style="font-family:Montserrat,sans-serif;font-weight:900;font-size:18px;color:#fff;">${clientName}</span>`;
 
   const nav = `
-<header style="position:sticky;top:0;z-index:999;background:var(--black);border-bottom:1px solid rgba(255,255,255,0.07);">
-  <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:68px;">
+<header style="position:sticky;top:0;z-index:999;background:rgba(8,8,8,0.95);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:72px;">
     <a href="${navLinks[0].href}" style="display:flex;align-items:center;">${logoHtml}</a>
-    <nav class="nav-menu" id="navMenu" style="display:flex;align-items:center;gap:4px;">
+    <nav class="nav-menu" id="navMenu" style="display:flex;align-items:center;gap:2px;">
       ${navItems}
     </nav>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <a href="${navLinks[4].href}" class="btn btn-primary" style="padding:10px 22px;font-size:14px;">Get Started</a>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <a href="${navLinks[4].href}" class="btn btn-primary" style="padding:11px 24px;font-size:12px;">Free Quote</a>
       <button class="hamburger" onclick="document.getElementById('navMenu').classList.toggle('open')" style="display:none;background:none;border:none;cursor:pointer;padding:4px;">
-        <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <svg width="22" height="22" fill="none" stroke="var(--cream)" stroke-width="1.5"><line x1="3" y1="6" x2="19" y2="6"/><line x1="3" y1="11" x2="19" y2="11"/><line x1="3" y1="16" x2="19" y2="16"/></svg>
       </button>
     </div>
   </div>
 </header>
 <style>
-  .nav-link{color:rgba(255,255,255,0.65);font-size:14px;font-weight:500;padding:8px 14px;border-radius:8px;transition:all .2s}
-  .nav-link:hover{color:#fff;background:rgba(255,255,255,0.08)}
+  .nav-link{color:var(--text-muted);font-size:13px;font-weight:500;letter-spacing:0.04em;padding:8px 14px;border-radius:2px;transition:all .2s}
+  .nav-link:hover{color:var(--cream);background:rgba(255,255,255,0.05)}
 </style>`;
 
   const footer = `
-<footer style="background:var(--black);padding:64px 0 32px;">
+<footer style="background:var(--black);padding:80px 0 36px;border-top:1px solid var(--border);">
   <div class="container">
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,0.08);">
+    <!-- Gold accent line -->
+    <div style="width:64px;height:1px;background:var(--gold);margin-bottom:56px;opacity:0.6;"></div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:56px;padding-bottom:56px;border-bottom:1px solid var(--border);">
       <div>
         ${logoHtml}
-        <p style="color:rgba(255,255,255,0.45);font-size:14px;line-height:1.8;margin:16px 0 20px;max-width:280px;">Professional ${industry} services in ${city} and surrounding areas.</p>
-        ${phone ? `<p style="color:#fff;font-size:15px;font-weight:600;">${phone}</p>` : ''}
+        <p style="color:var(--text-soft);font-size:14px;line-height:1.85;margin:20px 0 24px;max-width:260px;">Premium ${industry} services in ${city} and surrounding areas. Licensed, insured, and trusted.</p>
+        ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" style="color:var(--gold);font-size:16px;font-weight:600;letter-spacing:0.02em;">${phone}</a>` : ''}
       </div>
       <div>
-        <p style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;">Pages</p>
-        ${navLinks.map(l => `<a href="${l.href}" style="display:block;color:rgba(255,255,255,0.55);font-size:14px;margin-bottom:10px;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">${l.label}</a>`).join('')}
+        <p style="color:var(--text-soft);font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:20px;">Navigation</p>
+        ${navLinks.map(l => `<a href="${l.href}" style="display:block;color:var(--text-muted);font-size:13px;margin-bottom:12px;transition:color .2s;" onmouseover="this.style.color='var(--cream)'" onmouseout="this.style.color='var(--text-muted)'">${l.label}</a>`).join('')}
       </div>
       <div>
-        <p style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;">Services</p>
-        <p style="color:rgba(255,255,255,0.45);font-size:14px;line-height:2;">Available 24/7<br/>${city} & Surrounding<br/>Licensed & Insured<br/>Free Estimates</p>
+        <p style="color:var(--text-soft);font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:20px;">Service Area</p>
+        <p style="color:var(--text-muted);font-size:13px;line-height:2.1;">Available 24/7<br/>${city} & Surrounding<br/>Licensed & Insured<br/>Free Estimates</p>
       </div>
       <div>
-        <p style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;">Contact</p>
-        ${phone ? `<p style="color:rgba(255,255,255,0.55);font-size:14px;margin-bottom:8px;">📞 ${phone}</p>` : ''}
-        <p style="color:rgba(255,255,255,0.55);font-size:14px;margin-bottom:8px;">📍 ${city}, FL</p>
-        <a href="${navLinks[4].href}" class="btn btn-primary" style="margin-top:16px;padding:10px 20px;font-size:13px;">Get a Free Quote</a>
+        <p style="color:var(--text-soft);font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:20px;">Contact</p>
+        ${phone ? `<p style="color:var(--text-muted);font-size:13px;margin-bottom:10px;">${phone}</p>` : ''}
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:10px;">${city}, FL</p>
+        <a href="${navLinks[4].href}" class="btn btn-outline" style="margin-top:20px;padding:11px 22px;font-size:12px;">Get a Free Quote</a>
       </div>
     </div>
-    <div style="padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-      <p style="color:rgba(255,255,255,0.25);font-size:12px;">© ${new Date().getFullYear()} ${clientName}. All rights reserved.</p>
-      <p style="color:rgba(255,255,255,0.2);font-size:11px;">Website by <a href="https://jrzmarketing.com" style="color:var(--orange);">JRZ Marketing</a></p>
+    <div style="padding-top:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <p style="color:var(--text-soft);font-size:11px;letter-spacing:0.04em;">© ${new Date().getFullYear()} ${clientName}. All rights reserved.</p>
+      <p style="color:var(--text-soft);font-size:11px;letter-spacing:0.04em;">Designed by <a href="https://jrzmarketing.com" style="color:var(--gold);transition:opacity .2s;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">JRZ Marketing</a></p>
     </div>
   </div>
 </footer>
@@ -7081,91 +7165,97 @@ function buildHomePage(client, c, layout) {
   const variant = getLayoutVariant(name);
   const serviceCards = c.services.slice(0, 3).map(s => `
     <div class="card">
-      <div style="font-size:36px;margin-bottom:16px;">${s.icon}</div>
-      <h3 style="font-size:20px;margin-bottom:10px;">${s.title}</h3>
-      <p style="color:var(--gray);font-size:15px;line-height:1.7;margin-bottom:16px;">${s.description}</p>
-      <ul style="list-style:none;padding:0;">${s.features.map(f => `<li style="font-size:14px;color:var(--gray);padding:4px 0;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--orange);font-weight:700;">✓</span>${f}</li>`).join('')}</ul>
+      <div style="font-size:28px;margin-bottom:20px;filter:grayscale(0.2);">${s.icon}</div>
+      <div style="width:28px;height:1px;background:var(--gold-dark);margin-bottom:16px;opacity:0.6;"></div>
+      <h3 style="font-size:19px;margin-bottom:10px;color:var(--cream,#0d0d0d);">${s.title}</h3>
+      <p style="color:var(--gray);font-size:14px;line-height:1.8;margin-bottom:18px;">${s.description}</p>
+      <ul style="list-style:none;padding:0;">${s.features.map(f => `<li style="font-size:13px;color:var(--gray);padding:5px 0;padding-left:20px;position:relative;border-bottom:1px solid rgba(0,0,0,0.04);"><span style="position:absolute;left:0;color:var(--gold,var(--orange));font-weight:700;font-size:11px;top:6px;">✦</span>${f}</li>`).join('')}</ul>
     </div>`).join('');
 
   const statItems = c.stats.map(s => {
     const num = parseFloat(s.number.replace(/[^0-9.]/g,''));
     const suffix = s.number.replace(/[0-9.]/g,'');
-    return `<div style="text-align:center;">
-      <div style="font-size:36px;font-weight:900;color:var(--orange);" data-target="${num}" data-suffix="${suffix}">${s.number}</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">${s.label}</div>
+    return `<div style="text-align:center;padding:24px 16px;border-right:1px solid var(--border);">
+      <div style="font-size:38px;font-weight:900;color:var(--gold);font-family:Montserrat,sans-serif;letter-spacing:-0.02em;" data-target="${num}" data-suffix="${suffix}">${s.number}</div>
+      <div style="font-size:10px;color:var(--text-soft,rgba(255,255,255,0.35));text-transform:uppercase;letter-spacing:0.16em;margin-top:8px;">${s.label}</div>
     </div>`;
   }).join('');
 
   const testimonialCards = c.testimonials.map(t => `
-    <div class="card">
-      <div class="stars">${'★'.repeat(t.rating)}</div>
-      <p style="font-size:15px;color:var(--dark);line-height:1.8;margin:14px 0 20px;font-style:italic;">"${t.text}"</p>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#f59e0b);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;">${t.name[0]}</div>
-        <div><div style="font-weight:600;font-size:15px;">${t.name}</div><div style="font-size:12px;color:var(--gray);">${t.business}</div></div>
+    <div class="card" style="border-color:var(--border);">
+      <div class="stars" style="margin-bottom:16px;">${'★'.repeat(t.rating)}</div>
+      <p style="font-size:15px;color:var(--text-muted,rgba(0,0,0,0.6));line-height:1.85;margin-bottom:24px;font-style:italic;">"${t.text}"</p>
+      <div style="display:flex;align-items:center;gap:14px;padding-top:20px;border-top:1px solid var(--border);">
+        <div style="width:40px;height:40px;border-radius:2px;background:var(--gold-glow,rgba(196,164,107,0.15));border:1px solid var(--border-gold,rgba(196,164,107,0.3));display:flex;align-items:center;justify-content:center;color:var(--gold,#c4a46b);font-weight:700;font-size:16px;font-family:Montserrat,sans-serif;flex-shrink:0;">${t.name[0]}</div>
+        <div><div style="font-weight:600;font-size:14px;color:var(--cream,#0d0d0d);">${t.name}</div><div style="font-size:11px;color:var(--gray);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;">${t.business}</div></div>
       </div>
     </div>`).join('');
 
   const whyItems = c.whyUs.map(w => `
-    <div style="display:flex;gap:20px;align-items:flex-start;">
-      <div style="width:48px;height:48px;border-radius:12px;background:rgba(249,115,22,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <svg width="20" height="20" fill="var(--orange)" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+    <div style="display:flex;gap:20px;align-items:flex-start;padding-bottom:24px;border-bottom:1px solid var(--border);">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--gold-glow);border:1px solid var(--border-gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="14" height="14" fill="var(--gold)" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
       </div>
-      <div><h4 style="font-size:17px;margin-bottom:6px;">${w.title}</h4><p style="font-size:15px;color:var(--gray);line-height:1.7;">${w.description}</p></div>
+      <div><h4 style="font-size:16px;margin-bottom:6px;color:var(--cream);">${w.title}</h4><p style="font-size:14px;color:var(--text-muted);line-height:1.75;">${w.description}</p></div>
     </div>`).join('');
 
   // Hero: 3 layout variants selected deterministically per client
   const heroHtml = variant === 1
-    // Variant 1 — Split: text left, trust panel right
-    ? `<section style="background:var(--black);padding:80px 0;overflow:hidden;">
+    // Variant 1 — Split: text left, stats panel right
+    ? `<section style="background:var(--black);padding:96px 0;overflow:hidden;border-bottom:1px solid var(--border);">
   <div class="container">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
       <div>
-        <div class="badge" style="margin-bottom:20px;">${city} ${industry}</div>
-        <h1 style="font-size:clamp(32px,5vw,56px);color:#fff;line-height:1.1;margin-bottom:20px;">${c.heroHeadline}</h1>
-        <p style="font-size:17px;color:rgba(255,255,255,0.55);line-height:1.75;margin-bottom:32px;">${c.heroSub}</p>
+        <div class="badge" style="margin-bottom:24px;">${city} ${industry}</div>
+        <div class="divider-gold"></div>
+        <h1 style="font-size:clamp(32px,5vw,56px);color:var(--cream);line-height:1.08;margin-bottom:20px;">${c.heroHeadline}</h1>
+        <p style="font-size:17px;color:var(--text-muted);line-height:1.8;margin-bottom:36px;max-width:480px;">${c.heroSub}</p>
         <div style="display:flex;gap:14px;flex-wrap:wrap;">
-          <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="font-size:16px;padding:16px 36px;">Get a Free Quote →</a>
-          ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:16px;padding:16px 32px;">📞 ${phone}</a>` : ''}
+          <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="font-size:14px;padding:15px 36px;">Get a Free Quote</a>
+          ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:14px;padding:15px 32px;">${phone}</a>` : ''}
         </div>
       </div>
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:40px;">
-        <div class="stat-block" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
-          ${c.stats.map(s => { const n=parseFloat(s.number.replace(/[^0-9.]/g,'')); const sx=s.number.replace(/[0-9.]/g,''); return `<div style="text-align:center;padding:20px;background:rgba(255,255,255,0.04);border-radius:12px;"><div style="font-size:28px;font-weight:900;color:var(--orange);" data-target="${n}" data-suffix="${sx}">${s.number}</div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">${s.label}</div></div>`; }).join('')}
+      <div style="background:var(--surface);border:1px solid var(--border-gold);border-radius:3px;padding:44px;">
+        <p style="color:var(--text-soft);font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:28px;">By The Numbers</p>
+        <div class="stat-block" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:36px;">
+          ${c.stats.map(s => { const n=parseFloat(s.number.replace(/[^0-9.]/g,'')); const sx=s.number.replace(/[0-9.]/g,''); return `<div style="padding:20px 0;border-bottom:1px solid var(--border);"><div style="font-size:30px;font-weight:900;color:var(--gold);font-family:Montserrat,sans-serif;" data-target="${n}" data-suffix="${sx}">${s.number}</div><div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.14em;margin-top:6px;">${s.label}</div></div>`; }).join('')}
         </div>
-        <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="width:100%;justify-content:center;padding:16px;">Book Free Consultation →</a>
+        <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;">Book Free Consultation</a>
       </div>
     </div>
   </div>
 </section>`
     : variant === 2
-    // Variant 2 — Gradient: bold centered, brand gradient wash
-    ? `<section style="background:linear-gradient(135deg,var(--black) 0%,var(--orange-dark) 60%,var(--orange) 100%);padding:120px 0 100px;text-align:center;overflow:hidden;position:relative;">
-  <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,0,0,0.5),transparent 70%);pointer-events:none;"></div>
+    // Variant 2 — Editorial: bold centered, dark with gold line accent
+    ? `<section style="background:var(--black);padding:120px 0 100px;text-align:center;overflow:hidden;position:relative;border-bottom:1px solid var(--border);">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% -10%,rgba(196,164,107,0.07),transparent 65%);pointer-events:none;"></div>
   <div class="container" style="position:relative;">
-    <div class="badge" style="margin-bottom:24px;background:rgba(255,255,255,0.15);color:#fff;">${city} ${industry}</div>
-    <h1 style="font-size:clamp(40px,7vw,72px);color:#fff;line-height:1.06;margin-bottom:24px;max-width:800px;margin-left:auto;margin-right:auto;">${c.heroHeadline}</h1>
-    <p style="font-size:19px;color:rgba(255,255,255,0.75);line-height:1.7;margin-bottom:40px;max-width:560px;margin-left:auto;margin-right:auto;">${c.heroSub}</p>
+    <div style="display:inline-block;width:40px;height:1px;background:var(--gold);margin-bottom:24px;vertical-align:middle;margin-right:12px;opacity:0.7;"></div>
+    <span class="section-label" style="display:inline;vertical-align:middle;">${city} ${industry}</span>
+    <div style="display:inline-block;width:40px;height:1px;background:var(--gold);margin-bottom:24px;vertical-align:middle;margin-left:12px;opacity:0.7;"></div>
+    <h1 style="font-size:clamp(40px,7vw,76px);color:var(--cream);line-height:1.04;margin-bottom:24px;max-width:860px;margin-left:auto;margin-right:auto;">${c.heroHeadline}</h1>
+    <p style="font-size:19px;color:var(--text-muted);line-height:1.75;margin-bottom:44px;max-width:520px;margin-left:auto;margin-right:auto;">${c.heroSub}</p>
     <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-      <a href="${(client.siteBase||'')}/contact-us" class="btn" style="background:#fff;color:var(--orange);font-size:17px;padding:18px 44px;font-weight:700;">Get a Free Quote →</a>
-      ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:17px;padding:18px 36px;">📞 ${phone}</a>` : ''}
+      <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="font-size:15px;padding:17px 44px;">Get a Free Quote</a>
+      ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:15px;padding:17px 36px;">${phone}</a>` : ''}
     </div>
-    <div class="stat-block" style="display:flex;justify-content:center;gap:40px;margin-top:56px;flex-wrap:wrap;">
-      ${c.stats.map(s => { const n=parseFloat(s.number.replace(/[^0-9.]/g,'')); const sx=s.number.replace(/[0-9.]/g,''); return `<div style="text-align:center;"><div style="font-size:32px;font-weight:900;color:#fff;" data-target="${n}" data-suffix="${sx}">${s.number}</div><div style="font-size:12px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">${s.label}</div></div>`; }).join('')}
+    <div class="stat-block" style="display:flex;justify-content:center;gap:64px;margin-top:64px;flex-wrap:wrap;padding-top:48px;border-top:1px solid var(--border);">
+      ${c.stats.map(s => { const n=parseFloat(s.number.replace(/[^0-9.]/g,'')); const sx=s.number.replace(/[0-9.]/g,''); return `<div style="text-align:center;"><div style="font-size:36px;font-weight:900;color:var(--gold);" data-target="${n}" data-suffix="${sx}">${s.number}</div><div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.18em;margin-top:6px;">${s.label}</div></div>`; }).join('')}
     </div>
   </div>
 </section>`
-    // Variant 0 (default) — Dark full-bleed with animated radial glow
-    : `<section style="background:var(--black);padding:100px 0 80px;overflow:hidden;position:relative;">
+    // Variant 0 (default) — Dark editorial with gold glow
+    : `<section style="background:var(--black);padding:112px 0 88px;overflow:hidden;position:relative;border-bottom:1px solid var(--border);">
   <div class="hero-glow"></div>
   <div class="container" style="position:relative;">
-    <div style="max-width:720px;">
-      <div class="badge" style="margin-bottom:20px;">${city} ${industry}</div>
-      <h1 style="font-size:clamp(36px,6vw,64px);color:#fff;line-height:1.08;margin-bottom:20px;">${c.heroHeadline}</h1>
-      <p style="font-size:18px;color:rgba(255,255,255,0.55);line-height:1.75;margin-bottom:36px;max-width:560px;">${c.heroSub}</p>
+    <div style="max-width:740px;">
+      <div class="badge" style="margin-bottom:24px;">${city} ${industry}</div>
+      <div class="divider-gold"></div>
+      <h1 style="font-size:clamp(36px,6vw,68px);color:var(--cream);line-height:1.06;margin-bottom:22px;letter-spacing:-0.02em;">${c.heroHeadline}</h1>
+      <p style="font-size:18px;color:var(--text-muted);line-height:1.8;margin-bottom:40px;max-width:520px;">${c.heroSub}</p>
       <div style="display:flex;gap:14px;flex-wrap:wrap;">
-        <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="font-size:16px;padding:16px 36px;">Get a Free Quote →</a>
-        ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:16px;padding:16px 32px;">📞 ${phone}</a>` : ''}
+        <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="font-size:14px;padding:15px 36px;">Get a Free Quote</a>
+        ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:14px;padding:15px 32px;">${phone}</a>` : ''}
       </div>
     </div>
   </div>
@@ -7186,86 +7276,94 @@ function buildHomePage(client, c, layout) {
   </div>
 </div>
 
-${variant === 0 ? `<section style="background:var(--dark);padding:40px 0;">
+${variant === 0 ? `<section style="background:var(--surface,#161616);padding:0;border-bottom:1px solid var(--border);">
   <div class="container">
-    <div class="stat-block" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">${statItems}</div>
+    <div class="stat-block" style="display:grid;grid-template-columns:repeat(4,1fr);">${statItems}</div>
   </div>
 </section>` : ''}
 
-<section class="section" style="background:var(--light);">
+<section class="section section-light">
   <div class="container">
-    <div style="text-align:center;margin-bottom:56px;">
+    <div style="text-align:center;margin-bottom:64px;">
       <p class="section-label">What We Do</p>
       <h2 class="section-title">Our Core Services</h2>
+      <div style="width:48px;height:1px;background:var(--gold-dark);margin:20px auto 24px;opacity:0.5;"></div>
       <p class="section-sub" style="margin:0 auto;">${c.tagline}</p>
     </div>
     <div class="grid-3">${serviceCards}</div>
-    <div style="text-align:center;margin-top:40px;">
-      <a href="${(client.siteBase||'')}/services" class="btn btn-dark">View All Services →</a>
+    <div style="text-align:center;margin-top:48px;">
+      <a href="${(client.siteBase||'')}/services" class="btn btn-dark">View All Services</a>
     </div>
   </div>
 </section>
 
-<section class="section">
+<section class="section" style="background:var(--black);">
   <div class="container">
     <div class="grid-2">
       <div>
         <p class="section-label">Why Choose Us</p>
-        <h2 class="section-title" style="margin-bottom:32px;">The ${name} Difference</h2>
+        <h2 class="section-title" style="margin-bottom:12px;">The ${name} Difference</h2>
+        <div class="divider-gold" style="margin-bottom:36px;"></div>
         <div style="display:flex;flex-direction:column;gap:28px;">${whyItems}</div>
       </div>
-      <div style="background:var(--black);border-radius:20px;padding:48px;text-align:center;">
-        <div style="font-size:56px;margin-bottom:16px;">🏆</div>
-        <h3 style="color:#fff;font-size:26px;margin-bottom:12px;">Ready to Get Started?</h3>
-        <p style="color:rgba(255,255,255,0.5);font-size:15px;line-height:1.7;margin-bottom:28px;">Join hundreds of satisfied customers in ${city}. Get your free consultation today.</p>
-        <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="width:100%;justify-content:center;padding:16px;">Book Free Consultation →</a>
+      <div style="background:var(--surface);border:1px solid var(--border-gold);border-radius:3px;padding:52px;">
+        <p style="color:var(--gold);font-size:10px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;margin-bottom:24px;">Start Today</p>
+        <h3 style="color:var(--cream);font-size:26px;margin-bottom:16px;line-height:1.2;">Get Your Free Consultation</h3>
+        <p style="color:var(--text-muted);font-size:15px;line-height:1.8;margin-bottom:36px;">Join hundreds of satisfied customers in ${city}. No pressure, no obligation — just expert advice.</p>
+        <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="width:100%;justify-content:center;padding:15px;">Book Free Consultation</a>
+        ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" style="display:block;text-align:center;color:var(--text-muted);font-size:13px;margin-top:16px;letter-spacing:0.04em;">or call ${phone}</a>` : ''}
       </div>
     </div>
   </div>
 </section>
 
-<section class="section" style="background:var(--light);">
+<section class="section" style="background:var(--ink-2,#111);">
   <div class="container">
-    <div style="text-align:center;margin-bottom:56px;">
+    <div style="text-align:center;margin-bottom:64px;">
       <p class="section-label">Client Stories</p>
       <h2 class="section-title">What Our Clients Say</h2>
+      <div style="width:48px;height:1px;background:var(--gold);margin:20px auto 0;opacity:0.4;"></div>
     </div>
     <div class="grid-3">${testimonialCards}</div>
   </div>
 </section>
 
 ${galleryImages && galleryImages.length ? `
-<section class="section" style="background:var(--light);">
+<section class="section section-light">
   <div class="container">
-    <div style="text-align:center;margin-bottom:48px;">
-      <p class="section-label">Our Work</p>
-      <h2 class="section-title">Real Results in ${city}</h2>
-      <p class="section-sub" style="margin:0 auto;">Every project is a commitment to quality and craftsmanship.</p>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:20px;">
+      <div>
+        <p class="section-label">Our Work</p>
+        <h2 class="section-title">Real Results in ${city}</h2>
+        <div class="divider-gold"></div>
+      </div>
+      <p style="color:rgba(0,0,0,0.45);font-size:14px;max-width:320px;line-height:1.7;">Every project is a commitment to quality craftsmanship.</p>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-      ${galleryImages.map(img => `<div style="aspect-ratio:4/3;overflow:hidden;border-radius:12px;background:#eee;"><img loading="lazy" src="${img.url}" alt="${img.alt}" style="width:100%;height:100%;object-fit:cover;transition:transform .4s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></div>`).join('')}
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+      ${galleryImages.map((img,i) => `<div style="aspect-ratio:${i===0?'8/5':'4/3'};overflow:hidden;border-radius:2px;background:#1a1a1a;${i===0?'grid-column:span 1;':''}" ><img loading="lazy" src="${img.url}" alt="${img.alt}" style="width:100%;height:100%;object-fit:cover;transition:transform .5s,filter .5s;filter:brightness(0.95);" onmouseover="this.style.transform='scale(1.04)';this.style.filter='brightness(1)'" onmouseout="this.style.transform='scale(1)';this.style.filter='brightness(0.95)'"></div>`).join('')}
     </div>
   </div>
 </section>` : ''}
 
-<section class="section" style="background:var(--black);overflow:hidden;">
+<section class="section" style="background:var(--black);overflow:hidden;border-top:1px solid var(--border);">
   <div class="container">
-    <div class="grid-2" style="gap:56px;align-items:center;">
+    <div class="grid-2" style="gap:64px;align-items:center;">
       <div>
-        <p class="section-label" style="color:var(--orange);">See Us In Action</p>
-        <h2 class="section-title" style="color:#fff;margin-bottom:16px;">Real Work.<br/>Real Results.</h2>
-        <p style="color:rgba(255,255,255,0.5);font-size:16px;line-height:1.8;margin-bottom:32px;">We don't just talk about quality — we show it. Watch how we deliver exceptional ${industry} results for clients across ${city}.</p>
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          ${c.processSteps.slice(0,3).map(s => `<div style="display:flex;gap:14px;align-items:flex-start;"><div style="width:32px;height:32px;border-radius:8px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Montserrat,sans-serif;font-weight:900;font-size:12px;color:#fff;">${s.step}</div><div><p style="color:#fff;font-weight:600;font-size:15px;margin-bottom:2px;">${s.title}</p><p style="color:rgba(255,255,255,0.45);font-size:14px;">${s.description}</p></div></div>`).join('')}
+        <p class="section-label">Our Process</p>
+        <h2 class="section-title" style="margin-bottom:12px;">Real Work.<br/>Real Results.</h2>
+        <div class="divider-gold" style="margin-bottom:28px;"></div>
+        <p style="color:var(--text-muted);font-size:15px;line-height:1.8;margin-bottom:36px;">We deliver exceptional ${industry} results for clients across ${city} — on time, every time.</p>
+        <div style="display:flex;flex-direction:column;gap:0;">
+          ${c.processSteps.slice(0,3).map((s,i) => `<div style="display:flex;gap:16px;align-items:flex-start;padding:20px 0;${i<2?'border-bottom:1px solid var(--border)':''}"><div style="width:28px;height:28px;background:var(--gold-glow);border:1px solid var(--border-gold);border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Montserrat,sans-serif;font-weight:900;font-size:11px;color:var(--gold);">${s.step}</div><div><p style="color:var(--cream);font-weight:600;font-size:14px;margin-bottom:4px;">${s.title}</p><p style="color:var(--text-muted);font-size:13px;line-height:1.6;">${s.description}</p></div></div>`).join('')}
         </div>
       </div>
-      <div style="position:relative;border-radius:20px;overflow:hidden;aspect-ratio:16/9;background:#111;display:flex;align-items:center;justify-content:center;">
-        <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(249,115,22,0.08),transparent 70%);"></div>
+      <div style="position:relative;border-radius:2px;overflow:hidden;aspect-ratio:16/9;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(196,164,107,0.05),transparent 70%);"></div>
         <div style="text-align:center;position:relative;z-index:1;">
-          <div style="width:72px;height:72px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;cursor:pointer;transition:transform .2s;box-shadow:0 0 0 12px rgba(249,115,22,0.15);" onclick="this.closest('div').parentElement.querySelector('iframe').style.display='flex';this.closest('div').style.display='none'">
-            <svg width="28" height="28" fill="#fff" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <div style="width:64px;height:64px;border-radius:2px;background:var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;cursor:pointer;transition:all .2s;box-shadow:0 8px 32px rgba(196,164,107,0.25);" onclick="this.closest('div').parentElement.querySelector('iframe').style.display='flex';this.closest('div').style.display='none'" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <svg width="24" height="24" fill="#000" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
           </div>
-          <p style="color:rgba(255,255,255,0.5);font-size:14px;">Watch Our Work</p>
+          <p style="color:var(--text-muted);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;">Watch Our Work</p>
         </div>
         <iframe src="https://www.youtube.com/embed/?listType=search&list=${encodeURIComponent(industry + ' ' + city + ' FL contractor')}&autoplay=0" style="display:none;position:absolute;inset:0;width:100%;height:100%;border:0;" allowfullscreen title="${industry} in ${city}"></iframe>
       </div>
@@ -7273,13 +7371,15 @@ ${galleryImages && galleryImages.length ? `
   </div>
 </section>
 
-<section style="background:var(--orange);padding:72px 0;">
-  <div class="container" style="text-align:center;">
-    <h2 style="font-size:clamp(28px,4vw,44px);color:#fff;margin-bottom:16px;">Ready for Results?</h2>
-    <p style="color:rgba(255,255,255,0.8);font-size:17px;margin-bottom:36px;">Get a free, no-obligation consultation with our ${industry} experts.</p>
+<section style="background:var(--black);padding:88px 0;border-top:1px solid var(--border-gold);position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 100%,rgba(196,164,107,0.06),transparent 70%);pointer-events:none;"></div>
+  <div class="container" style="text-align:center;position:relative;">
+    <div style="width:48px;height:1px;background:var(--gold);margin:0 auto 32px;opacity:0.6;"></div>
+    <h2 style="font-size:clamp(28px,4vw,48px);color:var(--cream);margin-bottom:16px;letter-spacing:-0.02em;">Ready to Get Started?</h2>
+    <p style="color:var(--text-muted);font-size:17px;margin-bottom:44px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.7;">A free, no-obligation consultation with ${city}'s trusted ${industry} experts.</p>
     <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-      <a href="${(client.siteBase||'')}/contact-us" class="btn" style="background:#fff;color:var(--orange);font-size:16px;padding:16px 40px;font-weight:700;">Get Started Today →</a>
-      ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn" style="background:rgba(255,255,255,0.15);color:#fff;border:2px solid rgba(255,255,255,0.4);font-size:16px;padding:16px 32px;">📞 ${phone}</a>` : ''}
+      <a href="${(client.siteBase||'')}/contact-us" class="btn btn-primary" style="font-size:14px;padding:16px 48px;">Get Started Today</a>
+      ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn btn-outline" style="font-size:14px;padding:16px 36px;">${phone}</a>` : ''}
     </div>
   </div>
 </section>`;
