@@ -9307,6 +9307,1281 @@ app.get('/sofia/luis-farrera', (req, res) => {
   } catch(err) { res.status(500).send(`<pre>Error: ${err.message}\n${err.stack}</pre>`); }
 });
 
+// ══════════════════════════════════════════════════════════════
+// THE ESCOBAR KITCHEN — Owner.com-style sales site
+// ══════════════════════════════════════════════════════════════
+const EK = {
+  name:       'The Escobar Kitchen',
+  tagline:    "Orlando's Boldest Latin-Asian Fusion",
+  logo:       'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/69a7ac1bb701fe6a3e793b91.png',
+  logoAlt:    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/69a7ac1b618c8dbb13a87fcd.png',
+  orderUrl:   'https://direct.chownow.com/order/28921/locations/65004',
+  phone:      '+14077438827',
+  phoneDisplay: '(407) 743-8827',
+  email:      'info@theescobarkitchen.com',
+  ig:         'https://www.instagram.com/theescobarkitchen/',
+  heroVideo:  'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee7200d7250d.mp4',
+  heroVideo2: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3120c03541f804ad33.mp4',
+  locations: [
+    {
+      name: "Hunters Creek", slug: '/hunters-creek',
+      address: '13769 S John Young Pkwy, Orlando, FL 32837',
+      phone: '+14072032664', phoneDisplay: '(407) 203-2664',
+      hours: 'Mon–Wed 4–9pm · Thu 4–10pm · Fri–Sat 4–10pm',
+      hoursShort: 'Mon–Wed 4–9pm, Thu–Sat 4–10pm',
+      note: '',
+      map: 'https://www.google.com/maps/embed/v1/place?key=&q=13769+S+John+Young+Pkwy+Orlando+FL+32837',
+      mapSrc: 'https://maps.google.com/maps?q=13769+S+John+Young+Pkwy+Orlando+FL+32837&output=embed',
+      rating: '4.6', reviews: '452',
+    },
+    {
+      name: "Lake Nona", slug: '/lake-nona',
+      address: '13024 Narcoossee Rd, Orlando, FL 32832',
+      phone: '+14076539174', phoneDisplay: '(407) 653-9174',
+      hours: 'Mon–Thu 12–7:30pm · Fri–Sat 12–8pm · Sun 12–7:30pm',
+      hoursShort: 'Mon–Thu 12–7:30pm, Fri–Sat 12–8pm, Sun 12–7:30pm',
+      note: 'Inside The Bravo Market',
+      map: 'https://www.google.com/maps/embed/v1/place?key=&q=13024+Narcoossee+Rd+Orlando+FL+32832',
+      mapSrc: 'https://maps.google.com/maps?q=13024+Narcoossee+Rd+Orlando+FL+32832&output=embed',
+      rating: '4.7', reviews: '200+',
+    },
+    {
+      name: "Downtown Orlando", slug: '/downtown-orlando',
+      address: '420 E Church St, Ste 108, Orlando, FL 32801',
+      phone: '+14077308350', phoneDisplay: '(407) 730-8350',
+      hours: 'Mon–Thu 2–9pm · Fri–Sat 2–10pm · Sun 12–8pm',
+      hoursShort: 'Mon–Thu 2–9pm, Fri–Sat 2–10pm, Sun 12–8pm',
+      note: 'Wine Bar · Craft Cocktails',
+      map: 'https://www.google.com/maps/embed/v1/place?key=&q=420+E+Church+St+Orlando+FL+32801',
+      mapSrc: 'https://maps.google.com/maps?q=420+E+Church+St+Ste+108+Orlando+FL+32801&output=embed',
+      rating: '4.6', reviews: '150+',
+    },
+  ],
+  toast: {
+    rewardsSignup: 'https://www.toasttab.com/the-escobars-kitchen-hunters-creek-13769-s-john-young-pkwy/rewardsSignup',
+    rewardsLookup: 'https://www.toasttab.com/the-escobars-kitchen-hunters-creek-13769-s-john-young-pkwy/rewardsLookup',
+    eGiftCards:    'https://order.toasttab.com/egiftcards/the-escobars-kitchen-hunters-creek-13769-s-john-young-pkwy',
+    findCard:      'https://www.toasttab.com/the-escobars-kitchen-hunters-creek-13769-s-john-young-pkwy/findcard',
+  },
+  // Professional food photos
+  photos: [
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee78eed72511.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714eea41dd72501.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee6a78d724fd.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714eea385d72506.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee0c99d724fe.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee2521d72500.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714eeb330d7250a.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee32d2d72505.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee5ec9d72503.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bcdb1b443e38.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bc10f0443e40.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bcbf73443e32.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bc6e47443e1e.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee703bd724fb.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bcdba0443e4b.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bc4e42443e29.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bc4fd8443e0e.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bc9a5d443df9.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bcf2a7443e41.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bcbdcc443e3c.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bcfe74443e4c.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bc2fc4443de5.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bc6520443e27.jpg',
+    'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b3155d8bc83f1443dfd.jpg',
+  ],
+  menu: [
+    { name: 'Crispy Rice Tuna', desc: 'Spicy tuna, crispy rice, jalapeño, sriracha aioli', price: '$18', photo: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee78eed72511.jpg' },
+    { name: 'Latin Bowl', desc: 'Rice, beans, plantains, choice of protein, pico de gallo', price: '$16', photo: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714eea41dd72501.jpg' },
+    { name: 'Gyro Wrap', desc: 'Seasoned lamb & beef, tzatziki, tomato, red onion, pita', price: '$15', photo: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee6a78d724fd.jpg' },
+    { name: 'Empanadas', desc: 'Crispy hand-folded pastries, beef or chicken, chimichurri dip', price: '$12', photo: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714eea385d72506.jpg' },
+    { name: 'Fusion Tacos', desc: 'Soy-glazed pork belly, pickled slaw, sesame, wonton strips', price: '$17', photo: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee0c99d724fe.jpg' },
+    { name: 'Catering Platter', desc: 'Full spread for events — serves 10+, customizable menu', price: 'From $180', photo: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/699b3b31f714ee2521d72500.jpg' },
+  ],
+  reviews: [
+    { name: 'Jessica M.', stars: 5, text: 'Best spicy tuna crispy rice in all of Orlando. The flavors are insane — Latin meets Asian perfectly. We come every week.' },
+    { name: 'Carlos R.', stars: 5, text: 'Three locations and every single one is consistent. The food is fresh, the portions are generous, and the staff is amazing.' },
+    { name: 'Ashley T.', stars: 5, text: 'Ordered catering for our office party. Everyone was blown away. The platters were beautiful and everything was delicious.' },
+    { name: 'Miguel F.', stars: 5, text: 'The Latin Bowl is my go-to. Perfect combination of rice, protein, and those plantains. Nothing like it in Kissimmee.' },
+    { name: 'Daniela K.', stars: 5, text: 'Finally a restaurant that does fusion right. Not gimmicky, just genuinely delicious food with bold flavors.' },
+    { name: 'Robert J.', stars: 5, text: '4.6 stars on Google with 452 reviews speaks for itself. This place is the real deal. The crispy rice is worth the drive alone.' },
+  ],
+  faqs: [
+    { q: 'Where is The Escobar Kitchen located?', a: 'We have 3 locations in Orlando, FL: Hunters Creek (13769 S John Young Pkwy), Lake Nona (13024 Narcoossee Rd, inside The Bravo Market), and Downtown Orlando (420 E Church St, Ste 108). Each location has its own hours — see our Locations page for full details.' },
+    { q: 'Can I order online for pickup or delivery?', a: 'Yes! Click "Order Now" on any page to place an online order for pickup or delivery via ChowNow. We also deliver through DoorDash and Uber Eats.' },
+    { q: 'Do you offer catering?', a: 'Absolutely. We cater events of all sizes — corporate lunches, birthday parties, weddings, and more. Platters from $180, serving 10 to 500+. Contact us at info@theescobarkitchen.com or call (407) 743-8827 for catering inquiries.' },
+    { q: 'What type of cuisine is The Escobar Kitchen?', a: "We serve bold Latin-Asian fusion — think crispy rice tuna, Latin bowls, fusion tacos, empanadas, and gyro wraps. It's Orlando's most unique culinary experience with 3 locations." },
+    { q: 'What are the hours at each location?', a: 'Hunters Creek: Mon–Wed 4–9pm, Thu–Sat 4–10pm. Lake Nona: Mon–Thu 12–7:30pm, Fri–Sat 12–8pm, Sun 12–7:30pm. Downtown Orlando: Mon–Thu 2–9pm, Fri–Sat 2–10pm, Sun 12–8pm.' },
+    { q: 'Do you have a rewards program?', a: 'Yes! Sign up for Toast Rewards to earn points on every visit. Use the Rewards link in the footer or ask your server for a QR code.' },
+    { q: 'Does the Downtown Orlando location have a bar?', a: 'Yes — our Downtown Orlando location features a full wine bar and craft cocktails, making it perfect for date nights, happy hours, and celebrations.' },
+  ],
+};
+
+function ekCSS() {
+  return `<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+:root{
+  --black:#0a0804;--dark:#111008;--surface:#1a1610;
+  --gold:#c8973a;--gold2:#e8b84b;--red:#c0392b;--cream:#faf6f0;
+  --text:#fff;--muted:rgba(255,255,255,0.55);--soft:rgba(255,255,255,0.35);
+  --line:rgba(255,255,255,0.08);--line2:rgba(255,255,255,0.12);
+  --display:'Bebas Neue',sans-serif;--body:'DM Sans',sans-serif;--serif:'Playfair Display',serif;
+  --max:1200px;--r:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:auto;}
+body{font-family:var(--body);background:var(--black);color:var(--text);overflow-x:hidden;}
+a{text-decoration:none;color:inherit;}
+img{max-width:100%;display:block;}
+
+/* NAV */
+.ek-nav-wrap{position:sticky;top:0;z-index:1000;background:rgba(10,8,4,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+.ek-c{width:min(var(--max),calc(100% - 40px));margin:0 auto;}
+.ek-nav{display:flex;align-items:center;justify-content:space-between;height:68px;gap:20px;}
+.ek-brand img{height:38px;width:auto;object-fit:contain;}
+.ek-nav-links{display:flex;align-items:center;gap:28px;}
+.ek-nav-links a{font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);transition:color .2s;}
+.ek-nav-links a:hover,.ek-nav-links a.act{color:#fff;}
+.ek-order-btn{background:var(--red);color:#fff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:0 20px;height:38px;border-radius:4px;display:inline-flex;align-items:center;transition:background .2s;}
+.ek-order-btn:hover{background:#a93226;}
+.ek-mob{display:none;background:none;border:0;color:#fff;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
+
+/* HERO */
+.ek-hero{position:relative;height:100vh;min-height:600px;overflow:hidden;display:flex;align-items:center;}
+.ek-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+.ek-hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(10,8,4,0.85) 40%,rgba(10,8,4,0.3));z-index:1;}
+.ek-hero-content{position:relative;z-index:2;padding:0 0 60px;}
+.ek-hero-kicker{font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.ek-hero-kicker::before{content:'';display:inline-block;width:32px;height:1px;background:var(--gold);}
+.ek-hero h1{font:400 clamp(72px,10vw,140px)/0.9 var(--display);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;}
+.ek-hero h1 em{color:var(--gold);font-style:normal;}
+.ek-hero-sub{font-size:18px;color:var(--muted);line-height:1.6;max-width:480px;margin-bottom:36px;}
+.ek-hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
+.ek-btn{display:inline-flex;align-items:center;justify-content:center;height:52px;padding:0 28px;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;border-radius:4px;transition:.22s ease;border:1px solid transparent;white-space:nowrap;}
+.ek-btn-red{background:var(--red);color:#fff;border-color:var(--red);}
+.ek-btn-red:hover{background:#a93226;}
+.ek-btn-gold{background:var(--gold);color:#000;border-color:var(--gold);}
+.ek-btn-gold:hover{background:var(--gold2);}
+.ek-btn-line{background:transparent;color:#fff;border-color:rgba(255,255,255,0.3);}
+.ek-btn-line:hover{border-color:#fff;}
+.ek-hero-social-proof{margin-top:48px;display:flex;align-items:center;gap:20px;padding-top:28px;border-top:1px solid var(--line);}
+.ek-stars{color:var(--gold);font-size:18px;letter-spacing:2px;}
+.ek-proof-text{font-size:13px;color:var(--muted);}
+.ek-proof-text strong{color:#fff;}
+
+/* TRUST MARQUEE */
+.ek-marquee{overflow:hidden;background:var(--red);padding:12px 0;border-top:1px solid rgba(255,255,255,0.1);}
+.ek-marquee-inner{display:flex;width:max-content;animation:ekMarquee 30s linear infinite;}
+.ek-marquee-item{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;padding:0 32px;white-space:nowrap;}
+.ek-marquee-item::after{content:'✦';margin-left:32px;opacity:0.6;}
+@keyframes ekMarquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* SECTIONS */
+.ek-s{padding:96px 0;}
+.ek-sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:56px;gap:20px;flex-wrap:wrap;}
+.ek-ey{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.ek-title{font:400 clamp(36px,5vw,64px)/1 var(--display);text-transform:uppercase;letter-spacing:1px;}
+.ek-title em{color:var(--gold);font-style:normal;}
+.ek-sub{font-size:16px;color:var(--muted);line-height:1.7;max-width:560px;margin-top:14px;}
+
+/* ORDER HERO STRIP */
+.ek-order-strip{background:var(--gold);padding:36px 0;}
+.ek-order-strip-in{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.ek-order-strip h2{font:400 clamp(28px,4vw,52px)/1 var(--display);text-transform:uppercase;color:#000;letter-spacing:1px;}
+.ek-order-strip p{font-size:14px;color:rgba(0,0,0,0.65);margin-top:6px;}
+.ek-order-strip .ek-btn-red{height:56px;padding:0 36px;font-size:12px;}
+
+/* MENU GRID */
+.ek-menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.ek-menu-card{position:relative;overflow:hidden;aspect-ratio:1;cursor:pointer;}
+.ek-menu-card img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+.ek-menu-card:hover img{transform:scale(1.06);}
+.ek-menu-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,8,4,0.9) 0%,transparent 50%);opacity:0;transition:opacity .3s;}
+.ek-menu-card:hover .ek-menu-overlay{opacity:1;}
+.ek-menu-info{position:absolute;bottom:0;left:0;right:0;padding:20px;transform:translateY(8px);transition:transform .3s;}
+.ek-menu-card:hover .ek-menu-info{transform:translateY(0);}
+.ek-menu-name{font:400 22px/1 var(--display);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.ek-menu-desc{font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:10px;}
+.ek-menu-price{font-size:13px;font-weight:700;color:var(--gold);}
+
+/* FULL BLEED FOOD PHOTO */
+.ek-food-feature{display:grid;grid-template-columns:1fr 1fr;min-height:560px;}
+.ek-food-img{overflow:hidden;}
+.ek-food-img img{width:100%;height:100%;object-fit:cover;}
+.ek-food-copy{background:var(--dark);display:flex;flex-direction:column;justify-content:center;padding:72px 64px;}
+.ek-food-copy .ek-ey{margin-bottom:14px;}
+
+/* PHOTO GRID */
+.ek-photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
+.ek-photo-item{aspect-ratio:.8;overflow:hidden;}
+.ek-photo-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+.ek-photo-item:hover img{transform:scale(1.05);}
+.ek-photo-item.tall{grid-row:span 2;aspect-ratio:auto;}
+
+/* LOCATIONS */
+.ek-loc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.ek-loc-card{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;}
+.ek-loc-map{height:200px;}
+.ek-loc-map iframe{width:100%;height:100%;border:0;filter:grayscale(1) brightness(0.6);}
+.ek-loc-info{padding:24px;}
+.ek-loc-name{font:400 22px/1 var(--display);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.ek-loc-addr{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+.ek-loc-hours{font-size:12px;font-weight:600;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;}
+.ek-loc-actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+/* REVIEWS */
+.ek-rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.ek-rev-card{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:28px;}
+.ek-rev-stars{color:var(--gold);font-size:16px;letter-spacing:2px;margin-bottom:14px;}
+.ek-rev-text{font-size:15px;line-height:1.7;color:rgba(255,255,255,0.8);margin-bottom:18px;font-style:italic;}
+.ek-rev-name{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+
+/* CATERING */
+.ek-catering{background:var(--surface);border-radius:var(--r);overflow:hidden;display:grid;grid-template-columns:1fr 1fr;}
+.ek-catering-img img{width:100%;height:100%;object-fit:cover;min-height:440px;}
+.ek-catering-copy{padding:72px 56px;display:flex;flex-direction:column;justify-content:center;}
+
+/* FAQ */
+.ek-faq-list{max-width:800px;margin:0 auto;}
+.ek-faq-item{border-bottom:1px solid var(--line2);padding:22px 0;}
+.ek-faq-btn{width:100%;text-align:left;background:transparent;border:0;color:#fff;font-size:16px;font-weight:600;padding:0;display:flex;justify-content:space-between;align-items:center;gap:16px;cursor:pointer;}
+.ek-faq-icon{font-size:22px;color:var(--gold);flex-shrink:0;}
+.ek-faq-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.ek-faq-item.open .ek-faq-body{max-height:200px;}
+.ek-faq-body p{font-size:14px;color:var(--muted);line-height:1.8;padding-top:14px;}
+
+/* FOOTER */
+.ek-footer{background:#050503;border-top:1px solid var(--line);padding:48px 0 32px;}
+.ek-footer-in{display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px;margin-bottom:36px;}
+.ek-footer-brand img{height:34px;margin-bottom:14px;}
+.ek-footer-brand p{font-size:13px;color:var(--soft);line-height:1.7;}
+.ek-footer-col h4{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.ek-footer-col a,.ek-footer-col p{font-size:13px;color:var(--muted);display:block;margin-bottom:8px;transition:color .2s;}
+.ek-footer-col a:hover{color:#fff;}
+.ek-footer-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.ek-footer-copy{font-size:11px;color:var(--soft);letter-spacing:1px;}
+
+/* STICKY ORDER BAR (mobile) */
+.ek-sticky-order{display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:var(--red);padding:12px 20px;text-align:center;}
+.ek-sticky-order a{color:#fff;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+
+/* CTA BAND */
+.ek-cta-band{background:linear-gradient(135deg,var(--dark) 0%,#1a0a06 100%);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:72px 0;text-align:center;}
+.ek-cta-band h2{font:400 clamp(40px,6vw,80px)/1 var(--display);text-transform:uppercase;letter-spacing:2px;margin-bottom:18px;}
+.ek-cta-band p{font-size:16px;color:var(--muted);margin-bottom:32px;}
+.ek-cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+
+/* REVEAL ANIMATION */
+.ek-reveal{opacity:0;transform:translateY(32px);transition:opacity .8s ease,transform .8s ease;}
+.ek-reveal.in{opacity:1;transform:translateY(0);}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .ek-menu-grid{grid-template-columns:repeat(2,1fr);}
+  .ek-loc-grid{grid-template-columns:repeat(2,1fr);}
+  .ek-rev-grid{grid-template-columns:repeat(2,1fr);}
+  .ek-food-feature{grid-template-columns:1fr;}
+  .ek-catering{grid-template-columns:1fr;}
+  .ek-catering-img img{min-height:300px;}
+  .ek-footer-in{grid-template-columns:1fr 1fr;}
+  .ek-photo-grid{grid-template-columns:repeat(3,1fr);}
+}
+@media(max-width:768px){
+  .ek-nav-links{display:none;}
+  .ek-mob{display:block;}
+  .ek-hero{height:90vh;}
+  .ek-menu-grid{grid-template-columns:repeat(2,1fr);}
+  .ek-loc-grid,.ek-rev-grid{grid-template-columns:1fr;}
+  .ek-photo-grid{grid-template-columns:repeat(2,1fr);}
+  .ek-footer-in{grid-template-columns:1fr;}
+  .ek-order-strip-in{flex-direction:column;text-align:center;}
+  .ek-food-copy{padding:48px 32px;}
+  .ek-sticky-order{display:block;}
+  body{padding-bottom:52px;}
+  .ek-sec-head{flex-direction:column;align-items:flex-start;}
+  .ek-catering-copy{padding:40px 28px;}
+}
+@media(max-width:500px){
+  .ek-hero h1{font-size:60px;}
+  .ek-menu-grid{grid-template-columns:1fr;}
+  .ek-photo-grid{grid-template-columns:repeat(2,1fr);}
+  .ek-btn{width:100%;justify-content:center;}
+  .ek-hero-btns,.ek-cta-btns{flex-direction:column;}
+}
+</style>`;
+}
+
+function ekNav(activePage) {
+  const links = [
+    { href: '/', label: 'Home' },
+    { href: '/menu', label: 'Menu' },
+    { href: '/locations', label: 'Locations' },
+    { href: '/catering', label: 'Catering' },
+    { href: '/about', label: 'About' },
+    { href: '/contact', label: 'Contact' },
+  ];
+  return `<div class="ek-nav-wrap"><div class="ek-c ek-nav">
+  <a href="/" class="ek-brand"><img src="${EK.logo}" alt="The Escobar Kitchen" width="120" height="38" fetchpriority="high"></a>
+  <nav class="ek-nav-links" id="ekNav">
+    ${links.map(l=>`<a href="${l.href}"${activePage===l.href?' class="act"':''}>${l.label}</a>`).join('')}
+    <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-order-btn">Order Now</a>
+  </nav>
+  <button class="ek-mob" id="ekMob">&#9776;</button>
+</div></div>`;
+}
+
+function ekFooter() {
+  return `<footer class="ek-footer"><div class="ek-c">
+  <div class="ek-footer-in">
+    <div class="ek-footer-brand">
+      <img src="${EK.logo}" alt="The Escobar Kitchen">
+      <p>Orlando's boldest Latin-Asian fusion.<br>3 locations across Central Florida.</p>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red" style="height:40px;padding:0 18px;font-size:10px;">Order Online</a>
+        <a href="/catering" class="ek-btn ek-btn-line" style="height:40px;padding:0 18px;font-size:10px;">Book Catering</a>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:12px;">
+        <a href="${EK.ig}" target="_blank" rel="noopener" style="font-size:11px;color:var(--muted);letter-spacing:1px;">Instagram</a>
+        <a href="${EK.toast.rewardsSignup}" target="_blank" rel="noopener" style="font-size:11px;color:var(--gold);letter-spacing:1px;">Join Rewards</a>
+      </div>
+    </div>
+    <div class="ek-footer-col">
+      <h4>Our Locations</h4>
+      ${EK.locations.map(l=>`<a href="${l.slug}"><strong style="color:#fff;">${l.name}</strong></a>
+      <p style="margin-top:2px;margin-bottom:10px;">${l.address}${l.note?`<br><em style="color:var(--gold);font-size:11px;">${l.note}</em>`:''}</p>`).join('')}
+    </div>
+    <div class="ek-footer-col">
+      <h4>Contact</h4>
+      <a href="tel:${EK.locations[0].phone}">${EK.locations[0].phoneDisplay} (Hunters Creek)</a>
+      <a href="tel:${EK.locations[1].phone}">${EK.locations[1].phoneDisplay} (Lake Nona)</a>
+      <a href="tel:${EK.locations[2].phone}">${EK.locations[2].phoneDisplay} (Downtown)</a>
+      <a href="mailto:${EK.email}" style="margin-top:8px;">${EK.email}</a>
+      <h4 style="margin-top:20px;">Rewards &amp; Gifts</h4>
+      <a href="${EK.toast.rewardsSignup}" target="_blank" rel="noopener">Join Toast Rewards</a>
+      <a href="${EK.toast.rewardsLookup}" target="_blank" rel="noopener">Check My Rewards</a>
+      <a href="${EK.toast.eGiftCards}" target="_blank" rel="noopener">Buy E-Gift Cards</a>
+      <a href="${EK.toast.findCard}" target="_blank" rel="noopener">Check Gift Card Balance</a>
+    </div>
+  </div>
+  <div class="ek-footer-bottom">
+    <div style="display:flex;gap:20px;flex-wrap:wrap;">
+      <a href="/" style="font-size:11px;color:var(--soft);">Home</a>
+      <a href="/menu" style="font-size:11px;color:var(--soft);">Menu</a>
+      <a href="/locations" style="font-size:11px;color:var(--soft);">Locations</a>
+      <a href="/catering" style="font-size:11px;color:var(--soft);">Catering</a>
+      <a href="/about" style="font-size:11px;color:var(--soft);">About</a>
+      <a href="/contact" style="font-size:11px;color:var(--soft);">Contact</a>
+    </div>
+    <span class="ek-footer-copy">© ${new Date().getFullYear()} The Escobar Kitchen · Powered by <strong>JRZ Marketing</strong></span>
+  </div>
+</div></footer>
+<div class="ek-sticky-order"><a href="${EK.orderUrl}" target="_blank" rel="noopener">Order Online — Pickup &amp; Delivery Available →</a></div>`;
+}
+
+function ekScript() {
+  return `<script>(function(){
+// Mobile nav
+var mob=document.getElementById('ekMob'),nav=document.getElementById('ekNav');
+if(mob&&nav)mob.addEventListener('click',function(){var o=nav.style.display==='flex';nav.style.cssText=o?'':'display:flex;flex-direction:column;position:fixed;inset:68px 10px auto;padding:18px;background:rgba(10,8,4,.98);border:1px solid rgba(255,255,255,.08);gap:16px;z-index:999;align-items:stretch;';});
+window.addEventListener('resize',function(){if(window.innerWidth>768&&nav)nav.style.cssText='';});
+// Reveal
+var ro=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.ek-reveal').forEach(function(el){ro.observe(el);});
+// FAQ
+document.querySelectorAll('.ek-faq-item').forEach(function(item){
+  var btn=item.querySelector('.ek-faq-btn');if(!btn)return;
+  btn.addEventListener('click',function(){var o=item.classList.contains('open');document.querySelectorAll('.ek-faq-item').forEach(function(x){x.classList.remove('open');var ic=x.querySelector('.ek-faq-icon');if(ic)ic.textContent='+';});if(!o){item.classList.add('open');var ic=item.querySelector('.ek-faq-icon');if(ic)ic.textContent='−';}});
+});
+// Lenis
+if(typeof Lenis!=='undefined'){
+  var lenis=new Lenis({lerp:.08,smoothWheel:true});
+  if(typeof gsap!=='undefined'&&typeof ScrollTrigger!=='undefined'){
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.ticker.add(function(t){lenis.raf(t*1000);});
+    gsap.ticker.lagSmoothing(0);
+    lenis.on('scroll',ScrollTrigger.update);
+    gsap.utils.toArray('.ek-reveal').forEach(function(el){
+      gsap.fromTo(el,{opacity:0,y:40},{opacity:1,y:0,duration:.85,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 88%'}});
+    });
+  } else {
+    requestAnimationFrame(function raf(t){lenis.raf(t);requestAnimationFrame(raf);});
+  }
+}
+// View Transitions
+if(document.startViewTransition){
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a');if(!a)return;
+    var h=a.getAttribute('href')||'';
+    if(!h||h.startsWith('#')||h.startsWith('tel:')||h.startsWith('mailto:')||a.target==='_blank')return;
+    try{var u=new URL(h,location.href);if(u.origin!==location.origin)return;}catch(x){return;}
+    e.preventDefault();document.startViewTransition(function(){window.location.href=h;});
+  });
+}
+})();</script>`;
+}
+
+function ekWrap(title, metaDesc, keywords, schema, body) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+<meta name="description" content="${metaDesc}">
+<meta name="keywords" content="${keywords}">
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${metaDesc}">
+<meta property="og:image" content="${EK.photos[0]}">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://assets.cdn.filesafe.space">
+<link rel="preload" as="video" href="${EK.heroVideo}" type="video/mp4">
+${ekCSS()}
+<script type="application/ld+json">${JSON.stringify(schema)}</script>
+<script type="application/ld+json">${JSON.stringify({
+  "@context":"https://schema.org","@type":"FAQPage",
+  "mainEntity": EK.faqs.map(f=>({ "@type":"Question","name":f.q,"acceptedAnswer":{"@type":"Answer","text":f.a} }))
+})}</script>
+<script type="application/ld+json">${JSON.stringify({
+  "@context":"https://schema.org","@type":"Restaurant",
+  "name":"The Escobar Kitchen","servesCuisine":["Latin","Asian Fusion","Sushi"],
+  "priceRange":"$$","telephone":EK.phone,"email":EK.email,
+  "aggregateRating":{"@type":"AggregateRating","ratingValue":"4.6","reviewCount":"452","bestRating":"5"},
+  "review": EK.reviews.map(r=>({ "@type":"Review","author":{"@type":"Person","name":r.name},"reviewRating":{"@type":"Rating","ratingValue":"5"},"reviewBody":r.text })),
+  "hasMenu": EK.orderUrl,
+  "location": EK.locations.map(l=>({ "@type":"Place","name":`The Escobar Kitchen — ${l.name}`,"address":{"@type":"PostalAddress","streetAddress":l.address,"addressCountry":"US"} }))
+})}</script>
+</head>
+<body>${body}
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+${ekScript()}
+</body></html>`;
+}
+
+function ekBuildHome() {
+  const marqueeItems = ['Order Online','3 Orlando Locations','Latin-Asian Fusion','Hunters Creek · Lake Nona · Downtown','Pickup & Delivery','Catering Available','4.6 Stars on Google'];
+  const marqueeHtml = [...marqueeItems,...marqueeItems].map(i=>`<span class="ek-marquee-item">${i}</span>`).join('');
+  const menuGrid = EK.menu.map(m=>`
+  <div class="ek-menu-card">
+    <img src="${m.photo}" alt="${m.name} — The Escobar Kitchen" loading="lazy">
+    <div class="ek-menu-overlay"></div>
+    <div class="ek-menu-info">
+      <div class="ek-menu-name">${m.name}</div>
+      <div class="ek-menu-desc">${m.desc}</div>
+      <div class="ek-menu-price">${m.price}</div>
+    </div>
+  </div>`).join('');
+  const photoGrid = EK.photos.slice(6,18).map((p,i)=>`<div class="ek-photo-item${i===0||i===5?' tall':''}"><img src="${p}" alt="Escobar Kitchen food Orlando" loading="lazy"></div>`).join('');
+  const revHtml = EK.reviews.map(r=>`<div class="ek-rev-card ek-reveal">
+    <div class="ek-rev-stars">★★★★★</div>
+    <p class="ek-rev-text">"${r.text}"</p>
+    <div class="ek-rev-name">— ${r.name}</div>
+  </div>`).join('');
+  const locHtml = EK.locations.map(l=>`<div class="ek-loc-card ek-reveal">
+    <div class="ek-loc-map"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${l.mapSrc}" title="${l.name} location"></iframe></div>
+    <div class="ek-loc-info">
+      <div class="ek-loc-name">${l.name}</div>
+      <div class="ek-loc-addr">${l.address}${l.note?`<br><small style="color:var(--gold);font-size:11px;">${l.note}</small>`:''}</div>
+      <div class="ek-loc-hours">${l.hours}</div>
+      <div class="ek-loc-actions">
+        <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red" style="height:38px;padding:0 16px;font-size:10px;">Order Now</a>
+        <a href="tel:${l.phone}" class="ek-btn ek-btn-line" style="height:38px;padding:0 16px;font-size:10px;">Call</a>
+        <a href="${l.slug}" class="ek-btn ek-btn-line" style="height:38px;padding:0 16px;font-size:10px;">Details →</a>
+      </div>
+    </div>
+  </div>`).join('');
+  const faqHtml = EK.faqs.map((f,i)=>`<div class="ek-faq-item${i===0?' open':''}">
+    <button class="ek-faq-btn" type="button"><span>${f.q}</span><span class="ek-faq-icon">${i===0?'−':'+'}</span></button>
+    <div class="ek-faq-body"><p>${f.a}</p></div>
+  </div>`).join('');
+  const schema = {"@context":"https://schema.org","@type":"Restaurant","name":"The Escobar Kitchen","image":EK.photos[0],"description":"Orlando's boldest Latin-Asian fusion restaurant. 3 locations in Kissimmee, Orlando, and Lake Nona. Order online for pickup or delivery.","telephone":EK.phone,"email":EK.email,"url":"https://www.theescobarkitchen.com","servesCuisine":["Latin","Asian Fusion"],"priceRange":"$$","openingHours":"Mo-Su 11:00-22:00"};
+  const body = `${ekNav('/')}
+<!-- HERO -->
+<section class="ek-hero">
+  <video class="ek-hero-video" autoplay muted loop playsinline preload="auto">
+    <source src="${EK.heroVideo}" type="video/mp4">
+    <source src="${EK.heroVideo2}" type="video/mp4">
+  </video>
+  <div class="ek-hero-overlay"></div>
+  <div class="ek-c ek-hero-content">
+    <div class="ek-hero-kicker">3 Locations · Central Florida</div>
+    <h1>Latin<br><em>Asian</em><br>Fusion</h1>
+    <p class="ek-hero-sub">Bold flavors. Real ingredients. Orlando's most unique culinary experience — Hunters Creek, Lake Nona &amp; Downtown. Order online now.</p>
+    <div class="ek-hero-btns">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Now — Pickup &amp; Delivery</a>
+      <a href="/menu" class="ek-btn ek-btn-line">See The Menu</a>
+    </div>
+    <div class="ek-hero-social-proof">
+      <div class="ek-stars">★★★★★</div>
+      <div class="ek-proof-text"><strong>4.6 stars</strong> · 600+ Google reviews · <strong>3 Orlando locations</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="ek-marquee"><div class="ek-marquee-inner">${marqueeHtml}</div></div>
+
+<!-- ORDER STRIP -->
+<div class="ek-order-strip">
+  <div class="ek-c ek-order-strip-in">
+    <div>
+      <h2>Ready to Order?</h2>
+      <p>Online ordering · Pickup ready in 15 min · Delivery available</p>
+    </div>
+    <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Online Now →</a>
+  </div>
+</div>
+
+<!-- MENU -->
+<section class="ek-s" id="menu" style="background:var(--dark);padding-bottom:0;">
+  <div class="ek-c">
+    <div class="ek-sec-head ek-reveal">
+      <div>
+        <div class="ek-ey">What We Serve</div>
+        <h2 class="ek-title">The <em>Menu</em></h2>
+        <p class="ek-sub">Latin-Asian fusion done bold. Every dish crafted with real ingredients and no shortcuts.</p>
+      </div>
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-gold">Order Full Menu →</a>
+    </div>
+  </div>
+  <div class="ek-menu-grid">${menuGrid}</div>
+</section>
+
+<!-- FOOD FEATURE -->
+<div class="ek-food-feature">
+  <div class="ek-food-img"><img src="${EK.photos[7]}" alt="Escobar Kitchen food Orlando" loading="lazy"></div>
+  <div class="ek-food-copy ek-reveal">
+    <div class="ek-ey">Our Story</div>
+    <h2 class="ek-title">Born From <em>Bold</em> Flavors</h2>
+    <p class="ek-sub" style="margin-top:18px;">The Escobar Kitchen brings together the vibrant spirit of Latin cuisine and the precision of Asian cooking. The result? Dishes you've never tasted anywhere else in Orlando.</p>
+    <p class="ek-sub" style="margin-top:12px;">3 locations across Orlando — Hunters Creek, Lake Nona, and Downtown — each serving the same bold menu with the same uncompromising standards.</p>
+    <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Now</a>
+      <a href="tel:${EK.phone}" class="ek-btn ek-btn-line">${EK.phoneDisplay}</a>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTO GRID -->
+<div class="ek-photo-grid">${photoGrid}</div>
+
+<!-- REVIEWS -->
+<section class="ek-s" id="reviews" style="background:var(--dark);">
+  <div class="ek-c">
+    <div class="ek-sec-head ek-reveal">
+      <div>
+        <div class="ek-ey">What Orlando Is Saying</div>
+        <h2 class="ek-title">4.6 Stars · <em>452</em> Reviews</h2>
+      </div>
+    </div>
+    <div class="ek-rev-grid">${revHtml}</div>
+  </div>
+</section>
+
+<!-- CATERING -->
+<section class="ek-s" id="catering" style="background:var(--black);">
+  <div class="ek-c">
+    <div class="ek-sec-head ek-reveal">
+      <div>
+        <div class="ek-ey">Events & Groups</div>
+        <h2 class="ek-title">Catering <em>Available</em></h2>
+        <p class="ek-sub">From corporate lunches to weddings — we bring the boldest Latin-Asian flavors to your event.</p>
+      </div>
+    </div>
+    <div class="ek-catering ek-reveal">
+      <div class="ek-catering-img"><img src="${EK.photos[5]}" alt="Escobar Kitchen catering Orlando" loading="lazy"></div>
+      <div class="ek-catering-copy">
+        <div class="ek-ey">Catering</div>
+        <h2 class="ek-title" style="font-size:clamp(32px,4vw,52px);">Your Event,<br>Our <em>Food</em></h2>
+        <p class="ek-sub" style="margin-top:18px;">Serving 10 to 500+. Customizable menus, delivery included, setup available. Let us handle the food so you can focus on your guests.</p>
+        <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="mailto:${EK.email}" class="ek-btn ek-btn-gold">Request Catering Quote</a>
+          <a href="tel:${EK.phone}" class="ek-btn ek-btn-line">Call ${EK.phoneDisplay}</a>
+        </div>
+        <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          ${['Corporate Events','Birthday Parties','Weddings','Office Lunches'].map(i=>`<div style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;"><span style="color:var(--gold);">✓</span>${i}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATIONS -->
+<section class="ek-s" id="locations" style="background:var(--dark);">
+  <div class="ek-c">
+    <div class="ek-sec-head ek-reveal">
+      <div>
+        <div class="ek-ey">Find Us</div>
+        <h2 class="ek-title">3 <em>Locations</em></h2>
+        <p class="ek-sub">Hunters Creek · Lake Nona · Downtown Orlando — <a href="/locations" style="color:var(--gold);">View all hours →</a></p>
+      </div>
+    </div>
+    <div class="ek-loc-grid">${locHtml}</div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="ek-s" style="background:var(--black);">
+  <div class="ek-c ek-reveal">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div class="ek-ey" style="justify-content:center;">FAQ</div>
+      <h2 class="ek-title">Questions?</h2>
+    </div>
+    <div class="ek-faq-list">${faqHtml}</div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="ek-cta-band">
+  <div class="ek-c">
+    <h2>Hungry? <em>Order Now.</em></h2>
+    <p>Pickup in 15 minutes or delivery to your door. 3 locations across Central Florida.</p>
+    <div class="ek-cta-btns">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Online →</a>
+      <a href="tel:${EK.phone}" class="ek-btn ek-btn-line">Call ${EK.phoneDisplay}</a>
+      <a href="mailto:${EK.email}" class="ek-btn ek-btn-line">Book Catering</a>
+    </div>
+  </div>
+</div>
+
+${ekFooter()}`;
+  return ekWrap(
+    'The Escobar Kitchen | Latin Asian Fusion Restaurant Orlando FL | 3 Locations',
+    "Orlando's boldest Latin-Asian fusion restaurant. Order online for pickup or delivery. 3 locations in Orlando: Hunters Creek, Lake Nona & Downtown. 4.6 stars.",
+    'latin asian fusion orlando,escobar kitchen,latin restaurant orlando fl,latin asian food orlando,order latin food online orlando,latin asian fusion restaurant near me',
+    schema, body
+  );
+}
+
+function ekBuildAbout() {
+  const teamPhotos = EK.photos.slice(10, 14);
+  const body = `${ekNav('/about')}
+<!-- HERO -->
+<section style="position:relative;padding:120px 0 80px;background:var(--dark);overflow:hidden;">
+  <div style="position:absolute;inset:0;background:url(${EK.photos[8]}) center/cover;opacity:0.12;"></div>
+  <div class="ek-c" style="position:relative;z-index:1;">
+    <div class="ek-ey">Our Story</div>
+    <h1 class="ek-title" style="font-size:clamp(52px,8vw,110px);line-height:0.9;margin-bottom:24px;">Born From<br><em>Bold</em><br>Flavors</h1>
+    <p style="font-size:18px;color:var(--muted);max-width:560px;line-height:1.7;">Where Latin soul meets Asian precision. The Escobar Kitchen started with one simple idea — that the boldest flavors in the world deserve to be on the same plate.</p>
+  </div>
+</section>
+
+<!-- STORY SECTION -->
+<section class="ek-s" style="background:var(--black);">
+  <div class="ek-c">
+    <div class="ek-food-feature ek-reveal" style="border-radius:var(--r);overflow:hidden;">
+      <div class="ek-food-img"><img src="${EK.photos[9]}" alt="The Escobar Kitchen kitchen" loading="lazy"></div>
+      <div class="ek-food-copy">
+        <div class="ek-ey">The Beginning</div>
+        <h2 class="ek-title" style="font-size:clamp(32px,4vw,52px);">A Kitchen Born<br>From <em>Passion</em></h2>
+        <p class="ek-sub" style="margin-top:18px;">The Escobar Kitchen was built on the belief that food should be bold, unexpected, and unforgettable. We fuse the vibrant spices of Latin America with the clean precision of Asian cooking to create something Orlando has never tasted before.</p>
+        <p class="ek-sub" style="margin-top:12px;">Every dish on our menu is a conversation between two cultures — and the result speaks for itself in every bite.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section class="ek-s" style="background:var(--dark);">
+  <div class="ek-c">
+    <div class="ek-sec-head ek-reveal">
+      <div>
+        <div class="ek-ey">What We Stand For</div>
+        <h2 class="ek-title">Our <em>Values</em></h2>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;" class="ek-reveal">
+      ${[
+        { icon:'🌶', title:'Bold Flavors', desc:'We never compromise on taste. Every ingredient is chosen to deliver maximum impact, maximum satisfaction.' },
+        { icon:'🥢', title:'Fusion Done Right', desc:'This is not a gimmick. Latin and Asian cuisine share deep culinary roots — we honor both traditions in every dish.' },
+        { icon:'📍', title:'Community First', desc:'Three Orlando locations because we believe in being close to the people who love our food. We grow where you are.' },
+        { icon:'🌿', title:'Real Ingredients', desc:'No shortcuts, no substitutes. Fresh proteins, hand-prepared sauces, and produce sourced with care.' },
+        { icon:'🎉', title:'Celebration Ready', desc:'Whether it\'s date night, a birthday, or a corporate catering order — we show up and deliver every time.' },
+        { icon:'⭐', title:'600+ Five-Star Reviews', desc:'Our guests keep coming back. 4.6 stars across three locations and counting. The food does the talking.' },
+      ].map(v=>`<div style="background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:32px;">
+        <div style="font-size:32px;margin-bottom:16px;">${v.icon}</div>
+        <h3 style="font-family:var(--display);font-size:22px;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">${v.title}</h3>
+        <p style="font-size:14px;color:var(--muted);line-height:1.7;">${v.desc}</p>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- PHOTO COLLAGE -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;">
+  ${teamPhotos.map(p=>`<div style="aspect-ratio:1;overflow:hidden;"><img src="${p}" alt="Escobar Kitchen Orlando" loading="lazy" style="width:100%;height:100%;object-fit:cover;"></div>`).join('')}
+</div>
+
+<!-- STATS -->
+<section style="background:var(--gold);padding:72px 0;">
+  <div class="ek-c">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center;">
+      ${[
+        { n:'3', l:'Orlando Locations' },
+        { n:'4.6★', l:'Average Google Rating' },
+        { n:'600+', l:'5-Star Reviews' },
+        { n:'2+', l:'Years Serving Orlando' },
+      ].map(s=>`<div>
+        <div style="font-family:var(--display);font-size:clamp(52px,6vw,80px);color:#000;line-height:1;">${s.n}</div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,0,0,0.6);margin-top:8px;">${s.l}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="ek-cta-band">
+  <div class="ek-c">
+    <h2>Come Taste the <em>Difference</em></h2>
+    <p>3 Orlando locations. Online ordering. Catering available.</p>
+    <div class="ek-cta-btns">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Online →</a>
+      <a href="/locations" class="ek-btn ek-btn-gold">Find a Location</a>
+      <a href="/catering" class="ek-btn ek-btn-line">Book Catering</a>
+    </div>
+  </div>
+</div>
+${ekFooter()}`;
+  const schema = {"@context":"https://schema.org","@type":"Restaurant","name":"The Escobar Kitchen","description":"Orlando's boldest Latin-Asian fusion restaurant with 3 locations. Born from the belief that bold flavors deserve to share the same plate.","telephone":EK.phone,"email":EK.email,"image":EK.photos[0],"servesCuisine":["Latin","Asian Fusion"],"priceRange":"$$"};
+  return ekWrap('About The Escobar Kitchen | Our Story | Latin Asian Fusion Orlando', "Learn the story behind The Escobar Kitchen — Orlando's boldest Latin-Asian fusion restaurant with 3 locations. Bold flavors, real ingredients, community first.", 'about escobar kitchen,escobar kitchen story,latin asian fusion orlando,escobar kitchen orlando,latin food restaurant orlando', schema, body);
+}
+
+function ekBuildLocations() {
+  const locCards = EK.locations.map(l=>`
+  <div class="ek-loc-card ek-reveal" style="background:var(--dark);">
+    <div class="ek-loc-map"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${l.mapSrc}" title="${l.name} — The Escobar Kitchen"></iframe></div>
+    <div class="ek-loc-info">
+      <div class="ek-loc-name">${l.name}</div>
+      <div class="ek-loc-addr">${l.address}${l.note?`<br><small style="color:var(--gold);font-style:italic;">${l.note}</small>`:''}</div>
+      <div class="ek-loc-hours">${l.hours}</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;"><span style="color:var(--gold);">★</span><span style="font-size:13px;">${l.rating} stars · ${l.reviews} reviews</span></div>
+      <div class="ek-loc-actions">
+        <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red" style="height:40px;padding:0 18px;font-size:10px;">Order Now</a>
+        <a href="tel:${l.phone}" class="ek-btn ek-btn-line" style="height:40px;padding:0 18px;font-size:10px;">Call ${l.phoneDisplay}</a>
+        <a href="${l.slug}" class="ek-btn ek-btn-gold" style="height:40px;padding:0 18px;font-size:10px;">More Info →</a>
+      </div>
+    </div>
+  </div>`).join('');
+  const body = `${ekNav('/locations')}
+<section style="padding:100px 0 60px;background:var(--dark);">
+  <div class="ek-c">
+    <div class="ek-ey">Where To Find Us</div>
+    <h1 class="ek-title" style="font-size:clamp(52px,7vw,100px);">3 Orlando<br><em>Locations</em></h1>
+    <p style="font-size:17px;color:var(--muted);max-width:520px;line-height:1.7;margin-top:16px;">Hunters Creek · Lake Nona · Downtown Orlando. All serving the same bold Latin-Asian fusion menu. Same quality, same passion, wherever you are.</p>
+  </div>
+</section>
+<section class="ek-s" style="background:var(--black);">
+  <div class="ek-c">
+    <div class="ek-loc-grid">${locCards}</div>
+  </div>
+</section>
+<section class="ek-s" style="background:var(--dark);">
+  <div class="ek-c ek-reveal" style="text-align:center;">
+    <div class="ek-ey">Hours At A Glance</div>
+    <h2 class="ek-title" style="margin-bottom:40px;">Location <em>Hours</em></h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+      ${EK.locations.map(l=>`<div style="background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:28px;text-align:left;">
+        <div style="font-family:var(--display);font-size:22px;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;color:var(--gold);">${l.name}</div>
+        <div style="font-size:13px;color:var(--muted);line-height:2;">${l.hours.replace(/·/g,'<br>')}</div>
+        ${l.note?`<div style="margin-top:12px;font-size:11px;color:var(--gold);font-style:italic;">${l.note}</div>`:''}
+        <a href="tel:${l.phone}" style="display:block;margin-top:14px;font-size:13px;font-weight:600;color:#fff;">${l.phoneDisplay}</a>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+<div class="ek-cta-band">
+  <div class="ek-c">
+    <h2>Order From Any <em>Location</em></h2>
+    <p>Online ordering available. Pickup or delivery. 3 Orlando locations.</p>
+    <div class="ek-cta-btns">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Online →</a>
+      <a href="/catering" class="ek-btn ek-btn-line">Book Catering</a>
+    </div>
+  </div>
+</div>
+${ekFooter()}`;
+  const schema = {"@context":"https://schema.org","@type":"ItemList","name":"The Escobar Kitchen Locations","itemListElement":EK.locations.map((l,i)=>({ "@type":"ListItem","position":i+1,"name":`The Escobar Kitchen — ${l.name}`,"url":`https://www.theescobarkitchen.com${l.slug}` }))};
+  return ekWrap('Locations — The Escobar Kitchen | 3 Orlando FL Locations', "Find The Escobar Kitchen near you. 3 locations in Orlando: Hunters Creek, Lake Nona & Downtown. View hours, addresses, and order online.", 'escobar kitchen locations,escobar kitchen orlando,latin food near me orlando,latin asian fusion near me,hunters creek restaurant,lake nona restaurant', schema, body);
+}
+
+function ekBuildLocationPage(loc, photos) {
+  const faqHtml = EK.faqs.slice(0,5).map((f,i)=>`<div class="ek-faq-item${i===0?' open':''}">
+    <button class="ek-faq-btn" type="button"><span>${f.q}</span><span class="ek-faq-icon">${i===0?'−':'+'}</span></button>
+    <div class="ek-faq-body"><p>${f.a}</p></div>
+  </div>`).join('');
+  const revHtml = EK.reviews.slice(0,3).map(r=>`<div class="ek-rev-card ek-reveal">
+    <div class="ek-rev-stars">★★★★★</div>
+    <p class="ek-rev-text">"${r.text}"</p>
+    <div class="ek-rev-name">— ${r.name}</div>
+  </div>`).join('');
+  const photoGrid = photos.map(p=>`<div class="ek-photo-item"><img src="${p}" alt="Escobar Kitchen ${loc.name} Orlando" loading="lazy"></div>`).join('');
+  const schema = {"@context":"https://schema.org","@type":"Restaurant","name":`The Escobar Kitchen — ${loc.name}`,"image":EK.photos[0],"description":`The Escobar Kitchen ${loc.name} location in Orlando. Bold Latin-Asian fusion. ${loc.address}. Order online for pickup or delivery.`,"address":{"@type":"PostalAddress","streetAddress":loc.address,"addressLocality":"Orlando","addressRegion":"FL","addressCountry":"US"},"telephone":loc.phone,"email":EK.email,"servesCuisine":["Latin","Asian Fusion"],"priceRange":"$$","openingHoursSpecification":[],"aggregateRating":{"@type":"AggregateRating","ratingValue":loc.rating,"reviewCount":loc.reviews.replace('+',''),"bestRating":"5"}};
+  const body = `${ekNav(loc.slug)}
+<!-- HERO -->
+<section style="position:relative;padding:110px 0 72px;background:var(--dark);overflow:hidden;">
+  <div style="position:absolute;inset:0;background:url(${photos[0]}) center/cover;opacity:0.15;"></div>
+  <div class="ek-c" style="position:relative;z-index:1;">
+    <div class="ek-ey">Now Open</div>
+    <h1 class="ek-title" style="font-size:clamp(48px,7vw,100px);line-height:0.9;margin-bottom:20px;">Escobar Kitchen<br><em>${loc.name}</em></h1>
+    <p style="font-size:16px;color:var(--muted);max-width:500px;line-height:1.7;margin-bottom:28px;">${loc.address}${loc.note?` · <em style="color:var(--gold);">${loc.note}</em>`:''}</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px;">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Now →</a>
+      <a href="tel:${loc.phone}" class="ek-btn ek-btn-line">Call ${loc.phoneDisplay}</a>
+      <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc.address)}" target="_blank" rel="noopener" class="ek-btn ek-btn-line">Get Directions</a>
+    </div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;padding-top:24px;border-top:1px solid var(--line);">
+      <div style="font-size:13px;color:var(--muted);"><strong style="color:#fff;">Hours</strong><br>${loc.hoursShort}</div>
+      <div style="font-size:13px;color:var(--muted);"><strong style="color:#fff;">Phone</strong><br>${loc.phoneDisplay}</div>
+      <div style="font-size:13px;color:var(--muted);"><strong style="color:#fff;">Rating</strong><br>${loc.rating} stars · ${loc.reviews} reviews</div>
+    </div>
+  </div>
+</section>
+
+<!-- ORDER STRIP -->
+<div class="ek-order-strip">
+  <div class="ek-c ek-order-strip-in">
+    <div><h2>Order From ${loc.name}</h2><p>Online ordering · Pickup &amp; delivery available</p></div>
+    <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Online Now →</a>
+  </div>
+</div>
+
+<!-- MAP + INFO -->
+<section class="ek-s" style="background:var(--black);">
+  <div class="ek-c">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;" class="ek-reveal">
+      <div style="border-radius:var(--r);overflow:hidden;height:400px;">
+        <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${loc.mapSrc}" title="${loc.name} map" style="width:100%;height:100%;border:0;filter:grayscale(1) brightness(0.6);"></iframe>
+      </div>
+      <div>
+        <div class="ek-ey">Location Details</div>
+        <h2 class="ek-title" style="font-size:clamp(28px,3vw,44px);margin-bottom:24px;">${loc.name}<br><em>Location</em></h2>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:18px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Address</div>
+            <div style="font-size:15px;">${loc.address}</div>
+            ${loc.note?`<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;">${loc.note}</div>`:''}
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:18px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Hours</div>
+            <div style="font-size:14px;color:var(--muted);line-height:2;">${loc.hours.replace(/·/g,'<br>')}</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:18px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Contact</div>
+            <a href="tel:${loc.phone}" style="font-size:15px;font-weight:600;">${loc.phoneDisplay}</a>
+          </div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+          <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red" style="height:44px;padding:0 22px;font-size:11px;">Order Now</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc.address)}" target="_blank" rel="noopener" class="ek-btn ek-btn-line" style="height:44px;padding:0 22px;font-size:11px;">Get Directions</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHOTOS -->
+<div class="ek-photo-grid">${photoGrid}</div>
+
+<!-- MENU PREVIEW -->
+<section class="ek-s" style="background:var(--dark);">
+  <div class="ek-c">
+    <div class="ek-sec-head ek-reveal">
+      <div>
+        <div class="ek-ey">What We Serve</div>
+        <h2 class="ek-title">The <em>Menu</em></h2>
+        <p class="ek-sub">Bold Latin-Asian fusion. Available at all 3 locations.</p>
+      </div>
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-gold">Order Full Menu →</a>
+    </div>
+    <div class="ek-menu-grid">${EK.menu.slice(0,3).map(m=>`<div class="ek-menu-card">
+      <img src="${m.photo}" alt="${m.name}" loading="lazy">
+      <div class="ek-menu-overlay"></div>
+      <div class="ek-menu-info"><div class="ek-menu-name">${m.name}</div><div class="ek-menu-desc">${m.desc}</div><div class="ek-menu-price">${m.price}</div></div>
+    </div>`).join('')}</div>
+    <div style="text-align:center;margin-top:32px;"><a href="/menu" class="ek-btn ek-btn-line">View Full Menu →</a></div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="ek-s" style="background:var(--black);">
+  <div class="ek-c">
+    <div class="ek-sec-head ek-reveal">
+      <div><div class="ek-ey">What Guests Say</div><h2 class="ek-title">${loc.rating} Stars · <em>${loc.reviews}</em> Reviews</h2></div>
+    </div>
+    <div class="ek-rev-grid">${revHtml}</div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="ek-s" style="background:var(--dark);">
+  <div class="ek-c ek-reveal">
+    <div style="text-align:center;margin-bottom:40px;"><div class="ek-ey">FAQ</div><h2 class="ek-title">Questions About<br><em>${loc.name}?</em></h2></div>
+    <div class="ek-faq-list">${faqHtml}</div>
+  </div>
+</section>
+
+<div class="ek-cta-band">
+  <div class="ek-c">
+    <h2>Order From <em>${loc.name}</em></h2>
+    <p>Pickup or delivery available now. Fresh Latin-Asian fusion made to order.</p>
+    <div class="ek-cta-btns">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Online →</a>
+      <a href="/locations" class="ek-btn ek-btn-gold">All Locations</a>
+      <a href="/catering" class="ek-btn ek-btn-line">Book Catering</a>
+    </div>
+  </div>
+</div>
+${ekFooter()}`;
+  return ekWrap(
+    `The Escobar Kitchen ${loc.name} | Latin Asian Fusion | Orlando FL`,
+    `The Escobar Kitchen ${loc.name} — ${loc.address}. Orlando's boldest Latin-Asian fusion. Order online for pickup or delivery. ${loc.rating} stars.`,
+    `escobar kitchen ${loc.name.toLowerCase().replace(/ /g,' ')},latin food ${loc.name.toLowerCase().replace(/ /g,' ')} orlando,escobar kitchen orlando,latin asian fusion near me`,
+    schema, body
+  );
+}
+
+function ekBuildHuntersCreek() {
+  return ekBuildLocationPage(EK.locations[0], EK.photos.slice(0,8));
+}
+function ekBuildLakeNona() {
+  return ekBuildLocationPage(EK.locations[1], EK.photos.slice(8,16));
+}
+function ekBuildDowntown() {
+  return ekBuildLocationPage(EK.locations[2], EK.photos.slice(16,24));
+}
+
+function ekBuildMenu() {
+  const allItems = [
+    ...EK.menu,
+    { name: 'Crispy Tuna Tacos', desc: 'Blackened tuna, mango salsa, pickled red onion, cilantro crema', price: '$19', photo: EK.photos[6] },
+    { name: 'Korean BBQ Bowl', desc: 'Bulgogi beef, jasmine rice, kimchi, fried egg, sesame seeds', price: '$18', photo: EK.photos[7] },
+    { name: 'Miso Glazed Salmon', desc: 'Soy-miso marinated salmon, steamed bok choy, white rice, ginger slaw', price: '$22', photo: EK.photos[10] },
+    { name: 'Plantain Nachos', desc: 'Crispy plantains, black beans, queso blanco, pico, jalapeño, sour cream', price: '$14', photo: EK.photos[11] },
+    { name: 'Bao Bun Sliders', desc: 'Steamed bao buns, slow-braised short rib, pickled cucumber, hoisin aioli', price: '$16', photo: EK.photos[12] },
+    { name: 'Tres Leches Cake', desc: 'House-made tres leches soaked in vanilla cream, topped with fresh berries', price: '$9', photo: EK.photos[13] },
+  ];
+  const categories = [
+    { name: 'Fan Favorites', items: allItems.slice(0,4) },
+    { name: 'Mains', items: allItems.slice(4,8) },
+    { name: 'Starters & Desserts', items: allItems.slice(8,12) },
+  ];
+  const body = `${ekNav('/menu')}
+<section style="padding:100px 0 60px;background:var(--dark);">
+  <div class="ek-c">
+    <div class="ek-ey">Latin-Asian Fusion</div>
+    <h1 class="ek-title" style="font-size:clamp(52px,8vw,110px);line-height:0.9;margin-bottom:20px;">The <em>Menu</em></h1>
+    <p style="font-size:17px;color:var(--muted);max-width:520px;line-height:1.7;">Bold dishes where Latin soul meets Asian precision. Every item crafted with real ingredients, maximum flavor, zero shortcuts.</p>
+    <div style="margin-top:28px;">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red" style="height:52px;padding:0 32px;">Order Online Now →</a>
+    </div>
+  </div>
+</section>
+
+<div class="ek-order-strip">
+  <div class="ek-c ek-order-strip-in">
+    <div><h2>Ready to Order?</h2><p>Pickup in 15 min or delivery to your door.</p></div>
+    <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Full Menu →</a>
+  </div>
+</div>
+
+${categories.map(cat=>`<section class="ek-s" style="background:var(--black);">
+  <div class="ek-c">
+    <div class="ek-sec-head ek-reveal">
+      <div><div class="ek-ey">${cat.name}</div><h2 class="ek-title"><em>${cat.name}</em></h2></div>
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-gold">Order →</a>
+    </div>
+    <div class="ek-menu-grid">${cat.items.map(m=>`<div class="ek-menu-card">
+      <img src="${m.photo}" alt="${m.name} — Escobar Kitchen" loading="lazy">
+      <div class="ek-menu-overlay"></div>
+      <div class="ek-menu-info"><div class="ek-menu-name">${m.name}</div><div class="ek-menu-desc">${m.desc}</div><div class="ek-menu-price">${m.price}</div></div>
+    </div>`).join('')}</div>
+  </div>
+</section>`).join('')}
+
+<div class="ek-photo-grid">${EK.photos.slice(0,8).map(p=>`<div class="ek-photo-item"><img src="${p}" alt="Escobar Kitchen menu food" loading="lazy"></div>`).join('')}</div>
+
+<div class="ek-cta-band">
+  <div class="ek-c">
+    <h2>Order the Full <em>Menu Online</em></h2>
+    <p>Pickup or delivery. Available at all 3 Orlando locations.</p>
+    <div class="ek-cta-btns">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Now →</a>
+      <a href="/locations" class="ek-btn ek-btn-gold">Find a Location</a>
+    </div>
+  </div>
+</div>
+${ekFooter()}`;
+  const schema = {"@context":"https://schema.org","@type":"Menu","name":"The Escobar Kitchen Menu","url":"https://www.theescobarkitchen.com/menu","description":"Bold Latin-Asian fusion menu. Crispy rice tuna, Latin bowls, fusion tacos, empanadas, bao buns and more.","hasMenuSection":categories.map(c=>({ "@type":"MenuSection","name":c.name,"hasMenuItem":c.items.map(i=>({ "@type":"MenuItem","name":i.name,"description":i.desc,"offers":{"@type":"Offer","price":i.price.replace(/[^0-9.]/g,''),"priceCurrency":"USD"} })) }))};
+  return ekWrap('Menu — The Escobar Kitchen | Latin Asian Fusion Orlando FL', "Explore The Escobar Kitchen menu. Bold Latin-Asian fusion dishes — crispy rice tuna, Latin bowls, fusion tacos, empanadas, bao buns. Order online for pickup or delivery.", 'escobar kitchen menu,latin asian fusion menu orlando,crispy rice tuna orlando,latin bowl orlando,fusion tacos orlando,order latin food online', schema, body);
+}
+
+function ekBuildCatering() {
+  const body = `${ekNav('/catering')}
+<section style="position:relative;padding:110px 0 80px;background:var(--dark);overflow:hidden;">
+  <div style="position:absolute;inset:0;background:url(${EK.photos[5]}) center/cover;opacity:0.15;"></div>
+  <div class="ek-c" style="position:relative;z-index:1;">
+    <div class="ek-ey">Events &amp; Catering</div>
+    <h1 class="ek-title" style="font-size:clamp(52px,8vw,110px);line-height:0.9;margin-bottom:24px;">Bold Food.<br><em>Your Event.</em></h1>
+    <p style="font-size:18px;color:var(--muted);max-width:560px;line-height:1.7;margin-bottom:32px;">From corporate lunches to weddings, we bring Orlando's most unique Latin-Asian fusion flavors to your event. Serving 10 to 500+.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="mailto:${EK.email}" class="ek-btn ek-btn-red" style="height:52px;padding:0 32px;">Request a Quote →</a>
+      <a href="tel:${EK.phone}" class="ek-btn ek-btn-line" style="height:52px;padding:0 32px;">Call ${EK.phoneDisplay}</a>
+    </div>
+  </div>
+</section>
+
+<div class="ek-order-strip">
+  <div class="ek-c ek-order-strip-in">
+    <div><h2>Ready to Book?</h2><p>Catering inquiries: info@theescobarkitchen.com · (407) 743-8827</p></div>
+    <a href="mailto:${EK.email}" class="ek-btn ek-btn-red">Get Catering Quote →</a>
+  </div>
+</div>
+
+<!-- WHAT WE OFFER -->
+<section class="ek-s" style="background:var(--black);">
+  <div class="ek-c">
+    <div class="ek-sec-head ek-reveal">
+      <div><div class="ek-ey">What We Offer</div><h2 class="ek-title">Catering <em>Packages</em></h2></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;" class="ek-reveal">
+      ${[
+        { name:'Starter Pack', price:'From $180', serves:'Serves 10–20', items:['Choice of 2 mains','Sides & condiments','Serving utensils included','Delivery available'] },
+        { name:'Full Spread', price:'From $380', serves:'Serves 25–50', items:['Choice of 4 mains','Full sides bar','Dessert option','Setup & breakdown available','Dedicated contact'] },
+        { name:'Grand Event', price:'Custom Quote', serves:'50+ guests', items:['Full customizable menu','On-site chef available','Full setup & breakdown','Event coordinator','Staffing available'] },
+      ].map(p=>`<div style="background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:32px;position:relative;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">${p.serves}</div>
+        <h3 style="font-family:var(--display);font-size:26px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">${p.name}</h3>
+        <div style="font-size:22px;font-weight:800;color:var(--red);margin-bottom:20px;">${p.price}</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+          ${p.items.map(i=>`<li style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;"><span style="color:var(--gold);">✓</span>${i}</li>`).join('')}
+        </ul>
+        <a href="mailto:${EK.email}" class="ek-btn ek-btn-gold" style="width:100%;justify-content:center;">Get Quote →</a>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- EVENT TYPES -->
+<section class="ek-s" style="background:var(--dark);">
+  <div class="ek-c">
+    <div class="ek-sec-head ek-reveal">
+      <div><div class="ek-ey">Perfect For</div><h2 class="ek-title">Every <em>Occasion</em></h2></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;" class="ek-reveal">
+      ${['Corporate Lunches','Birthday Parties','Weddings','Office Events','Graduation Parties','Holiday Events','Private Dinners','Team Celebrations'].map(e=>`<div style="background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:20px 16px;text-align:center;font-size:13px;font-weight:600;letter-spacing:1px;">${e}</div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- PHOTO -->
+<div class="ek-food-feature ek-reveal">
+  <div class="ek-food-img"><img src="${EK.photos[3]}" alt="Escobar Kitchen catering Orlando" loading="lazy"></div>
+  <div class="ek-food-copy">
+    <div class="ek-ey">How It Works</div>
+    <h2 class="ek-title" style="font-size:clamp(32px,4vw,52px);">Simple,<br><em>Seamless</em><br>Catering</h2>
+    <div style="display:flex;flex-direction:column;gap:20px;margin-top:24px;">
+      ${[
+        { n:'01', t:'Contact Us', d:'Email or call to tell us about your event — date, headcount, and any special requests.' },
+        { n:'02', t:'Pick Your Menu', d:'Choose from our full menu or let us build a custom spread based on your preferences.' },
+        { n:'03', t:'We Deliver', d:'We bring the food fresh, on time, ready to serve. Setup and breakdown available.' },
+      ].map(s=>`<div style="display:flex;gap:16px;align-items:flex-start;">
+        <div style="font-family:var(--display);font-size:28px;color:var(--gold);line-height:1;flex-shrink:0;">${s.n}</div>
+        <div><div style="font-weight:700;margin-bottom:4px;">${s.t}</div><div style="font-size:13px;color:var(--muted);line-height:1.6;">${s.d}</div></div>
+      </div>`).join('')}
+    </div>
+    <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="mailto:${EK.email}" class="ek-btn ek-btn-red">Request a Quote</a>
+      <a href="tel:${EK.phone}" class="ek-btn ek-btn-line">${EK.phoneDisplay}</a>
+    </div>
+  </div>
+</div>
+
+<!-- REVIEWS -->
+<section class="ek-s" style="background:var(--dark);">
+  <div class="ek-c">
+    <div class="ek-sec-head ek-reveal">
+      <div><div class="ek-ey">What Clients Say</div><h2 class="ek-title">Catering <em>Reviews</em></h2></div>
+    </div>
+    <div class="ek-rev-grid">${EK.reviews.slice(2,5).map(r=>`<div class="ek-rev-card ek-reveal">
+      <div class="ek-rev-stars">★★★★★</div>
+      <p class="ek-rev-text">"${r.text}"</p>
+      <div class="ek-rev-name">— ${r.name}</div>
+    </div>`).join('')}</div>
+  </div>
+</section>
+
+<div class="ek-cta-band">
+  <div class="ek-c">
+    <h2>Let Us Cater<br>Your <em>Next Event</em></h2>
+    <p>Bold Latin-Asian fusion for any occasion. Serving 10 to 500+. Orlando &amp; surrounding areas.</p>
+    <div class="ek-cta-btns">
+      <a href="mailto:${EK.email}" class="ek-btn ek-btn-red">Request Catering Quote →</a>
+      <a href="tel:${EK.phone}" class="ek-btn ek-btn-gold">Call ${EK.phoneDisplay}</a>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:20px;">${EK.email}</p>
+  </div>
+</div>
+${ekFooter()}`;
+  const schema = {"@context":"https://schema.org","@type":"FoodEstablishment","name":"The Escobar Kitchen Catering","description":"Latin-Asian fusion catering for events in Orlando and Central Florida. Corporate lunches, weddings, birthday parties, and more. Serving 10 to 500+.","telephone":EK.phone,"email":EK.email,"servesCuisine":["Latin","Asian Fusion"],"url":"https://www.theescobarkitchen.com/catering"};
+  return ekWrap('Catering — The Escobar Kitchen | Latin Asian Fusion Orlando Events', "Book The Escobar Kitchen for your next event. Bold Latin-Asian fusion catering in Orlando — corporate events, weddings, birthdays. Serving 10–500+ guests.", 'escobar kitchen catering orlando,latin food catering orlando,latin asian fusion catering,catering orlando fl,corporate catering orlando,event catering orlando', schema, body);
+}
+
+function ekBuildContact() {
+  const faqHtml = EK.faqs.slice(0,5).map((f,i)=>`<div class="ek-faq-item${i===0?' open':''}">
+    <button class="ek-faq-btn" type="button"><span>${f.q}</span><span class="ek-faq-icon">${i===0?'−':'+'}</span></button>
+    <div class="ek-faq-body"><p>${f.a}</p></div>
+  </div>`).join('');
+  const body = `${ekNav('/contact')}
+<section style="padding:100px 0 60px;background:var(--dark);">
+  <div class="ek-c">
+    <div class="ek-ey">Get In Touch</div>
+    <h1 class="ek-title" style="font-size:clamp(52px,8vw,100px);line-height:0.9;margin-bottom:20px;">Contact<br><em>Us</em></h1>
+    <p style="font-size:17px;color:var(--muted);max-width:480px;line-height:1.7;">Questions, catering inquiries, or just want to say hi — we're here. Reach out and we'll get back to you fast.</p>
+  </div>
+</section>
+
+<!-- CONTACT CARDS -->
+<section class="ek-s" style="background:var(--black);">
+  <div class="ek-c">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;" class="ek-reveal">
+      ${EK.locations.map(l=>`<div style="background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:28px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">${l.name}</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:8px;">${l.address}${l.note?`<br><small style="color:var(--muted);font-style:italic;font-size:12px;">${l.note}</small>`:''}</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:16px;">${l.hours}</div>
+        <a href="tel:${l.phone}" style="display:block;font-size:16px;font-weight:700;color:var(--gold);margin-bottom:10px;">${l.phoneDisplay}</a>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a href="tel:${l.phone}" class="ek-btn ek-btn-red" style="height:38px;padding:0 16px;font-size:10px;">Call Now</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.address)}" target="_blank" rel="noopener" class="ek-btn ek-btn-line" style="height:38px;padding:0 16px;font-size:10px;">Directions</a>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- GENERAL CONTACT -->
+<section class="ek-s" style="background:var(--dark);">
+  <div class="ek-c">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;" class="ek-reveal">
+      <div>
+        <div class="ek-ey">Send a Message</div>
+        <h2 class="ek-title" style="font-size:clamp(32px,4vw,52px);margin-bottom:24px;">We'd Love to<br><em>Hear From You</em></h2>
+        <p style="font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:32px;">For catering quotes, event bookings, or general inquiries, email us directly or call any location. We respond within 24 hours.</p>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <a href="mailto:${EK.email}" style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:16px 20px;font-size:14px;font-weight:600;">
+            <span style="color:var(--gold);font-size:18px;">✉</span>${EK.email}
+          </a>
+          <a href="${EK.ig}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:16px 20px;font-size:14px;font-weight:600;">
+            <span style="color:var(--gold);font-size:18px;">📷</span>@theescobarkitchen
+          </a>
+        </div>
+        <div style="margin-top:28px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Rewards &amp; Gift Cards</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <a href="${EK.toast.rewardsSignup}" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted);">→ Join Toast Rewards</a>
+            <a href="${EK.toast.eGiftCards}" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted);">→ Buy E-Gift Cards</a>
+            <a href="${EK.toast.rewardsLookup}" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted);">→ Check My Rewards</a>
+            <a href="${EK.toast.findCard}" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted);">→ Check Gift Card Balance</a>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="ek-ey">FAQ</div>
+        <h2 class="ek-title" style="font-size:clamp(24px,3vw,40px);margin-bottom:32px;">Quick <em>Answers</em></h2>
+        <div class="ek-faq-list">${faqHtml}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ek-cta-band">
+  <div class="ek-c">
+    <h2>Ready to <em>Order?</em></h2>
+    <p>Online ordering available now. Pickup or delivery. 3 Orlando locations.</p>
+    <div class="ek-cta-btns">
+      <a href="${EK.orderUrl}" target="_blank" rel="noopener" class="ek-btn ek-btn-red">Order Online →</a>
+      <a href="/catering" class="ek-btn ek-btn-gold">Book Catering</a>
+    </div>
+  </div>
+</div>
+${ekFooter()}`;
+  const schema = {"@context":"https://schema.org","@type":"ContactPage","name":"Contact The Escobar Kitchen","description":"Contact The Escobar Kitchen — 3 Orlando locations. Catering inquiries, hours, directions. Hunters Creek, Lake Nona, Downtown Orlando.","url":"https://www.theescobarkitchen.com/contact"};
+  return ekWrap('Contact — The Escobar Kitchen | Orlando FL | 3 Locations', "Contact The Escobar Kitchen. 3 Orlando locations — Hunters Creek, Lake Nona & Downtown. Book catering, get directions, or place an online order.", 'contact escobar kitchen,escobar kitchen phone,escobar kitchen address,escobar kitchen catering contact,escobar kitchen orlando', schema, body);
+}
+
+// GET /sofia/escobar-kitchen — download hub
+app.get('/sofia/escobar-kitchen', (req, res) => {
+  try {
+    const cacheId = crypto.randomBytes(8).toString('hex');
+    const pages = {
+      home:           ekBuildHome(),
+      about:          ekBuildAbout(),
+      locations:      ekBuildLocations(),
+      'hunters-creek':ekBuildHuntersCreek(),
+      'lake-nona':    ekBuildLakeNona(),
+      'downtown-orlando': ekBuildDowntown(),
+      catering:       ekBuildCatering(),
+      menu:           ekBuildMenu(),
+      contact:        ekBuildContact(),
+    };
+    websitePackageCache.set(cacheId, { pages, clientName: 'The Escobar Kitchen', expires: Date.now() + 600000 });
+    const pageList = [
+      { key:'home',             label:'Home Page',             file:'index.html',            slug:'Homepage (root /)',          desc:'Hero video, menu grid, locations, reviews, CTA' },
+      { key:'about',            label:'About',                 file:'about.html',             slug:'/about',                     desc:'Story, values, stats, photo collage' },
+      { key:'locations',        label:'Locations',             file:'locations.html',         slug:'/locations',                 desc:'All 3 locations — maps, hours, order buttons' },
+      { key:'hunters-creek',    label:'Hunters Creek',         file:'hunters-creek.html',     slug:'/hunters-creek',             desc:'Dedicated location page — SEO + map + menu preview' },
+      { key:'lake-nona',        label:'Lake Nona',             file:'lake-nona.html',         slug:'/lake-nona',                 desc:'Dedicated location page — SEO + map + menu preview' },
+      { key:'downtown-orlando', label:'Downtown Orlando',      file:'downtown-orlando.html',  slug:'/downtown-orlando',          desc:'Dedicated location page — Wine bar, cocktails' },
+      { key:'catering',         label:'Catering',              file:'catering.html',          slug:'/catering',                  desc:'Packages, event types, how it works, quote CTA' },
+      { key:'menu',             label:'Menu',                  file:'menu.html',              slug:'/menu',                      desc:'Full menu by category — inline order buttons' },
+      { key:'contact',          label:'Contact',               file:'contact.html',           slug:'/contact',                   desc:'All 3 location contacts, Toast rewards links, FAQ' },
+    ];
+    const hub = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Escobar Kitchen — Website Hub</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,sans-serif;background:#0a0804;color:#fff;padding:40px 20px}
+.wrap{max-width:700px;margin:0 auto;}
+.logo{height:40px;margin-bottom:20px}
+.badge{display:inline-block;background:#c0392b;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:16px}
+h1{font-size:26px;font-weight:800;margin-bottom:6px}
+.sub{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:10px}
+.count{font-size:13px;color:#c8973a;font-weight:700;margin-bottom:28px;}
+.section-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#c8973a;margin:24px 0 10px;}
+.dl-btn{display:flex;align-items:center;justify-content:space-between;background:#1a1610;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 22px;text-decoration:none;color:#fff;margin-bottom:8px;transition:all .15s;gap:12px;}
+.dl-btn:hover{border-color:#c8973a;background:rgba(200,151,58,0.06)}
+.dl-left{flex:1;min-width:0;}
+.dl-name{font-weight:700;font-size:15px;margin-bottom:2px;}
+.dl-slug{font-size:11px;color:#c8973a;font-weight:600;margin-bottom:2px;}
+.dl-desc{font-size:11px;color:rgba(255,255,255,0.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dl-tag{background:#c8973a;color:#000;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:700;flex-shrink:0;}
+.how{background:rgba(255,255,255,0.04);border-radius:10px;padding:16px 20px;margin-top:24px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8}
+</style></head><body><div class="wrap">
+<img src="${EK.logo}" class="logo" alt="Escobar Kitchen">
+<div class="badge">9 Pages · Ready to Deploy</div>
+<h1>The Escobar Kitchen</h1>
+<p class="sub">Owner.com-style · Food-first · Full SEO · Latin-Asian Fusion Orlando</p>
+<p class="count">9 pages built · Hunters Creek · Lake Nona · Downtown Orlando · All Toast links included</p>
+<div class="section-label">All 9 Pages</div>
+${pageList.map(p=>`<a href="/sofia/website-download?id=${cacheId}&page=${p.key}&filename=${p.file}" class="dl-btn">
+  <div class="dl-left">
+    <div class="dl-name">${p.label}</div>
+    <div class="dl-slug">GHL slug: ${p.slug}</div>
+    <div class="dl-desc">${p.desc}</div>
+  </div>
+  <div class="dl-tag">↓ Download</div>
+</a>`).join('')}
+<div class="how"><strong style="color:#fff;">How to upload to GHL:</strong><br>
+1. Download each page file<br>
+2. GHL → Sites → Websites → The Escobar Kitchen → select page<br>
+3. Open page → Custom Code tab → paste full HTML → Save &amp; Publish<br>
+4. Set the page slug to match the GHL slug shown above<br><br>
+<em style="color:rgba(255,255,255,0.3);font-size:11px;">Download links expire in 10 minutes. Refresh this page to regenerate.</em>
+</div>
+</div></body></html>`;
+    res.setHeader('Content-Type','text/html');
+    res.send(hub);
+  } catch(err) { res.status(500).send(`<pre>Error: ${err.message}\n${err.stack}</pre>`); }
+});
+
 // POST /sofia/build-funnel — create a lead gen funnel in GHL
 // Body: { locationId, funnelType: 'consultation'|'quote'|'lead-magnet', industry?, city? }
 app.post('/sofia/build-funnel', async (req, res) => {
