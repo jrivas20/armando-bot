@@ -6206,23 +6206,46 @@ Rules:
   }
 }
 
-/// ─── DataForSEO: Keyword Research ─────────────────────────
+//// ─── DataForSEO: Keyword Research ─────────────────────────
+function _parseDseoResults(results) {
+  return results
+    .filter(r => r.search_volume > 0)
+    .map(r => ({ keyword: r.keyword, volume: r.search_volume, competition: r.competition, cpc: r.cpc }))
+    .sort((a, b) => (b.volume || 0) - (a.volume || 0));
+}
+
 async function getKeywordData(industry, city, locationCode = 2840) {
   try {
-    const keyword = `${industry} ${city}`;
-    const related = [`best ${industry} ${city}`, `${industry} near me`, `affordable ${industry} ${city}`, `top ${industry} ${city}`];
-    const allKws  = [keyword, ...related];
-    const res = await axios.post(
-      'https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live',
-      [{ keywords: allKws, location_code: locationCode, language_code: 'en' }],
-      { headers: { Authorization: `Basic ${DATASEO_AUTH}`, 'Content-Type': 'application/json' }, timeout: 12000 }
-    );
-    const results = res.data?.tasks?.[0]?.result || [];
-    // Sort by search volume descending
-    const sorted = results
-      .filter(r => r.search_volume > 0)
-      .sort((a, b) => (b.search_volume || 0) - (a.search_volume || 0));
-    return sorted.map(r => ({ keyword: r.keyword, volume: r.search_volume, competition: r.competition, cpc: r.cpc }));
+    const seed    = `${industry} ${city}`;
+    const seeds   = [seed, `best ${industry} ${city}`, `${industry} near me`, `affordable ${industry} ${city}`, `top ${industry} ${city}`];
+    const headers = { Authorization: `Basic ${DATASEO_AUTH}`, 'Content-Type': 'application/json' };
+
+    // Run both calls in parallel: volume on seeds + related keywords expansion
+    const [volRes, relRes] = await Promise.all([
+      axios.post(
+        'https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live',
+        [{ keywords: seeds, location_code: locationCode, language_code: 'en' }],
+        { headers, timeout: 14000 }
+      ),
+      axios.post(
+        'https://api.dataforseo.com/v3/keywords_data/google_ads/keywords_for_keywords/live',
+        [{ keywords: [seed], location_code: locationCode, language_code: 'en', limit: 50 }],
+        { headers, timeout: 14000 }
+      ),
+    ]);
+
+    const seedResults    = volRes.data?.tasks?.[0]?.result || [];
+    const relatedResults = relRes.data?.tasks?.[0]?.result || [];
+
+    // Merge — deduplicate by keyword string
+    const seen = new Set();
+    const merged = [..._parseDseoResults(seedResults), ..._parseDseoResults(relatedResults)]
+      .filter(r => { if (seen.has(r.keyword)) return false; seen.add(r.keyword); return true; })
+      .sort((a, b) => (b.volume || 0) - (a.volume || 0))
+      .slice(0, 50);
+
+    console.log(`[DataForSEO] ${merged.length} keywords for "${seed}" — top: "${merged[0]?.keyword}" (${merged[0]?.volume?.toLocaleString()||'?'}/mo)`);
+    return merged;
   } catch (err) {
     console.error('[DataForSEO] Keyword error:', err.message);
     return [];
@@ -6232,9 +6255,19 @@ async function getKeywordData(industry, city, locationCode = 2840) {
 // ─── Sofia: AI Content Generator for Landing Pages ───────
 async function generateLandingContent(clientName, industry, city, keywords = []) {
   try {
-    const kwContext = keywords.length
-      ? `\nTop SEO keywords for this page (use naturally in headlines, copy, and FAQs):\n${keywords.slice(0,5).map(k=>`- "${k.keyword}" (${k.volume?.toLocaleString()||'?'} searches/mo)`).join('\n')}\nPrimary keyword to target: "${keywords[0]?.keyword || `${industry} ${city}`}"\n`
-      : '';
+    const kwContext = keywords.length ? (() => {
+      const primary   = keywords[0];
+      const highVol   = keywords.slice(0, 3);
+      const lowComp   = keywords.filter(k => k.competition === 'LOW').slice(0, 4);
+      const longTail  = keywords.filter(k => k.keyword.split(' ').length >= 4).slice(0, 5);
+      return `
+SEO KEYWORD DATA (use these naturally — do NOT stuff):
+• Primary target (H1 + title): "${primary.keyword}" — ${primary.volume?.toLocaleString()||'?'}/mo, ${primary.competition} competition
+• High-volume to weave into copy: ${highVol.map(k=>`"${k.keyword}"`).join(', ')}
+• Low-competition quick wins (use in H2s + FAQs): ${lowComp.map(k=>`"${k.keyword}"`).join(', ')}
+• Long-tail phrases (use in FAQ answers + about section): ${longTail.map(k=>`"${k.keyword}"`).join(', ')}
+`;
+    })() : '';
     const msg = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 2000,
@@ -9382,10 +9415,13 @@ app.get('/sofia/keyword-research', async (req, res) => {
     const keywords = await getKeywordData(industry, city, locationCode);
     if (!keywords.length) return res.status(502).json({ error: 'No keyword data returned from DataForSEO' });
     res.json({
-      primary: keywords[0],
-      top5: keywords.slice(0, 5),
-      all: keywords,
-      summary: `${keywords.length} keywords found. Top: "${keywords[0].keyword}" (${keywords[0].volume?.toLocaleString()||'?'}/mo)`
+      primary:   keywords[0],
+      top10:     keywords.slice(0, 10),
+      lowComp:   keywords.filter(k => k.competition === 'LOW').slice(0, 10),
+      highVol:   keywords.filter(k => k.volume >= 1000).slice(0, 10),
+      longTail:  keywords.filter(k => k.keyword.split(' ').length >= 4).slice(0, 10),
+      all:       keywords,
+      summary:   `${keywords.length} keywords found. Top: "${keywords[0].keyword}" (${keywords[0].volume?.toLocaleString()||'?'}/mo)`
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
