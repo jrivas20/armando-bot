@@ -8404,6 +8404,331 @@ app.get('/sofia/website-download', (req, res) => {
   res.send(html);
 });
 
+// ═══════════════════════════════════════════════════════════════════════
+// ■ LUIS FARRERA — Custom 5-page tattoo artist website
+//   GET /sofia/luis-farrera  →  download hub
+// ═══════════════════════════════════════════════════════════════════════
+const LF = {
+  logo:        'https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69daafd3d7871cddf75b42cd.png',
+  heroBg:      'https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67d4ed98d84290c6b8f45.jpeg',
+  portrait:    'https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d6777a1f6a717df8a7f2dc.jpeg',
+  studioBg:    'https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d6777ae033d6ce58381f42.jpeg',
+  bookUrl:     'https://links.jrzmarketing.com/widget/form/Hzo6772r9eso4tozQ6H1',
+  phone:       '1-833-362-6091',
+  colorPhotos: ['https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67d4e55ec6d12658aad49.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67d4e55ec6d12658aad4b.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67d4e2790d9aa14b72fdb.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67d4e55ec6d12658aad4f.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67d4df7bfdb83df3281d9.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67d4ed98d84290c6b8f45.jpeg'],
+  blackPhotos: ['https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67debf7bfdb83df329cbe.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67cd9a64a04ba15e74d7b.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67cd9eddf7185e19aed67.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67cd9ebf1a60843381585.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67cd9e033d6ce58399ec6.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67cd93dd00cb232a1c156.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67cd9a5d3efc6ded61c5a.jpeg','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67cd9f7bfdb83df326c8f.jpeg'],
+  colorVideos: ['https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d680cff5ebf27de34e1d3e.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d680cf91452c30c25bb1b4.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d680cf3d9f7a33e41ccbf4.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d680cfa64a04ba15e8221d.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d680cfa5d3efc6ded6f27d.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d680cfebf1a6084338eb7f.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d6802af7bfdb83df33399f.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67c523dd00cb232a19f7c.mp4'],
+  blackVideos: ['https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67ea8f7bfdb83df32c448.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67ea83dd00cb232a20b48.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67ea8a5d3efc6ded66613.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67ea8a64a04ba15e79a35.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67ea8f7bfdb83df32c446.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67ea8ebf1a60843385edb.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67ea8a7dcb4cff04d3a55.mov','https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67ea891452c30c25b278f.mov'],
+  reviews: [
+    {name:'Jeanette Colon',meta:'Google Review',text:'Luis was great in communicating with me. He was kind, patient, and created a great piece for me.'},
+    {name:'Ydelkis Hernandez',meta:'Google Review',text:'I loved every moment I spent there. Super calm atmosphere, super professional, and I was very happy with the experience.'},
+    {name:'Rosa Gutierrez',meta:'Google Review',text:'Amazing artist and makes you feel comfortable and at ease while taking time to hear your ideas.'},
+    {name:'SkyWalkerArise',meta:'Google Review',text:'Luis Farrera is an extremely talented tattoo artist and delivered work that felt worth the wait.'},
+    {name:'Michael Torres',meta:'Google Review',text:'The attention to detail is unreal. The piece healed beautifully and still gets compliments constantly.'},
+    {name:'Amanda R.',meta:'Studio Feedback',text:'Studio energy felt professional from start to finish. Clean process, clear communication, strong design direction.'},
+    {name:'Carlos M.',meta:'Studio Feedback',text:'Luis took my reference and elevated it into something custom, balanced, and much stronger than I expected.'},
+    {name:'Vanessa K.',meta:'Collector Feedback',text:'If you care about realism and composition, this is the type of artist you wait for.'},
+    {name:'David L.',meta:'Collector Feedback',text:'The black and gray shading came out smooth, soft, and powerful. It looks expensive because it is executed at a high level.'},
+    {name:'Sophia N.',meta:'Collector Feedback',text:'My color piece still looks insanely vibrant. The saturation, detail, and finish are on another level.'},
+    {name:'James P.',meta:'Tattoo Review',text:'Consultation was clear, the concept was refined, and the final work looked premium in person.'},
+    {name:'Maria C.',meta:'Tattoo Review',text:'You can tell he understands how the tattoo needs to flow with the body, not just sit on it.'},
+  ],
+  faqs: [
+    {q:'Where is Luis Farrera located in New York?',a:'Luis Farrera works at 132 Crosby St, 4th floor, New York, NY 10012 in Soho, Manhattan — one of the most recognized creative neighborhoods in the city.'},
+    {q:'What tattoo styles does Luis Farrera specialize in?',a:'Luis specializes in black and gray realism, color realism, and fully custom tattoo design. Each piece is treated as a unique commission focused on composition, skin tone, and lasting quality.'},
+    {q:'How do I book a tattoo appointment with Luis Farrera?',a:"Click any Book Now button on the site to access the booking form. You'll be asked about placement, size, style, and reference images so Luis can prepare a custom concept."},
+    {q:'How long does a typical tattoo session take?',a:'Session length depends on size and complexity. Smaller pieces may take 2–4 hours, while larger custom work or multi-session collector projects can run full-day sessions.'},
+    {q:'What is the pricing for a tattoo with Luis Farrera?',a:'Pricing is based on size, detail level, and session time. Luis works at a collector-level price point reflecting the quality of the work. Inquire via the booking form for a custom quote.'},
+    {q:'Does Luis Farrera do color realism tattoos in NYC?',a:'Yes. Color realism is a core specialty. The portfolio features vibrant, detail-rich pieces with strong color saturation that holds its quality over time.'},
+    {q:'Is Luis Farrera good for first-time tattoo clients?',a:'Yes. Multiple 5-star Google reviews specifically mention his patience, communication, and calm studio environment during first sessions.'},
+    {q:'Does Luis Farrera guest spot at other studios?',a:'Yes. While his home base is the Soho studio at 132 Crosby St, Luis rotates through select guest spots and international collaborations. Contact via the booking form for upcoming availability.'},
+  ],
+};
+
+function lfCSS() {
+  return `<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#050505;--bg2:#0b0b0b;--bg3:#121212;--panel:#171717;--text:#f4f1eb;--muted:rgba(244,241,235,.72);--soft:rgba(244,241,235,.45);--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--gold:#cfa947;--gold2:#e2c66f;--white:#ffffff;--max:1440px;--display:'Bebas Neue',sans-serif;--serif:'Cormorant Garamond',serif;--body:'Inter',sans-serif;--shadow:0 20px 70px rgba(0,0,0,.38)}
+html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:var(--body);overflow-x:hidden}
+img,video,iframe{display:block;max-width:100%}a{color:inherit;text-decoration:none}button{font:inherit}
+.lf-c{width:min(var(--max),calc(100% - 32px));margin:0 auto}.lf-s{padding:88px 0}
+.lf-ey{display:inline-flex;align-items:center;gap:12px;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold2);margin-bottom:16px}
+.lf-ey:before{content:"";width:28px;height:1px;background:var(--gold)}
+.lf-title{font:400 clamp(42px,7vw,90px)/.9 var(--display);letter-spacing:1px;text-transform:uppercase;margin:0}
+.lf-title em{display:block;font:300 italic clamp(18px,2vw,28px)/1.2 var(--serif);text-transform:none;letter-spacing:2px;color:rgba(255,255,255,.42)}
+.lf-sub{font:300 18px/1.8 var(--serif);color:var(--muted)}
+.lf-btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 24px;border:1px solid transparent;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:.22s ease;cursor:pointer;white-space:nowrap}
+.lf-btn-gold{background:transparent;border-color:var(--gold);color:var(--gold2)}.lf-btn-gold:hover{background:var(--gold);color:#111}
+.lf-btn-light{background:var(--white);color:#111}.lf-btn-light:hover{opacity:.9;transform:translateY(-1px)}
+.lf-btn-line{background:transparent;border-color:var(--line2);color:var(--white)}.lf-btn-line:hover{border-color:var(--gold);color:var(--gold2)}
+.lf-reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}.lf-reveal.in{opacity:1;transform:none}
+.lf-nav-wrap{position:sticky;top:0;z-index:60;background:rgba(5,5,5,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.lf-nav{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.lf-brand{display:flex;align-items:center;gap:12px}.lf-brand img{height:32px;width:auto}
+.lf-brand-text strong{display:block;font:400 17px/1 var(--display);letter-spacing:3px;text-transform:uppercase}
+.lf-brand-text span{display:block;margin-top:4px;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--soft)}
+.lf-nav-links{display:flex;align-items:center;gap:16px}
+.lf-nav-links a{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.75);transition:.2s}
+.lf-nav-links a:hover,.lf-nav-links a.act{color:var(--gold2)}
+.lf-mob{display:none;background:none;border:0;color:#fff;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+.lf-hero{position:relative;min-height:100svh;display:flex;align-items:end;background:#050505}
+.lf-hero-bg{position:absolute;inset:0}.lf-hero-bg img{width:100%;height:100%;object-fit:cover;filter:grayscale(100%) brightness(.26)}
+.lf-hero-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(to right,rgba(5,5,5,.95) 0%,rgba(5,5,5,.76) 32%,rgba(5,5,5,.4) 58%,rgba(5,5,5,.72) 100%),linear-gradient(to top,rgba(5,5,5,1) 0%,rgba(5,5,5,.18) 42%,rgba(5,5,5,.55) 100%)}
+.lf-hero-in{position:relative;z-index:2;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:end;min-height:calc(100svh - 72px);padding:48px 0 56px}
+.lf-hero-copy h1{font:400 clamp(60px,11vw,148px)/.86 var(--display);text-transform:uppercase;letter-spacing:1px;margin:0 0 14px}
+.lf-kicker{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold2);margin-bottom:14px}
+.lf-hero-copy p{max-width:580px;font-size:17px;line-height:1.7;color:var(--muted);margin:0 0 22px}
+.lf-hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.lf-hero-side{justify-self:end;width:min(100%,400px)}
+.lf-hero-card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));padding:16px;border:1px solid var(--line);box-shadow:var(--shadow)}
+.lf-hero-card img{width:100%;aspect-ratio:4/5;object-fit:cover;filter:grayscale(100%)}
+.lf-page-hero{position:relative;padding:112px 0 72px;background:var(--bg);overflow:hidden;border-bottom:1px solid var(--line)}
+.lf-page-hero-bg{position:absolute;inset:0}.lf-page-hero-bg img{width:100%;height:100%;object-fit:cover;filter:grayscale(100%) brightness(.13)}
+.lf-page-hero-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(to right,rgba(5,5,5,.97),rgba(5,5,5,.86))}
+.lf-page-hero-in{position:relative;z-index:2}
+.lf-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--panel)}
+.lf-stat{padding:26px 20px;text-align:center;border-right:1px solid var(--line)}.lf-stat:last-child{border-right:0}
+.lf-stat-n{font:400 40px/1 var(--display);color:var(--gold2);letter-spacing:1px}.lf-stat-l{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--soft);margin-top:6px}
+.lf-bio{background:linear-gradient(180deg,#080808,#050505)}.lf-bio-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+.lf-bio-card,.lf-bio-photo{background:var(--panel);box-shadow:var(--shadow)}.lf-bio-card{padding:28px}.lf-bio-photo{overflow:hidden}
+.lf-bio-photo img{width:100%;height:100%;min-height:600px;object-fit:cover}
+.lf-bio-inline{display:grid;grid-template-columns:200px 1fr;gap:22px;align-items:start;margin-top:18px}
+.lf-bio-inline img{width:100%;aspect-ratio:3/4;object-fit:cover;background:#0d0d0d}
+.lf-bio-text p{font-size:15px;line-height:1.85;color:rgba(255,255,255,.8);margin:0}.lf-bio-text p+p{margin-top:16px}
+.lf-sec-head{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin-bottom:26px}
+.lf-gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.lf-gi{position:relative;overflow:hidden;background:#111;box-shadow:var(--shadow)}.lf-gi.img{aspect-ratio:4/5}.lf-gi.vid{aspect-ratio:9/16}
+.lf-gi img,.lf-gi video{width:100%;height:100%;object-fit:cover}.lf-gi:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.66),transparent 58%)}
+.lf-gm{position:absolute;left:12px;right:12px;bottom:12px;z-index:2;display:flex;align-items:end;justify-content:space-between;gap:8px}
+.lf-gm strong{font-size:11px;letter-spacing:2px;text-transform:uppercase}.lf-gm span{display:block;margin-top:4px;font-size:12px;color:rgba(255,255,255,.65)}
+.lf-play{width:36px;height:36px;border:1px solid rgba(255,255,255,.18);border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.3);font-size:11px;flex-shrink:0}
+.lf-reel-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(240px,23vw);gap:12px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory}
+.lf-reel-row::-webkit-scrollbar{height:6px}.lf-reel-row::-webkit-scrollbar-thumb{background:#222}
+.lf-reel-card{position:relative;scroll-snap-align:start;aspect-ratio:9/16;overflow:hidden;background:#101010;box-shadow:var(--shadow)}
+.lf-reel-card video{width:100%;height:100%;object-fit:cover}.lf-reel-card:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.78),transparent 58%)}
+.lf-reel-meta{position:absolute;left:12px;right:12px;bottom:12px;z-index:2}.lf-reel-meta strong{display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase}.lf-reel-meta span{display:block;margin-top:5px;font-size:12px;color:rgba(255,255,255,.65)}
+.lf-chip-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.lf-chip{padding:10px 15px;border:1px solid var(--line2);background:transparent;color:#fff;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:.22s ease}
+.lf-chip.act,.lf-chip:hover{border-color:var(--gold);color:var(--gold2)}
+.lf-pg{display:none}.lf-pg.act{display:block}.lf-pb h3{font:400 17px/1 var(--display);letter-spacing:2px;text-transform:uppercase;margin:0 0 14px;color:var(--gold2)}
+.lf-reviews{position:relative;background:#050505;overflow:hidden}
+.lf-rev-bg{position:absolute;inset:0;opacity:.2}.lf-rev-bg img{width:100%;height:100%;object-fit:cover;filter:grayscale(100%) brightness(.5)}
+.lf-reviews:after{content:"";position:absolute;inset:0;background:linear-gradient(to right,rgba(5,5,5,.95) 0%,rgba(5,5,5,.8) 40%,rgba(5,5,5,.58) 100%)}
+.lf-rev-in{position:relative;z-index:2}.lf-rev-top{text-align:center;max-width:800px;margin:0 auto 26px}
+.lf-slider-btn{width:42px;height:42px;border:1px solid var(--line2);background:transparent;color:#fff;display:grid;place-items:center;cursor:pointer;transition:.22s ease}.lf-slider-btn:hover{border-color:var(--gold);color:var(--gold2)}
+.lf-rev-track{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 30px) / 4);gap:10px;overflow:hidden;scroll-behavior:smooth}
+.lf-rc{min-height:210px;background:rgba(8,8,8,.92);border:1px solid var(--line);padding:18px}
+.lf-rc .lf-stars{font-size:12px;letter-spacing:2px;color:var(--gold2);margin-bottom:11px}.lf-rc h4{font-size:13px;margin:0 0 3px}.lf-rc small{display:block;color:var(--soft);margin-bottom:9px;font-size:11px}.lf-rc p{font-size:13px;line-height:1.65;color:rgba(255,255,255,.76);margin:0}
+.lf-location{background:#040404}.lf-loc-wrap{text-align:center;max-width:1300px;margin:0 auto}
+.lf-loc-addr{font:400 clamp(32px,4.5vw,62px)/.95 var(--display);letter-spacing:1px;text-transform:uppercase;margin:10px auto 12px;max-width:960px}
+.lf-loc-proof{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin-bottom:24px}
+.lf-loc-proof span{display:inline-flex;align-items:center;gap:10px}.lf-loc-proof span:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold)}
+.lf-map-wrap{margin-top:32px;overflow:hidden;box-shadow:var(--shadow)}.lf-map-wrap iframe{width:100%;height:400px;border:0;background:#101010}
+.lf-faq{background:#050505}.lf-faq-top{text-align:center;max-width:840px;margin:0 auto 28px}.lf-faq-list{max-width:1020px;margin:0 auto}
+.lf-faq-item+.lf-faq-item{margin-top:10px}.lf-faq-item{background:#090909;border:1px solid var(--line)}
+.lf-faq-btn{width:100%;text-align:left;background:transparent;border:0;color:#fff;padding:17px 18px;display:flex;justify-content:space-between;align-items:center;gap:18px;cursor:pointer}
+.lf-faq-btn strong{font-size:12px;line-height:1.5;letter-spacing:1px;text-transform:uppercase;color:var(--gold2)}.lf-faq-icon{font-size:18px;color:#fff;flex-shrink:0}
+.lf-faq-body{max-height:0;overflow:hidden;transition:max-height .3s ease;padding:0 18px}.lf-faq-body p{padding:0 0 18px;font-size:14px;line-height:1.8;color:rgba(255,255,255,.75);margin:0}
+.lf-faq-item.open .lf-faq-body{max-height:260px}
+.lf-svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:52px}
+.lf-svc-card{background:var(--panel);padding:30px;border:1px solid var(--line);transition:.25s ease}.lf-svc-card:hover{border-color:var(--gold);transform:translateY(-3px)}
+.lf-svc-card h3{font:400 clamp(26px,2.8vw,36px)/1 var(--display);letter-spacing:1px;text-transform:uppercase;color:var(--gold2);margin:14px 0 12px}
+.lf-svc-card p{font-size:14px;line-height:1.8;color:var(--muted)}
+.lf-proc{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.lf-proc-step{padding:26px;background:var(--panel);border-top:2px solid var(--gold)}
+.lf-proc-num{font:400 52px/1 var(--display);color:rgba(207,169,71,.16);margin-bottom:10px}
+.lf-proc-step h4{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold2);margin-bottom:8px}
+.lf-proc-step p{font-size:13px;line-height:1.75;color:var(--muted)}
+.lf-contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.lf-ci{background:var(--panel);padding:30px}.lf-ci h3{font:400 30px/1 var(--display);letter-spacing:1px;text-transform:uppercase;color:var(--gold2);margin-bottom:22px}
+.lf-cr{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}.lf-cr:last-child{border-bottom:0}
+.lf-cr-icon{width:34px;height:34px;background:rgba(207,169,71,.1);border:1px solid rgba(207,169,71,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+.lf-cr-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--soft);margin-bottom:4px}.lf-cr-val{font-size:14px;color:var(--text)}
+.lf-book-wrap{background:var(--panel);padding:30px}.lf-book-wrap h3{font:400 30px/1 var(--display);letter-spacing:1px;text-transform:uppercase;color:var(--gold2);margin-bottom:18px}
+.lf-cta{background:linear-gradient(135deg,#0d0d0d,#140f00);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:64px 0;text-align:center}
+.lf-cta h2{font:400 clamp(34px,4.5vw,60px)/1 var(--display);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+.lf-cta p{font-size:16px;color:var(--muted);margin-bottom:26px}
+.lf-footer{background:#020202;border-top:1px solid var(--line);padding:26px 0 36px}
+.lf-footer-in{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.lf-footer-brand{display:flex;align-items:center;gap:12px}.lf-footer-brand img{height:30px;width:auto}
+.lf-footer-brand strong{display:block;font:400 17px/1 var(--display);letter-spacing:3px;text-transform:uppercase}
+.lf-footer-brand span{display:block;margin-top:4px;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--soft)}
+.lf-footer-links{display:flex;gap:16px;flex-wrap:wrap}.lf-footer-links a,.lf-footer-copy{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--soft)}.lf-footer-links a:hover{color:var(--gold2)}
+@media(max-width:1200px){.lf-hero-in,.lf-bio-grid,.lf-contact-grid{grid-template-columns:1fr}.lf-hero-side{justify-self:start;width:min(100%,340px)}.lf-bio-photo img{min-height:380px}.lf-gallery-grid{grid-template-columns:repeat(3,1fr)}.lf-rev-track{grid-auto-columns:calc((100% - 10px)/2)}.lf-stats{grid-template-columns:repeat(2,1fr)}.lf-svc-grid{grid-template-columns:1fr 1fr}.lf-proc{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.lf-nav-links{display:none}.lf-mob{display:block}.lf-reel-row{grid-auto-columns:minmax(200px,70vw)}.lf-gallery-grid{grid-template-columns:repeat(2,1fr)}.lf-rev-track{grid-auto-columns:100%}.lf-bio-inline{grid-template-columns:1fr}.lf-svc-grid,.lf-proc{grid-template-columns:1fr}}
+@media(max-width:640px){.lf-c{width:min(var(--max),calc(100% - 20px))}.lf-s{padding:72px 0}.lf-hero-copy h1{font-size:clamp(52px,16vw,86px)}.lf-gallery-grid{grid-template-columns:1fr}.lf-stats{grid-template-columns:1fr 1fr}.lf-hero-actions{width:100%}.lf-btn{width:100%}}
+</style>`;
+}
+
+function lfNav(active) {
+  const links = [{id:'home',label:'Home',href:'/'},{id:'about',label:'About',href:'/about-us'},{id:'portfolio',label:'Portfolio',href:'/portfolio'},{id:'services',label:'Services',href:'/services'}];
+  return `<div class="lf-nav-wrap"><div class="lf-c lf-nav">
+  <a href="/" class="lf-brand"><img src="${LF.logo}" alt="Luis Farrera"/><div class="lf-brand-text"><strong>Luis Farrera</strong><span>Soho NYC Tattoo Artist</span></div></a>
+  <nav class="lf-nav-links" id="lfNav">${links.map(l=>`<a href="${l.href}"${l.id===active?' class="act"':''}>${l.label}</a>`).join('')}<a href="/contact-us" class="lf-btn lf-btn-light" style="min-height:38px;padding:0 16px;font-size:11px;">Book Now</a></nav>
+  <button class="lf-mob" id="lfMob">Menu</button>
+</div></div>`;
+}
+
+function lfFooter() {
+  return `<footer class="lf-footer"><div class="lf-c lf-footer-in">
+  <div class="lf-footer-brand"><img src="${LF.logo}" alt="Luis Farrera"/><div><strong>Luis Farrera</strong><span>132 Crosby St 4th floor, New York, NY 10012</span></div></div>
+  <div class="lf-footer-links"><a href="/">Home</a><a href="/about-us">About</a><a href="/portfolio">Portfolio</a><a href="/services">Services</a><a href="/contact-us">Book Now</a></div>
+  <div class="lf-footer-copy">© ${new Date().getFullYear()} Luis Farrera. All rights reserved.</div>
+</div></footer>`;
+}
+
+function lfScript() {
+  return `<script>(function(){
+var mob=document.getElementById('lfMob'),nav=document.getElementById('lfNav');
+if(mob&&nav)mob.addEventListener('click',function(){var o=nav.style.display==='flex';nav.style.cssText=o?'':'display:flex;flex-direction:column;position:fixed;inset:74px 10px auto;padding:18px;background:rgba(5,5,5,.98);border:1px solid rgba(255,255,255,.08);gap:14px;z-index:999;align-items:stretch;';});
+window.addEventListener('resize',function(){if(window.innerWidth>900&&nav)nav.style.cssText='';});
+var ro=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.lf-reveal').forEach(function(el){ro.observe(el);});
+var vo=new IntersectionObserver(function(e){e.forEach(function(x){var v=x.target;if(x.isIntersecting){var p=v.play();if(p&&p.catch)p.catch(function(){});}else v.pause();});},{threshold:.32});
+function initVO(){document.querySelectorAll('[data-lv]').forEach(function(v){vo.observe(v);});}initVO();
+document.querySelectorAll('.lf-faq-item').forEach(function(item){var btn=item.querySelector('.lf-faq-btn');if(!btn)return;btn.addEventListener('click',function(){var o=item.classList.contains('open');document.querySelectorAll('.lf-faq-item').forEach(function(x){x.classList.remove('open');var ic=x.querySelector('.lf-faq-icon');if(ic)ic.textContent='+';});if(!o){item.classList.add('open');var ic=item.querySelector('.lf-faq-icon');if(ic)ic.textContent='−';}});});
+document.querySelectorAll('.lf-chip').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.lf-chip').forEach(function(b){b.classList.remove('act');});document.querySelectorAll('.lf-pg').forEach(function(g){g.classList.remove('act');});btn.classList.add('act');var t=document.getElementById(btn.dataset.target);if(t){t.classList.add('act');initVO();}});});
+var tr=document.getElementById('lfRT'),pv=document.getElementById('lfRP'),nx=document.getElementById('lfRN');
+function sa(){return tr?(tr.clientWidth<900?tr.clientWidth:tr.clientWidth/2):0;}
+if(pv&&tr)pv.addEventListener('click',function(){tr.scrollBy({left:-sa(),behavior:'smooth'});});
+if(nx&&tr)nx.addEventListener('click',function(){tr.scrollBy({left:sa(),behavior:'smooth'});});
+var ai=null;function startA(){if(!tr)return;clearInterval(ai);ai=setInterval(function(){tr.scrollBy({left:sa(),behavior:'smooth'});},4200);}
+if(tr){startA();tr.addEventListener('mouseenter',function(){clearInterval(ai);});tr.addEventListener('mouseleave',startA);}
+})();</script>`;
+}
+
+function lfWrap(title, metaDesc, keywords, schema, body) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+<meta name="description" content="${metaDesc}">
+<meta name="keywords" content="${keywords}">
+<meta property="og:title" content="${title}"><meta property="og:description" content="${metaDesc}">
+<meta property="og:image" content="${LF.heroBg}"><meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+${lfCSS()}
+<script type="application/ld+json">${JSON.stringify(schema)}</script>
+</head><body>${body}${lfScript()}</body></html>`;
+}
+
+function lfFaqHtml(items, openFirst = true) {
+  return items.map((f,i)=>`<div class="lf-faq-item${openFirst&&i===0?' open':''}"><button class="lf-faq-btn" type="button"><strong>${f.q}</strong><span class="lf-faq-icon">${openFirst&&i===0?'−':'+'}</span></button><div class="lf-faq-body"><p>${f.a}</p></div></div>`).join('');
+}
+
+function lfReviewsHtml() {
+  return LF.reviews.map((r,i)=>`<article class="lf-rc"><div class="lf-stars">★★★★★</div><h4>${r.name}</h4><small>${r.meta} · ${i+1}</small><p>${r.text}</p></article>`).join('');
+}
+
+// ── Page builders ──────────────────────────────────────────
+
+function lfBuildHome() {
+  const photos = [...LF.colorPhotos.slice(0,3),...LF.blackPhotos.slice(0,3)];
+  const reels  = [...LF.blackVideos.slice(0,4),...LF.colorVideos.slice(0,4)];
+  const photoGrid = photos.map((s,i)=>`<article class="lf-gi img"><img src="${s}" alt="${i<3?'Color realism':'Black and gray'} tattoo by Luis Farrera Soho NYC" loading="${i<2?'eager':'lazy'}" decoding="async"><div class="lf-gm"><div><strong>${i<3?'Color Realism':'Black & Gray'}</strong><span>Soho, NYC</span></div></div></article>`).join('');
+  const reelHtml = reels.map((s,i)=>`<article class="lf-reel-card"><video muted loop playsinline preload="none" data-lv><source src="${s}" type="video/mp4"></video><div class="lf-reel-meta"><strong>${i<4?'Black & Gray':'Color'} Reel</strong><span>Perspective ${String(i+1).padStart(2,'0')}</span></div></article>`).join('');
+  const schema = {"@context":"https://schema.org","@type":"TattooParlor","name":"Luis Farrera Tattoo Artist","image":LF.heroBg,"description":"Luxury tattoo artist in Soho, Manhattan specializing in black and gray realism and color realism.","address":{"@type":"PostalAddress","streetAddress":"132 Crosby St 4th floor","addressLocality":"New York","addressRegion":"NY","postalCode":"10012","addressCountry":"US"},"telephone":"+1-833-362-6091","url":"https://luisfarreratattoo.com","areaServed":"New York City","priceRange":"$$$"};
+  const body = `${lfNav('home')}
+<section class="lf-hero"><div class="lf-hero-bg"><img src="${LF.heroBg}" alt="Luis Farrera tattoo artist Soho NYC" fetchpriority="high"></div>
+<div class="lf-c lf-hero-in lf-reveal in"><div class="lf-hero-copy"><div class="lf-kicker">Soho · New York City</div><h1>Luis Farrera<br>Tattoo Artist</h1><p>Master of black and gray realism and color realism. Private studio at 132 Crosby St, Soho, Manhattan — by appointment only.</p><div class="lf-hero-actions"><a href="/portfolio" class="lf-btn lf-btn-light">View Portfolio</a><a href="/contact-us" class="lf-btn lf-btn-line">Book Now</a></div></div>
+<div class="lf-hero-side"><div class="lf-hero-card"><img src="${LF.portrait}" alt="Luis Farrera portrait" loading="eager"></div></div></div></section>
+<div class="lf-stats lf-reveal"><div class="lf-stat"><div class="lf-stat-n">14+</div><div class="lf-stat-l">Years Experience</div></div><div class="lf-stat"><div class="lf-stat-n">500+</div><div class="lf-stat-l">Pieces Completed</div></div><div class="lf-stat"><div class="lf-stat-n">5★</div><div class="lf-stat-l">Google Rating</div></div><div class="lf-stat"><div class="lf-stat-n">Soho</div><div class="lf-stat-l">New York City</div></div></div>
+<section class="lf-bio lf-s"><div class="lf-c lf-bio-grid lf-reveal"><div class="lf-bio-card"><div class="lf-ey">Artist Story</div><h2 class="lf-title"><em>Luxury tattooing in Soho</em>The Artist Behind the Work</h2><div class="lf-bio-inline"><img src="${LF.portrait}" alt="Luis Farrera bio" loading="lazy"><div class="lf-bio-text"><p>Born in Caracas, Venezuela, Luis won graffiti competitions by 17 and graduated with honors in industrial design. That foundation of structure, balance, and composition defines every tattoo he creates.</p><p>After Miami, a 2020 opportunity brought him permanently to New York City. He now works from his private Soho studio, specializing in black and gray realism and color realism — built to last, photograph beautifully, and feel elevated in person.</p></div></div><div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap;"><a href="/about-us" class="lf-btn lf-btn-gold">Full Story</a><a href="/contact-us" class="lf-btn lf-btn-line">Book Now</a></div></div><div class="lf-bio-photo"><img src="${LF.studioBg}" alt="Luis Farrera in his Soho studio" loading="lazy"></div></div></section>
+<section class="lf-s lf-reveal" style="background:linear-gradient(180deg,#080808,#050505);"><div class="lf-c"><div class="lf-sec-head"><div><div class="lf-ey">Selected Works</div><h2 class="lf-title"><em>Black & gray · Color realism</em>Featured Portfolio</h2></div><a href="/portfolio" class="lf-btn lf-btn-line">Full Portfolio</a></div><div class="lf-gallery-grid">${photoGrid}</div></div></section>
+<section class="lf-s lf-reveal" style="background:#040404;"><div class="lf-c"><div class="lf-sec-head"><div><div class="lf-ey">Motion Collection</div><h2 class="lf-title"><em>In motion</em>Cinematic Reels</h2></div></div><div class="lf-reel-row">${reelHtml}</div></div></section>
+<section class="lf-reviews lf-s"><div class="lf-rev-bg"><img src="${LF.studioBg}" alt="" aria-hidden="true" loading="lazy"></div><div class="lf-c lf-rev-in lf-reveal"><div class="lf-rev-top"><div class="lf-ey" style="justify-content:center">Client Voices</div><h2 class="lf-title">What My Clients Say</h2><div style="margin-top:20px"><a href="/contact-us" class="lf-btn lf-btn-gold">Book Your Session</a></div></div><div class="lf-rev-track" id="lfRT">${lfReviewsHtml()}</div><div style="display:flex;justify-content:center;gap:10px;margin-top:16px;"><button class="lf-slider-btn" id="lfRP">←</button><button class="lf-slider-btn" id="lfRN">→</button></div></div></section>
+<section class="lf-location lf-s"><div class="lf-c lf-loc-wrap lf-reveal"><div class="lf-ey" style="justify-content:center">The Studio</div><h2 class="lf-title">Find Us in Soho</h2><div class="lf-loc-addr">132 Crosby St, 4th Floor · New York, NY 10012</div><div class="lf-loc-proof"><span>Private Soho Studio</span><span>By Appointment Only</span><span>Serving NYC &amp; Beyond</span></div><a href="/contact-us" class="lf-btn lf-btn-gold">Book Your Appointment</a><div class="lf-map-wrap"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=132%20Crosby%20St%204th%20floor%2C%20New%20York%2C%20NY%2010012&z=15&output=embed" title="Luis Farrera Soho studio"></iframe></div></div></section>
+<section class="lf-faq lf-s"><div class="lf-c lf-reveal"><div class="lf-faq-top"><div class="lf-ey" style="justify-content:center">FAQ</div><h2 class="lf-title">Frequently Asked Questions</h2></div><div class="lf-faq-list">${lfFaqHtml(LF.faqs.slice(0,4))}</div><div style="text-align:center;margin-top:26px;"><a href="/contact-us" class="lf-btn lf-btn-gold">Book Now / Ask a Question</a></div></div></section>
+<section class="lf-cta"><div class="lf-c"><h2>Ready to Book Your Session?</h2><p>Luxury tattoo artistry in the heart of Soho, Manhattan.</p><a href="/contact-us" class="lf-btn lf-btn-gold">Secure Your Appointment →</a></div></section>
+${lfFooter()}`;
+  return lfWrap('Luis Farrera | Tattoo Artist Soho NYC | Black & Gray Realism','Luxury tattoo artist in Soho, Manhattan. Black and gray realism and color realism. Studio at 132 Crosby St, NYC. Book your appointment.','tattoo artist soho nyc,realism tattoo manhattan,black and gray realism tattoo new york,color realism tattoo nyc,custom tattoo artist soho,luis farrera tattoo',schema,body);
+}
+
+function lfBuildAbout() {
+  const schema = {"@context":"https://schema.org","@type":"Person","name":"Luis Farrera","jobTitle":"Tattoo Artist","image":LF.portrait,"description":"Venezuelan-born realism tattoo artist based in Soho, Manhattan. Specializes in black and gray realism and color realism.","worksFor":{"@type":"TattooParlor","name":"Luis Farrera Tattoo Artist","address":{"@type":"PostalAddress","streetAddress":"132 Crosby St 4th floor","addressLocality":"New York","addressRegion":"NY","postalCode":"10012"}}};
+  const details = [['Address','132 Crosby St, 4th Floor'],['Neighborhood','Soho, Manhattan'],['City','New York, NY 10012'],['Availability','By Appointment Only'],['Specialties','Black & Gray · Color Realism'],['Guest Spots','Select cities — inquire via form']];
+  const body = `${lfNav('about')}
+<section class="lf-page-hero"><div class="lf-page-hero-bg"><img src="${LF.studioBg}" alt="Luis Farrera studio" loading="eager"></div><div class="lf-c lf-page-hero-in lf-reveal in" style="padding:80px 0 60px;"><div class="lf-ey">Artist Story</div><h1 class="lf-title"><em>From Caracas to Soho</em>About Luis Farrera</h1><p class="lf-sub" style="margin-top:14px;max-width:560px;">A Venezuelan-born artist whose foundation in design, graffiti, and fine art shapes every tattoo he creates in New York City.</p></div></section>
+<div class="lf-stats lf-reveal"><div class="lf-stat"><div class="lf-stat-n">14+</div><div class="lf-stat-l">Years Tattooing</div></div><div class="lf-stat"><div class="lf-stat-n">500+</div><div class="lf-stat-l">Custom Pieces</div></div><div class="lf-stat"><div class="lf-stat-n">2</div><div class="lf-stat-l">Core Specialties</div></div><div class="lf-stat"><div class="lf-stat-n">NYC</div><div class="lf-stat-l">Home Base</div></div></div>
+<section class="lf-bio lf-s"><div class="lf-c lf-bio-grid lf-reveal"><div class="lf-bio-card"><div class="lf-ey">The Full Story</div><h2 class="lf-title"><em>Design · Graffiti · Realism</em>The Artist's Journey</h2><div class="lf-bio-inline"><img src="${LF.portrait}" alt="Luis Farrera portrait" loading="lazy"><div class="lf-bio-text"><p>Born and raised in Caracas, Venezuela, Luis Farrera grew up surrounded by a vibrant creative culture. He was winning graffiti competitions by the age of 17 — developing an instinct for composition, color theory, and how an image interacts with a surface.</p><p>He graduated with honors in industrial design, giving him something most tattoo artists never formally learn: structured visual thinking. The ability to see how form, weight, and balance work together before a single line is drawn.</p><p>After building his practice in Miami, a 2020 opportunity brought him permanently to New York. He now works from his private Soho studio — pieces designed to last, photograph beautifully, and feel elevated in person.</p></div></div></div><div class="lf-bio-photo"><img src="${LF.studioBg}" alt="Luis Farrera working in his studio" loading="lazy"></div></div></section>
+<section class="lf-s lf-reveal" style="background:#080808;"><div class="lf-c"><div style="display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;"><div><div class="lf-ey">New York Chapter</div><h2 class="lf-title"><em>Miami → New York City</em>The Soho Studio</h2><p class="lf-sub" style="margin-top:14px;">After building a strong portfolio in Miami, Luis relocated to New York in 2020. That move cemented his position among the city's serious collectors and high-end tattoo clientele.</p><p style="font-size:15px;line-height:1.85;color:rgba(255,255,255,.62);margin-top:18px;">Working from 132 Crosby St, 4th floor, his studio serves clients from all five boroughs and collectors who travel specifically for his work. He also rotates through select guest spots throughout the year.</p><div style="margin-top:26px;"><a href="/contact-us" class="lf-btn lf-btn-gold">Book a Consultation</a></div></div><div style="background:var(--panel);padding:28px;border:1px solid var(--line);">${details.map(([l,v])=>`<div style="padding:13px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:16px;"><span style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--soft);">${l}</span><span style="font-size:13px;color:var(--text);text-align:right;">${v}</span></div>`).join('')}</div></div></div></div></section>
+<section class="lf-s lf-reveal" style="background:#050505;"><div class="lf-c"><div style="text-align:center;max-width:760px;margin:0 auto 44px;"><div class="lf-ey" style="justify-content:center;">Philosophy</div><h2 class="lf-title"><em>How Luis approaches every piece</em>What Sets the Work Apart</h2></div><div class="lf-svc-grid">${[{icon:'◆',title:'Composition First',text:"Every piece is designed before it's drawn. Placement, flow, and how the tattoo interacts with the body are considered from the start."},{icon:'◈',title:'Built to Last',text:'Luis designs for longevity — considering how contrast, saturation, and detail will hold up over years, not just in fresh photos.'},{icon:'◇',title:'Custom Always',text:"No flash, no repeats. Every client receives a concept built specifically for their idea, skin tone, and placement."}].map(s=>`<div class="lf-svc-card"><div style="font-size:26px;color:var(--gold2);">${s.icon}</div><h3>${s.title}</h3><p>${s.text}</p></div>`).join('')}</div></div></section>
+<section class="lf-cta"><div class="lf-c"><h2>Work With Luis Farrera</h2><p>Private studio. Premium artistry. Soho, Manhattan — by appointment only.</p><a href="/contact-us" class="lf-btn lf-btn-gold">Book Your Session →</a></div></section>
+${lfFooter()}`;
+  return lfWrap('About Luis Farrera | Realism Tattoo Artist | Soho NYC','Meet Luis Farrera, Venezuelan-born tattoo artist in Soho, Manhattan. Industrial design graduate, graffiti champion, master of black and gray realism and color realism at 132 Crosby St.','luis farrera tattoo artist,about luis farrera,soho tattoo artist nyc,realism tattoo artist manhattan,venezuelan tattoo artist new york city',schema,body);
+}
+
+function lfBuildPortfolio() {
+  const schema = {"@context":"https://schema.org","@type":"ImageGallery","name":"Luis Farrera Tattoo Portfolio","description":"Full portfolio of black and gray realism and color realism tattoos by Luis Farrera, Soho NYC.","author":{"@type":"Person","name":"Luis Farrera"}};
+  const imgCard = (src,lbl,i) => `<article class="lf-gi img"><img src="${src}" alt="${lbl} tattoo by Luis Farrera NYC ${i+1}" loading="lazy" decoding="async"><div class="lf-gm"><div><strong>${lbl}</strong><span>Portfolio piece ${i+1}</span></div></div></article>`;
+  const vidCard = (src,lbl,i) => `<article class="lf-gi vid"><video muted loop playsinline preload="none" data-lv><source src="${src}" type="video/mp4"></video><div class="lf-gm"><div><strong>${lbl}</strong><span>Motion ${i+1}</span></div><div class="lf-play">▶</div></div></article>`;
+  const reels = [...LF.blackVideos.slice(0,4),...LF.colorVideos.slice(0,4)];
+  const reelHtml = reels.map((s,i)=>`<article class="lf-reel-card"><video muted loop playsinline preload="none" data-lv><source src="${s}" type="video/mp4"></video><div class="lf-reel-meta"><strong>${i<4?'Black & Gray':'Color'} Reel</strong><span>Perspective ${String(i+1).padStart(2,'0')}</span></div></article>`).join('');
+  const body = `${lfNav('portfolio')}
+<section class="lf-page-hero"><div class="lf-page-hero-bg"><img src="${LF.colorPhotos[0]}" alt="Luis Farrera portfolio" loading="eager"></div><div class="lf-c lf-page-hero-in lf-reveal in" style="padding:80px 0 60px;"><div class="lf-ey">Stills of Permanence</div><h1 class="lf-title"><em>Black & gray · Color realism</em>The Portfolio</h1><p class="lf-sub" style="margin-top:14px;max-width:500px;">Every piece designed custom, executed with precision, built to last. Browse by style below.</p></div></section>
+<section class="lf-s lf-reveal" style="background:linear-gradient(180deg,#080808,#050505);"><div class="lf-c">
+<div class="lf-chip-nav"><button class="lf-chip act" data-target="lfCP">Color Realism Photos</button><button class="lf-chip" data-target="lfBP">Black &amp; Gray Photos</button><button class="lf-chip" data-target="lfCV">Color Reels</button><button class="lf-chip" data-target="lfBV">Black &amp; Gray Reels</button></div>
+<div class="lf-pg act" id="lfCP"><div class="lf-pb"><h3>I. Color Realism</h3><div class="lf-gallery-grid">${LF.colorPhotos.map((s,i)=>imgCard(s,'Color Realism',i)).join('')}</div></div></div>
+<div class="lf-pg" id="lfBP"><div class="lf-pb"><h3>II. Black &amp; Gray Archive</h3><div class="lf-gallery-grid">${LF.blackPhotos.map((s,i)=>imgCard(s,'Black & Gray',i)).join('')}</div></div></div>
+<div class="lf-pg" id="lfCV"><div class="lf-pb"><h3>III. Color Motion</h3><div class="lf-gallery-grid">${LF.colorVideos.map((s,i)=>vidCard(s,'Color Reel',i)).join('')}</div></div></div>
+<div class="lf-pg" id="lfBV"><div class="lf-pb"><h3>IV. Black &amp; Gray Motion</h3><div class="lf-gallery-grid">${LF.blackVideos.map((s,i)=>vidCard(s,'B&G Reel',i)).join('')}</div></div></div>
+<div style="margin-top:28px;text-align:center;"><a href="/contact-us" class="lf-btn lf-btn-gold">Book Your Custom Piece</a></div></div></section>
+<section class="lf-s lf-reveal" style="background:#040404;"><div class="lf-c"><div class="lf-sec-head"><div><div class="lf-ey">Motion Collection</div><h2 class="lf-title"><em>Cinematic</em>All Reels</h2></div></div><div class="lf-reel-row">${reelHtml}</div></div></section>
+<section class="lf-cta"><div class="lf-c"><h2>Inspired by the Work?</h2><p>Every piece in this portfolio is custom. Yours starts with a consultation.</p><a href="/contact-us" class="lf-btn lf-btn-gold">Start Your Custom Piece →</a></div></section>
+${lfFooter()}`;
+  return lfWrap('Portfolio | Luis Farrera | Black & Gray & Color Realism NYC','Browse Luis Farrera full tattoo portfolio. Black and gray realism, color realism, and cinematic reels from his Soho NYC studio at 132 Crosby St, Manhattan.','luis farrera portfolio,tattoo portfolio soho nyc,black and gray realism tattoo nyc,color realism tattoo portfolio manhattan',schema,body);
+}
+
+function lfBuildServices() {
+  const schema = {"@context":"https://schema.org","@type":"Service","provider":{"@type":"Person","name":"Luis Farrera","address":{"@type":"PostalAddress","streetAddress":"132 Crosby St 4th floor","addressLocality":"New York","addressRegion":"NY","postalCode":"10012"}},"serviceType":"Tattoo Artist","description":"Black and gray realism, color realism, and custom tattoo design by Luis Farrera in Soho, NYC."};
+  const svcs = [{icon:'◆',seo:'Black & Gray Realism Tattoo NYC',title:'Black & Gray Realism',desc:"The signature specialty. Portraits, wildlife, architecture, and abstract — executed with smooth tonal transitions, deep contrast, and shading that reads as three-dimensional on skin.",bullets:['Portrait realism','Wildlife & nature scenes','Geometric & abstract B&G','Fine-line detailed work','Cover-up transformations']},{icon:'◈',seo:'Color Realism Tattoo Manhattan',title:'Color Realism',desc:"Vibrant, detail-rich color work with strong saturation designed to hold over time. Skin tone awareness, long-term color retention, and bold finish are built into every piece.",bullets:['Floral & botanical color','Animal & wildlife color','Fantasy & surrealism','Color portrait realism','Full sleeve compositions']},{icon:'◇',seo:'Custom Tattoo Artist Soho NYC',title:'Custom Design',desc:"Every project begins as a blank canvas. Clients bring ideas, references, and placement goals — Luis shapes them into a concept that fits the body, the person, and the long-term vision.",bullets:['Full custom concept development','Reference analysis & elevation','Placement & size consultation','Multi-session collector pieces','Body suit planning']}];
+  const procs = [{step:'01',title:'Submit Your Inquiry',desc:'Use the booking form to share your concept, placement, size, style, and reference images. Be as specific as you can.'},{step:'02',title:'Consultation',desc:'Luis reviews your submission and follows up to discuss the concept, refine the direction, and confirm the session plan.'},{step:'03',title:'Custom Design',desc:"A custom design is created specifically for your body placement, skin tone, and visual direction — no templates."},{step:'04',title:'Your Session',desc:'Professional studio at 132 Crosby St, Soho. Clean setup, focused execution, a finished piece built to last.'}];
+  const body = `${lfNav('services')}
+<section class="lf-page-hero"><div class="lf-page-hero-bg"><img src="${LF.heroBg}" alt="Luis Farrera services" loading="eager"></div><div class="lf-c lf-page-hero-in lf-reveal in" style="padding:80px 0 60px;"><div class="lf-ey">What We Offer</div><h1 class="lf-title"><em>Soho, New York City</em>Tattoo Services</h1><p class="lf-sub" style="margin-top:14px;max-width:500px;">Three core specialties. One standard: collector-level quality on every piece.</p></div></section>
+<section class="lf-s lf-reveal" style="background:linear-gradient(180deg,#080808,#050505);"><div class="lf-c"><div style="text-align:center;max-width:680px;margin:0 auto 44px;"><div class="lf-ey" style="justify-content:center;">Core Specialties</div><h2 class="lf-title">What Luis Farrera Does</h2></div><div class="lf-svc-grid">${svcs.map(s=>`<div class="lf-svc-card"><div style="font-size:28px;color:var(--gold2);">${s.icon}</div><div class="lf-ey" style="margin-top:10px;">${s.seo}</div><h3>${s.title}</h3><p>${s.desc}</p><ul style="list-style:none;margin-top:18px;padding:0;display:flex;flex-direction:column;gap:7px;">${s.bullets.map(b=>`<li style="font-size:13px;color:rgba(255,255,255,.62);padding-left:16px;position:relative;"><span style="position:absolute;left:0;color:var(--gold);">▸</span>${b}</li>`).join('')}</ul></div>`).join('')}</div></div></section>
+<section class="lf-s lf-reveal" style="background:#040404;"><div class="lf-c"><div style="text-align:center;max-width:680px;margin:0 auto 44px;"><div class="lf-ey" style="justify-content:center;">How It Works</div><h2 class="lf-title"><em>From inquiry to finished piece</em>The Process</h2></div><div class="lf-proc">${procs.map(s=>`<div class="lf-proc-step"><div class="lf-proc-num">${s.step}</div><h4>${s.title}</h4><p>${s.desc}</p></div>`).join('')}</div></div></section>
+<section class="lf-faq lf-s lf-reveal"><div class="lf-c"><div class="lf-faq-top"><div class="lf-ey" style="justify-content:center;">Questions?</div><h2 class="lf-title">Service FAQ</h2></div><div class="lf-faq-list">${lfFaqHtml(LF.faqs)}</div><div style="text-align:center;margin-top:26px;"><a href="/contact-us" class="lf-btn lf-btn-gold">Book Your Session</a></div></div></section>
+<section class="lf-cta"><div class="lf-c"><h2>Ready to Start Your Custom Piece?</h2><p>Collector-level tattoo artistry. Private studio. Soho, Manhattan.</p><a href="/contact-us" class="lf-btn lf-btn-gold">Book a Consultation →</a></div></section>
+${lfFooter()}`;
+  return lfWrap('Tattoo Services | Luis Farrera | Black & Gray · Color Realism | Soho NYC','Tattoo services by Luis Farrera in Soho, NYC. Black and gray realism, color realism, custom design. Studio at 132 Crosby St. Book a consultation.','tattoo services soho nyc,black and gray realism tattoo service,color realism tattoo manhattan,custom tattoo artist new york,soho tattoo studio',schema,body);
+}
+
+function lfBuildContact() {
+  const schema = {"@context":"https://schema.org","@type":"TattooParlor","name":"Luis Farrera Tattoo Artist","telephone":"+1-833-362-6091","address":{"@type":"PostalAddress","streetAddress":"132 Crosby St 4th floor","addressLocality":"New York","addressRegion":"NY","postalCode":"10012","addressCountry":"US"},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","description":"By appointment only"}};
+  const contactRows = [['📍','Address','132 Crosby St, 4th Floor, New York, NY 10012'],['🏙','Neighborhood','Soho, Manhattan'],['📅','Availability','By Appointment Only'],['◆','Specialties','Black & Gray Realism · Color Realism · Custom'],['✈','Guest Spots','Select cities — inquire via form']];
+  const body = `${lfNav('contact')}
+<section class="lf-page-hero"><div class="lf-page-hero-bg"><img src="${LF.studioBg}" alt="Book Luis Farrera" loading="eager"></div><div class="lf-c lf-page-hero-in lf-reveal in" style="padding:80px 0 60px;"><div class="lf-ey">Secure Your Session</div><h1 class="lf-title"><em>132 Crosby St · Soho · NYC</em>Book Now</h1><p class="lf-sub" style="margin-top:14px;max-width:500px;">Private studio appointments. Custom work only. Submit your concept and Luis will follow up directly.</p></div></section>
+<section class="lf-s lf-reveal" style="background:linear-gradient(180deg,#080808,#050505);"><div class="lf-c lf-contact-grid">
+<div><div class="lf-ci"><h3>Studio Info</h3>${contactRows.map(([ic,l,v])=>`<div class="lf-cr"><div class="lf-cr-icon">${ic}</div><div><div class="lf-cr-lbl">${l}</div><div class="lf-cr-val">${v}</div></div></div>`).join('')}</div><div class="lf-map-wrap" style="margin-top:18px;"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=132%20Crosby%20St%204th%20floor%2C%20New%20York%2C%20NY%2010012&z=15&output=embed" title="Luis Farrera Soho studio"></iframe></div></div>
+<div><div class="lf-book-wrap"><h3>Book Your Session</h3><p style="font-size:14px;line-height:1.8;color:var(--muted);margin-bottom:22px;">Submit your concept below — placement, size, style, and reference images. Luis will follow up directly.</p><iframe src="${LF.bookUrl}" style="width:100%;min-height:660px;border:0;background:transparent;" title="Book a tattoo appointment with Luis Farrera" loading="lazy"></iframe></div></div>
+</div></section>
+<section class="lf-faq lf-s lf-reveal"><div class="lf-c"><div class="lf-faq-top"><div class="lf-ey" style="justify-content:center;">Before You Book</div><h2 class="lf-title">Booking FAQ</h2></div><div class="lf-faq-list">${lfFaqHtml(LF.faqs)}</div></div></section>
+<section class="lf-cta"><div class="lf-c"><h2>Luis Farrera · 132 Crosby St · Soho NYC</h2><p>Private studio. Collector-level artistry. By appointment only.</p><a href="${LF.bookUrl}" target="_blank" rel="noopener" class="lf-btn lf-btn-gold">Submit Your Concept →</a></div></section>
+${lfFooter()}`;
+  return lfWrap('Book a Tattoo | Luis Farrera | 132 Crosby St Soho NYC','Book a tattoo appointment with Luis Farrera at 132 Crosby St, 4th floor, Soho, Manhattan, New York 10012. Custom black and gray realism and color realism.','book tattoo appointment nyc,tattoo booking soho manhattan,luis farrera book now,tattoo appointment 132 crosby st,soho tattoo booking',schema,body);
+}
+
+// GET /sofia/luis-farrera — 5-page download hub for Luis Farrera
+app.get('/sofia/luis-farrera', (req, res) => {
+  try {
+    const pages = { home: lfBuildHome(), about: lfBuildAbout(), portfolio: lfBuildPortfolio(), services: lfBuildServices(), contact: lfBuildContact() };
+    const cacheId = crypto.randomBytes(8).toString('hex');
+    websitePackageCache.set(cacheId, { pages, clientName: 'Luis Farrera', expires: Date.now() + 600000 });
+    const fileMap = [
+      {label:'Home Page',      page:'home',      filename:'index.html',     slug:'(root / homepage)'},
+      {label:'About',          page:'about',     filename:'about-us.html',  slug:'about-us'},
+      {label:'Portfolio',      page:'portfolio', filename:'portfolio.html', slug:'portfolio'},
+      {label:'Services',       page:'services',  filename:'services.html',  slug:'services'},
+      {label:'Book Now',       page:'contact',   filename:'contact-us.html',slug:'contact-us'},
+    ];
+    const buttons = fileMap.map(f=>`<a href="/sofia/website-download?id=${cacheId}&page=${f.page}&filename=${f.filename}" style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:18px 24px;text-decoration:none;color:#1a1a1a;margin-bottom:10px;transition:all .15s;" onmouseover="this.style.borderColor='#cfa947';this.style.background='#fffcf2'" onmouseout="this.style.borderColor='#e5e7eb';this.style.background='#fff'"><div><div style="font-weight:700;font-size:15px;">${f.label}</div><div style="font-size:12px;color:#9ca3af;margin-top:2px;">${f.filename} — GHL slug: <strong>${f.slug}</strong></div></div><div style="background:#cfa947;color:#111;border-radius:6px;padding:6px 16px;font-size:12px;font-weight:700;">↓ Download</div></a>`).join('');
+    const hub = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Luis Farrera — Website Package</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,sans-serif;background:#f8fafc;color:#1a1a1a;padding:40px 20px}.card{background:#fff;border-radius:16px;padding:36px;max-width:600px;margin:0 auto;box-shadow:0 4px 24px rgba(0,0,0,.06)}.logo{height:36px;margin-bottom:18px;filter:brightness(0)}.badge{display:inline-block;background:#dcfce7;color:#166534;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:14px}h1{font-size:22px;font-weight:800;margin-bottom:4px}.sub{font-size:13px;color:#6b7280;margin-bottom:18px}.kws{background:#fdf9ec;border:1px solid #f0d980;border-radius:8px;padding:14px 18px;margin:0 0 22px;font-size:12px;color:#78350f;line-height:1.8}.how{background:#f1f5f9;border-radius:10px;padding:14px 18px;margin-top:22px;font-size:12px;color:#475569;line-height:1.7}.how strong{color:#1a1a1a}</style></head><body><div class="card"><img src="${LF.logo}" class="logo" alt="Luis Farrera"><div class="badge">✓ Ready to Deploy</div><h1>Luis Farrera Tattoo Artist</h1><p class="sub">Soho, NYC · 5 Custom Pages · Bebas Neue Design System</p><div class="kws"><strong style="display:block;color:#92400e;margin-bottom:5px;">🎯 Target SEO Keywords</strong>tattoo artist soho nyc · realism tattoo manhattan · black and gray realism tattoo new york city · color realism tattoo nyc · luis farrera tattoo artist · custom tattoo artist soho · book tattoo appointment nyc · tattoo artist 132 crosby st · luxury tattoo manhattan · soho tattoo studio 2025</div>${buttons}<div class="how"><strong>Upload to GHL Websites:</strong><br>1. Download each file below<br>2. GHL → Sites → Websites → open the site<br>3. Add page → switch to <strong>Custom Code</strong> mode<br>4. Paste full HTML → Save<br><br><strong>⚠ Set exact slugs in GHL or nav links break:</strong><br>index.html → Homepage (root) · about-us.html → <strong>about-us</strong> · portfolio.html → <strong>portfolio</strong> · services.html → <strong>services</strong> · contact-us.html → <strong>contact-us</strong><br><br><em style="color:#94a3b8;font-size:11px;">Links expire in 10 minutes. Refresh this URL to regenerate.</em></div></div></body></html>`;
+    res.setHeader('Content-Type','text/html');
+    res.send(hub);
+  } catch(err) { res.status(500).send(`<pre>Error: ${err.message}\n${err.stack}</pre>`); }
+});
+
 // POST /sofia/build-funnel — create a lead gen funnel in GHL
 // Body: { locationId, funnelType: 'consultation'|'quote'|'lead-magnet', industry?, city? }
 app.post('/sofia/build-funnel', async (req, res) => {
