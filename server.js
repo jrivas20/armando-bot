@@ -36,6 +36,9 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const GHL_API_KEY   = process.env.GHL_API_KEY;
 const NEWS_API_KEY  = process.env.NEWS_API_KEY  || 'dff54f64e9eb4087aa7c215a1c674644';
 const APOLLO_API_KEY = process.env.APOLLO_API_KEY || 'pHTTmBc8ljBQFxaa0YcUQQ';
+const DATASEO_LOGIN    = process.env.DATASEO_LOGIN    || 'info@jrzmarketing.com';
+const DATASEO_PASSWORD = process.env.DATASEO_PASSWORD || 'cc9f762c50b0cc57';
+const DATASEO_AUTH     = Buffer.from(`${DATASEO_LOGIN}:${DATASEO_PASSWORD}`).toString('base64');
 const BOOKING_URL = 'https://jrzmarketing.com/contact-us';
 const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
 const GHL_FORM_ID = process.env.GHL_FORM_ID || '5XhL0vWCuJ59HWHQoHGG'; // universal lead capture form
@@ -6203,15 +6206,41 @@ Rules:
   }
 }
 
-// ─── Sofia: AI Content Generator for Landing Pages ───────
-async function generateLandingContent(clientName, industry, city) {
+/// ─── DataForSEO: Keyword Research ─────────────────────────
+async function getKeywordData(industry, city, locationCode = 2840) {
   try {
+    const keyword = `${industry} ${city}`;
+    const related = [`best ${industry} ${city}`, `${industry} near me`, `affordable ${industry} ${city}`, `top ${industry} ${city}`];
+    const allKws  = [keyword, ...related];
+    const res = await axios.post(
+      'https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live',
+      [{ keywords: allKws, location_code: locationCode, language_code: 'en' }],
+      { headers: { Authorization: `Basic ${DATASEO_AUTH}`, 'Content-Type': 'application/json' }, timeout: 12000 }
+    );
+    const results = res.data?.tasks?.[0]?.result || [];
+    // Sort by search volume descending
+    const sorted = results
+      .filter(r => r.search_volume > 0)
+      .sort((a, b) => (b.search_volume || 0) - (a.search_volume || 0));
+    return sorted.map(r => ({ keyword: r.keyword, volume: r.search_volume, competition: r.competition, cpc: r.cpc }));
+  } catch (err) {
+    console.error('[DataForSEO] Keyword error:', err.message);
+    return [];
+  }
+}
+
+// ─── Sofia: AI Content Generator for Landing Pages ───────
+async function generateLandingContent(clientName, industry, city, keywords = []) {
+  try {
+    const kwContext = keywords.length
+      ? `\nTop SEO keywords for this page (use naturally in headlines, copy, and FAQs):\n${keywords.slice(0,5).map(k=>`- "${k.keyword}" (${k.volume?.toLocaleString()||'?'} searches/mo)`).join('\n')}\nPrimary keyword to target: "${keywords[0]?.keyword || `${industry} ${city}`}"\n`
+      : '';
     const msg = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 2000,
       messages: [{
         role: 'user',
-        content: `Create professional landing page content for "${clientName}", a ${industry} company in ${city}, FL.
+        content: `Create professional landing page content for "${clientName}", a ${industry} company in ${city}, FL.${kwContext}
 Return ONLY valid JSON — no markdown, no explanation:
 {
   "heroTitle": "Powerful 6-8 word headline",
@@ -6305,13 +6334,18 @@ async function buildLandingHTML(clientName, phone, email, city, industry, logoUr
   city   = city   || 'Orlando';
   formId = formId || '5XhL0vWCuJ59HWHQoHGG';
 
-  // Step 0: Generate AI design system — colors + fonts for this industry
-  const stitch = await generateStitchDesignSystem(clientName, industry, city);
+  // Step 0: Fetch keyword data + design system in parallel
+  const [stitch, keywords] = await Promise.all([
+    generateStitchDesignSystem(clientName, industry, city),
+    getKeywordData(industry, city),
+  ]);
 
-  const [c] = await Promise.all([generateLandingContent(clientName, industry, city)]);
+  const [c] = await Promise.all([generateLandingContent(clientName, industry, city, keywords)]);
   const stars = n => '★'.repeat(n) + '☆'.repeat(5 - n);
   const phoneClean = (phone || '').replace(/\D/g, '');
   const logoSrc = logoUrl || 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
+  const primaryKw   = keywords?.[0]?.keyword || `${industry} ${city}`;
+  const secondaryKw = keywords?.[1]?.keyword || `best ${industry} ${city}`;
 
   // Apply AI design tokens, fall back to defaults if generation failed
   const primary    = stitch?.primary          || '#1a3a6b';
@@ -6331,9 +6365,11 @@ async function buildLandingHTML(clientName, phone, email, city, industry, logoUr
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<meta name="description" content="${c.heroSubtitle}"/>
-<title>${clientName} | ${industry} in ${city}, FL</title>
+<meta name="description" content="${clientName} — ${secondaryKw}. ${c.heroSubtitle}"/>
+<meta name="keywords" content="${primaryKw}, ${secondaryKw}, ${industry} near me, ${clientName}"/>
+<title>${clientName} | ${primaryKw.charAt(0).toUpperCase()+primaryKw.slice(1)}</title>
 ${stitch?.designName ? `<!-- AI Design System: ${stitch.designName} -->` : ''}
+${keywords?.length ? `<!-- DataForSEO: top kw "${primaryKw}" ${keywords[0]?.volume?.toLocaleString()||'?'}/mo -->` : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="${fontImport}" rel="stylesheet"/>
 <style>
@@ -9334,6 +9370,25 @@ Write a 4-6 sentence competitive analysis for Jose (agency owner). Focus on: whe
     });
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// GET /sofia/keyword-research?industry=roofing&city=Orlando&location=2840
+app.get('/sofia/keyword-research', async (req, res) => {
+  const { industry, city, location } = req.query;
+  if (!industry || !city) return res.status(400).json({ error: 'industry and city required' });
+  try {
+    const locationCode = parseInt(location) || 2840;
+    const keywords = await getKeywordData(industry, city, locationCode);
+    if (!keywords.length) return res.status(502).json({ error: 'No keyword data returned from DataForSEO' });
+    res.json({
+      primary: keywords[0],
+      top5: keywords.slice(0, 5),
+      all: keywords,
+      summary: `${keywords.length} keywords found. Top: "${keywords[0].keyword}" (${keywords[0].volume?.toLocaleString()||'?'}/mo)`
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
