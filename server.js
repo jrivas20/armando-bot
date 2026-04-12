@@ -6838,7 +6838,7 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
   ).join('');
 
   // Apply AI design tokens if available, fall back to defaults
-  const hFont     = tokens?.headlineFont || 'Montserrat';
+  const hFont     = tokens?.headlineFont || 'Fraunces';
   const bFont     = tokens?.bodyFont     || 'Inter';
   const brand     = tokens?.primary          || '#f97316';
   const brandDark = tokens?.primaryContainer || '#ea6c0a';
@@ -6846,8 +6846,8 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
   const surface   = tokens?.surface          || '#ffffff';
   const radius    = tokens?.borderRadius     || '14px';
   const fontPairs = hFont === bFont
-    ? `family=${hFont.replace(/ /g,'+')}:wght@400;600;700;800;900`
-    : `family=${hFont.replace(/ /g,'+')}:wght@700;800;900&family=${bFont.replace(/ /g,'+')}:wght@400;500;600`;
+    ? `family=${hFont.replace(/ /g,'+')}:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900`
+    : `family=${hFont.replace(/ /g,'+')}:ital,opsz,wght@0,9..144,700..900;1,9..144,700..900&family=${bFont.replace(/ /g,'+')}:wght@400;500;600`;
 
   const styles = `
     @import url('https://fonts.googleapis.com/css2?${fontPairs}&display=swap');
@@ -6877,6 +6877,38 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
       --border:rgba(255,255,255,0.07);
       --border-gold:rgba(196,164,107,0.3);
     }
+
+    /* ── Light theme override ── */
+    [data-theme="light"]{
+      --black:#f5f0e8;--dark:#ede8df;--surface:#ffffff;--ink:#f5f0e8;
+      --text:#1a1a1a;--text-muted:rgba(26,26,26,0.62);--text-soft:rgba(26,26,26,0.38);
+      --cream:#0d0d0d;--border:rgba(0,0,0,0.09);--border-gold:rgba(160,130,75,0.35);
+      --shadow:0 8px 48px rgba(0,0,0,0.1);--gold-glow:rgba(160,130,75,0.1);
+    }
+    [data-theme="light"] header{background:rgba(245,240,232,0.96)!important}
+    [data-theme="light"] .section-light{background:var(--dark);color:#1a1a1a}
+
+    /* ── Custom cursor (pointer devices only) ── */
+    @media(pointer:fine){
+      body,a,button{cursor:none!important}
+      .cursor-dot{position:fixed;width:7px;height:7px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:10001;transform:translate(-50%,-50%);transition:transform .08s,opacity .3s;mix-blend-mode:difference}
+      .cursor-ring{position:fixed;width:34px;height:34px;border:1.5px solid rgba(196,164,107,0.55);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:width .22s,height .22s,border-color .22s,opacity .3s;will-change:transform}
+      .cursor-dot.clicking{transform:translate(-50%,-50%) scale(2.8)}
+      .cursor-ring.hovering{width:54px;height:54px;border-color:var(--gold);opacity:0.85}
+    }
+
+    /* ── Image blur-up ── */
+    img.img-blur{filter:blur(14px) scale(1.02);transition:filter .7s ease,transform .7s ease;will-change:filter,transform}
+    img.img-blur.loaded{filter:blur(0) scale(1)}
+
+    /* ── Floating label forms ── */
+    .field-wrap{position:relative;margin-bottom:22px}
+    .field-wrap input,.field-wrap textarea,.field-wrap select{width:100%;padding:20px 16px 8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--cream);font-size:15px;outline:none;transition:border-color .25s,box-shadow .25s;font-family:inherit}
+    .field-wrap input:focus,.field-wrap textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow)}
+    .field-wrap label{position:absolute;left:16px;top:15px;font-size:14px;color:var(--text-muted);pointer-events:none;transition:all .2s cubic-bezier(.16,1,.3,1)}
+    .field-wrap input:focus~label,.field-wrap input:not(:placeholder-shown)~label,
+    .field-wrap textarea:focus~label,.field-wrap textarea:not(:placeholder-shown)~label{top:6px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+    .field-wrap input::placeholder,.field-wrap textarea::placeholder{opacity:0}
 
     /* ── Grain texture overlay ── */
     body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0.028;
@@ -7036,6 +7068,7 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
       ${navItems}
     </nav>
     <div style="display:flex;align-items:center;gap:14px;">
+      <button id="themeToggle" title="Toggle theme" style="background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--text-muted);font-size:13px;padding:7px 12px;cursor:pointer;transition:border-color .2s,color .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">☾</button>
       <a href="${navLinks[4].href}" class="btn btn-primary" style="padding:11px 24px;font-size:12px;">Free Quote</a>
       <button class="hamburger" onclick="document.getElementById('navMenu').classList.toggle('open')" style="display:none;background:none;border:none;cursor:pointer;padding:4px;">
         <svg width="22" height="22" fill="none" stroke="var(--cream)" stroke-width="1.5"><line x1="3" y1="6" x2="19" y2="6"/><line x1="3" y1="11" x2="19" y2="11"/><line x1="3" y1="16" x2="19" y2="16"/></svg>
@@ -7188,6 +7221,55 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
       '<span class="word"><span style="animation-delay:' + (i * 0.08) + 's">' + w + '</span></span>'
     ).join(' ');
   });
+
+  // ── Custom cursor ──
+  if (window.matchMedia('(pointer:fine)').matches) {
+    const dot = document.createElement('div'); dot.className = 'cursor-dot';
+    const ring = document.createElement('div'); ring.className = 'cursor-ring';
+    document.body.append(dot, ring);
+    let rx = 0, ry = 0, rafId;
+    document.addEventListener('mousemove', e => {
+      dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        rx += (e.clientX - rx) * 0.14; ry += (e.clientY - ry) * 0.14;
+        ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      });
+    });
+    document.addEventListener('mousedown', () => dot.classList.add('clicking'));
+    document.addEventListener('mouseup', () => dot.classList.remove('clicking'));
+    document.querySelectorAll('a,button,.btn').forEach(el => {
+      el.addEventListener('mouseenter', () => ring.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => ring.classList.remove('hovering'));
+    });
+  }
+
+  // ── Image blur-up lazy load ──
+  const imgObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const img = e.target;
+      img.classList.add('img-blur');
+      if (img.complete) { img.classList.add('loaded'); }
+      else { img.addEventListener('load', () => img.classList.add('loaded'), { once: true }); }
+      imgObs.unobserve(img);
+    });
+  }, { rootMargin: '180px' });
+  document.querySelectorAll('img[loading="lazy"]').forEach(img => imgObs.observe(img));
+
+  // ── Dark / light toggle ──
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    const stored = localStorage.getItem('site-theme');
+    if (stored) { document.documentElement.setAttribute('data-theme', stored); themeToggle.textContent = stored === 'light' ? '○' : '☾'; }
+    themeToggle.addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = cur === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('site-theme', next);
+      themeToggle.textContent = next === 'light' ? '○' : '☾';
+    });
+  }
 </script>`;
 
   return { styles, nav, footer, scripts };
@@ -7320,11 +7402,16 @@ function buildHomePage(client, c, layout) {
     </div>
   </div>
 </section>`
-    // Variant 0 (default) — Dark editorial with gold glow
+    // Variant 0 (default) — Dark editorial with gold glow + optional video bg
     : `<section style="background:var(--black);padding:112px 0 88px;overflow:hidden;position:relative;border-bottom:1px solid var(--border);">
+  ${videoUrl && !videoUrl.includes('youtube') && !videoUrl.includes('youtu.be') ? `
+  <video autoplay muted loop playsinline class="parallax-bg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.28;pointer-events:none;z-index:0;">
+    <source src="${videoUrl}" type="video/mp4">
+  </video>
+  <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,8,8,0.88) 55%,rgba(8,8,8,0.4));z-index:1;pointer-events:none;"></div>` : `
   <div class="hero-glow"></div>
-  <div class="parallax-bg" style="position:absolute;inset:0;pointer-events:none;"></div>
-  <div class="container" style="position:relative;">
+  <div class="parallax-bg" style="position:absolute;inset:0;pointer-events:none;"></div>`}
+  <div class="container" style="position:relative;z-index:2;">
     <div style="max-width:740px;">
       <div class="badge" style="margin-bottom:24px;">${city} ${industry}</div>
       <div class="divider-gold"></div>
