@@ -8868,9 +8868,29 @@ img,video,iframe{display:block;max-width:100%}a{color:inherit;text-decoration:no
 /* ── Premium agency animations ── */
 @keyframes lfPulse{0%{box-shadow:0 0 0 0 rgba(207,169,71,0.5)}70%{box-shadow:0 0 0 16px rgba(207,169,71,0)}100%{box-shadow:0 0 0 0 rgba(207,169,71,0)}}
 @keyframes lfPageFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lf-vt-out{to{opacity:0;transform:translateY(-8px)}}
+@keyframes lf-vt-in{from{opacity:0;transform:translateY(8px)}}
+::view-transition-old(root){animation:.26s ease both lf-vt-out}
+::view-transition-new(root){animation:.26s ease both lf-vt-in}
+html{scroll-behavior:auto}
 body{animation:lfPageFade .45s ease both}
 .lf-btn-gold{isolation:isolate;transition:transform .15s ease,box-shadow .15s ease,background .25s,color .25s}
 .lf-page-hero-bg{will-change:transform;transition:transform .1s linear}
+/* ── Custom cursor ── */
+@media(pointer:fine){
+  body,a,button{cursor:none!important}
+  .lf-cursor-dot{position:fixed;width:7px;height:7px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:10001;transform:translate(-50%,-50%)}
+  .lf-cursor-ring{position:fixed;width:32px;height:32px;border:1.5px solid rgba(207,169,71,.5);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:width .2s,height .2s,border-color .2s}
+  .lf-cursor-dot.clicking{transform:translate(-50%,-50%) scale(2.6)}
+  .lf-cursor-ring.hovering{width:52px;height:52px;border-color:var(--gold2)}
+}
+/* ── Image blur-up ── */
+img.img-blur{filter:blur(14px) scale(1.02);transition:filter .65s ease;will-change:filter}
+img.img-blur.loaded{filter:blur(0) scale(1)}
+/* ── 3D card tilt ── */
+.lf-svc-card,.lf-bio-card{transform-style:preserve-3d;will-change:transform}
+/* ── Canvas hero ── */
+#lfHeroCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
 </style>`;
 }
 
@@ -8893,24 +8913,24 @@ function lfFooter() {
 
 function lfScript() {
   return `<script>(function(){
+// ── Mobile nav ──
 var mob=document.getElementById('lfMob'),nav=document.getElementById('lfNav');
 if(mob&&nav)mob.addEventListener('click',function(){var o=nav.style.display==='flex';nav.style.cssText=o?'':'display:flex;flex-direction:column;position:fixed;inset:74px 10px auto;padding:18px;background:rgba(5,5,5,.98);border:1px solid rgba(255,255,255,.08);gap:14px;z-index:999;align-items:stretch;';});
 window.addEventListener('resize',function(){if(window.innerWidth>900&&nav)nav.style.cssText='';});
-var ro=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.lf-reveal').forEach(function(el){ro.observe(el);});
+// ── Video observer ──
 var vo=new IntersectionObserver(function(e){e.forEach(function(x){var v=x.target;if(x.isIntersecting){var p=v.play();if(p&&p.catch)p.catch(function(){});}else v.pause();});},{threshold:.32});
 function initVO(){document.querySelectorAll('[data-lv]').forEach(function(v){vo.observe(v);});}initVO();
+// ── FAQ ──
 document.querySelectorAll('.lf-faq-item').forEach(function(item){var btn=item.querySelector('.lf-faq-btn');if(!btn)return;btn.addEventListener('click',function(){var o=item.classList.contains('open');document.querySelectorAll('.lf-faq-item').forEach(function(x){x.classList.remove('open');var ic=x.querySelector('.lf-faq-icon');if(ic)ic.textContent='+';});if(!o){item.classList.add('open');var ic=item.querySelector('.lf-faq-icon');if(ic)ic.textContent='−';}});});
+// ── Chip filter ──
 document.querySelectorAll('.lf-chip').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.lf-chip').forEach(function(b){b.classList.remove('act');});document.querySelectorAll('.lf-pg').forEach(function(g){g.classList.remove('act');});btn.classList.add('act');var t=document.getElementById(btn.dataset.target);if(t){t.classList.add('act');initVO();}});});
+// ── Review slider ──
 var tr=document.getElementById('lfRT'),pv=document.getElementById('lfRP'),nx=document.getElementById('lfRN');
 function sa(){return tr?(tr.clientWidth<900?tr.clientWidth:tr.clientWidth/2):0;}
 if(pv&&tr)pv.addEventListener('click',function(){tr.scrollBy({left:-sa(),behavior:'smooth'});});
 if(nx&&tr)nx.addEventListener('click',function(){tr.scrollBy({left:sa(),behavior:'smooth'});});
 var ai=null;function startA(){if(!tr)return;clearInterval(ai);ai=setInterval(function(){tr.scrollBy({left:sa(),behavior:'smooth'});},4200);}
 if(tr){startA();tr.addEventListener('mouseenter',function(){clearInterval(ai);});tr.addEventListener('mouseleave',startA);}
-// ── Parallax hero ──
-var ph=document.querySelector('.lf-page-hero-bg');
-if(ph)window.addEventListener('scroll',function(){ph.style.transform='translateY('+(window.scrollY*0.22)+'px)';},{passive:true});
 // ── Magnetic CTAs ──
 document.querySelectorAll('.lf-btn-gold').forEach(function(b){
   b.addEventListener('mousemove',function(e){var r=b.getBoundingClientRect();b.style.transform='translate('+(e.clientX-r.left-r.width/2)*0.25+'px,'+(e.clientY-r.top-r.height/2)*0.25+'px)';});
@@ -8919,6 +8939,124 @@ document.querySelectorAll('.lf-btn-gold').forEach(function(b){
 // ── Pulse ring on hero CTA ──
 var fc=document.querySelector('.lf-hero-cta .lf-btn-gold');
 if(fc)setTimeout(function(){fc.style.animation='lfPulse 2.4s ease infinite';},2000);
+// ── Lenis smooth scroll ──
+if(typeof Lenis!=='undefined'){
+  var lenis=new Lenis({lerp:.08,smoothWheel:true});
+  if(typeof gsap!=='undefined'&&typeof ScrollTrigger!=='undefined'){
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.ticker.add(function(t){lenis.raf(t*1000);});
+    gsap.ticker.lagSmoothing(0);
+    lenis.on('scroll',ScrollTrigger.update);
+    // Section reveals
+    gsap.utils.toArray('.lf-reveal').forEach(function(el){
+      gsap.fromTo(el,{opacity:0,y:40},{opacity:1,y:0,duration:.85,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}});
+    });
+    // Stagger service/bio cards
+    document.querySelectorAll('.lf-svc-grid,.lf-bio-grid,.lf-gallery-grid').forEach(function(grid){
+      var cards=grid.querySelectorAll('.lf-svc-card,.lf-bio-card,.lf-gi');
+      if(cards.length)gsap.fromTo(cards,{opacity:0,y:36},{opacity:1,y:0,duration:.7,stagger:.1,ease:'power2.out',scrollTrigger:{trigger:grid,start:'top 85%'}});
+    });
+    // Stat counters
+    document.querySelectorAll('.lf-stat-n').forEach(function(el){
+      var raw=el.textContent,num=parseFloat(raw);
+      if(isNaN(num))return;
+      var suffix=raw.replace(String(num),'');
+      gsap.fromTo({v:0},{v:num},{duration:1.6,ease:'power1.out',scrollTrigger:{trigger:el,start:'top 90%'},onUpdate:function(){el.textContent=Math.round(this.targets()[0].v)+suffix;}});
+    });
+  } else {
+    requestAnimationFrame(function raf(t){lenis.raf(t);requestAnimationFrame(raf);});
+    // fallback IO reveals
+    var ro=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+    document.querySelectorAll('.lf-reveal').forEach(function(el){ro.observe(el);});
+  }
+} else {
+  // No Lenis — plain IO reveals
+  var ro2=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.lf-reveal').forEach(function(el){ro2.observe(el);});
+}
+// ── Canvas hero (gold radial mesh) ──
+(function(){
+  var canvas=document.getElementById('lfHeroCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W,H;
+  function resize(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight;}
+  resize();
+  window.addEventListener('resize',resize);
+  var blobs=[
+    {x:.5,y:.45,r:.55,ox:.5,oy:.45,spd:.00008,phase:0,c:'rgba(207,169,71,'},
+    {x:.25,y:.7,r:.38,ox:.25,oy:.7,spd:.00011,phase:2.1,c:'rgba(180,120,30,'},
+    {x:.78,y:.28,r:.32,ox:.78,oy:.28,spd:.00014,phase:4.3,c:'rgba(230,200,100,'}
+  ];
+  function draw(ts){
+    ctx.clearRect(0,0,W,H);
+    blobs.forEach(function(b){
+      var a=ts*b.spd+b.phase;
+      var x=(b.ox+Math.sin(a)*0.12)*W;
+      var y=(b.oy+Math.cos(a*1.3)*0.09)*H;
+      var rg=ctx.createRadialGradient(x,y,0,x,y,b.r*Math.max(W,H));
+      rg.addColorStop(0,b.c+'0.18)');
+      rg.addColorStop(1,b.c+'0)');
+      ctx.fillStyle=rg;
+      ctx.fillRect(0,0,W,H);
+    });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+// ── Image blur-up ──
+(function(){
+  var imgs=document.querySelectorAll('img[loading="lazy"]');
+  imgs.forEach(function(img){img.classList.add('img-blur');});
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting)return;
+      var img=en.target;
+      if(img.complete){img.classList.add('loaded');io.unobserve(img);return;}
+      img.addEventListener('load',function(){img.classList.add('loaded');},{once:true});
+      io.unobserve(img);
+    });
+  },{rootMargin:'200px'});
+  imgs.forEach(function(img){io.observe(img);});
+})();
+// ── 3D card tilt ──
+document.querySelectorAll('.lf-svc-card,.lf-bio-card').forEach(function(card){
+  card.addEventListener('mousemove',function(e){
+    var r=card.getBoundingClientRect();
+    var x=((e.clientX-r.left)/r.width-.5)*14;
+    var y=-((e.clientY-r.top)/r.height-.5)*14;
+    card.style.transform='perspective(800px) rotateY('+x+'deg) rotateX('+y+'deg) scale(1.03)';
+  });
+  card.addEventListener('mouseleave',function(){card.style.transform='';});
+});
+// ── View Transitions API ──
+if(document.startViewTransition){
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a');
+    if(!a)return;
+    var h=a.getAttribute('href')||'';
+    if(!h||h.startsWith('#')||h.startsWith('tel:')||h.startsWith('mailto:')||a.target==='_blank')return;
+    try{var u=new URL(h,location.href);if(u.origin!==location.origin)return;}catch(x){return;}
+    e.preventDefault();
+    document.startViewTransition(function(){window.location.href=h;});
+  });
+}
+// ── Custom cursor ──
+(function(){
+  if(!window.matchMedia('(pointer:fine)').matches)return;
+  var dot=document.createElement('div');dot.className='lf-cursor-dot';
+  var ring=document.createElement('div');ring.className='lf-cursor-ring';
+  document.body.appendChild(dot);document.body.appendChild(ring);
+  var mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+  document.addEventListener('mousedown',function(){dot.classList.add('clicking');});
+  document.addEventListener('mouseup',function(){dot.classList.remove('clicking');});
+  document.querySelectorAll('a,button').forEach(function(el){
+    el.addEventListener('mouseenter',function(){ring.classList.add('hovering');});
+    el.addEventListener('mouseleave',function(){ring.classList.remove('hovering');});
+  });
+  (function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
+})();
 })();</script>`;
 }
 
@@ -8937,7 +9075,11 @@ function lfWrap(title, metaDesc, keywords, schema, body) {
 <link rel="dns-prefetch" href="https://assets.cdn.filesafe.space">
 ${lfCSS()}
 <script type="application/ld+json">${JSON.stringify(schema)}</script>
-</head><body>${body}${lfScript()}</body></html>`;
+</head><body>${body}
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+${lfScript()}</body></html>`;
 }
 
 function lfFaqHtml(items, openFirst = true) {
@@ -8957,7 +9099,7 @@ function lfBuildHome() {
   const reelHtml = reels.map((s,i)=>`<article class="lf-reel-card"><video muted loop playsinline preload="none" data-lv><source src="${s}" type="video/mp4"></video><div class="lf-reel-meta"><strong>${i<4?'Black & Gray':'Color'} Reel</strong><span>Perspective ${String(i+1).padStart(2,'0')}</span></div></article>`).join('');
   const schema = {"@context":"https://schema.org","@type":"TattooParlor","name":"Luis Farrera Tattoo Artist","image":LF.heroBg,"description":"Luxury tattoo artist in Soho, Manhattan specializing in black and gray realism and color realism.","address":{"@type":"PostalAddress","streetAddress":"132 Crosby St 4th floor","addressLocality":"New York","addressRegion":"NY","postalCode":"10012","addressCountry":"US"},"telephone":"+1-833-362-6091","url":"https://luisfarreratattoo.com","areaServed":"New York City","priceRange":"$$$"};
   const body = `${lfNav('home')}
-<section class="lf-hero"><div class="lf-hero-bg"><img src="${LF.heroBg}" alt="Luis Farrera tattoo artist Soho NYC" fetchpriority="high"></div>
+<section class="lf-hero" style="position:relative;"><canvas id="lfHeroCanvas"></canvas><div class="lf-hero-bg"><img src="${LF.heroBg}" alt="Luis Farrera tattoo artist Soho NYC" fetchpriority="high"></div>
 <div class="lf-c lf-hero-in lf-reveal in"><div class="lf-hero-copy"><div class="lf-kicker">Soho · New York City</div><h1>Luis Farrera<br>Tattoo Artist</h1><p>Master of black and gray realism and color realism. Private studio at 132 Crosby St, Soho, Manhattan — by appointment only.</p><div class="lf-hero-actions"><a href="/portfolio" class="lf-btn lf-btn-light">View Portfolio</a><a href="/contact-us" class="lf-btn lf-btn-line">Book Now</a></div></div>
 <div class="lf-hero-side"><div class="lf-hero-card"><img src="${LF.portrait}" alt="Luis Farrera portrait" loading="eager"></div></div></div></section>
 <div class="lf-stats lf-reveal"><div class="lf-stat"><div class="lf-stat-n">14+</div><div class="lf-stat-l">Years Experience</div></div><div class="lf-stat"><div class="lf-stat-n">500+</div><div class="lf-stat-l">Pieces Completed</div></div><div class="lf-stat"><div class="lf-stat-n">5★</div><div class="lf-stat-l">Google Rating</div></div><div class="lf-stat"><div class="lf-stat-n">Soho</div><div class="lf-stat-l">New York City</div></div></div>
