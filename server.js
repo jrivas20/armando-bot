@@ -6854,8 +6854,8 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
     .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
-    .card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:32px;border:1px solid #f0f0f0;transition:transform .2s,box-shadow .2s}
-    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.12)}
+    .card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:32px;border:1px solid #f0f0f0;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s,border-color .25s}
+    .card:hover{transform:translateY(-6px) scale(1.01);box-shadow:0 20px 56px rgba(0,0,0,0.13);border-color:var(--orange)}
     .badge{display:inline-block;background:rgba(249,115,22,0.1);color:var(--orange);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:6px 14px;border-radius:100px}
     .page-hero{background:var(--black);padding:80px 0 60px;text-align:center}
     .page-hero h1{color:#fff;font-size:clamp(32px,5vw,52px);margin-bottom:16px}
@@ -6872,7 +6872,26 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
     .btn-primary::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);transform:skewX(-20deg);animation:shimmer 3.2s infinite 1.5s}
     .hero-glow{position:absolute;inset:0;background:radial-gradient(circle at 65% 45%,var(--orange),transparent 55%);animation:heroGlow 5s ease-in-out infinite;pointer-events:none}
     header{transition:background .3s,box-shadow .3s,backdrop-filter .3s}
+    /* ── Floating CTA ── */
+    .float-cta{position:fixed;bottom:88px;right:24px;z-index:997;display:flex;flex-direction:column;align-items:center;gap:8px}
+    .float-cta a{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.25);transition:transform .2s,box-shadow .2s;font-size:20px;text-decoration:none}
+    .float-cta a:hover{transform:scale(1.12);box-shadow:0 8px 28px rgba(0,0,0,0.3)}
+    .float-cta .fcta-quote{background:var(--orange);color:#fff;}
+    .float-cta .fcta-call{background:#22c55e;color:#fff;}
+    /* ── Mobile sticky CTA bar ── */
+    .mobile-cta-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:998;background:var(--black);border-top:1px solid rgba(255,255,255,0.1);padding:10px 16px;gap:10px}
+    /* ── Trust badges ── */
+    .trust-strip{background:var(--dark);padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .trust-strip-inner{display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap}
+    .trust-badge{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.6);font-size:13px;font-weight:500}
+    .trust-badge span{font-size:16px}
+    @keyframes floatPulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    .float-cta .fcta-quote{animation:floatPulse 3s ease-in-out infinite}
     @media(max-width:768px){
+      .mobile-cta-bar{display:flex}
+      .float-cta{display:none}
+      body{padding-bottom:72px}
+    }
       .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
       .section{padding:56px 0}
       .hide-mobile{display:none!important}
@@ -6935,7 +6954,19 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
       <p style="color:rgba(255,255,255,0.2);font-size:11px;">Website by <a href="https://jrzmarketing.com" style="color:var(--orange);">JRZ Marketing</a></p>
     </div>
   </div>
-</footer>`;
+</footer>
+
+<!-- Floating CTA (desktop) -->
+<div class="float-cta">
+  <a href="${navLinks[4].href}" class="fcta-quote" title="Get a Free Quote">💬</a>
+  ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="fcta-call" title="Call Now">📞</a>` : ''}
+</div>
+
+<!-- Mobile sticky CTA bar -->
+<div class="mobile-cta-bar">
+  <a href="${navLinks[4].href}" class="btn btn-primary" style="flex:1;justify-content:center;padding:12px;">Get Free Quote</a>
+  ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn" style="flex:1;justify-content:center;padding:12px;background:#22c55e;color:#fff;">📞 Call Now</a>` : ''}
+</div>`;
 
   const scripts = `
 <script>
@@ -7142,6 +7173,19 @@ function buildHomePage(client, c, layout) {
 
   const body = `${heroHtml}
 
+<!-- Trust badges strip -->
+<div class="trust-strip">
+  <div class="container">
+    <div class="trust-strip-inner">
+      <div class="trust-badge"><span>⭐</span> Google 5-Star Rated</div>
+      <div class="trust-badge"><span>🛡️</span> Licensed & Insured</div>
+      <div class="trust-badge"><span>✅</span> Free Estimates</div>
+      <div class="trust-badge"><span>📍</span> Serving ${city} & Surrounding</div>
+      <div class="trust-badge"><span>⚡</span> Same-Day Response</div>
+    </div>
+  </div>
+</div>
+
 ${variant === 0 ? `<section style="background:var(--dark);padding:40px 0;">
   <div class="container">
     <div class="stat-block" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">${statItems}</div>
@@ -7204,11 +7248,39 @@ ${galleryImages && galleryImages.length ? `
   </div>
 </section>` : ''}
 
+<section class="section" style="background:var(--black);overflow:hidden;">
+  <div class="container">
+    <div class="grid-2" style="gap:56px;align-items:center;">
+      <div>
+        <p class="section-label" style="color:var(--orange);">See Us In Action</p>
+        <h2 class="section-title" style="color:#fff;margin-bottom:16px;">Real Work.<br/>Real Results.</h2>
+        <p style="color:rgba(255,255,255,0.5);font-size:16px;line-height:1.8;margin-bottom:32px;">We don't just talk about quality — we show it. Watch how we deliver exceptional ${industry} results for clients across ${city}.</p>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          ${c.processSteps.slice(0,3).map(s => `<div style="display:flex;gap:14px;align-items:flex-start;"><div style="width:32px;height:32px;border-radius:8px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Montserrat,sans-serif;font-weight:900;font-size:12px;color:#fff;">${s.step}</div><div><p style="color:#fff;font-weight:600;font-size:15px;margin-bottom:2px;">${s.title}</p><p style="color:rgba(255,255,255,0.45);font-size:14px;">${s.description}</p></div></div>`).join('')}
+        </div>
+      </div>
+      <div style="position:relative;border-radius:20px;overflow:hidden;aspect-ratio:16/9;background:#111;display:flex;align-items:center;justify-content:center;">
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(249,115,22,0.08),transparent 70%);"></div>
+        <div style="text-align:center;position:relative;z-index:1;">
+          <div style="width:72px;height:72px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;cursor:pointer;transition:transform .2s;box-shadow:0 0 0 12px rgba(249,115,22,0.15);" onclick="this.closest('div').parentElement.querySelector('iframe').style.display='flex';this.closest('div').style.display='none'">
+            <svg width="28" height="28" fill="#fff" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <p style="color:rgba(255,255,255,0.5);font-size:14px;">Watch Our Work</p>
+        </div>
+        <iframe src="https://www.youtube.com/embed/?listType=search&list=${encodeURIComponent(industry + ' ' + city + ' FL contractor')}&autoplay=0" style="display:none;position:absolute;inset:0;width:100%;height:100%;border:0;" allowfullscreen title="${industry} in ${city}"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section style="background:var(--orange);padding:72px 0;">
   <div class="container" style="text-align:center;">
     <h2 style="font-size:clamp(28px,4vw,44px);color:#fff;margin-bottom:16px;">Ready for Results?</h2>
     <p style="color:rgba(255,255,255,0.8);font-size:17px;margin-bottom:36px;">Get a free, no-obligation consultation with our ${industry} experts.</p>
-    <a href="${(client.siteBase||'')}/contact-us" class="btn" style="background:#fff;color:var(--orange);font-size:16px;padding:16px 40px;">Get Started Today →</a>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="${(client.siteBase||'')}/contact-us" class="btn" style="background:#fff;color:var(--orange);font-size:16px;padding:16px 40px;font-weight:700;">Get Started Today →</a>
+      ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="btn" style="background:rgba(255,255,255,0.15);color:#fff;border:2px solid rgba(255,255,255,0.4);font-size:16px;padding:16px 32px;">📞 ${phone}</a>` : ''}
+    </div>
   </div>
 </section>`;
 
