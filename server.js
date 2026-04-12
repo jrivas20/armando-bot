@@ -8065,7 +8065,7 @@ app.get('/sofia/website-package', async (req, res) => {
     }
 
     const pages = await buildWebsite(name, phone, email, city, industry, '', formId || GHL_FORM_ID, '');
-    const cacheId = require('crypto').randomBytes(8).toString('hex');
+    const cacheId = crypto.randomBytes(8).toString('hex');
     websitePackageCache.set(cacheId, { pages, clientName: name, expires: Date.now() + 600000 }); // 10 min TTL
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
