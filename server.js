@@ -6915,7 +6915,7 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
       background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
       background-size:256px 256px}
 
-    html{scroll-behavior:smooth}
+    html{scroll-behavior:auto}
     body{font-family:'${bFont}',system-ui,sans-serif;color:var(--text);background:var(--black);line-height:1.65}
     h1,h2,h3,h4{font-family:'${hFont}',sans-serif;font-weight:800;line-height:1.12;color:var(--cream)}
     a{text-decoration:none;color:inherit}
@@ -7054,6 +7054,15 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
       .nav-menu.open{display:flex}
       .hamburger{display:flex!important}
     }
+    /* ── 3D Card tilt ── */
+    .card{transform-style:preserve-3d;will-change:transform}
+    /* ── View Transitions ── */
+    @keyframes vt-out{to{opacity:0;transform:translateY(-8px)}}
+    @keyframes vt-in{from{opacity:0;transform:translateY(8px)}}
+    ::view-transition-old(root){animation:.28s ease both vt-out}
+    ::view-transition-new(root){animation:.28s ease both vt-in}
+    /* ── Canvas hero ── */
+    #heroCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
   `;
 
   const logoHtml = logoUrl
@@ -7127,6 +7136,9 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
 </div>`;
 
   const scripts = `
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script>
   // ── Nav: close on mobile link click + active highlight ──
   document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => {
@@ -7270,6 +7282,131 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
       themeToggle.textContent = next === 'light' ? '○' : '☾';
     });
   }
+
+  // ── 1. Lenis smooth scroll ──
+  if (window.Lenis) {
+    const lenis = new Lenis({ lerp: 0.08, smoothWheel: true, touchMultiplier: 1.5 });
+    if (window.gsap) {
+      gsap.ticker.add(t => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+    } else {
+      (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(0);
+    }
+    // Anchor links work with Lenis
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); lenis.scrollTo(target, { offset: -80, duration: 1.4 }); }
+      });
+    });
+  }
+
+  // ── 2. GSAP ScrollTrigger reveals ──
+  if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    // Section headings
+    gsap.utils.toArray('.section-title, .section-label').forEach(el => {
+      gsap.from(el, { opacity: 0, y: 28, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 86%' } });
+    });
+    // Cards staggered
+    gsap.utils.toArray('.grid-3, .grid-4').forEach(grid => {
+      gsap.from(grid.querySelectorAll('.card'), {
+        opacity: 0, y: 44, duration: 0.75, ease: 'power2.out', stagger: 0.12,
+        scrollTrigger: { trigger: grid, start: 'top 82%' }
+      });
+    });
+    // Stat counters
+    gsap.utils.toArray('[data-target]').forEach(el => {
+      ScrollTrigger.create({ trigger: el, start: 'top 88%', once: true,
+        onEnter: () => {
+          const target = parseFloat(el.dataset.target);
+          const suffix = el.dataset.suffix || '';
+          const prefix = el.dataset.prefix || '';
+          if (isNaN(target)) return;
+          gsap.to({ val: 0 }, { val: target, duration: 1.8, ease: 'power2.out',
+            onUpdate: function() {
+              el.textContent = prefix + (target % 1 !== 0 ? this.targets()[0].val.toFixed(1) : Math.round(this.targets()[0].val)) + suffix;
+            }
+          });
+        }
+      });
+    });
+    // Hero text timeline
+    const heroEl = document.querySelector('.hero-split-text');
+    if (heroEl) {
+      gsap.from(heroEl.querySelectorAll('.word span'), {
+        opacity: 0, y: '110%', duration: 0.8, ease: 'power3.out', stagger: 0.07, delay: 0.1
+      });
+    }
+  } else {
+    // IO fallback
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.section, .card, .page-hero, section').forEach(el => {
+      el.classList.add('fade-in'); io.observe(el);
+    });
+  }
+
+  // ── 3. 3D Card tilt ──
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width  / 2) / (r.width  / 2);
+      const y = (e.clientY - r.top  - r.height / 2) / (r.height / 2);
+      card.style.transform = 'perspective(800px) rotateY(' + (x*9) + 'deg) rotateX(' + (-y*9) + 'deg) translateZ(6px)';
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  });
+
+  // ── 4. View Transitions API ──
+  if (document.startViewTransition) {
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a');
+      if (!a) return;
+      const href = a.getAttribute('href') || '';
+      if (!href || href.startsWith('#') || href.startsWith('tel:') || href.startsWith('mailto:')) return;
+      if (a.target === '_blank') return;
+      try {
+        const url = new URL(href, location.href);
+        if (url.origin !== location.origin) return;
+        e.preventDefault();
+        document.startViewTransition(() => { window.location = url.href; });
+      } catch (_) {}
+    });
+  }
+
+  // ── 5. Canvas hero gradient ──
+  (function() {
+    const canvas = document.getElementById('heroCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let t = 0;
+    const blobs = [
+      { x: 0.72, y: 0.45, r: 0.58, c: 'rgba(196,164,107,0.09)' },
+      { x: 0.18, y: 0.75, r: 0.42, c: 'rgba(196,164,107,0.05)' },
+      { x: 0.50, y: 0.18, r: 0.38, c: 'rgba(168,137,79,0.06)'  },
+    ];
+    function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+    window.addEventListener('resize', resize);
+    requestAnimationFrame(resize);
+    function draw() {
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      blobs.forEach((b, i) => {
+        const ox = Math.sin(t * 0.0007 + i * 2.1) * 0.09;
+        const oy = Math.cos(t * 0.0005 + i * 1.7) * 0.07;
+        const cx = (b.x + ox) * w, cy = (b.y + oy) * h;
+        const rad = b.r * Math.min(w, h);
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+        g.addColorStop(0, b.c); g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      });
+      t++; requestAnimationFrame(draw);
+    }
+    draw();
+  })();
 </script>`;
 
   return { styles, nav, footer, scripts };
@@ -7404,13 +7541,14 @@ function buildHomePage(client, c, layout) {
 </section>`
     // Variant 0 (default) — Dark editorial with gold glow + optional video bg
     : `<section style="background:var(--black);padding:112px 0 88px;overflow:hidden;position:relative;border-bottom:1px solid var(--border);">
+  <canvas id="heroCanvas"></canvas>
   ${videoUrl && !videoUrl.includes('youtube') && !videoUrl.includes('youtu.be') ? `
   <video autoplay muted loop playsinline class="parallax-bg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.28;pointer-events:none;z-index:0;">
     <source src="${videoUrl}" type="video/mp4">
   </video>
   <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,8,8,0.88) 55%,rgba(8,8,8,0.4));z-index:1;pointer-events:none;"></div>` : `
   <div class="hero-glow"></div>
-  <div class="parallax-bg" style="position:absolute;inset:0;pointer-events:none;"></div>`}
+  <div class="parallax-bg" style="position:absolute;inset:0;pointer-events:none;z-index:1;"></div>`}
   <div class="container" style="position:relative;z-index:2;">
     <div style="max-width:740px;">
       <div class="badge" style="margin-bottom:24px;">${city} ${industry}</div>
