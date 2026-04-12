@@ -6161,32 +6161,9 @@ async function runSofiaCROReport() {
 
 // ─── Sofia: GHL Landing Page Creator ─────────────────────
 
-// ─── Stitch Design System (Google AI) ────────────────────
-// Calls Google Stitch to generate a professional color/font design system
-// for a client before building HTML. Falls back gracefully if unavailable.
-const STITCH_API_KEY = process.env.STITCH_API_KEY;
-const STITCH_BASE    = 'https://stitch.googleapis.com/mcp';
-
-const STITCH_FONT_MAP = {
-  INTER: 'Inter', MANROPE: 'Manrope', WORK_SANS: 'Work Sans', MONTSERRAT: 'Montserrat',
-  PLUS_JAKARTA_SANS: 'Plus Jakarta Sans', GEIST: 'Geist', DM_SANS: 'DM Sans',
-  SPACE_GROTESK: 'Space Grotesk', NUNITO_SANS: 'Nunito Sans', IBM_PLEX_SANS: 'IBM Plex Sans',
-  RUBIK: 'Rubik', SORA: 'Sora', SOURCE_SANS_THREE: 'Source Sans 3', EPILOGUE: 'Epilogue',
-};
-
-async function callStitchAPI(method, params) {
-  const res = await axios.post(STITCH_BASE,
-    { jsonrpc: '2.0', id: Date.now(), method, params },
-    { headers: { 'X-Goog-Api-Key': STITCH_API_KEY, 'Content-Type': 'application/json' }, timeout: 35000 }
-  );
-  const result = res.data?.result;
-  if (result?.isError) throw new Error(result.content?.[0]?.text || 'Stitch error');
-  return result;
-}
-
-// generateStitchDesignSystem — uses Claude Haiku to generate an industry-specific design system.
-// Stitch's generate_screen_from_text API hangs indefinitely (confirmed: 17min timeout, 0 bytes).
-// Claude is faster (<1s), more reliable, and understands industry color psychology better.
+// ─── AI Design System (Claude Haiku) ─────────────────────
+// Generates industry-specific color palette + font pair for each client.
+// Replaces Google Stitch (generate_screen_from_text hangs indefinitely — confirmed broken).
 async function generateStitchDesignSystem(clientName, industry, city = 'Orlando') {
   try {
     const res = await anthropic.messages.create({
@@ -6328,7 +6305,7 @@ async function buildLandingHTML(clientName, phone, email, city, industry, logoUr
   city   = city   || 'Orlando';
   formId = formId || '5XhL0vWCuJ59HWHQoHGG';
 
-  // Step 0: Generate Stitch design system — AI-designed colors + fonts for this industry
+  // Step 0: Generate AI design system — colors + fonts for this industry
   const stitch = await generateStitchDesignSystem(clientName, industry, city);
 
   const [c] = await Promise.all([generateLandingContent(clientName, industry, city)]);
@@ -6336,7 +6313,7 @@ async function buildLandingHTML(clientName, phone, email, city, industry, logoUr
   const phoneClean = (phone || '').replace(/\D/g, '');
   const logoSrc = logoUrl || 'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957081ee4125a4ef97efc62.png';
 
-  // Use Stitch tokens if available, otherwise fall back to defaults
+  // Apply AI design tokens, fall back to defaults if generation failed
   const primary    = stitch?.primary          || '#1a3a6b';
   const primaryDk  = stitch?.primaryContainer || '#2e476f';
   const secondary  = stitch?.secondary        || '#2563a8';
@@ -6356,7 +6333,7 @@ async function buildLandingHTML(clientName, phone, email, city, industry, logoUr
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta name="description" content="${c.heroSubtitle}"/>
 <title>${clientName} | ${industry} in ${city}, FL</title>
-${stitch?.designName ? `<!-- Design system: ${stitch.designName} (Google Stitch AI) -->` : ''}
+${stitch?.designName ? `<!-- AI Design System: ${stitch.designName} -->` : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="${fontImport}" rel="stylesheet"/>
 <style>
@@ -6488,9 +6465,9 @@ footer{background:var(--gray-dark);padding:48px 24px 24px;}
   .topbar{display:none;}
   .about-stats{grid-template-columns:1fr 1fr;}
 }
-/* ── Stitch font tokens — override hardcoded Montserrat with AI-selected headline font ── */
+/* ── AI font tokens — headline + body fonts selected per industry ── */
 .nav-logo span,.hero h1,.form-card h3,.section-title,.stat-num,.srv-card h3,.why-card h3,.step-num,.step h3,.faq-q,.cta-banner h2,.cta-banner a,.footer-col h4,.mobile-bar a,.hero-phone a{font-family:var(--font-headline)!important;}
-/* ── Stitch border-radius token ── */
+/* ── AI border-radius token ── */
 .nav-cta a,.form-card,.srv-card,.why-card,.step,.review-card,.cta-banner a,.hero-phone a{border-radius:var(--radius)!important;}
 </style>
 </head>
@@ -6831,7 +6808,7 @@ async function fetchPexelsGallery(industry, city, count = 6) {
 }
 
 // Shared CSS design system + nav + footer used on every page
-// tokens = Stitch design system object (optional). Falls back to orange/Montserrat defaults.
+// tokens = AI design system object (optional). Falls back to orange/Montserrat defaults.
 function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase = '.', tokens = null) {
   const navLinks = [
     { label: 'Home',       href: siteBase || '/' },
@@ -6844,7 +6821,7 @@ function buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase 
     `<a href="${l.href}" class="nav-link">${l.label}</a>`
   ).join('');
 
-  // Apply Stitch design tokens if available, fall back to defaults
+  // Apply AI design tokens if available, fall back to defaults
   const hFont     = tokens?.headlineFont || 'Montserrat';
   const bFont     = tokens?.bodyFont     || 'Inter';
   const brand     = tokens?.primary          || '#f97316';
@@ -7455,14 +7432,14 @@ async function buildWebsite(clientName, phone, email, city, industry, logoUrl = 
   formId = formId || GHL_FORM_ID;
   console.log(`[Sofia] Building 5-page website for ${clientName} (${industry}, ${city})...`);
 
-  // Run all async work in parallel: content, Stitch design system, gallery images
+  // Run all async work in parallel: content, AI design system, gallery images
   const [content, tokens, galleryImages] = await Promise.all([
     generateWebsiteContent(clientName, industry, city),
     generateStitchDesignSystem(clientName, industry, city).catch(() => null),
     fetchPexelsGallery(industry, city, 6).catch(() => []),
   ]);
 
-  if (tokens) console.log(`[Sofia] Stitch design "${tokens.designName}" — ${tokens.primary}, ${tokens.headlineFont}/${tokens.bodyFont}`);
+  if (tokens) console.log(`[Sofia] Design: "${tokens.designName}" — ${tokens.primary}, ${tokens.headlineFont}/${tokens.bodyFont}`);
 
   const client = { name: clientName, phone, email, city, industry, logoUrl, formId, siteBase, galleryImages };
   const layout = buildSharedLayout(clientName, industry, city, phone, logoUrl, siteBase, tokens);
@@ -8020,9 +7997,8 @@ app.post('/sofia/build-website', async (req, res) => {
   }
 });
 
-// GET /sofia/test-stitch — quick Stitch connectivity check
-app.get('/sofia/test-stitch', async (req, res) => {
-  if (!STITCH_API_KEY) return res.json({ ok: false, reason: 'STITCH_API_KEY env var not set' });
+// GET /sofia/test-design?industry=roofing&city=Orlando — test AI design system generation
+app.get('/sofia/test-design', async (req, res) => {
   try {
     const result = await generateStitchDesignSystem('Test Co', req.query.industry || 'roofing', req.query.city || 'Orlando');
     res.json({ ok: !!result, result });
@@ -8079,8 +8055,8 @@ app.get('/sofia/website-package', async (req, res) => {
     ];
 
     const tokenInfo = pages.tokens
-      ? `<p style="font-size:13px;color:#6b7280;margin-top:8px;">🎨 Stitch design: <strong style="color:#1a1a1a;">${pages.tokens.designName}</strong> — ${pages.tokens.headlineFont}/${pages.tokens.bodyFont}, ${pages.tokens.primary}</p>`
-      : '<p style="font-size:13px;color:#6b7280;margin-top:8px;">ℹ️ Default design (Stitch unavailable)</p>';
+      ? `<p style="font-size:13px;color:#6b7280;margin-top:8px;">🎨 Design: <strong style="color:#1a1a1a;">${pages.tokens.designName}</strong> — ${pages.tokens.headlineFont}/${pages.tokens.bodyFont} <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${pages.tokens.primary};margin-left:4px;vertical-align:middle;"></span> ${pages.tokens.primary}</p>`
+      : '<p style="font-size:13px;color:#6b7280;margin-top:8px;">ℹ️ Default design (generation failed)</p>';
 
     const buttons = fileMap.map(f => `
       <a href="/sofia/website-download?id=${cacheId}&page=${f.page}&filename=${f.filename}"
