@@ -6404,11 +6404,39 @@ async function buildLandingHTML(clientName, phone, email, city, industry, logoUr
 ${stitch?.designName ? `<!-- AI Design System: ${stitch.designName} -->` : ''}
 ${keywords?.length ? `<!-- DataForSEO: top kw "${primaryKw}" ${keywords[0]?.volume?.toLocaleString()||'?'}/mo -->` : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://link.msgsndr.com"/>
 <link href="${fontImport}" rel="stylesheet"/>
+<script type="application/ld+json">${JSON.stringify({
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LocalBusiness",
+      "name": clientName,
+      "description": c.heroSubtitle,
+      "url": `https://${clientName.toLowerCase().replace(/\s+/g,'')}`,
+      "telephone": phone || undefined,
+      "email": email || undefined,
+      "address": { "@type": "PostalAddress", "addressLocality": city, "addressRegion": "FL", "addressCountry": "US" },
+      "areaServed": c.areas.map(a => ({ "@type": "City", "name": a })),
+      "aggregateRating": { "@type": "AggregateRating", "ratingValue": "5", "reviewCount": String(c.reviews.length), "bestRating": "5" },
+      "review": c.reviews.map(r => ({ "@type": "Review", "author": { "@type": "Person", "name": r.name }, "reviewRating": { "@type": "Rating", "ratingValue": String(r.stars) }, "reviewBody": r.text })),
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": c.faqs.map(f => ({ "@type": "Question", "name": f.q, "acceptedAnswer": { "@type": "Answer", "text": f.a } })),
+    },
+    {
+      "@type": "ItemList",
+      "name": `${industry} Services`,
+      "itemListElement": c.services.map((s, i) => ({ "@type": "ListItem", "position": i + 1, "name": s.name, "description": s.desc })),
+    }
+  ]
+})}</script>
 <style>
 :root{--blue-dark:${primary};--blue-mid:${primaryDk};--blue-light:${secondary};--orange:#f97316;--gray-bg:${bgColor};--gray-dark:#1e293b;--text:${textColor};--white:${surfColor};--radius:${borderRad};--font-headline:'${hFont}',sans-serif;--font-body:'${bFont}',sans-serif;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:var(--font-body);color:var(--text);background:#fff;}
+.section,.section-bg,.section-dark{content-visibility:auto;contain-intrinsic-size:0 600px;}
 /* TOPBAR */
 .topbar{background:var(--blue-dark);padding:9px 24px;display:flex;align-items:center;justify-content:space-between;}
 .topbar-left{font-size:12px;color:rgba(255,255,255,0.75);letter-spacing:0.02em;}
@@ -6497,8 +6525,10 @@ body{font-family:var(--font-body);color:var(--text);background:#fff;}
 .faq-item.open .faq-a{display:block;}
 /* AREAS */
 .areas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px;}
-.area-item{background:var(--gray-bg);border:1px solid #e5e7eb;border-radius:10px;padding:14px 18px;font-size:14px;font-weight:600;color:var(--blue-dark);display:flex;align-items:center;gap:8px;}
+.area-item{background:var(--gray-bg);border:1px solid #e5e7eb;border-radius:10px;padding:14px 18px;font-size:14px;font-weight:600;color:var(--blue-dark);display:flex;align-items:center;gap:8px;text-decoration:none;transition:border-color .2s,background .2s;}
 .area-item::before{content:'📍';font-size:12px;}
+a.area-item:hover{border-color:var(--blue-mid);background:#fff;}
+.area-current{border-color:var(--orange);background:#fff7ed;color:var(--orange);}
 /* CTA BANNER */
 .cta-banner{background:linear-gradient(135deg,var(--orange) 0%,#ea580c 100%);padding:64px 24px;text-align:center;}
 .cta-banner h2{font-family:'Montserrat',sans-serif;font-size:36px;font-weight:900;color:#fff;margin-bottom:12px;}
@@ -6552,7 +6582,7 @@ footer{background:var(--gray-dark);padding:48px 24px 24px;}
 <nav class="navbar">
   <div class="nav-inner">
     <div class="nav-logo">
-      <img src="${logoSrc}" alt="${clientName}"/>
+      <img src="${logoSrc}" alt="${clientName}" width="160" height="40" decoding="async" fetchpriority="high"/>
     </div>
     <div class="nav-links">
       <a href="#services">Services</a>
@@ -6701,7 +6731,13 @@ footer{background:var(--gray-dark);padding:48px 24px 24px;}
     <div class="section-label">Service Areas</div>
     <h2 class="section-title">Proudly Serving Central Florida</h2>
     <div class="areas-grid">
-      ${c.areas.map(a => `<div class="area-item">${a}</div>`).join('\n      ')}
+      ${c.areas.map(a => {
+        const slug = `/${a.toLowerCase().replace(/\s+/g,'-')}-${industry.toLowerCase().replace(/\s+/g,'-')}`;
+        const isCurrent = a.toLowerCase() === city.toLowerCase();
+        return isCurrent
+          ? `<div class="area-item area-current">${a}</div>`
+          : `<a href="${slug}" class="area-item">${a}</a>`;
+      }).join('\n      ')}
     </div>
   </div>
 </section>
@@ -9129,7 +9165,8 @@ if(document.startViewTransition){
 })();</script>`;
 }
 
-function lfWrap(title, metaDesc, keywords, schema, body) {
+function lfWrap(title, metaDesc, keywords, schema, body, extraSchemas = []) {
+  const allSchemas = [schema, ...extraSchemas].filter(Boolean);
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -9142,8 +9179,9 @@ function lfWrap(title, metaDesc, keywords, schema, body) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="dns-prefetch" href="https://assets.cdn.filesafe.space">
+<link rel="preload" as="image" href="${LF.heroBg}" fetchpriority="high">
 ${lfCSS()}
-<script type="application/ld+json">${JSON.stringify(schema)}</script>
+${allSchemas.map(s => `<script type="application/ld+json">${JSON.stringify(s)}</script>`).join('\n')}
 </head><body>${body}
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
@@ -9180,7 +9218,9 @@ function lfBuildHome() {
 <section class="lf-faq lf-s"><div class="lf-c lf-reveal"><div class="lf-faq-top"><div class="lf-ey" style="justify-content:center">FAQ</div><h2 class="lf-title">Frequently Asked Questions</h2></div><div class="lf-faq-list">${lfFaqHtml(LF.faqs.slice(0,4))}</div><div style="text-align:center;margin-top:26px;"><a href="/contact-us" class="lf-btn lf-btn-gold">Book Now / Ask a Question</a></div></div></section>
 <section class="lf-cta"><div class="lf-c"><h2>Ready to Book Your Session?</h2><p>Luxury tattoo artistry in the heart of Soho, Manhattan.</p><a href="/contact-us" class="lf-btn lf-btn-gold">Secure Your Appointment →</a></div></section>
 ${lfFooter()}`;
-  return lfWrap('Luis Farrera | Tattoo Artist Soho NYC | Black & Gray Realism','Luxury tattoo artist in Soho, Manhattan. Black and gray realism and color realism. Studio at 132 Crosby St, NYC. Book your appointment.','tattoo artist soho nyc,realism tattoo manhattan,black and gray realism tattoo new york,color realism tattoo nyc,custom tattoo artist soho,luis farrera tattoo',schema,body);
+  const faqSchema = { "@context":"https://schema.org","@type":"FAQPage","mainEntity": LF.faqs.map(f=>({ "@type":"Question","name":f.q,"acceptedAnswer":{"@type":"Answer","text":f.a} })) };
+  const ratingSchema = { "@context":"https://schema.org","@type":"TattooParlor","name":"Luis Farrera Tattoo Artist","aggregateRating":{"@type":"AggregateRating","ratingValue":"5","reviewCount":String(LF.reviews.length),"bestRating":"5"},"review": LF.reviews.map(r=>({ "@type":"Review","author":{"@type":"Person","name":r.name},"reviewRating":{"@type":"Rating","ratingValue":"5"},"reviewBody":r.text })) };
+  return lfWrap('Luis Farrera | Tattoo Artist Soho NYC | Black & Gray Realism','Luxury tattoo artist in Soho, Manhattan. Black and gray realism and color realism. Studio at 132 Crosby St, NYC. Book your appointment.','tattoo artist soho nyc,realism tattoo manhattan,black and gray realism tattoo new york,color realism tattoo nyc,custom tattoo artist soho,luis farrera tattoo',schema,body,[faqSchema,ratingSchema]);
 }
 
 function lfBuildAbout() {
