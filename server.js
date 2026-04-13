@@ -10734,6 +10734,764 @@ ${pageList.map(p=>`<a href="/sofia/website-download?id=${cacheId}&page=${p.key}&
 });
 
 // ────────────────────────────────────────────────────────────────────────────
+// FLORIDA FOOT AND ANKLE INSTITUTE (FFAI) — 8 Service Landing Pages
+// Branding: #007a7f teal · #e99121 orange · white bg · 24px radius
+// Hub: GET /sofia/florida-foot-ankle
+// ────────────────────────────────────────────────────────────────────────────
+
+const FFAI = {
+  name: 'The Florida Foot and Ankle Institute',
+  address: '102 Park Place Blvd, Building A, Suite 3, Kissimmee, FL 34741',
+  addressShort: '102 Park Place Blvd, Suite 3, Kissimmee, FL',
+  phone: '',
+  city: 'Kissimmee',
+  state: 'FL',
+  logo: 'https://static.wixstatic.com/media/e1b08d_44ac69541fad47a484758d5f27542c81~mv2.png',
+  doctorImg: 'https://static.wixstatic.com/media/e1b08d_a70ae99bc98f4207b86ad54dd1475aca~mv2.jpeg',
+  services: {
+    'limb-salvage': {
+      slug: '/limb-salvage', icon: 'LS', color: '#007a7f',
+      title: 'Limb Salvage',
+      h1: 'Advanced Limb Salvage Care in Kissimmee, FL',
+      tagline: 'Preserving mobility and preventing amputation for high-risk patients',
+      intro: 'Limb salvage is a specialized field of podiatric care focused on preserving the foot and lower limb when complex conditions — such as severe infections, poor circulation, or advanced tissue damage — put mobility at serious risk. At The Florida Foot and Ankle Institute, our goal is always to preserve function, protect your quality of life, and avoid amputation whenever medically possible.',
+      photo: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=1400&q=80',
+      conditions: ['Severe diabetic foot infections','Peripheral artery disease (PAD)','Critical limb ischemia','Non-healing ulcers and wounds','Osteomyelitis (bone infection)','Gangrene and tissue necrosis','Charcot foot deformity','Complex soft tissue damage'],
+      approach: ['Thorough vascular and wound assessment','Collaboration with vascular specialists when needed','Advanced wound debridement and infection control','Offloading and protective footwear strategies','Revascularization support and post-procedure care','Close monitoring and long-term management plans'],
+      faqs: [
+        {q:'Who is a candidate for limb salvage care?',a:'Patients with diabetic foot complications, vascular disease, severe infections, or non-healing wounds who are at risk for amputation are ideal candidates. Early intervention dramatically improves outcomes.'},
+        {q:'Can limb salvage actually prevent amputation?',a:'Yes. In many cases, a coordinated limb salvage approach — combining wound care, infection management, and vascular support — can successfully preserve the limb and restore function.'},
+        {q:'How long does limb salvage treatment take?',a:'Treatment duration depends on the severity of the condition. Some cases resolve over weeks; complex cases may require months of coordinated, ongoing care.'},
+      ],
+      metaTitle: 'Limb Salvage Specialist in Kissimmee, FL | Florida Foot & Ankle Institute',
+      metaDesc: 'Advanced limb salvage care in Kissimmee, FL. Preventing amputation through expert wound care, infection management, and vascular support. Call today.',
+      kwSeed: 'limb salvage podiatrist',
+    },
+    'heel-arch-pain': {
+      slug: '/heel-arch-pain', icon: 'HP', color: '#e99121',
+      title: 'Heel & Arch Pain',
+      h1: 'Heel & Arch Pain Treatment in Kissimmee, FL',
+      tagline: 'Lasting relief for plantar fasciitis, heel spurs, and arch strain',
+      intro: 'Heel and arch pain are among the most common reasons patients seek podiatric care — and among the most disruptive to daily life. Whether you wake up with sharp pain in your first steps, feel chronic aching through a long workday, or notice discomfort during activity, The Florida Foot and Ankle Institute provides accurate diagnosis and individualized treatment to get you back on your feet comfortably.',
+      photo: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1400&q=80',
+      conditions: ['Plantar fasciitis','Heel spurs (calcaneal spurs)','Achilles tendinitis','Fat pad atrophy','Tarsal tunnel syndrome','Flat feet and overpronation','Arch strain from overuse','Stress fractures of the heel'],
+      approach: ['Biomechanical gait and foot structure analysis','Custom orthotics and supportive footwear recommendations','Targeted stretching and physical therapy protocols','Corticosteroid or PRP injection therapy when appropriate','Extracorporeal shock wave therapy (ESWT)','Surgical correction for cases unresponsive to conservative care'],
+      faqs: [
+        {q:'What causes plantar fasciitis?',a:'Plantar fasciitis is caused by inflammation of the thick band of tissue running along the bottom of your foot. Overuse, poor footwear, flat feet, or sudden increases in activity are common triggers.'},
+        {q:'How long does heel pain take to resolve?',a:'With consistent treatment, most patients see significant improvement within 6–12 weeks. Chronic or severe cases may take longer and could benefit from advanced therapies.'},
+        {q:'Do I need surgery for heel pain?',a:'The majority of heel pain cases resolve with conservative treatment. Surgery is only considered after non-surgical options have been thoroughly tried and have not provided adequate relief.'},
+      ],
+      metaTitle: 'Heel & Arch Pain Treatment Kissimmee FL | Plantar Fasciitis Specialist',
+      metaDesc: 'Heel pain and plantar fasciitis treatment in Kissimmee, FL. Custom orthotics, injection therapy, and expert podiatric care. The Florida Foot & Ankle Institute.',
+      kwSeed: 'heel pain treatment',
+    },
+    'diabetic-foot-care': {
+      slug: '/diabetic-foot-care', icon: 'DF', color: '#007a7f',
+      title: 'Diabetic Foot Care',
+      h1: 'Diabetic Foot Care in Kissimmee, FL',
+      tagline: 'Preventing complications and protecting your feet for the long term',
+      intro: 'Diabetes significantly increases the risk of foot-related complications — from nerve damage and circulation problems to infections and slow-healing wounds. Proactive, ongoing diabetic foot care is one of the most important steps you can take to protect your mobility and prevent serious outcomes. At The Florida Foot and Ankle Institute, we provide comprehensive diabetic foot management with a focus on prevention, early intervention, and patient education.',
+      photo: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1400&q=80',
+      conditions: ['Diabetic peripheral neuropathy','Poor circulation and ischemia','Diabetic foot ulcers','Hammertoes and structural deformities','Calluses over pressure points','Charcot foot','Recurring infections','Dry and cracking skin from autonomic neuropathy'],
+      approach: ['Comprehensive diabetic foot exams and risk stratification','Circulation and sensation assessments','Nail and skin care to prevent infection entry points','Custom orthotics and protective footwear prescriptions','Wound care and ulcer management protocols','Patient education on daily self-inspection and foot hygiene'],
+      faqs: [
+        {q:'How often should diabetic patients see a podiatrist?',a:'Most diabetic patients benefit from at least annual foot exams. Patients with neuropathy, vascular disease, or a history of ulcers should be seen more frequently — every 3 to 6 months.'},
+        {q:'What are the early signs of diabetic foot problems?',a:'Watch for numbness or tingling, changes in skin color or temperature, slow-healing cuts or sores, swelling, or changes in foot shape. Report any of these to your podiatrist promptly.'},
+        {q:'Can diabetic foot ulcers be prevented?',a:'Yes. Consistent podiatric care, appropriate footwear, daily self-exams, and good blood sugar control dramatically reduce the risk of ulcer development and serious complications.'},
+      ],
+      metaTitle: 'Diabetic Foot Care Kissimmee FL | Foot Ulcer & Neuropathy Specialist',
+      metaDesc: 'Expert diabetic foot care in Kissimmee, FL. Neuropathy screening, ulcer prevention, wound management, and protective orthotics. Florida Foot & Ankle Institute.',
+      kwSeed: 'diabetic foot care',
+    },
+    'sports-medicine': {
+      slug: '/sports-medicine', icon: 'SM', color: '#e99121',
+      title: 'Sports Medicine & Injury',
+      h1: 'Sports Foot & Ankle Care in Kissimmee, FL',
+      tagline: 'Getting athletes and active patients back to peak performance',
+      intro: 'Foot and ankle injuries are among the most common setbacks for athletes at every level — from weekend warriors to competitive professionals. At The Florida Foot and Ankle Institute, we combine sports medicine expertise with podiatric precision to diagnose accurately, treat effectively, and help you return to activity as safely and quickly as possible.',
+      photo: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=1400&q=80',
+      conditions: ['Ankle sprains and ligament tears','Achilles tendon ruptures and tendinopathy','Stress fractures of the foot','Turf toe and toe injuries','Plantar plate tears','Sesamoiditis','Posterior tibial tendon dysfunction','Morton\'s neuroma in athletes'],
+      approach: ['Sport-specific biomechanical analysis','Advanced imaging interpretation (X-ray, MRI, ultrasound)','Conservative rehab protocols with activity modification','Bracing, taping, and protective footwear strategies','Regenerative therapies: PRP and ultrasound-guided injections','Surgical repair for ligamentous or structural failures'],
+      faqs: [
+        {q:'When should an athlete see a podiatrist vs. an orthopedist?',a:'Podiatrists specialize specifically in foot and ankle conditions and are often the best first point of care for foot-related sports injuries. Complex cases may involve collaboration with orthopedic specialists.'},
+        {q:'How long does it take to recover from an ankle sprain?',a:'Mild sprains may heal in 1–3 weeks. Moderate to severe sprains can take 6–12 weeks. Proper diagnosis and treatment prevent chronic instability down the road.'},
+        {q:'Can I continue training with a stress fracture?',a:'No. Stress fractures require rest and appropriate offloading to heal properly. Continuing to train risks a complete fracture and significantly longer recovery time.'},
+      ],
+      metaTitle: 'Sports Medicine Podiatrist Kissimmee FL | Foot & Ankle Injury Specialist',
+      metaDesc: 'Sports foot and ankle injury treatment in Kissimmee, FL. Sprains, stress fractures, tendon injuries, and return-to-sport care. Florida Foot & Ankle Institute.',
+      kwSeed: 'sports medicine podiatrist',
+    },
+    'foot-ankle-surgery': {
+      slug: '/foot-ankle-surgery', icon: 'FS', color: '#007a7f',
+      title: 'Foot & Ankle Surgery',
+      h1: 'Foot & Ankle Surgery in Kissimmee, FL',
+      tagline: 'Expert surgical care when conservative treatment is not enough',
+      intro: 'Not every foot or ankle condition resolves with conservative care. When surgery becomes necessary, you want a podiatric surgeon who combines technical expertise with clear communication and thorough pre-operative and post-operative support. At The Florida Foot and Ankle Institute, we approach surgical care with precision, patient education, and a focus on the best possible long-term outcome.',
+      photo: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&w=1400&q=80',
+      conditions: ['Bunions (hallux valgus)','Hammertoes and lesser digit deformities','Flat foot reconstruction','Ankle instability and ligament repair','Achilles tendon repair','Metatarsal fracture fixation','Heel spur excision','Neuroma excision'],
+      approach: ['Thorough pre-surgical evaluation and imaging review','Conservative treatment exhaustion before surgical recommendation','Clear surgical planning with patient involvement','Minimally invasive techniques where appropriate','Detailed post-operative protocols and wound care','Physical therapy coordination for full recovery'],
+      faqs: [
+        {q:'How do I know if I need foot or ankle surgery?',a:'Surgery is typically recommended when pain significantly affects your quality of life, conservative treatments have been tried without adequate relief, or a structural problem requires correction to prevent further damage.'},
+        {q:'How long is the recovery after foot surgery?',a:'Recovery varies by procedure. Minor surgeries may require 2–4 weeks of restricted activity, while more complex procedures such as flat foot reconstruction can require 3–6 months of rehabilitation.'},
+        {q:'Will I need physical therapy after surgery?',a:'Many surgical procedures benefit from physical therapy as part of the recovery plan. We coordinate therapy referrals and provide clear guidance on your rehabilitation protocol.'},
+      ],
+      metaTitle: 'Foot & Ankle Surgeon Kissimmee FL | Bunion, Hammertoe & Ankle Surgery',
+      metaDesc: 'Expert foot and ankle surgery in Kissimmee, FL. Bunions, hammertoes, ankle repair, Achilles tendon surgery. The Florida Foot & Ankle Institute.',
+      kwSeed: 'foot ankle surgeon',
+    },
+    'pediatric-foot-care': {
+      slug: '/pediatric-foot-care', icon: 'PF', color: '#e99121',
+      title: 'Pediatric Foot Care',
+      h1: 'Pediatric Foot Care in Kissimmee, FL',
+      tagline: 'Supporting healthy foot development from childhood through adolescence',
+      intro: 'Children\'s feet are still developing, and structural concerns or gait abnormalities caught early are far easier to address than problems that go untreated for years. At The Florida Foot and Ankle Institute, we provide gentle, thorough pediatric foot evaluations and treatment plans designed to support healthy development, correct issues before they worsen, and give parents the clarity they need.',
+      photo: 'https://images.unsplash.com/photo-1603717011504-e4bd8ab29fc8?auto=format&fit=crop&w=1400&q=80',
+      conditions: ['Flat feet (pediatric flexible flatfoot)','In-toeing and out-toeing gait','Sever\'s disease (heel pain in children)','Growing pains in the feet and ankles','Toe walking','Clubfoot management','Juvenile bunions','Ingrown toenails in children'],
+      approach: ['Age-appropriate physical examination and gait analysis','Digital X-rays when clinically indicated','Orthotic devices designed for growing feet','Stretching and strengthening programs','Monitoring plans for developmental milestones','Surgical referral for structural issues that require correction'],
+      faqs: [
+        {q:'At what age should I bring my child to a podiatrist?',a:'If you notice your child walking on their toes, complaining of foot or leg pain, tripping frequently, or if their feet look noticeably different from their peers, a podiatric evaluation is appropriate at any age.'},
+        {q:'Is flat feet in children something to worry about?',a:'Flexible flatfoot is very common in young children and often resolves as the arch develops. However, if it causes pain, affects gait, or persists into older childhood, evaluation and possible treatment are recommended.'},
+        {q:'Do children\'s orthotics need to be replaced often?',a:'Yes — as children grow, their feet change quickly. Orthotics should be evaluated at every visit and typically replaced every 1–2 years depending on growth rate.'},
+      ],
+      metaTitle: 'Pediatric Podiatrist Kissimmee FL | Children\'s Foot & Ankle Care',
+      metaDesc: 'Expert pediatric foot care in Kissimmee, FL. Flat feet, gait analysis, Sever\'s disease, in-toeing, and orthotics for children. Florida Foot & Ankle Institute.',
+      kwSeed: 'pediatric podiatrist',
+    },
+    'orthotics': {
+      slug: '/orthotics', icon: 'OC', color: '#007a7f',
+      title: 'Orthotics & Custom Insoles',
+      h1: 'Custom Orthotics in Kissimmee, FL',
+      tagline: 'Precision-designed insoles that improve alignment, reduce pain, and support daily movement',
+      intro: 'Off-the-shelf insoles provide generic cushioning. Custom orthotics are different — they are precision-crafted devices based on a thorough evaluation of your foot structure, gait pattern, and specific symptoms. At The Florida Foot and Ankle Institute, we design orthotics that address the root cause of your discomfort and support better movement for work, sport, and everyday life.',
+      photo: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1400&q=80',
+      conditions: ['Plantar fasciitis and heel pain','Flat feet and overpronation','High arches and supination','Diabetic foot pressure management','Metatarsalgia and ball-of-foot pain','Knee and hip pain from foot imbalances','Post-surgical support','Sports performance optimization'],
+      approach: ['Full biomechanical and gait evaluation','Digital pressure mapping and foot casting','Custom device fabrication to exact specifications','Functional orthotics for active use','Accommodative orthotics for sensitive or diabetic feet','Fitting, adjustment, and follow-up care'],
+      faqs: [
+        {q:'What is the difference between custom orthotics and store-bought insoles?',a:'Store-bought insoles provide generic support and cushioning. Custom orthotics are individually designed based on your specific foot shape, mechanics, and diagnosis — they address the underlying cause of your symptoms.'},
+        {q:'How long do custom orthotics last?',a:'With proper care, functional orthotics typically last 2–5 years. Accommodative orthotics may need replacement sooner. Annual check-ups help ensure they still fit properly and are performing as designed.'},
+        {q:'Will my insurance cover custom orthotics?',a:'Many insurance plans provide partial coverage for custom orthotics when medically prescribed. We can assist with documentation to support your claim.'},
+      ],
+      metaTitle: 'Custom Orthotics Kissimmee FL | Foot Insole Specialist Near Me',
+      metaDesc: 'Custom orthotic insoles in Kissimmee, FL. Gait analysis, pressure mapping, and precision-fit orthotics for heel pain, flat feet, diabetes, and sports. Call today.',
+      kwSeed: 'custom orthotics podiatrist',
+    },
+    'wound-care': {
+      slug: '/wound-care', icon: 'WC', color: '#e99121',
+      title: 'Ingrown Toenails & Wound Care',
+      h1: 'Ingrown Toenail & Wound Care in Kissimmee, FL',
+      tagline: 'Expert treatment for painful toenails, ulcers, and wounds that won\'t heal',
+      intro: 'Ingrown toenails and foot wounds may seem minor, but without proper care they can lead to serious infections — especially for patients with diabetes or compromised circulation. At The Florida Foot and Ankle Institute, we provide prompt, professional treatment to relieve pain, clear infection, and give wounds and nails the environment they need to heal properly.',
+      photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=1400&q=80',
+      conditions: ['Ingrown toenails (acute and chronic)','Post-surgical ingrown nail recurrence','Diabetic foot ulcers','Venous and arterial leg ulcers','Pressure ulcers on the foot','Wound dehiscence and post-op wound complications','Infected wounds requiring debridement','Blisters and abrasions that won\'t close'],
+      approach: ['Same-day or urgent care for acute ingrown nail pain','Nail avulsion and matrixectomy for permanent correction','Sterile wound debridement and irrigation','Advanced wound dressings and offloading protocols','Infection assessment and antibiotic management','Coordination with wound care centers for complex cases'],
+      faqs: [
+        {q:'Can an ingrown toenail be permanently fixed?',a:'Yes. A matrixectomy — a minor in-office procedure that permanently removes a portion of the nail matrix — prevents the problematic nail edge from regrowing. Success rates are very high.'},
+        {q:'When is a foot wound an emergency?',a:'Seek care immediately if you notice red streaking, fever, severe swelling, green or foul-smelling discharge, or if the wound is rapidly worsening — especially if you are diabetic.'},
+        {q:'How long does wound care treatment take?',a:'Simple wounds may heal in 1–3 weeks with proper care. Chronic ulcers, particularly in diabetic patients, may require months of ongoing treatment and close monitoring.'},
+      ],
+      metaTitle: 'Ingrown Toenail & Wound Care Kissimmee FL | Podiatrist Near Me',
+      metaDesc: 'Ingrown toenail removal and foot wound care in Kissimmee, FL. Same-day treatment, diabetic ulcer management, and chronic wound care. Florida Foot & Ankle Institute.',
+      kwSeed: 'ingrown toenail podiatrist',
+    },
+  },
+};
+
+const GHL_FULL_BLEED = `<style>
+html, body,
+.page-section, .page-section--content,
+.funnelish-section, .funnelish-section--content,
+.section-wrap, .section-wrap--content,
+.hl_page-section, .hl_page-section--content,
+.container, .container-fluid,
+.row, .col, [class*="col-"],
+[class*="section"], [class*="container"],
+[class*="wrapper"], [class*="inner"],
+[class*="page-section"], [class*="hl_"] {
+  max-width:100%!important;width:100%!important;
+  padding-left:0!important;padding-right:0!important;
+  margin-left:0!important;margin-right:0!important;
+  box-sizing:border-box!important;
+}
+body{overflow-x:hidden!important;}
+</style>`;
+
+function ffaiCSS() {
+  return `
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --brand:#007a7f;--brand2:#0c8f95;--accent:#e99121;
+  --text:#0d1b1e;--muted:#5d6b70;--bg:#fff;--soft:#f6fbfb;
+  --line:rgba(0,122,127,0.12);--shadow:0 20px 60px rgba(0,0,0,0.08);
+  --r:24px;--max:1240px;--font:"Helvetica Neue",Arial,sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+img{max-width:100%;height:auto;display:block;}
+
+/* Layout */
+.ffai-wrap{position:relative;}
+.ffai-c{width:min(calc(100% - 32px),var(--max));margin:0 auto;}
+
+/* Topbar */
+.ffai-topbar{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#fff;font-size:13px;padding:9px 0;}
+.ffai-topbar-in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+
+/* Nav */
+.ffai-nav-wrap{position:sticky;top:0;z-index:200;backdrop-filter:blur(18px);background:rgba(255,255,255,0.9);border-bottom:1px solid var(--line);}
+.ffai-nav{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 0;flex-wrap:wrap;}
+.ffai-nav-logo img{width:170px;max-width:100%;height:auto;}
+.ffai-nav-links{display:flex;gap:24px;font-size:14px;color:var(--muted);}
+.ffai-nav-links a:hover{color:var(--brand);}
+.ffai-nav-btns{display:flex;gap:10px;flex-wrap:wrap;}
+.ffai-btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:13px 22px;font-weight:700;font-size:14px;transition:transform .2s,box-shadow .2s;border:1px solid transparent;cursor:pointer;}
+.ffai-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.ffai-btn-primary{background:var(--accent);color:#fff;}
+.ffai-btn-secondary{background:#fff;color:var(--brand);border-color:rgba(0,122,127,0.2);}
+@media(max-width:800px){.ffai-nav-links{display:none;}}
+
+/* Hero */
+.ffai-hero{position:relative;min-height:520px;display:flex;align-items:center;overflow:hidden;}
+.ffai-hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;}
+.ffai-hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,28,32,0.88) 0%,rgba(10,28,32,0.55) 60%,rgba(10,28,32,0.2) 100%);}
+.ffai-hero-content{position:relative;z-index:2;padding:80px 0;max-width:680px;}
+.ffai-eyebrow{display:inline-flex;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,0.15);color:#fff;font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px;border:1px solid rgba(255,255,255,0.2);}
+.ffai-hero-content h1{font-size:clamp(32px,5vw,62px);line-height:1.05;letter-spacing:-0.03em;color:#fff;margin-bottom:18px;}
+.ffai-hero-content p{font-size:18px;color:rgba(255,255,255,0.84);line-height:1.75;margin-bottom:32px;max-width:580px;}
+.ffai-hero-btns{display:flex;gap:12px;flex-wrap:wrap;}
+
+/* Breadcrumb */
+.ffai-breadcrumb{background:var(--soft);border-bottom:1px solid var(--line);padding:12px 0;font-size:13px;color:var(--muted);}
+.ffai-breadcrumb a{color:var(--brand);}
+.ffai-breadcrumb a:hover{text-decoration:underline;}
+
+/* Sections */
+.ffai-sec{padding:80px 0;}
+.ffai-sec--alt{background:var(--soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+.ffai-sec--dark{background:linear-gradient(135deg,var(--brand),#09585c);color:#fff;}
+.ffai-tag{display:inline-flex;padding:7px 14px;border-radius:999px;background:rgba(0,122,127,0.1);color:var(--brand);font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;}
+.ffai-tag--light{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.2);}
+.ffai-sec-h{font-size:clamp(26px,3.5vw,46px);letter-spacing:-0.03em;line-height:1.06;margin-bottom:14px;}
+.ffai-sec-sub{font-size:17px;color:var(--muted);line-height:1.8;max-width:680px;}
+
+/* Highlights bar */
+.ffai-highlights{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:52px;}
+.ffai-hl-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:24px 22px;box-shadow:0 8px 28px rgba(0,0,0,0.04);}
+.ffai-hl-card-icon{width:48px;height:48px;border-radius:14px;background:rgba(0,122,127,0.08);color:var(--brand);display:grid;place-items:center;font-size:20px;font-weight:900;margin-bottom:12px;}
+.ffai-hl-card h4{font-size:16px;margin-bottom:6px;letter-spacing:-0.01em;}
+.ffai-hl-card p{font-size:13px;color:var(--muted);line-height:1.7;}
+@media(max-width:700px){.ffai-highlights{grid-template-columns:1fr;}}
+
+/* Conditions grid */
+.ffai-conditions{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:36px;}
+.ffai-cond{display:flex;gap:12px;align-items:flex-start;padding:16px 18px;background:#fff;border:1px solid var(--line);border-radius:16px;font-size:14px;color:var(--muted);line-height:1.5;}
+.ffai-cond-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;}
+
+/* Approach steps */
+.ffai-steps{display:flex;flex-direction:column;gap:1px;background:var(--line);border-radius:var(--r);overflow:hidden;margin-top:36px;}
+.ffai-step{display:flex;gap:20px;align-items:flex-start;padding:24px 28px;background:#fff;}
+.ffai-step-n{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--brand);background:rgba(0,122,127,0.08);border-radius:999px;padding:4px 10px;flex-shrink:0;margin-top:2px;}
+.ffai-step-body h4{font-size:16px;font-weight:800;margin-bottom:6px;}
+.ffai-step-body p{font-size:14px;color:var(--muted);line-height:1.7;}
+
+/* FAQ */
+.ffai-faqs{display:flex;flex-direction:column;gap:2px;margin-top:36px;}
+.ffai-faq{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px 26px;}
+.ffai-faq q{display:block;font-size:17px;font-weight:800;margin-bottom:10px;font-style:normal;letter-spacing:-0.01em;}
+.ffai-faq p{font-size:15px;color:var(--muted);line-height:1.8;margin:0;}
+
+/* Doctor section */
+.ffai-doctor-grid{display:grid;grid-template-columns:0.45fr 0.55fr;gap:0;align-items:stretch;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);}
+.ffai-doctor-img{height:100%;min-height:400px;object-fit:cover;width:100%;}
+.ffai-doctor-body{padding:44px 40px;background:#fff;display:flex;flex-direction:column;justify-content:center;}
+.ffai-check-list{list-style:none;display:flex;flex-direction:column;gap:13px;margin-top:24px;}
+.ffai-check-list li{display:flex;gap:10px;font-size:15px;color:var(--muted);line-height:1.6;}
+.ffai-check-list li::before{content:'✓';color:var(--brand);font-weight:900;flex-shrink:0;}
+@media(max-width:720px){.ffai-doctor-grid{grid-template-columns:1fr;}.ffai-doctor-img{min-height:280px;}}
+
+/* CTA band */
+.ffai-cta-band{background:var(--accent);color:#fff;padding:64px 0;text-align:center;}
+.ffai-cta-band h2{font-size:clamp(26px,4vw,46px);letter-spacing:-0.03em;margin-bottom:14px;}
+.ffai-cta-band p{font-size:17px;opacity:.9;max-width:540px;margin:0 auto 32px;line-height:1.75;}
+.ffai-cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.ffai-btn-white{background:#fff;color:var(--accent);border-radius:999px;padding:16px 32px;font-weight:700;font-size:15px;transition:transform .2s,box-shadow .2s;display:inline-block;}
+.ffai-btn-white:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,0,0,0.15);}
+.ffai-btn-outline-white{background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.6);border-radius:999px;padding:14px 30px;font-weight:700;font-size:15px;display:inline-block;transition:background .2s;}
+.ffai-btn-outline-white:hover{background:rgba(255,255,255,0.1);}
+
+/* Services index grid */
+.ffai-svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-top:40px;}
+.ffai-svc-card{background:#fff;border:1px solid var(--line);border-radius:28px;padding:28px;box-shadow:0 10px 30px rgba(0,0,0,0.04);transition:transform .25s,box-shadow .25s;overflow:hidden;position:relative;}
+.ffai-svc-card::before{content:'';position:absolute;inset:auto -40px -40px auto;width:120px;height:120px;background:radial-gradient(circle,rgba(0,122,127,0.12),transparent 70%);}
+.ffai-svc-card:hover{transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,0.08);}
+.ffai-svc-icon{width:54px;height:54px;border-radius:16px;background:rgba(0,122,127,0.08);color:var(--brand);display:grid;place-items:center;font-size:16px;font-weight:900;margin-bottom:18px;}
+.ffai-svc-card h3{font-size:20px;letter-spacing:-0.02em;margin-bottom:10px;}
+.ffai-svc-card p{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:16px;}
+.ffai-svc-link{font-size:13px;font-weight:800;color:var(--brand);letter-spacing:.04em;}
+
+/* Footer */
+.ffai-footer{background:#081417;color:rgba(255,255,255,0.8);padding:32px 0;}
+.ffai-footer-in{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+.ffai-footer a{color:#fff;}
+
+/* Keywords section */
+.ffai-kw-cloud{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;}
+.ffai-kw{border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.08);padding:9px 14px;border-radius:999px;font-size:13px;color:rgba(255,255,255,0.9);}
+
+/* Reveal */
+.ffai-reveal{opacity:0;transform:translateY(22px);transition:opacity .75s ease,transform .75s ease;}
+.ffai-reveal.visible{opacity:1;transform:translateY(0);}
+
+@media(max-width:780px){
+  .ffai-sec{padding:60px 0;}
+  .ffai-hero-content{padding:72px 0;}
+}`;
+}
+
+function ffaiNav(activePage) {
+  return `<div class="ffai-topbar"><div class="ffai-c"><div class="ffai-topbar-in">
+    <span>Advanced Foot &amp; Ankle Care in Kissimmee, Florida</span>
+    <span>${FFAI.addressShort}</span>
+  </div></div></div>
+  <div class="ffai-nav-wrap"><div class="ffai-c"><div class="ffai-nav">
+    <a href="/" class="ffai-nav-logo"><img src="${FFAI.logo}" alt="${FFAI.name} logo"></a>
+    <nav class="ffai-nav-links">
+      <a href="/services"${activePage==='services'?' style="color:var(--brand)"':''}>Services</a>
+      <a href="/about"${activePage==='about'?' style="color:var(--brand)"':''}>Why Choose Us</a>
+      <a href="/contact"${activePage==='contact'?' style="color:var(--brand)"':''}>Contact</a>
+    </nav>
+    <div class="ffai-nav-btns">
+      <a class="ffai-btn ffai-btn-secondary" href="/contact">Call Now</a>
+      <a class="ffai-btn ffai-btn-primary" href="/contact">Book Appointment</a>
+    </div>
+  </div></div></div>`;
+}
+
+function ffaiFooter() {
+  return `<footer class="ffai-footer"><div class="ffai-c"><div class="ffai-footer-in">
+    <div><strong>${FFAI.name}</strong><br>${FFAI.address}</div>
+    <div style="font-size:13px;">
+      <a href="/services">Services</a> · <a href="/about">Why Choose Us</a> · <a href="/contact">Contact</a>
+    </div>
+  </div></div></footer>
+<script>
+const obs = new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.12});
+document.querySelectorAll('.ffai-reveal').forEach((el,i)=>{el.style.transitionDelay=Math.min(i*70,400)+'ms';obs.observe(el);});
+</script></div></body></html>`;
+}
+
+function ffaiHead(title, meta, canonicalPath) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+<meta name="description" content="${meta}">
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${meta}">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://www.thefloridafootankleinstitute.com${canonicalPath}">
+${GHL_FULL_BLEED}
+<style>${ffaiCSS()}</style>
+</head>
+<body>
+<div class="ffai-wrap">`;
+}
+
+// Builds a single service landing page
+function ffaiBuildServicePage(svcKey, kwData = []) {
+  const svc = FFAI.services[svcKey];
+  if (!svc) return '<h1>Service not found</h1>';
+
+  const topKws = kwData.slice(0, 8).map(k => k.keyword);
+  const kwCloud = topKws.length
+    ? topKws.map(k => `<span class="ffai-kw">${k}</span>`).join('')
+    : Object.values(FFAI.services).map(s => `<span class="ffai-kw">${s.title.toLowerCase()} kissimmee</span>`).join('').slice(0,500);
+
+  const schema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'MedicalClinic',
+    name: FFAI.name,
+    description: svc.metaDesc,
+    url: `https://www.thefloridafootankleinstitute.com${svc.slug}`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '102 Park Place Blvd, Building A, Suite 3',
+      addressLocality: 'Kissimmee',
+      addressRegion: 'FL',
+      postalCode: '34741',
+      addressCountry: 'US',
+    },
+    geo: { '@type': 'GeoCoordinates', latitude: 28.3036, longitude: -81.4075 },
+    medicalSpecialty: 'Podiatric Medicine',
+    availableService: {
+      '@type': 'MedicalProcedure',
+      name: svc.title,
+      description: svc.intro,
+    },
+  });
+
+  const approachSteps = svc.approach.map((step, i) => `
+    <div class="ffai-step ffai-reveal">
+      <span class="ffai-step-n">0${i + 1}</span>
+      <div class="ffai-step-body"><p>${step}</p></div>
+    </div>`).join('');
+
+  const conditionsHtml = svc.conditions.map(c => `
+    <div class="ffai-cond ffai-reveal"><span class="ffai-cond-dot"></span><span>${c}</span></div>`).join('');
+
+  const faqsHtml = svc.faqs.map(f => `
+    <div class="ffai-faq ffai-reveal">
+      <q>${f.q}</q>
+      <p>${f.a}</p>
+    </div>`).join('');
+
+  const faqSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: svc.faqs.map(f => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  });
+
+  return ffaiHead(svc.metaTitle, svc.metaDesc, svc.slug) +
+  `<script type="application/ld+json">${schema}</script>
+<script type="application/ld+json">${faqSchema}</script>
+` + ffaiNav('services') + `
+
+<!-- BREADCRUMB -->
+<div class="ffai-breadcrumb">
+  <div class="ffai-c">
+    <a href="/">Home</a> &rsaquo; <a href="/services">Services</a> &rsaquo; ${svc.title}
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="ffai-hero">
+  <div class="ffai-hero-bg" style="background-image:url('${svc.photo}');"></div>
+  <div class="ffai-c">
+    <div class="ffai-hero-content">
+      <div class="ffai-eyebrow">Podiatry · Kissimmee, FL</div>
+      <h1>${svc.h1}</h1>
+      <p>${svc.tagline}. Expert care at ${FFAI.addressShort}.</p>
+      <div class="ffai-hero-btns">
+        <a href="/contact" class="ffai-btn ffai-btn-primary">Book Appointment</a>
+        <a href="/services" class="ffai-btn" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.3);">All Services</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HIGHLIGHTS -->
+<section class="ffai-sec">
+  <div class="ffai-c">
+    <div class="ffai-tag">Why Patients Choose Us</div>
+    <h2 class="ffai-sec-h">${svc.title} at The Florida Foot &amp; Ankle Institute</h2>
+    <p class="ffai-sec-sub">${svc.intro}</p>
+    <div class="ffai-highlights">
+      <div class="ffai-hl-card ffai-reveal">
+        <div class="ffai-hl-card-icon">${svc.icon}</div>
+        <h4>Specialized Expertise</h4>
+        <p>Advanced podiatric care focused specifically on ${svc.title.toLowerCase()} for patients in Kissimmee and the surrounding Orlando area.</p>
+      </div>
+      <div class="ffai-hl-card ffai-reveal">
+        <div class="ffai-hl-card-icon" style="background:rgba(233,145,33,0.1);color:var(--accent);">✓</div>
+        <h4>Patient-Centered Approach</h4>
+        <p>Personalized treatment plans built around your symptoms, lifestyle, and long-term health goals — not a one-size-fits-all protocol.</p>
+      </div>
+      <div class="ffai-hl-card ffai-reveal">
+        <div class="ffai-hl-card-icon">📍</div>
+        <h4>Conveniently Located</h4>
+        <p>Serving Kissimmee, St. Cloud, and surrounding Orlando communities from our clinic at 102 Park Place Blvd, Suite 3.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONDITIONS TREATED -->
+<section class="ffai-sec ffai-sec--alt">
+  <div class="ffai-c">
+    <div class="ffai-tag">Conditions We Treat</div>
+    <h2 class="ffai-sec-h">What We Address</h2>
+    <p class="ffai-sec-sub">Our ${svc.title.toLowerCase()} services cover a broad range of conditions. Whether you are dealing with a recent problem or a long-standing concern, we have the expertise to help.</p>
+    <div class="ffai-conditions">${conditionsHtml}</div>
+  </div>
+</section>
+
+<!-- OUR APPROACH -->
+<section class="ffai-sec">
+  <div class="ffai-c">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;">
+      <div>
+        <div class="ffai-tag">Our Approach</div>
+        <h2 class="ffai-sec-h">How We Treat ${svc.title}</h2>
+        <p class="ffai-sec-sub" style="margin-bottom:0;">We take a structured, evidence-based approach to ${svc.title.toLowerCase()} — from initial evaluation through recovery. Every step is personalized to your specific condition and goals.</p>
+      </div>
+      <div>
+        <div class="ffai-steps">${approachSteps}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOCTOR / TRUST -->
+<section class="ffai-sec ffai-sec--alt">
+  <div class="ffai-c">
+    <div class="ffai-doctor-grid ffai-reveal">
+      <img src="${FFAI.doctorImg}" alt="${FFAI.name} — ${svc.title} specialist in Kissimmee FL" class="ffai-doctor-img" loading="lazy">
+      <div class="ffai-doctor-body">
+        <div class="ffai-tag">Trusted Care in Kissimmee</div>
+        <h2 class="ffai-sec-h" style="font-size:clamp(22px,3vw,38px);">Care built on experience, trust, and a commitment to better outcomes.</h2>
+        <p style="font-size:16px;color:var(--muted);line-height:1.8;margin:14px 0 0;">At The Florida Foot and Ankle Institute, we are committed to delivering ${svc.title.toLowerCase()} that is both clinically advanced and genuinely personal. Our patients receive individualized attention, clear answers, and treatment plans that make sense for their lives.</p>
+        <ul class="ffai-check-list">
+          <li>Comprehensive evaluation before any treatment recommendation</li>
+          <li>Modern diagnostic and therapeutic techniques</li>
+          <li>Clear communication throughout every stage of care</li>
+          <li>Convenient Kissimmee location with patient-first scheduling</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KEYWORD / LOCAL SEO SECTION -->
+<section class="ffai-sec ffai-sec--dark">
+  <div class="ffai-c">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;">
+      <div class="ffai-reveal">
+        <div class="ffai-tag ffai-tag--light">${svc.title} · Kissimmee, FL</div>
+        <h2 class="ffai-sec-h" style="color:#fff;">Local ${svc.title} care patients can count on.</h2>
+        <p style="color:rgba(255,255,255,0.82);line-height:1.8;font-size:16px;">The Florida Foot and Ankle Institute proudly serves patients in Kissimmee, St. Cloud, and surrounding Orlando communities. If you are looking for a trusted ${svc.title.toLowerCase()} specialist nearby, we are ready to help.</p>
+        <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="/contact" class="ffai-btn-white">Book Appointment →</a>
+          <a href="/services" class="ffai-btn-outline-white">All Services</a>
+        </div>
+      </div>
+      <div class="ffai-reveal">
+        <h3 style="color:#fff;font-size:16px;margin-bottom:14px;font-weight:700;">${svc.title} — Top Search Terms</h3>
+        <div class="ffai-kw-cloud">${kwCloud}</div>
+        <p style="color:rgba(255,255,255,0.5);font-size:12px;margin-top:14px;">Keywords sourced from DataForSEO — Kissimmee, FL market</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="ffai-sec">
+  <div class="ffai-c">
+    <div class="ffai-tag">Common Questions</div>
+    <h2 class="ffai-sec-h">Frequently Asked Questions</h2>
+    <p class="ffai-sec-sub">Quick answers to what patients most often ask about ${svc.title.toLowerCase()} at our Kissimmee practice.</p>
+    <div class="ffai-faqs">${faqsHtml}</div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="ffai-cta-band">
+  <div class="ffai-c">
+    <h2>Ready to get relief? We are here to help.</h2>
+    <p>Schedule your ${svc.title.toLowerCase()} appointment at The Florida Foot and Ankle Institute in Kissimmee. Call or book online today.</p>
+    <div class="ffai-cta-btns">
+      <a href="/contact" class="ffai-btn-white">Book Appointment</a>
+      <a href="/services" class="ffai-btn-outline-white">Explore All Services</a>
+    </div>
+    <p style="margin-top:20px;font-size:14px;opacity:.75;">${FFAI.address}</p>
+  </div>
+</div>
+` + ffaiFooter();
+}
+
+// Services index page
+function ffaiBuildServicesIndex(allKwData = {}) {
+  const schema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'MedicalClinic',
+    name: FFAI.name,
+    url: 'https://www.thefloridafootankleinstitute.com/services',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '102 Park Place Blvd, Building A, Suite 3',
+      addressLocality: 'Kissimmee',
+      addressRegion: 'FL',
+      postalCode: '34741',
+      addressCountry: 'US',
+    },
+    medicalSpecialty: 'Podiatric Medicine',
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Podiatry Services',
+      itemListElement: Object.values(FFAI.services).map((s, i) => ({
+        '@type': 'Offer',
+        position: i + 1,
+        name: s.title,
+        url: `https://www.thefloridafootankleinstitute.com${s.slug}`,
+      })),
+    },
+  });
+
+  const cardsHtml = Object.entries(FFAI.services).map(([key, svc]) => `
+    <a href="${svc.slug}" class="ffai-svc-card ffai-reveal" style="text-decoration:none;display:block;">
+      <div class="ffai-svc-icon" style="background:rgba(0,122,127,0.08);color:var(--brand);">${svc.icon}</div>
+      <h3>${svc.title}</h3>
+      <p>${svc.intro.slice(0, 120)}…</p>
+      <span class="ffai-svc-link">Learn more →</span>
+    </a>`).join('');
+
+  return ffaiHead(
+    'Podiatry Services in Kissimmee, FL | Florida Foot & Ankle Institute',
+    'Complete podiatry services in Kissimmee, FL — heel pain, diabetic foot care, limb salvage, sports injuries, surgery, orthotics, pediatric care, and wound treatment.',
+    '/services'
+  ) +
+  `<script type="application/ld+json">${schema}</script>
+` + ffaiNav('services') + `
+
+<!-- BREADCRUMB -->
+<div class="ffai-breadcrumb">
+  <div class="ffai-c"><a href="/">Home</a> &rsaquo; Services</div>
+</div>
+
+<!-- HERO -->
+<section class="ffai-hero">
+  <div class="ffai-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1400&q=80');"></div>
+  <div class="ffai-c">
+    <div class="ffai-hero-content">
+      <div class="ffai-eyebrow">Complete Podiatry Care · Kissimmee, FL</div>
+      <h1>Expert Foot &amp; Ankle Services for Every Patient</h1>
+      <p>From heel pain and diabetic foot care to limb salvage and surgery — we treat a full range of foot and ankle conditions with precision, compassion, and long-term results.</p>
+      <div class="ffai-hero-btns">
+        <a href="/contact" class="ffai-btn ffai-btn-primary">Book Appointment</a>
+        <a href="#services-list" class="ffai-btn" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.3);">Browse Services</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTRO -->
+<section class="ffai-sec">
+  <div class="ffai-c">
+    <div class="ffai-reveal" style="max-width:720px;">
+      <div class="ffai-tag">Our Specialties</div>
+      <h2 class="ffai-sec-h">Comprehensive podiatric care in one convenient Kissimmee location.</h2>
+      <p class="ffai-sec-sub">The Florida Foot and Ankle Institute provides advanced treatment for a wide spectrum of foot and ankle conditions. Whether you need routine podiatric care, specialized treatment for a chronic condition, or surgical correction, our team is equipped to help.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES GRID -->
+<section class="ffai-sec ffai-sec--alt" id="services-list">
+  <div class="ffai-c">
+    <div class="ffai-tag">All Services</div>
+    <h2 class="ffai-sec-h">What We Treat</h2>
+    <div class="ffai-svc-grid">${cardsHtml}</div>
+  </div>
+</section>
+
+<!-- LOCAL SEO -->
+<section class="ffai-sec ffai-sec--dark">
+  <div class="ffai-c ffai-reveal" style="text-align:center;max-width:760px;margin:0 auto;">
+    <div class="ffai-tag ffai-tag--light" style="margin:0 auto 16px;">Kissimmee, FL</div>
+    <h2 class="ffai-sec-h" style="color:#fff;">Serving Kissimmee, St. Cloud, and Orlando communities.</h2>
+    <p style="color:rgba(255,255,255,0.82);font-size:17px;line-height:1.8;margin-bottom:32px;">Patients throughout Osceola County trust The Florida Foot and Ankle Institute for attentive, expert podiatric care close to home. We accept most major insurance plans and offer flexible scheduling.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a href="/contact" class="ffai-btn-white">Schedule an Appointment</a>
+      <a href="/" class="ffai-btn-outline-white">Learn About Our Practice</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="ffai-cta-band">
+  <div class="ffai-c">
+    <h2>Ready to get the care you need?</h2>
+    <p>Contact The Florida Foot and Ankle Institute today to schedule your appointment and take the first step toward relief.</p>
+    <div class="ffai-cta-btns">
+      <a href="/contact" class="ffai-btn-white">Book Appointment</a>
+    </div>
+    <p style="margin-top:20px;font-size:14px;opacity:.75;">${FFAI.address}</p>
+  </div>
+</div>
+` + ffaiFooter();
+}
+
+// GET /sofia/florida-foot-ankle — download hub (async — parallel DataForSEO per service)
+app.get('/sofia/florida-foot-ankle', async (req, res) => {
+  try {
+    // Parallel DataForSEO calls for all 8 services
+    const svcKeys = Object.keys(FFAI.services);
+    const kwResults = await Promise.all(
+      svcKeys.map(key =>
+        getKeywordData(FFAI.services[key].kwSeed, 'kissimmee', 2840)
+          .catch(() => [])
+      )
+    );
+    const kwMap = {};
+    svcKeys.forEach((key, i) => { kwMap[key] = kwResults[i]; });
+
+    const cacheId = crypto.randomBytes(8).toString('hex');
+    const pages = { 'services-index': ffaiBuildServicesIndex(kwMap) };
+    svcKeys.forEach(key => { pages[key] = ffaiBuildServicePage(key, kwMap[key]); });
+
+    websitePackageCache.set(cacheId, { pages, clientName: 'Florida Foot & Ankle Institute', expires: Date.now() + 600000 });
+
+    const pageList = [
+      { key: 'services-index', label: 'Services Index', file: 'services.html', slug: '/services', desc: 'All 8 services grid · SEO intro · Local keywords · CTA' },
+      ...svcKeys.map(key => {
+        const s = FFAI.services[key];
+        const topKw = (kwMap[key][0]?.keyword) || s.title;
+        return { key, label: s.title, file: `${key}.html`, slug: s.slug, desc: `${topKw} · ${kwMap[key].length} keywords · FAQ · Doctor section` };
+      }),
+    ];
+
+    const hub = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Florida Foot &amp; Ankle — Website Hub</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,sans-serif;background:#0a1c20;color:#fff;padding:40px 20px}
+.wrap{max-width:760px;margin:0 auto}
+.logo-row{margin-bottom:22px}
+.logo-row img{height:44px;filter:brightness(10)}
+.badge{display:inline-block;background:#007a7f;color:#fff;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 14px;border-radius:100px;margin-bottom:14px}
+h1{font-size:22px;font-weight:900;margin-bottom:4px}
+.sub{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:24px}
+.section-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:22px 0 10px}
+.dl-btn{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:14px 18px;text-decoration:none;color:#fff;margin-bottom:6px;transition:all .15s;gap:12px}
+.dl-btn:hover{border-color:#007a7f;background:rgba(0,122,127,0.1)}
+.dl-left{flex:1;min-width:0}
+.dl-name{font-weight:700;font-size:14px;margin-bottom:2px}
+.dl-slug{font-size:11px;color:#007a7f;font-weight:600;margin-bottom:2px}
+.dl-desc{font-size:11px;color:rgba(255,255,255,0.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl-tag{background:#007a7f;color:#fff;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;flex-shrink:0}
+.how{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px 18px;margin-top:22px;font-size:12px;color:rgba(255,255,255,0.4);line-height:1.9}
+</style></head><body><div class="wrap">
+<div class="logo-row"><img src="${FFAI.logo}" alt="${FFAI.name}"></div>
+<div class="badge">9 Pages · DataForSEO Keywords Applied</div>
+<h1>Florida Foot &amp; Ankle Institute</h1>
+<p class="sub">8 Service Landing Pages + Services Index · Kissimmee SEO · Teal/Orange Branding</p>
+<div class="section-label">All 9 Pages</div>
+${pageList.map(p=>`<a href="/sofia/website-download?id=${cacheId}&page=${p.key}&filename=${p.file}" class="dl-btn">
+  <div class="dl-left">
+    <div class="dl-name">${p.label}</div>
+    <div class="dl-slug">GHL slug: ${p.slug}</div>
+    <div class="dl-desc">${p.desc}</div>
+  </div>
+  <div class="dl-tag">↓ Download</div>
+</a>`).join('')}
+<div class="how">
+<strong style="color:#fff;">How to upload to GHL:</strong><br>
+1. Download each page file<br>
+2. GHL → Sites → Websites → Florida Foot &amp; Ankle Institute → select page<br>
+3. Open page → Custom Code tab → paste full HTML → Save &amp; Publish<br>
+4. Set page slug to match the GHL slug shown above<br><br>
+<em style="color:rgba(255,255,255,0.2);font-size:11px;">Links expire in 10 minutes. Refresh to regenerate.</em>
+</div>
+</div></body></html>`;
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(hub);
+  } catch(err) { res.status(500).send(`<pre>Error: ${err.message}\n${err.stack}</pre>`); }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
 // JRZ INK SYSTEMS — The Monolith Architect
 // Black/white only · Inter font · 0px corners · System/technical language
 // Single-page site: Hero → Problem → Solution → Cases → Compare → Process → Pricing → Filter → Form
