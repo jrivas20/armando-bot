@@ -10930,8 +10930,8 @@ a{text-decoration:none;color:inherit;}
 img{max-width:100%;height:auto;display:block;}
 
 /* Layout */
-.ffai-wrap{position:relative;}
-.ffai-c{width:min(calc(100% - 32px),var(--max));margin:0 auto;}
+.ffai-wrap{position:relative;width:100%!important;max-width:100%!important;margin:0!important;padding:0!important;}
+.ffai-c{width:min(calc(100% - 32px),var(--max));margin:0 auto;padding-left:16px;padding-right:16px;box-sizing:border-box;}
 
 /* Topbar */
 .ffai-topbar{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#fff;font-size:13px;padding:9px 0;}
@@ -11763,28 +11763,8 @@ function jisBuildHome() {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-<!-- ── GHL FULL BLEED OVERRIDE — Required on every GHL page ── -->
-html, body,
-.page-section, .page-section--content,
-.funnelish-section, .funnelish-section--content,
-.section-wrap, .section-wrap--content,
-.hl_page-section, .hl_page-section--content,
-.container, .container-fluid,
-.row, .col, [class*="col-"],
-[class*="section"], [class*="container"],
-[class*="wrapper"], [class*="inner"],
-[class*="page-section"], [class*="hl_"] {
-  max-width: 100% !important;
-  width: 100% !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  box-sizing: border-box !important;
-}
-body { overflow-x: hidden !important; }
-<!-- ── END GHL FULL BLEED ── -->
-
+html,body,.page-section,.page-section--content,.funnelish-section,.funnelish-section--content,.section-wrap,.section-wrap--content,.hl_page-section,.hl_page-section--content,.container,.container-fluid,.row,.col,[class*="col-"],[class*="section"],[class*="container"],[class*="wrapper"],[class*="inner"],[class*="page-section"],[class*="hl_"]{max-width:100%!important;width:100%!important;padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box!important;}
+body{overflow-x:hidden!important;}
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
   --bg:#131313;--surface:#191919;--surface2:#1f1f1f;
@@ -11797,8 +11777,8 @@ body{background:var(--bg);color:var(--white);font-family:var(--font);font-size:1
 a{color:inherit;text-decoration:none;}
 
 /* ── Layout ── */
-.jis-wrap{width:100%;}
-.jis-c{max-width:1120px;margin:0 auto;padding:0 28px;}
+.jis-wrap{width:100%!important;max-width:100%!important;margin:0!important;padding:0!important;}
+.jis-c{max-width:1120px;margin:0 auto;padding:0 28px;box-sizing:border-box;}
 .jis-sec{padding:108px 0;}
 .jis-sec--sm{padding:72px 0;}
 
@@ -12191,27 +12171,8 @@ a{color:inherit;text-decoration:none;}
 
 // ── JRZ Ink Systems shared helpers (nav, footer, head) ──────────────────────
 function jisSharedCSS() {
-  return `<!-- ── GHL FULL BLEED OVERRIDE — Required on every GHL page ── -->
-html, body,
-.page-section, .page-section--content,
-.funnelish-section, .funnelish-section--content,
-.section-wrap, .section-wrap--content,
-.hl_page-section, .hl_page-section--content,
-.container, .container-fluid,
-.row, .col, [class*="col-"],
-[class*="section"], [class*="container"],
-[class*="wrapper"], [class*="inner"],
-[class*="page-section"], [class*="hl_"] {
-  max-width: 100% !important;
-  width: 100% !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  box-sizing: border-box !important;
-}
-body { overflow-x: hidden !important; }
-<!-- ── END GHL FULL BLEED ── -->
+  return `html,body,.page-section,.page-section--content,.funnelish-section,.funnelish-section--content,.section-wrap,.section-wrap--content,.hl_page-section,.hl_page-section--content,.container,.container-fluid,.row,.col,[class*="col-"],[class*="section"],[class*="container"],[class*="wrapper"],[class*="inner"],[class*="page-section"],[class*="hl_"]{max-width:100%!important;width:100%!important;padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box!important;}
+body{overflow-x:hidden!important;}
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{--bg:#131313;--surface:#191919;--surface2:#1f1f1f;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--white:#ffffff;--dim:rgba(255,255,255,0.48);--faint:rgba(255,255,255,0.14);--font:'Inter',system-ui,sans-serif;}
 html{scroll-behavior:smooth;}
