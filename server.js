@@ -10761,9 +10761,27 @@ function jisBuildHome() {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-/* ── Full-bleed override (GHL requirement) ── */
-html.hl-page-content-wrapper,body.hl-page-content-wrapper{max-width:100%!important;padding:0!important;margin:0!important;}
-.hl-page-content-wrapper .hl-main-content,.hl-page-content-wrapper .main-content-wrap,.hl-page-content-wrapper section.section{max-width:100%!important;padding:0!important;}
+<!-- ── GHL FULL BLEED OVERRIDE — Required on every GHL page ── -->
+html, body,
+.page-section, .page-section--content,
+.funnelish-section, .funnelish-section--content,
+.section-wrap, .section-wrap--content,
+.hl_page-section, .hl_page-section--content,
+.container, .container-fluid,
+.row, .col, [class*="col-"],
+[class*="section"], [class*="container"],
+[class*="wrapper"], [class*="inner"],
+[class*="page-section"], [class*="hl_"] {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+body { overflow-x: hidden !important; }
+<!-- ── END GHL FULL BLEED ── -->
 
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -10886,20 +10904,6 @@ a{color:inherit;text-decoration:none;}
 .jis-band h2{font-size:clamp(28px,4.5vw,52px);font-weight:900;letter-spacing:-0.025em;margin-bottom:18px;}
 .jis-band-sub{font-size:17px;color:var(--dim);max-width:480px;margin:0 auto 44px;line-height:1.7;}
 
-/* ── Contact / Form ── */
-.jis-contact{background:var(--surface);border-top:1px solid var(--border2);}
-.jis-contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:start;padding:96px 0;}
-@media(max-width:820px){.jis-contact-grid{grid-template-columns:1fr;gap:52px;padding:72px 0;}}
-.jis-contact-info h2{font-size:clamp(30px,4vw,48px);font-weight:900;letter-spacing:-0.025em;margin-bottom:24px;}
-.jis-contact-meta{display:flex;flex-direction:column;gap:13px;margin-bottom:40px;}
-.jis-contact-line{font-size:15px;color:var(--dim);}
-.jis-contact-line a{color:var(--white);font-weight:700;}
-.jis-contact-line a:hover{text-decoration:underline;}
-.jis-status-box{border-top:1px solid var(--border);padding-top:28px;}
-.jis-status-label{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--faint);margin-bottom:10px;}
-.jis-status-text{font-size:13px;color:var(--dim);line-height:1.7;}
-.jis-form-frame{background:var(--bg);border:1px solid var(--border);}
-
 /* ── Footer ── */
 .jis-footer{border-top:1px solid var(--border);padding:32px 0;}
 .jis-footer-in{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
@@ -10918,9 +10922,14 @@ a{color:inherit;text-decoration:none;}
 
 <!-- NAV -->
 <nav class="jis-nav">
-  <div class="jis-nav-in">
-    <div class="jis-brand">${logoSVG}<span>JRZ INK SYSTEMS</span></div>
-    <a href="#contact" class="jis-nav-btn">Apply Now</a>
+  <div class="jis-nav-in" style="display:flex;align-items:center;justify-content:space-between;height:68px;max-width:1120px;margin:0 auto;padding:0 28px;gap:20px;">
+    <a href="/" style="display:flex;align-items:center;gap:11px;font-size:12px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;text-decoration:none;color:#fff;flex-shrink:0;">${logoSVG}<span>JRZ INK SYSTEMS</span></a>
+    <div style="display:flex;align-items:center;gap:28px;">
+      <a href="/about" style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.5);text-decoration:none;">About</a>
+      <a href="/why-us" style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.5);text-decoration:none;">Why Us</a>
+      <a href="/our-process" style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.5);text-decoration:none;">Process</a>
+    </div>
+    <a href="/contact" class="jis-nav-btn">Apply Now</a>
   </div>
 </nav>
 
@@ -10937,7 +10946,7 @@ a{color:inherit;text-decoration:none;}
     <h1 class="jis-h1">We Build<br>Your Pipeline.<em>You Stay Booked.</em></h1>
     <p class="jis-hero-sub">JRZ Ink Systems engineers fully automated, performance-based marketing systems for service businesses across the United States. We don't get paid unless you do.</p>
     <div class="jis-cta-row">
-      <a href="#contact" class="jis-btn">Apply for a System →</a>
+      <a href="/contact" class="jis-btn">Apply for a System →</a>
       <span class="jis-cta-note">No retainers · No long contracts · Results only</span>
     </div>
   </div>
@@ -11038,7 +11047,7 @@ a{color:inherit;text-decoration:none;}
       </div>
     </div>
     <div style="text-align:center;margin-top:52px;">
-      <a href="#contact" class="jis-btn">Get Results Like These →</a>
+      <a href="/contact" class="jis-btn">Get Results Like These →</a>
     </div>
   </div>
 </section>
@@ -11088,7 +11097,7 @@ a{color:inherit;text-decoration:none;}
       </div>
     </div>
     <div style="text-align:center;margin-top:52px;">
-      <a href="#contact" class="jis-btn">Start Phase 01 →</a>
+      <a href="/contact" class="jis-btn">Start Phase 01 →</a>
     </div>
   </div>
 </section>
@@ -11112,7 +11121,7 @@ a{color:inherit;text-decoration:none;}
         <li>Available to qualified service businesses across all 50 US states</li>
       </ul>
       <div style="margin-top:44px;">
-        <a href="#contact" class="jis-btn">Apply for a System →</a>
+        <a href="/contact" class="jis-btn">Apply for a System →</a>
       </div>
     </div>
   </div>
@@ -11149,47 +11158,16 @@ a{color:inherit;text-decoration:none;}
   </div>
 </section>
 
-<!-- CTA BAND -->
-<div class="jis-band">
-  <div class="jis-c">
-    <h2>Ready to Stop<br>Chasing Clients?</h2>
-    <p class="jis-band-sub">The application takes 2 minutes. If there's a fit, you'll hear from us within 24 hours.</p>
-    <a href="#contact" class="jis-btn" style="font-size:14px;padding:20px 60px;">Apply for a System →</a>
-  </div>
-</div>
-
-<!-- CONTACT / FORM -->
-<section class="jis-contact" id="contact">
-  <div class="jis-c">
-    <div class="jis-contact-grid">
-      <div class="jis-contact-info">
-        <p class="jis-tag">CONTACT_ENTRY // BEGIN</p>
-        <h2>Let's Build<br>Your System.</h2>
-        <p style="font-size:15px;color:var(--dim);line-height:1.7;margin-bottom:32px;">Fill out the form and we'll reach out within 24 hours to determine if JRZ Ink Systems is the right fit for your business.</p>
-        <div class="jis-contact-meta">
-          <div class="jis-contact-line">Phone: <a href="tel:+14077205284">(407) 720-5284</a></div>
-          <div class="jis-contact-line">Email: <a href="mailto:jrzinksystems@gmail.com">jrzinksystems@gmail.com</a></div>
-          <div class="jis-contact-line" style="margin-top:6px;font-size:13px;color:var(--faint);">Available nationwide — US clients only</div>
-        </div>
-        <div class="jis-status-box">
-          <p class="jis-status-label">SYSTEM_STATUS</p>
-          <p class="jis-status-text">Currently accepting new client applications. Capacity is intentionally limited — we maintain a focused client roster to ensure the quality of execution every client deserves.</p>
-        </div>
-      </div>
-      <div class="jis-form-frame">
-        <iframe
-          src="https://links.jrzmarketing.com/widget/form/3FCTNG4eH5pHYrBhrdlF"
-          style="width:100%;height:712px;border:none;display:block;"
-          id="inline-3FCTNG4eH5pHYrBhrdlF"
-          data-layout="{'id':'INLINE'}"
-          data-trigger-type="alwaysShow"
-          data-form-name="jrz ink system"
-          data-height="712"
-          data-form-id="3FCTNG4eH5pHYrBhrdlF"
-          title="jrz ink system">
-        </iframe>
-        <script src="https://links.jrzmarketing.com/js/form_embed.js"></script>
-      </div>
+<!-- FINAL CTA BAND -->
+<section style="background:var(--bg);border-top:1px solid var(--border2);padding:108px 0;text-align:center;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:72px 72px;pointer-events:none;"></div>
+  <div class="jis-c" style="position:relative;z-index:1;">
+    <p class="jis-tag" style="text-align:center;">SYSTEM_ENTRY // APPLY_NOW</p>
+    <h2 class="jis-h2" style="max-width:700px;margin:0 auto 20px;">Ready to Stop<br>Chasing Clients?</h2>
+    <p style="font-size:18px;color:var(--dim);max-width:480px;margin:0 auto 48px;line-height:1.7;">The application takes 2 minutes. If there's a fit, you'll hear from us within 24 hours.</p>
+    <div style="display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;">
+      <a href="/contact" class="jis-btn" style="font-size:14px;padding:20px 60px;">Apply for a System →</a>
+      <span style="font-size:12px;color:var(--faint);">No retainers · No long contracts · Results only</span>
     </div>
   </div>
 </section>
@@ -11211,9 +11189,27 @@ a{color:inherit;text-decoration:none;}
 
 // ── JRZ Ink Systems shared helpers (nav, footer, head) ──────────────────────
 function jisSharedCSS() {
-  return `/* ── Full-bleed override (GHL requirement) ── */
-html.hl-page-content-wrapper,body.hl-page-content-wrapper{max-width:100%!important;padding:0!important;margin:0!important;}
-.hl-page-content-wrapper .hl-main-content,.hl-page-content-wrapper .main-content-wrap,.hl-page-content-wrapper section.section{max-width:100%!important;padding:0!important;}
+  return `<!-- ── GHL FULL BLEED OVERRIDE — Required on every GHL page ── -->
+html, body,
+.page-section, .page-section--content,
+.funnelish-section, .funnelish-section--content,
+.section-wrap, .section-wrap--content,
+.hl_page-section, .hl_page-section--content,
+.container, .container-fluid,
+.row, .col, [class*="col-"],
+[class*="section"], [class*="container"],
+[class*="wrapper"], [class*="inner"],
+[class*="page-section"], [class*="hl_"] {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+body { overflow-x: hidden !important; }
+<!-- ── END GHL FULL BLEED ── -->
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{--bg:#131313;--surface:#191919;--surface2:#1f1f1f;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--white:#ffffff;--dim:rgba(255,255,255,0.48);--faint:rgba(255,255,255,0.14);--font:'Inter',system-ui,sans-serif;}
 html{scroll-behavior:smooth;}
