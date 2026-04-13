@@ -11416,27 +11416,271 @@ function ffaiBuildServicesIndex(allKwData = {}) {
 ` + ffaiFooter();
 }
 
+// Homepage
+function ffaiBuildHomePage(kwData = []) {
+  const primaryKw = kwData[0]?.keyword || 'podiatrist kissimmee fl';
+  const topKws = kwData.slice(0, 8).map(k => k.keyword);
+
+  const schema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'MedicalClinic',
+    name: FFAI.name,
+    url: 'https://www.thefloridafootankleinstitute.com',
+    logo: FFAI.logo,
+    image: FFAI.doctorImg,
+    description: `Advanced foot and ankle podiatric care in Kissimmee, FL. Services include limb salvage, heel pain, diabetic foot care, sports injuries, surgery, orthotics, pediatric care, and wound treatment.`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '102 Park Place Blvd, Building A, Suite 3',
+      addressLocality: 'Kissimmee', addressRegion: 'FL',
+      postalCode: '34741', addressCountry: 'US',
+    },
+    geo: { '@type': 'GeoCoordinates', latitude: 28.3036, longitude: -81.4075 },
+    medicalSpecialty: 'Podiatric Medicine',
+    areaServed: ['Kissimmee', 'St. Cloud', 'Orlando', 'Osceola County'],
+  });
+
+  const svcCards = Object.entries(FFAI.services).map(([key, svc]) => `
+    <a href="${svc.slug}" class="ffai-svc-card ffai-reveal" style="text-decoration:none;display:block;">
+      <div class="ffai-svc-icon">${svc.icon}</div>
+      <h3>${svc.title}</h3>
+      <p>${svc.intro.slice(0, 110)}…</p>
+      <span class="ffai-svc-link">Learn more →</span>
+    </a>`).join('');
+
+  const kwCloud = topKws.length
+    ? topKws.map(k => `<span class="ffai-kw">${k}</span>`).join('')
+    : ['podiatrist kissimmee','heel pain treatment','diabetic foot care','foot doctor near me','foot and ankle specialist','plantar fasciitis','custom orthotics','foot surgeon kissimmee'].map(k=>`<span class="ffai-kw">${k}</span>`).join('');
+
+  return ffaiHead(
+    `The Florida Foot and Ankle Institute | Podiatrist in Kissimmee, FL`,
+    `The Florida Foot and Ankle Institute provides advanced podiatry care in Kissimmee, FL — heel pain, diabetic foot care, limb salvage, sports injuries, surgery, orthotics, pediatric care, and wound treatment.`,
+    '/'
+  ) +
+  `<script type="application/ld+json">${schema}</script>
+` + ffaiNav('home') + `
+
+<!-- HERO -->
+<section style="position:relative;padding:88px 0 72px;overflow:clip;">
+  <!-- Ambient glows -->
+  <div style="position:absolute;top:-6rem;right:-6rem;width:36rem;height:36rem;border-radius:50%;background:var(--brand);filter:blur(80px);opacity:.09;pointer-events:none;"></div>
+  <div style="position:absolute;bottom:-8rem;left:-8rem;width:32rem;height:32rem;border-radius:50%;background:var(--accent);filter:blur(80px);opacity:.08;pointer-events:none;"></div>
+  <div class="ffai-c">
+    <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;align-items:center;">
+      <!-- Left copy -->
+      <div class="ffai-reveal">
+        <div class="ffai-tag" style="margin-bottom:18px;">Kissimmee Podiatry &amp; Foot Care</div>
+        <h1 style="font-size:clamp(38px,5.5vw,72px);line-height:1.0;letter-spacing:-0.04em;margin-bottom:18px;">Expert foot &amp; ankle care for every stage of life.</h1>
+        <p style="font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.8;margin-bottom:28px;max-width:640px;">At The Florida Foot and Ankle Institute, we provide advanced podiatric care with a patient-first approach — combining precision, comfort, and long-term results for patients in Kissimmee and the surrounding Orlando area.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px;">
+          <a class="ffai-btn ffai-btn-primary" href="/contact">Schedule Your Appointment</a>
+          <a class="ffai-btn ffai-btn-secondary" href="/services">Explore Services</a>
+        </div>
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+          <div style="background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.04);">
+            <strong style="display:block;font-size:22px;color:var(--brand);margin-bottom:4px;">8+</strong>
+            <span style="font-size:13px;color:var(--muted);line-height:1.5;">Specialized podiatry services</span>
+          </div>
+          <div style="background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.04);">
+            <strong style="display:block;font-size:22px;color:var(--brand);margin-bottom:4px;">Advanced</strong>
+            <span style="font-size:13px;color:var(--muted);line-height:1.5;">Diagnostics &amp; treatment</span>
+          </div>
+          <div style="background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.04);">
+            <strong style="display:block;font-size:22px;color:var(--brand);margin-bottom:4px;">Trusted</strong>
+            <span style="font-size:13px;color:var(--muted);line-height:1.5;">Kissimmee community care</span>
+          </div>
+        </div>
+      </div>
+      <!-- Right: doctor card + floating panels -->
+      <div style="position:relative;min-height:620px;" class="ffai-reveal">
+        <!-- Doctor image card -->
+        <div style="position:absolute;inset:40px 24px 110px 36px;border-radius:28px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);">
+          <img src="${FFAI.doctorImg}" alt="Podiatrist at The Florida Foot and Ankle Institute in Kissimmee FL" style="width:100%;height:100%;object-fit:cover;display:block;" fetchpriority="high" loading="eager">
+          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(10,28,32,0.82));padding:28px 22px 22px;">
+            <strong style="display:block;color:#fff;font-size:17px;margin-bottom:6px;">Trusted podiatry care in Kissimmee</strong>
+            <span style="color:rgba(255,255,255,0.8);font-size:13px;line-height:1.6;">Personalized treatment plans, advanced diagnostics, and compassionate care designed for your comfort, mobility, and long-term health.</span>
+          </div>
+        </div>
+        <!-- Floating service card -->
+        <div style="position:absolute;top:0;right:0;width:230px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px 20px;box-shadow:var(--shadow);animation:ffaiBob 5s ease-in-out infinite;">
+          <div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--brand);text-transform:uppercase;margin-bottom:10px;">Featured Services</div>
+          <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;">
+            <li style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;box-shadow:0 0 0 5px rgba(233,145,33,.12);"></span>Limb Salvage</li>
+            <li style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;box-shadow:0 0 0 5px rgba(233,145,33,.12);"></span>Heel &amp; Arch Pain</li>
+            <li style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;box-shadow:0 0 0 5px rgba(233,145,33,.12);"></span>Diabetic Foot Care</li>
+            <li style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;box-shadow:0 0 0 5px rgba(233,145,33,.12);"></span>Sports Injuries</li>
+          </ul>
+        </div>
+        <!-- Floating trust card -->
+        <div style="position:absolute;right:20px;bottom:20px;width:250px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px 20px;box-shadow:var(--shadow);animation:ffaiBob 5s ease-in-out infinite;animation-delay:-2.5s;">
+          <div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--brand);text-transform:uppercase;margin-bottom:8px;">Why Patients Choose Us</div>
+          <span style="font-size:13px;color:var(--muted);line-height:1.7;">Experienced care, clear communication, and treatment plans built around real recovery, comfort, and long-term results.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+@keyframes ffaiBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@media(max-width:900px){
+  .ffai-hero-2col{grid-template-columns:1fr!important;}
+  .ffai-hero-visual{display:none;}
+}
+</style>
+
+<!-- SERVICES BAND -->
+<section class="ffai-sec ffai-sec--alt" id="services">
+  <div class="ffai-c">
+    <div class="ffai-reveal" style="max-width:700px;margin-bottom:40px;">
+      <div class="ffai-tag">Complete Podiatry Services</div>
+      <h2 class="ffai-sec-h">Comprehensive foot &amp; ankle care for pain relief, healing, and mobility.</h2>
+      <p class="ffai-sec-sub">We treat a wide range of foot and ankle conditions with a focus on accurate diagnosis, modern treatment, and care plans tailored to each patient. From routine concerns to complex cases — we help you move better.</p>
+    </div>
+    <div class="ffai-svc-grid">${svcCards}</div>
+    <div style="text-align:center;margin-top:36px;">
+      <a href="/services" class="ffai-btn ffai-btn-primary">View All Services</a>
+    </div>
+  </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="ffai-sec" id="about">
+  <div class="ffai-c">
+    <div style="display:grid;grid-template-columns:0.95fr 1.05fr;gap:28px;align-items:stretch;">
+      <!-- Left: glass panel -->
+      <div style="background:linear-gradient(180deg,rgba(255,255,255,0.97),rgba(246,251,251,0.97));border:1px solid var(--line);border-radius:28px;padding:36px;box-shadow:var(--shadow);" class="ffai-reveal">
+        <div style="display:inline-flex;padding:7px 14px;background:rgba(233,145,33,0.1);color:var(--accent);border-radius:999px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:12px;margin-bottom:16px;">Why Choose Us</div>
+        <h2 style="font-size:clamp(26px,3.5vw,44px);letter-spacing:-0.03em;line-height:1.06;margin-bottom:16px;">Care built on experience, trust, and a commitment to better outcomes.</h2>
+        <p style="color:var(--muted);line-height:1.85;font-size:17px;margin-bottom:24px;">The Florida Foot and Ankle Institute is built around one clear goal: delivering foot and ankle care that is both clinically advanced and genuinely personal. We take time to understand your symptoms, your lifestyle, and your long-term goals so we can recommend treatment that makes sense for you.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;">
+          ${[
+            'Comprehensive treatment for routine and complex conditions',
+            'Personalized plans based on your symptoms and goals',
+            'Modern diagnostic thinking and evidence-based care',
+            'Focused support for diabetic and high-risk patients',
+            'Clear communication from consultation through recovery',
+            'Convenient care for Kissimmee and surrounding communities',
+          ].map(item=>`<div style="display:flex;gap:10px;color:var(--muted);line-height:1.65;font-size:15px;"><span style="color:var(--brand);font-weight:900;flex-shrink:0;">+</span><span>${item}</span></div>`).join('')}
+        </div>
+        <div style="margin-top:28px;">
+          <a href="/contact" class="ffai-btn ffai-btn-primary">Book an Appointment</a>
+        </div>
+      </div>
+      <!-- Right: animated visual -->
+      <div style="background:linear-gradient(180deg,rgba(255,255,255,0.97),rgba(246,251,251,0.97));border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden;position:relative;min-height:400px;" class="ffai-reveal" aria-hidden="true">
+        <div style="position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(0,122,127,0.1) 1px,transparent 1px),linear-gradient(rgba(0,122,127,0.1) 1px,transparent 1px);background-size:54px 54px;mask-image:radial-gradient(circle at center,black 40%,transparent 75%);"></div>
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at center,rgba(233,145,33,0.18),transparent 38%);animation:ffaiPulse 4s ease-in-out infinite;"></div>
+        <div style="position:absolute;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.95),rgba(0,122,127,0.22));box-shadow:inset 0 0 16px rgba(255,255,255,0.8),0 22px 48px rgba(0,122,127,0.14);top:16%;left:10%;animation:ffaiDrift 9s ease-in-out infinite;"></div>
+        <div style="position:absolute;width:88px;height:88px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.95),rgba(0,122,127,0.22));box-shadow:inset 0 0 16px rgba(255,255,255,0.8),0 22px 48px rgba(0,122,127,0.14);top:56%;right:12%;animation:ffaiDrift 9s ease-in-out infinite;animation-delay:-3s;"></div>
+        <div style="position:absolute;width:116px;height:116px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.95),rgba(0,122,127,0.22));box-shadow:inset 0 0 16px rgba(255,255,255,0.8),0 22px 48px rgba(0,122,127,0.14);bottom:12%;left:44%;animation:ffaiDrift 9s ease-in-out infinite;animation-delay:-6s;"></div>
+        <!-- Center card -->
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+          <div style="background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:22px;padding:28px 28px;box-shadow:0 20px 50px rgba(0,0,0,0.08);max-width:280px;text-align:center;">
+            <div style="font-size:40px;font-weight:900;color:var(--brand);line-height:1;">102</div>
+            <div style="font-size:15px;font-weight:700;margin:6px 0 4px;">Park Place Blvd</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.6;">Building A, Suite 3<br>Kissimmee, FL 34741</div>
+            <div style="margin-top:14px;"><a href="/contact" class="ffai-btn ffai-btn-primary" style="font-size:13px;padding:11px 18px;">Get Directions</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+@keyframes ffaiPulse{0%,100%{transform:scale(0.95);opacity:.7;}50%{transform:scale(1.04);opacity:1;}}
+@keyframes ffaiDrift{0%,100%{transform:translate(0,0);}30%{transform:translate(10px,-14px);}60%{transform:translate(-10px,12px);}}
+</style>
+
+<!-- LOCAL SEO BAND -->
+<section class="ffai-sec ffai-sec--dark" id="seo">
+  <div class="ffai-c">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;">
+      <div class="ffai-reveal">
+        <div class="ffai-tag ffai-tag--light">Kissimmee Foot &amp; Ankle Care</div>
+        <h2 class="ffai-sec-h" style="color:#fff;">Local podiatry care patients can trust close to home.</h2>
+        <p style="color:rgba(255,255,255,0.82);line-height:1.85;font-size:17px;margin-bottom:24px;">We proudly serve patients in Kissimmee, St. Cloud, and nearby Orlando communities with high-quality podiatric care — from pain relief and diabetic protection to injury recovery and surgical treatment.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="/contact" class="ffai-btn-white">Book Appointment →</a>
+          <a href="/services" class="ffai-btn-outline-white">All Services</a>
+        </div>
+      </div>
+      <div class="ffai-reveal">
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);border-radius:22px;padding:28px;">
+          <h3 style="color:#fff;font-size:16px;margin-bottom:14px;">Top Search Terms — Kissimmee, FL</h3>
+          <div class="ffai-kw-cloud">${kwCloud}</div>
+          <p style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:12px;">Keywords sourced from DataForSEO · Kissimmee, FL market · ${new Date().getFullYear()}</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);border-radius:22px;padding:24px;margin-top:16px;">
+          <h3 style="color:#fff;font-size:15px;margin-bottom:10px;">Conditions &amp; Services</h3>
+          <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.85;">Heel pain · Plantar fasciitis · Diabetic foot care · Sports injuries · Foot surgery · Pediatric podiatry · Custom orthotics · Wound care · Limb salvage · Ingrown toenails</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / CTA -->
+<section class="ffai-sec" id="contact">
+  <div class="ffai-c">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <!-- Schedule CTA card -->
+      <div style="background:#fff;border:1px solid var(--line);border-radius:28px;padding:36px;box-shadow:var(--shadow);" class="ffai-reveal">
+        <div style="display:inline-flex;padding:7px 14px;background:rgba(233,145,33,0.1);color:var(--accent);border-radius:999px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:12px;margin-bottom:16px;">Schedule Today</div>
+        <h3 style="font-size:clamp(24px,3vw,38px);letter-spacing:-0.03em;margin-bottom:14px;line-height:1.1;">Take the next step toward relief, healing, and better movement.</h3>
+        <p style="color:var(--muted);line-height:1.85;font-size:17px;margin-bottom:24px;">If you are experiencing foot pain, ankle discomfort, diabetic concerns, sports injuries, or any condition affecting your daily life — our team is ready to help.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <a class="ffai-btn ffai-btn-primary" href="/contact">Book Appointment</a>
+          <a class="ffai-btn ffai-btn-secondary" href="/services">Our Services</a>
+        </div>
+      </div>
+      <!-- Contact info card -->
+      <div style="background:#fff;border:1px solid var(--line);border-radius:28px;padding:36px;box-shadow:var(--shadow);" class="ffai-reveal">
+        <div style="display:inline-flex;padding:7px 14px;background:rgba(0,122,127,0.08);color:var(--brand);border-radius:999px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:12px;margin-bottom:16px;">Contact Us</div>
+        <h3 style="font-size:clamp(22px,2.5vw,32px);letter-spacing:-0.03em;margin-bottom:16px;line-height:1.1;">The Florida Foot and Ankle Institute</h3>
+        <address style="font-style:normal;color:var(--muted);line-height:2;font-size:16px;">
+          102 Park Place Blvd<br>
+          Building A, Suite 3<br>
+          Kissimmee, FL 34741<br><br>
+          Serving Kissimmee, St. Cloud &amp; Orlando
+        </address>
+        <ul style="list-style:none;margin-top:18px;padding:0;display:flex;flex-direction:column;gap:10px;">
+          <li style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>Advanced podiatry care for all ages</li>
+          <li style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>Personalized treatment and recovery planning</li>
+          <li style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>Convenient local care with a patient-first approach</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+` + ffaiFooter();
+}
+
 // GET /sofia/florida-foot-ankle — download hub (async — parallel DataForSEO per service)
 app.get('/sofia/florida-foot-ankle', async (req, res) => {
   try {
-    // Parallel DataForSEO calls for all 8 services
+    // Parallel DataForSEO calls — homepage + all 8 services in one batch
     const svcKeys = Object.keys(FFAI.services);
-    const kwResults = await Promise.all(
-      svcKeys.map(key =>
-        getKeywordData(FFAI.services[key].kwSeed, 'kissimmee', 2840)
-          .catch(() => [])
-      )
-    );
+    const [homeKwData, ...svcKwResults] = await Promise.all([
+      getKeywordData('podiatrist kissimmee', 'kissimmee', 2840).catch(() => []),
+      ...svcKeys.map(key =>
+        getKeywordData(FFAI.services[key].kwSeed, 'kissimmee', 2840).catch(() => [])
+      ),
+    ]);
     const kwMap = {};
-    svcKeys.forEach((key, i) => { kwMap[key] = kwResults[i]; });
+    svcKeys.forEach((key, i) => { kwMap[key] = svcKwResults[i]; });
 
     const cacheId = crypto.randomBytes(8).toString('hex');
-    const pages = { 'services-index': ffaiBuildServicesIndex(kwMap) };
+    const pages = {
+      'home': ffaiBuildHomePage(homeKwData),
+      'services-index': ffaiBuildServicesIndex(kwMap),
+    };
     svcKeys.forEach(key => { pages[key] = ffaiBuildServicePage(key, kwMap[key]); });
 
     websitePackageCache.set(cacheId, { pages, clientName: 'Florida Foot & Ankle Institute', expires: Date.now() + 600000 });
 
     const pageList = [
+      { key: 'home', label: 'Home Page', file: 'index.html', slug: '/ (root homepage)', desc: `${homeKwData[0]?.keyword || 'podiatrist kissimmee'} · Hero · 8 services · Why us · SEO · Contact` },
       { key: 'services-index', label: 'Services Index', file: 'services.html', slug: '/services', desc: 'All 8 services grid · SEO intro · Local keywords · CTA' },
       ...svcKeys.map(key => {
         const s = FFAI.services[key];
@@ -11464,9 +11708,9 @@ h1{font-size:22px;font-weight:900;margin-bottom:4px}
 .how{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px 18px;margin-top:22px;font-size:12px;color:rgba(255,255,255,0.4);line-height:1.9}
 </style></head><body><div class="wrap">
 <div class="logo-row"><img src="${FFAI.logo}" alt="${FFAI.name}"></div>
-<div class="badge">9 Pages · DataForSEO Keywords Applied</div>
+<div class="badge">10 Pages · DataForSEO Keywords Applied</div>
 <h1>Florida Foot &amp; Ankle Institute</h1>
-<p class="sub">8 Service Landing Pages + Services Index · Kissimmee SEO · Teal/Orange Branding</p>
+<p class="sub">Homepage + Services Index + 8 Service Landing Pages · Kissimmee SEO · Teal/Orange Branding</p>
 <div class="section-label">All 9 Pages</div>
 ${pageList.map(p=>`<a href="/sofia/website-download?id=${cacheId}&page=${p.key}&filename=${p.file}" class="dl-btn">
   <div class="dl-left">
