@@ -11038,13 +11038,55 @@ img{max-width:100%;height:auto;display:block;}
 .ffai-kw-cloud{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;}
 .ffai-kw{border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.08);padding:9px 14px;border-radius:999px;font-size:13px;color:rgba(255,255,255,0.9);}
 
+/* Responsive grid classes — all 2-col layouts */
+.ffai-hero-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;align-items:center;}
+.ffai-hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.ffai-about-grid{display:grid;grid-template-columns:0.95fr 1.05fr;gap:28px;align-items:stretch;}
+.ffai-check-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;}
+.ffai-2col{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+.ffai-2col--contact{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.ffai-approach-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
+.ffai-svc-detail-grid{display:grid;grid-template-columns:280px 1fr;gap:80px;align-items:start;}
+
 /* Reveal */
 .ffai-reveal{opacity:0;transform:translateY(22px);transition:opacity .75s ease,transform .75s ease;}
 .ffai-reveal.visible{opacity:1;transform:translateY(0);}
 
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .ffai-hero-grid{grid-template-columns:1fr;}
+  .ffai-hero-visual-col{display:none;}
+  .ffai-about-grid{grid-template-columns:1fr;}
+  .ffai-check-cols{grid-template-columns:1fr;}
+  .ffai-2col,.ffai-2col--contact{grid-template-columns:1fr;}
+  .ffai-approach-grid{grid-template-columns:1fr;gap:32px;}
+  .ffai-svc-detail-grid{grid-template-columns:1fr;gap:40px;}
+}
 @media(max-width:780px){
   .ffai-sec{padding:60px 0;}
-  .ffai-hero-content{padding:72px 0;}
+  .ffai-sec--sm{padding:48px 0;}
+  .ffai-hero-content{padding:72px 0 60px;}
+  .ffai-hero-stats{grid-template-columns:1fr;}
+  .ffai-svc-grid{grid-template-columns:1fr;}
+  .ffai-highlights{grid-template-columns:1fr;}
+  .ffai-conditions{grid-template-columns:1fr;}
+  .ffai-doctor-grid{grid-template-columns:1fr;}
+  .ffai-doctor-img{min-height:260px;order:0;}
+  .ffai-hero h1{font-size:clamp(30px,8vw,48px);}
+  .ffai-c{padding-left:16px;padding-right:16px;}
+  .ffai-topbar-in{flex-direction:column;gap:4px;font-size:12px;}
+  .ffai-nav-btns .ffai-btn:first-child{display:none;}
+  .ffai-cta-btns{flex-direction:column;align-items:center;}
+  .ffai-about-animated{display:none;}
+}
+@media(max-width:560px){
+  .ffai-hero-grid,.ffai-about-grid,.ffai-2col,.ffai-2col--contact,.ffai-approach-grid{gap:20px;}
+  .ffai-hero-btns{flex-direction:column;}
+  .ffai-hero-btns .ffai-btn{width:100%;justify-content:center;}
+  .ffai-nav-logo img{width:140px;}
+  .ffai-price-box{padding:28px 20px;}
+  .ffai-faq{padding:20px 18px;}
+  .ffai-step{padding:18px 20px;}
 }`;
 }
 
@@ -11224,7 +11266,7 @@ function ffaiBuildServicePage(svcKey, kwData = []) {
 <!-- OUR APPROACH -->
 <section class="ffai-sec">
   <div class="ffai-c">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;">
+    <div class="ffai-approach-grid">
       <div>
         <div class="ffai-tag">Our Approach</div>
         <h2 class="ffai-sec-h">How We Treat ${svc.title}</h2>
@@ -11260,7 +11302,7 @@ function ffaiBuildServicePage(svcKey, kwData = []) {
 <!-- KEYWORD / LOCAL SEO SECTION -->
 <section class="ffai-sec ffai-sec--dark">
   <div class="ffai-c">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;">
+    <div class="ffai-2col">
       <div class="ffai-reveal">
         <div class="ffai-tag ffai-tag--light">${svc.title} · Kissimmee, FL</div>
         <h2 class="ffai-sec-h" style="color:#fff;">Local ${svc.title} care patients can count on.</h2>
@@ -11466,7 +11508,7 @@ function ffaiBuildHomePage(kwData = []) {
   <div style="position:absolute;top:-6rem;right:-6rem;width:36rem;height:36rem;border-radius:50%;background:var(--brand);filter:blur(80px);opacity:.09;pointer-events:none;"></div>
   <div style="position:absolute;bottom:-8rem;left:-8rem;width:32rem;height:32rem;border-radius:50%;background:var(--accent);filter:blur(80px);opacity:.08;pointer-events:none;"></div>
   <div class="ffai-c">
-    <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;align-items:center;">
+    <div class="ffai-hero-grid">
       <!-- Left copy -->
       <div class="ffai-reveal">
         <div class="ffai-tag" style="margin-bottom:18px;">Kissimmee Podiatry &amp; Foot Care</div>
@@ -11477,7 +11519,7 @@ function ffaiBuildHomePage(kwData = []) {
           <a class="ffai-btn ffai-btn-secondary" href="/services">Explore Services</a>
         </div>
         <!-- Stats -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+        <div class="ffai-hero-stats">
           <div style="background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.04);">
             <strong style="display:block;font-size:22px;color:var(--brand);margin-bottom:4px;">8+</strong>
             <span style="font-size:13px;color:var(--muted);line-height:1.5;">Specialized podiatry services</span>
@@ -11493,7 +11535,7 @@ function ffaiBuildHomePage(kwData = []) {
         </div>
       </div>
       <!-- Right: doctor card + floating panels -->
-      <div style="position:relative;min-height:620px;" class="ffai-reveal">
+      <div style="position:relative;min-height:620px;" class="ffai-reveal ffai-hero-visual-col">
         <!-- Doctor image card -->
         <div style="position:absolute;inset:40px 24px 110px 36px;border-radius:28px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);">
           <img src="${FFAI.doctorImg}" alt="Podiatrist at The Florida Foot and Ankle Institute in Kissimmee FL" style="width:100%;height:100%;object-fit:cover;display:block;" fetchpriority="high" loading="eager">
@@ -11523,10 +11565,6 @@ function ffaiBuildHomePage(kwData = []) {
 </section>
 <style>
 @keyframes ffaiBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
-@media(max-width:900px){
-  .ffai-hero-2col{grid-template-columns:1fr!important;}
-  .ffai-hero-visual{display:none;}
-}
 </style>
 
 <!-- SERVICES BAND -->
@@ -11547,13 +11585,13 @@ function ffaiBuildHomePage(kwData = []) {
 <!-- WHY CHOOSE US -->
 <section class="ffai-sec" id="about">
   <div class="ffai-c">
-    <div style="display:grid;grid-template-columns:0.95fr 1.05fr;gap:28px;align-items:stretch;">
+    <div class="ffai-about-grid">
       <!-- Left: glass panel -->
       <div style="background:linear-gradient(180deg,rgba(255,255,255,0.97),rgba(246,251,251,0.97));border:1px solid var(--line);border-radius:28px;padding:36px;box-shadow:var(--shadow);" class="ffai-reveal">
         <div style="display:inline-flex;padding:7px 14px;background:rgba(233,145,33,0.1);color:var(--accent);border-radius:999px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:12px;margin-bottom:16px;">Why Choose Us</div>
         <h2 style="font-size:clamp(26px,3.5vw,44px);letter-spacing:-0.03em;line-height:1.06;margin-bottom:16px;">Care built on experience, trust, and a commitment to better outcomes.</h2>
         <p style="color:var(--muted);line-height:1.85;font-size:17px;margin-bottom:24px;">The Florida Foot and Ankle Institute is built around one clear goal: delivering foot and ankle care that is both clinically advanced and genuinely personal. We take time to understand your symptoms, your lifestyle, and your long-term goals so we can recommend treatment that makes sense for you.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;">
+        <div class="ffai-check-cols">
           ${[
             'Comprehensive treatment for routine and complex conditions',
             'Personalized plans based on your symptoms and goals',
@@ -11568,7 +11606,7 @@ function ffaiBuildHomePage(kwData = []) {
         </div>
       </div>
       <!-- Right: animated visual -->
-      <div style="background:linear-gradient(180deg,rgba(255,255,255,0.97),rgba(246,251,251,0.97));border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden;position:relative;min-height:400px;" class="ffai-reveal" aria-hidden="true">
+      <div style="background:linear-gradient(180deg,rgba(255,255,255,0.97),rgba(246,251,251,0.97));border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden;position:relative;min-height:400px;" class="ffai-reveal ffai-about-animated" aria-hidden="true">
         <div style="position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(0,122,127,0.1) 1px,transparent 1px),linear-gradient(rgba(0,122,127,0.1) 1px,transparent 1px);background-size:54px 54px;mask-image:radial-gradient(circle at center,black 40%,transparent 75%);"></div>
         <div style="position:absolute;inset:0;background:radial-gradient(circle at center,rgba(233,145,33,0.18),transparent 38%);animation:ffaiPulse 4s ease-in-out infinite;"></div>
         <div style="position:absolute;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.95),rgba(0,122,127,0.22));box-shadow:inset 0 0 16px rgba(255,255,255,0.8),0 22px 48px rgba(0,122,127,0.14);top:16%;left:10%;animation:ffaiDrift 9s ease-in-out infinite;"></div>
@@ -11595,7 +11633,7 @@ function ffaiBuildHomePage(kwData = []) {
 <!-- LOCAL SEO BAND -->
 <section class="ffai-sec ffai-sec--dark" id="seo">
   <div class="ffai-c">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;">
+    <div class="ffai-2col">
       <div class="ffai-reveal">
         <div class="ffai-tag ffai-tag--light">Kissimmee Foot &amp; Ankle Care</div>
         <h2 class="ffai-sec-h" style="color:#fff;">Local podiatry care patients can trust close to home.</h2>
@@ -11623,7 +11661,7 @@ function ffaiBuildHomePage(kwData = []) {
 <!-- CONTACT / CTA -->
 <section class="ffai-sec" id="contact">
   <div class="ffai-c">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+    <div class="ffai-2col--contact">
       <!-- Schedule CTA card -->
       <div style="background:#fff;border:1px solid var(--line);border-radius:28px;padding:36px;box-shadow:var(--shadow);" class="ffai-reveal">
         <div style="display:inline-flex;padding:7px 14px;background:rgba(233,145,33,0.1);color:var(--accent);border-radius:999px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:12px;margin-bottom:16px;">Schedule Today</div>
