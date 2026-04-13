@@ -10733,6 +10733,540 @@ ${pageList.map(p=>`<a href="/sofia/website-download?id=${cacheId}&page=${p.key}&
   } catch(err) { res.status(500).send(`<pre>Error: ${err.message}\n${err.stack}</pre>`); }
 });
 
+// ────────────────────────────────────────────────────────────────────────────
+// JRZ INK SYSTEMS — The Monolith Architect
+// Black/white only · Inter font · 0px corners · System/technical language
+// Single-page site: Hero → Problem → Solution → Cases → Compare → Process → Pricing → Filter → Form
+// ────────────────────────────────────────────────────────────────────────────
+
+function jisBuildHome() {
+  const logoSVG = `<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <polygon points="18,3 33,30 3,30" fill="none" stroke="white" stroke-width="2.2"/>
+    <polygon points="18,12 27,28 9,28" fill="white"/>
+  </svg>`;
+
+  const year = new Date().getFullYear();
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JRZ Ink Systems — Performance-Based Marketing Systems for Service Businesses</title>
+<meta name="description" content="JRZ Ink Systems engineers fully automated, performance-based client acquisition systems for service businesses across the US. We only win when you win. No retainers. Apply now.">
+<meta property="og:title" content="JRZ Ink Systems — We Build Your Pipeline. You Stay Booked.">
+<meta property="og:description" content="Performance-based marketing systems for US service businesses. 10–15% of revenue generated. No retainers until results.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── Full-bleed override (GHL requirement) ── */
+html.hl-page-content-wrapper,body.hl-page-content-wrapper{max-width:100%!important;padding:0!important;margin:0!important;}
+.hl-page-content-wrapper .hl-main-content,.hl-page-content-wrapper .main-content-wrap,.hl-page-content-wrapper section.section{max-width:100%!important;padding:0!important;}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#131313;--surface:#191919;--surface2:#1f1f1f;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --white:#ffffff;--dim:rgba(255,255,255,0.48);--faint:rgba(255,255,255,0.14);
+  --font:'Inter',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+
+/* ── Layout ── */
+.jis-wrap{width:100%;}
+.jis-c{max-width:1120px;margin:0 auto;padding:0 28px;}
+.jis-sec{padding:108px 0;}
+.jis-sec--sm{padding:72px 0;}
+
+/* ── Nav ── */
+.jis-nav{position:fixed;top:0;left:0;width:100%;z-index:999;background:rgba(19,19,19,0.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.jis-nav-in{display:flex;align-items:center;justify-content:space-between;height:68px;max-width:1120px;margin:0 auto;padding:0 28px;}
+.jis-brand{display:flex;align-items:center;gap:11px;font-size:13px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;}
+.jis-brand svg{width:28px;height:28px;flex-shrink:0;}
+.jis-nav-btn{background:var(--white);color:var(--bg);font-size:11px;font-weight:800;letter-spacing:0.13em;text-transform:uppercase;padding:11px 26px;display:inline-block;transition:opacity .18s;border:none;cursor:pointer;}
+.jis-nav-btn:hover{opacity:.82;}
+
+/* ── Hero ── */
+.jis-hero{min-height:100vh;display:flex;align-items:center;padding-top:68px;position:relative;overflow:hidden;}
+.jis-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:72px 72px;pointer-events:none;}
+.jis-grid-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 45%,rgba(255,255,255,0.04) 0%,transparent 65%);}
+.jis-hud{display:flex;gap:28px;margin-bottom:28px;flex-wrap:wrap;}
+.jis-hud-item{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:7px;}
+.jis-hud-dot{width:5px;height:5px;background:var(--white);border-radius:50%;animation:jisDot 2.4s ease-in-out infinite;}
+@keyframes jisDot{0%,100%{opacity:1;}50%{opacity:.15;}}
+.jis-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--dim);margin-bottom:18px;}
+.jis-h1{font-size:clamp(42px,6.5vw,88px);font-weight:900;line-height:1.0;letter-spacing:-0.035em;margin-bottom:28px;}
+.jis-h1 em{font-style:normal;display:block;color:var(--dim);}
+.jis-hero-sub{font-size:19px;color:var(--dim);max-width:540px;margin-bottom:52px;line-height:1.65;}
+.jis-cta-row{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.jis-btn{background:var(--white);color:var(--bg);font-size:13px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:18px 44px;display:inline-block;transition:opacity .18s;}
+.jis-btn:hover{opacity:.84;}
+.jis-cta-note{font-size:12px;color:var(--faint);letter-spacing:0.06em;}
+
+/* ── Stats bar ── */
+.jis-stats{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);padding:48px 0;}
+.jis-stats-row{display:flex;justify-content:center;align-items:center;gap:0;flex-wrap:wrap;}
+.jis-stat{text-align:center;padding:0 56px;border-right:1px solid var(--border);}
+.jis-stat:last-child{border-right:none;}
+@media(max-width:640px){.jis-stat{padding:20px 28px;border-right:none;border-bottom:1px solid var(--border);}}.jis-stat-n{font-size:clamp(40px,5vw,60px);font-weight:900;letter-spacing:-0.04em;line-height:1;}
+.jis-stat-l{font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);margin-top:6px;}
+
+/* ── Section header ── */
+.jis-tag{font-size:10px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--dim);margin-bottom:16px;}
+.jis-h2{font-size:clamp(30px,4.5vw,58px);font-weight:900;line-height:1.06;letter-spacing:-0.025em;margin-bottom:18px;}
+.jis-h2-sub{font-size:17px;color:var(--dim);max-width:580px;line-height:1.7;}
+
+/* ── Grid cards ── */
+.jis-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--border2);margin-top:60px;}
+.jis-card{background:var(--bg);padding:44px 36px;}
+.jis-card--surface{background:var(--surface);}
+.jis-card-id{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--faint);margin-bottom:18px;}
+.jis-card-title{font-size:19px;font-weight:800;margin-bottom:12px;line-height:1.3;letter-spacing:-0.01em;}
+.jis-card-body{font-size:14px;color:var(--dim);line-height:1.75;}
+
+/* ── Case studies ── */
+.jis-cases{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border2);margin-top:60px;}
+@media(max-width:680px){.jis-cases{grid-template-columns:1fr;}}
+.jis-case{background:var(--bg);padding:52px 44px;position:relative;}
+.jis-case::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--white);}
+.jis-case-tag{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);margin-bottom:22px;}
+.jis-case-num{font-size:clamp(48px,7vw,80px);font-weight:900;letter-spacing:-0.04em;line-height:1;margin-bottom:14px;}
+.jis-case-period{font-size:0.38em;font-weight:400;opacity:.7;}
+.jis-case-name{font-size:17px;font-weight:800;margin-bottom:10px;}
+.jis-case-desc{font-size:14px;color:var(--dim);line-height:1.75;}
+@media(max-width:680px){.jis-case{padding:40px 28px;}}
+
+/* ── Comparison table ── */
+.jis-tbl{border:1px solid var(--border2);margin-top:60px;overflow:hidden;}
+.jis-tbl-head,.jis-tbl-row{display:grid;grid-template-columns:2.2fr 1fr 1fr;}
+.jis-tbl-head{background:var(--surface2);}
+.jis-tbl-row{border-top:1px solid var(--border);}
+.jis-tbl-cell{padding:18px 24px;font-size:14px;}
+.jis-tbl-cell+.jis-tbl-cell{border-left:1px solid var(--border);text-align:center;}
+.jis-tbl-head .jis-tbl-cell{font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--dim);padding:20px 24px;}
+.jis-tbl-head .jis-ours{color:var(--white);}
+.jis-check{color:var(--white);font-weight:700;}
+.jis-x{color:var(--faint);}
+@media(max-width:560px){
+  .jis-tbl-head,.jis-tbl-row{grid-template-columns:1fr 1fr 1fr;}
+  .jis-tbl-cell{padding:14px 10px;font-size:12px;}
+}
+
+/* ── Steps ── */
+.jis-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border2);margin-top:60px;}
+@media(max-width:680px){.jis-steps{grid-template-columns:1fr;}}
+.jis-step{background:var(--bg);padding:52px 40px;}
+.jis-step-n{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--faint);margin-bottom:22px;}
+.jis-step-title{font-size:22px;font-weight:900;letter-spacing:-0.01em;margin-bottom:14px;}
+.jis-step-body{font-size:14px;color:var(--dim);line-height:1.75;}
+
+/* ── Pricing ── */
+.jis-price-box{border:1px solid var(--border2);padding:60px 52px;margin-top:60px;position:relative;}
+.jis-price-box::before{content:'ACCEPTING_APPLICATIONS';position:absolute;top:-1px;left:40px;background:var(--white);color:var(--bg);font-size:9px;font-weight:800;letter-spacing:0.18em;padding:5px 14px;}
+.jis-price-main{font-size:clamp(30px,4.5vw,52px);font-weight:900;letter-spacing:-0.03em;margin:28px 0 10px;}
+.jis-price-note{font-size:16px;color:var(--dim);margin-bottom:36px;}
+.jis-price-list{list-style:none;display:flex;flex-direction:column;gap:16px;}
+.jis-price-list li{font-size:15px;color:var(--dim);padding-left:22px;position:relative;line-height:1.6;}
+.jis-price-list li::before{content:'—';position:absolute;left:0;color:var(--white);font-weight:700;}
+@media(max-width:600px){.jis-price-box{padding:44px 24px;}}
+
+/* ── Filter / Who it's for ── */
+.jis-filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--border2);margin-top:60px;}
+.jis-filter{background:var(--bg);padding:40px 32px;}
+.jis-filter-icon{font-size:20px;margin-bottom:18px;opacity:.55;}
+.jis-filter-title{font-size:17px;font-weight:800;margin-bottom:10px;letter-spacing:-0.01em;}
+.jis-filter-body{font-size:13px;color:var(--dim);line-height:1.75;}
+
+/* ── CTA band ── */
+.jis-band{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);text-align:center;padding:80px 28px;}
+.jis-band h2{font-size:clamp(28px,4.5vw,52px);font-weight:900;letter-spacing:-0.025em;margin-bottom:18px;}
+.jis-band-sub{font-size:17px;color:var(--dim);max-width:480px;margin:0 auto 44px;line-height:1.7;}
+
+/* ── Contact / Form ── */
+.jis-contact{background:var(--surface);border-top:1px solid var(--border2);}
+.jis-contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:start;padding:96px 0;}
+@media(max-width:820px){.jis-contact-grid{grid-template-columns:1fr;gap:52px;padding:72px 0;}}
+.jis-contact-info h2{font-size:clamp(30px,4vw,48px);font-weight:900;letter-spacing:-0.025em;margin-bottom:24px;}
+.jis-contact-meta{display:flex;flex-direction:column;gap:13px;margin-bottom:40px;}
+.jis-contact-line{font-size:15px;color:var(--dim);}
+.jis-contact-line a{color:var(--white);font-weight:700;}
+.jis-contact-line a:hover{text-decoration:underline;}
+.jis-status-box{border-top:1px solid var(--border);padding-top:28px;}
+.jis-status-label{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--faint);margin-bottom:10px;}
+.jis-status-text{font-size:13px;color:var(--dim);line-height:1.7;}
+.jis-form-frame{background:var(--bg);border:1px solid var(--border);}
+
+/* ── Footer ── */
+.jis-footer{border-top:1px solid var(--border);padding:32px 0;}
+.jis-footer-in{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.jis-footer-brand{font-size:11px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;}
+.jis-footer-legal{font-size:11px;color:var(--faint);}
+
+@media(max-width:560px){
+  .jis-sec{padding:80px 0;}
+  .jis-sec--sm{padding:56px 0;}
+  .jis-c{padding:0 20px;}
+}
+</style>
+</head>
+<body>
+<div class="jis-wrap">
+
+<!-- NAV -->
+<nav class="jis-nav">
+  <div class="jis-nav-in">
+    <div class="jis-brand">${logoSVG}<span>JRZ INK SYSTEMS</span></div>
+    <a href="#contact" class="jis-nav-btn">Apply Now</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="jis-hero" id="top">
+  <div class="jis-grid-bg"></div>
+  <div class="jis-c" style="position:relative;z-index:1;padding-top:40px;padding-bottom:80px;">
+    <div class="jis-hud">
+      <div class="jis-hud-item"><span class="jis-hud-dot"></span>SYSTEM_ACTIVE</div>
+      <div class="jis-hud-item">REACH: ALL_50_STATES</div>
+      <div class="jis-hud-item">MODEL: PERFORMANCE_ONLY</div>
+    </div>
+    <p class="jis-eyebrow">Client Acquisition Systems</p>
+    <h1 class="jis-h1">We Build<br>Your Pipeline.<em>You Stay Booked.</em></h1>
+    <p class="jis-hero-sub">JRZ Ink Systems engineers fully automated, performance-based marketing systems for service businesses across the United States. We don't get paid unless you do.</p>
+    <div class="jis-cta-row">
+      <a href="#contact" class="jis-btn">Apply for a System →</a>
+      <span class="jis-cta-note">No retainers · No long contracts · Results only</span>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="jis-stats">
+  <div class="jis-c">
+    <div class="jis-stats-row">
+      <div class="jis-stat"><div class="jis-stat-n">$40K</div><div class="jis-stat-l">Client Monthly Revenue</div></div>
+      <div class="jis-stat"><div class="jis-stat-n">100%</div><div class="jis-stat-l">Performance-Based</div></div>
+      <div class="jis-stat"><div class="jis-stat-n">50</div><div class="jis-stat-l">States We Serve</div></div>
+      <div class="jis-stat"><div class="jis-stat-n">$0</div><div class="jis-stat-l">Retainer Until Results</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="jis-sec" id="problem">
+  <div class="jis-c">
+    <p class="jis-tag">PROTOCOL_01 // THE PROBLEM</p>
+    <h2 class="jis-h2">Most Agencies Are<br>Paid to Show Up.</h2>
+    <p class="jis-h2-sub">They bill you whether leads come or not. You absorb all the risk. They collect the fee. That's the old model — and it's broken.</p>
+    <div class="jis-cards">
+      <div class="jis-card">
+        <div class="jis-card-id">ERROR_01</div>
+        <div class="jis-card-title">Retainers With No Accountability</div>
+        <div class="jis-card-body">Traditional agencies lock you into $2,000–$5,000/month contracts. The invoice arrives regardless of what's in your pipeline.</div>
+      </div>
+      <div class="jis-card">
+        <div class="jis-card-id">ERROR_02</div>
+        <div class="jis-card-title">Ad Spend That Burns</div>
+        <div class="jis-card-body">Traffic without a conversion system is a budget drain. Paid media is useless without the infrastructure to turn clicks into booked clients.</div>
+      </div>
+      <div class="jis-card">
+        <div class="jis-card-id">ERROR_03</div>
+        <div class="jis-card-title">No Automation, No Scale</div>
+        <div class="jis-card-body">Manual follow-up, missed leads, dead pipelines. Without automation baked in, your revenue growth hits a ceiling — every time.</div>
+      </div>
+      <div class="jis-card">
+        <div class="jis-card-id">ERROR_04</div>
+        <div class="jis-card-title">Freelancers Who Disappear</div>
+        <div class="jis-card-body">One-off deliverables. No system ownership. Six months later you're starting from zero with someone new who doesn't know your business.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="jis-sec" id="solution" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <p class="jis-tag">PROTOCOL_02 // THE SYSTEM</p>
+    <h2 class="jis-h2">We Engineer the<br>Entire Acquisition Stack.</h2>
+    <p class="jis-h2-sub">We don't sell you a service. We build an end-to-end machine — attracting, capturing, nurturing, and closing clients on autopilot.</p>
+    <div class="jis-cards">
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">MODULE_01</div>
+        <div class="jis-card-title">Lead Acquisition Infrastructure</div>
+        <div class="jis-card-body">Precision-targeted paid and organic systems that bring your ideal clients to you. Built specifically for your market, your city, your price point.</div>
+      </div>
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">MODULE_02</div>
+        <div class="jis-card-title">Automated Follow-Up Engine</div>
+        <div class="jis-card-body">Every lead gets a response in seconds. Multi-channel sequences that qualify, educate, and move prospects toward a booked appointment — without you touching it.</div>
+      </div>
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">MODULE_03</div>
+        <div class="jis-card-title">Conversion-Optimized Web Assets</div>
+        <div class="jis-card-body">Landing pages, funnels, and websites built to convert — not just look good. Every element serves one purpose: getting the visitor to take action.</div>
+      </div>
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">MODULE_04</div>
+        <div class="jis-card-title">CRM + Pipeline Management</div>
+        <div class="jis-card-body">Full visibility into every lead, every stage, every deal. You see exactly what's coming in at any moment — with zero manual data entry required.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section class="jis-sec" id="results">
+  <div class="jis-c">
+    <p class="jis-tag">PROTOCOL_03 // PROOF OF WORK</p>
+    <h2 class="jis-h2">Results Speak<br>in Numbers.</h2>
+    <p class="jis-h2-sub">Not projections. Not estimates. Clients who committed to the system and let it run.</p>
+    <div class="jis-cases">
+      <div class="jis-case">
+        <div class="jis-case-tag">CASE_FILE_01 // SERVICE_BUSINESS // US</div>
+        <div class="jis-case-num">$40,000<span class="jis-case-period">/mo</span></div>
+        <div class="jis-case-name">Luis — Service Business Owner</div>
+        <div class="jis-case-desc">Before JRZ Ink Systems: inconsistent months, manual outreach, no pipeline visibility. After deploying the full acquisition stack: $40,000 per month in consistent, predictable revenue — scaled without adding a single person to the team.</div>
+      </div>
+      <div class="jis-case">
+        <div class="jis-case-tag">CASE_FILE_02 // SERVICE_BUSINESS // US</div>
+        <div class="jis-case-num">$2,500<span class="jis-case-period">/wk</span></div>
+        <div class="jis-case-name">Adriana — Service Business Owner</div>
+        <div class="jis-case-desc">Adriana had the skill and the offer but no system to fill her calendar reliably. We built the machine. Within weeks: $2,500 per week in new client revenue — fully automated, completely predictable, and still growing.</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:52px;">
+      <a href="#contact" class="jis-btn">Get Results Like These →</a>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="jis-sec jis-sec--sm" id="compare" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <p class="jis-tag">PROTOCOL_04 // BENCHMARK</p>
+    <h2 class="jis-h2">How We Compare</h2>
+    <div class="jis-tbl">
+      <div class="jis-tbl-head">
+        <div class="jis-tbl-cell"></div>
+        <div class="jis-tbl-cell">Traditional Agency</div>
+        <div class="jis-tbl-cell jis-ours">JRZ Ink Systems</div>
+      </div>
+      <div class="jis-tbl-row"><div class="jis-tbl-cell">Performance-based — only pay on results</div><div class="jis-tbl-cell"><span class="jis-x">✕</span></div><div class="jis-tbl-cell"><span class="jis-check">✓</span></div></div>
+      <div class="jis-tbl-row"><div class="jis-tbl-cell">Full automation stack included</div><div class="jis-tbl-cell"><span class="jis-x">✕</span></div><div class="jis-tbl-cell"><span class="jis-check">✓</span></div></div>
+      <div class="jis-tbl-row"><div class="jis-tbl-cell">CRM + pipeline management built in</div><div class="jis-tbl-cell"><span class="jis-x">✕</span></div><div class="jis-tbl-cell"><span class="jis-check">✓</span></div></div>
+      <div class="jis-tbl-row"><div class="jis-tbl-cell">We only win when you win</div><div class="jis-tbl-cell"><span class="jis-x">✕</span></div><div class="jis-tbl-cell"><span class="jis-check">✓</span></div></div>
+      <div class="jis-tbl-row"><div class="jis-tbl-cell">Serves clients across all 50 US states</div><div class="jis-tbl-cell"><span class="jis-x">✕</span></div><div class="jis-tbl-cell"><span class="jis-check">✓</span></div></div>
+      <div class="jis-tbl-row"><div class="jis-tbl-cell">Dedicated system architect — one contact</div><div class="jis-tbl-cell"><span class="jis-x">✕</span></div><div class="jis-tbl-cell"><span class="jis-check">✓</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="jis-sec" id="process">
+  <div class="jis-c">
+    <p class="jis-tag">PROTOCOL_05 // EXECUTION_SEQUENCE</p>
+    <h2 class="jis-h2">Three Phases.<br>One Outcome.</h2>
+    <p class="jis-h2-sub">From application to fully booked — the system runs in three defined stages.</p>
+    <div class="jis-steps">
+      <div class="jis-step">
+        <div class="jis-step-n">PHASE_01</div>
+        <div class="jis-step-title">Apply &amp; Qualify</div>
+        <div class="jis-step-body">Complete the application. We review your business, market, and goals. If the system fits your situation, we move to onboarding. We only take clients we're confident we can scale.</div>
+      </div>
+      <div class="jis-step">
+        <div class="jis-step-n">PHASE_02</div>
+        <div class="jis-step-title">Build the System</div>
+        <div class="jis-step-body">We architect your full acquisition infrastructure: targeting, funnel, automation sequences, CRM setup, conversion assets. Everything is custom-built to your market and offer.</div>
+      </div>
+      <div class="jis-step">
+        <div class="jis-step-n">PHASE_03</div>
+        <div class="jis-step-title">Deploy &amp; Stay Booked</div>
+        <div class="jis-step-body">The system goes live. Leads flow in. Follow-up happens automatically. Your calendar fills. We monitor, optimize, and scale — you stay focused on delivering your service.</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:52px;">
+      <a href="#contact" class="jis-btn">Start Phase 01 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="jis-sec jis-sec--sm" id="pricing" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <p class="jis-tag">PROTOCOL_06 // INVESTMENT_MODEL</p>
+    <h2 class="jis-h2">Aligned Incentives.<br>Simple Structure.</h2>
+    <p class="jis-h2-sub">One principle: we grow when you grow. No hidden fees. No surprises.</p>
+    <div class="jis-price-box">
+      <p style="font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--faint);">ENTRY_FEE_STRUCTURE</p>
+      <div class="jis-price-main">10–15% of Revenue Generated</div>
+      <div class="jis-price-note">+ $500/month system management fee</div>
+      <ul class="jis-price-list">
+        <li>No upfront retainer until the system is generating results</li>
+        <li>Full acquisition system — built, managed, and optimized by us</li>
+        <li>CRM, automation sequences, funnels, and ad management included</li>
+        <li>One dedicated account architect — single point of contact</li>
+        <li>Monthly performance reporting and continuous optimization</li>
+        <li>Available to qualified service businesses across all 50 US states</li>
+      </ul>
+      <div style="margin-top:44px;">
+        <a href="#contact" class="jis-btn">Apply for a System →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IT'S FOR -->
+<section class="jis-sec" id="qualify">
+  <div class="jis-c">
+    <p class="jis-tag">PROTOCOL_07 // QUALIFICATION_FILTER</p>
+    <h2 class="jis-h2">Who This Is<br>Built For.</h2>
+    <p class="jis-h2-sub">We're selective. The system performs best for a specific type of operator.</p>
+    <div class="jis-filter-grid">
+      <div class="jis-filter">
+        <div class="jis-filter-icon">◈</div>
+        <div class="jis-filter-title">Established Service Businesses</div>
+        <div class="jis-filter-body">You have a proven offer, you deliver excellent work, but your pipeline is inconsistent or overly dependent on referrals.</div>
+      </div>
+      <div class="jis-filter">
+        <div class="jis-filter-icon">◈</div>
+        <div class="jis-filter-title">High-Ticket Providers</div>
+        <div class="jis-filter-body">Your average client is worth $1,000+ or you operate on monthly retainers. The math works — and the system scales it further.</div>
+      </div>
+      <div class="jis-filter">
+        <div class="jis-filter-icon">◈</div>
+        <div class="jis-filter-title">Operators Ready to Scale</div>
+        <div class="jis-filter-body">You're not looking for another freelancer or another agency pitch. You want a system that runs, a team that owns results, and numbers you can count on.</div>
+      </div>
+      <div class="jis-filter">
+        <div class="jis-filter-icon">◈</div>
+        <div class="jis-filter-title">US-Based, Any State</div>
+        <div class="jis-filter-body">We serve clients in all 50 states. Local, regional, or national reach — the system is built to match your geography and market.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="jis-band">
+  <div class="jis-c">
+    <h2>Ready to Stop<br>Chasing Clients?</h2>
+    <p class="jis-band-sub">The application takes 2 minutes. If there's a fit, you'll hear from us within 24 hours.</p>
+    <a href="#contact" class="jis-btn" style="font-size:14px;padding:20px 60px;">Apply for a System →</a>
+  </div>
+</div>
+
+<!-- CONTACT / FORM -->
+<section class="jis-contact" id="contact">
+  <div class="jis-c">
+    <div class="jis-contact-grid">
+      <div class="jis-contact-info">
+        <p class="jis-tag">CONTACT_ENTRY // BEGIN</p>
+        <h2>Let's Build<br>Your System.</h2>
+        <p style="font-size:15px;color:var(--dim);line-height:1.7;margin-bottom:32px;">Fill out the form and we'll reach out within 24 hours to determine if JRZ Ink Systems is the right fit for your business.</p>
+        <div class="jis-contact-meta">
+          <div class="jis-contact-line">Phone: <a href="tel:+14077205284">(407) 720-5284</a></div>
+          <div class="jis-contact-line">Email: <a href="mailto:jrzinksystems@gmail.com">jrzinksystems@gmail.com</a></div>
+          <div class="jis-contact-line" style="margin-top:6px;font-size:13px;color:var(--faint);">Available nationwide — US clients only</div>
+        </div>
+        <div class="jis-status-box">
+          <p class="jis-status-label">SYSTEM_STATUS</p>
+          <p class="jis-status-text">Currently accepting new client applications. Capacity is intentionally limited — we maintain a focused client roster to ensure the quality of execution every client deserves.</p>
+        </div>
+      </div>
+      <div class="jis-form-frame">
+        <iframe
+          src="https://links.jrzmarketing.com/widget/form/3FCTNG4eH5pHYrBhrdlF"
+          style="width:100%;height:712px;border:none;display:block;"
+          id="inline-3FCTNG4eH5pHYrBhrdlF"
+          data-layout="{'id':'INLINE'}"
+          data-trigger-type="alwaysShow"
+          data-form-name="jrz ink system"
+          data-height="712"
+          data-form-id="3FCTNG4eH5pHYrBhrdlF"
+          title="jrz ink system">
+        </iframe>
+        <script src="https://links.jrzmarketing.com/js/form_embed.js"></script>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="jis-footer">
+  <div class="jis-c">
+    <div class="jis-footer-in">
+      <div class="jis-footer-brand">JRZ Ink Systems</div>
+      <div class="jis-footer-legal">© ${year} JRZ Ink Systems · <a href="tel:+14077205284" style="color:inherit;">(407) 720-5284</a> · <a href="mailto:jrzinksystems@gmail.com" style="color:inherit;">jrzinksystems@gmail.com</a></div>
+    </div>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>`;
+}
+
+// GET /sofia/jrz-ink-systems — download hub for JRZ Ink Systems website
+app.get('/sofia/jrz-ink-systems', (req, res) => {
+  try {
+    const cacheId = crypto.randomBytes(8).toString('hex');
+    const html = jisBuildHome();
+    websitePackageCache.set(cacheId, {
+      pages: { home: html },
+      clientName: 'JRZ Ink Systems',
+      expires: Date.now() + 600000,
+    });
+    const hub = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JRZ Ink Systems — Website Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:system-ui,sans-serif;background:#131313;color:#fff;padding:48px 20px;}
+.wrap{max-width:680px;margin:0 auto;}
+.logo-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.logo-row svg{width:36px;height:36px;}
+.logo-row span{font-size:15px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;}
+.badge{display:inline-block;background:#fff;color:#131313;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 14px;margin-bottom:18px;}
+h1{font-size:24px;font-weight:900;margin-bottom:6px;}
+.sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;}
+.section-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 12px;}
+.dl-btn{display:flex;align-items:center;justify-content:space-between;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);padding:18px 22px;text-decoration:none;color:#fff;margin-bottom:8px;transition:border-color .15s;gap:12px;}
+.dl-btn:hover{border-color:rgba(255,255,255,0.4);}
+.dl-left{flex:1;min-width:0;}
+.dl-name{font-weight:800;font-size:15px;margin-bottom:3px;}
+.dl-slug{font-size:11px;color:rgba(255,255,255,0.35);font-weight:600;margin-bottom:3px;}
+.dl-desc{font-size:12px;color:rgba(255,255,255,0.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dl-tag{background:#fff;color:#131313;padding:6px 16px;font-size:11px;font-weight:800;letter-spacing:.08em;flex-shrink:0;}
+.how{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);padding:18px 22px;margin-top:24px;font-size:13px;color:rgba(255,255,255,0.4);line-height:2;}
+</style></head><body><div class="wrap">
+<div class="logo-row"><svg viewBox="0 0 36 36" fill="none"><polygon points="18,3 33,30 3,30" fill="none" stroke="white" stroke-width="2.2"/><polygon points="18,12 27,28 9,28" fill="white"/></svg><span>JRZ INK SYSTEMS</span></div>
+<div class="badge">Website Ready</div>
+<h1>JRZ Ink Systems</h1>
+<p class="sub">The Monolith Architect · Black/White · Inter · Performance Marketing · GHL Form</p>
+<div class="section-label">Download Page</div>
+<a href="/sofia/website-download?id=${cacheId}&page=home&filename=index.html" class="dl-btn">
+  <div class="dl-left">
+    <div class="dl-name">Home Page — Full Site</div>
+    <div class="dl-slug">GHL slug: Homepage (root /)</div>
+    <div class="dl-desc">Hero · Problem · Solution · Case Studies · Comparison · Process · Pricing · Qualification · Contact Form</div>
+  </div>
+  <div class="dl-tag">↓ Download</div>
+</a>
+<div class="how">
+<strong style="color:#fff;">How to upload to GHL:</strong><br>
+1. Download the file above<br>
+2. GHL → Sites → Websites → JRZ Ink Systems → Homepage<br>
+3. Open page → Custom Code tab → paste the full HTML → Save &amp; Publish<br>
+4. Set page slug to / (root homepage)<br><br>
+<em style="color:rgba(255,255,255,0.2);font-size:11px;">Link expires in 10 minutes. Refresh to regenerate.</em>
+</div>
+</div></body></html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(hub);
+  } catch(err) { res.status(500).send(`<pre>Error: ${err.message}</pre>`); }
+});
+
 // POST /sofia/build-funnel — create a lead gen funnel in GHL
 // Body: { locationId, funnelType: 'consultation'|'quote'|'lead-magnet', industry?, city? }
 app.post('/sofia/build-funnel', async (req, res) => {
