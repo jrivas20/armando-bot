@@ -11209,21 +11209,640 @@ a{color:inherit;text-decoration:none;}
 </html>`;
 }
 
+// ── JRZ Ink Systems shared helpers (nav, footer, head) ──────────────────────
+function jisSharedCSS() {
+  return `/* ── Full-bleed override (GHL requirement) ── */
+html.hl-page-content-wrapper,body.hl-page-content-wrapper{max-width:100%!important;padding:0!important;margin:0!important;}
+.hl-page-content-wrapper .hl-main-content,.hl-page-content-wrapper .main-content-wrap,.hl-page-content-wrapper section.section{max-width:100%!important;padding:0!important;}
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#131313;--surface:#191919;--surface2:#1f1f1f;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--white:#ffffff;--dim:rgba(255,255,255,0.48);--faint:rgba(255,255,255,0.14);--font:'Inter',system-ui,sans-serif;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+.jis-wrap{width:100%;}
+.jis-c{max-width:1120px;margin:0 auto;padding:0 28px;}
+.jis-sec{padding:108px 0;}
+.jis-sec--sm{padding:72px 0;}
+.jis-nav{position:fixed;top:0;left:0;width:100%;z-index:999;background:rgba(19,19,19,0.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.jis-nav-in{display:flex;align-items:center;justify-content:space-between;height:68px;max-width:1120px;margin:0 auto;padding:0 28px;gap:20px;}
+.jis-brand{display:flex;align-items:center;gap:11px;font-size:12px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;flex-shrink:0;}
+.jis-brand svg{width:26px;height:26px;flex-shrink:0;}
+.jis-nav-links{display:flex;align-items:center;gap:28px;}
+.jis-nav-links a{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);transition:color .15s;}
+.jis-nav-links a:hover,.jis-nav-links a.active{color:var(--white);}
+.jis-nav-btn{background:var(--white);color:var(--bg);font-size:11px;font-weight:800;letter-spacing:0.13em;text-transform:uppercase;padding:11px 24px;display:inline-block;transition:opacity .18s;flex-shrink:0;}
+.jis-nav-btn:hover{opacity:.82;}
+@media(max-width:700px){.jis-nav-links{display:none;}}
+.jis-tag{font-size:10px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--dim);margin-bottom:16px;}
+.jis-h2{font-size:clamp(30px,4.5vw,58px);font-weight:900;line-height:1.06;letter-spacing:-0.025em;margin-bottom:18px;}
+.jis-h2-sub{font-size:17px;color:var(--dim);max-width:580px;line-height:1.7;}
+.jis-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--border2);margin-top:60px;}
+.jis-card{background:var(--bg);padding:44px 36px;}
+.jis-card--surface{background:var(--surface);}
+.jis-card-id{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--faint);margin-bottom:18px;}
+.jis-card-title{font-size:19px;font-weight:800;margin-bottom:12px;line-height:1.3;letter-spacing:-0.01em;}
+.jis-card-body{font-size:14px;color:var(--dim);line-height:1.75;}
+.jis-btn{background:var(--white);color:var(--bg);font-size:13px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:18px 44px;display:inline-block;transition:opacity .18s;}
+.jis-btn:hover{opacity:.84;}
+.jis-footer{border-top:1px solid var(--border);padding:32px 0;}
+.jis-footer-in{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.jis-footer-brand{font-size:11px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;}
+.jis-footer-legal{font-size:11px;color:var(--faint);}
+@media(max-width:560px){.jis-sec{padding:80px 0;}.jis-sec--sm{padding:56px 0;}.jis-c{padding:0 20px;}}`;
+}
+
+function jisHead(title, meta) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+<meta name="description" content="${meta}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>${jisSharedCSS()}</style>
+</head>
+<body>
+<div class="jis-wrap">`;
+}
+
+function jisNavHTML(activePage) {
+  const links = [
+    { label: 'Home', href: '/' },
+    { label: 'About Us', href: '/about' },
+    { label: 'Why Us', href: '/why-us' },
+    { label: 'Our Process', href: '/our-process' },
+  ];
+  const logoSVG = `<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="18,3 33,30 3,30" fill="none" stroke="white" stroke-width="2.2"/><polygon points="18,12 27,28 9,28" fill="white"/></svg>`;
+  return `<nav class="jis-nav">
+  <div class="jis-nav-in">
+    <a href="/" class="jis-brand">${logoSVG}<span>JRZ INK SYSTEMS</span></a>
+    <div class="jis-nav-links">
+      ${links.map(l=>`<a href="${l.href}"${activePage===l.label?' class="active"':''}>${l.label}</a>`).join('')}
+    </div>
+    <a href="/contact" class="jis-nav-btn">Apply Now</a>
+  </div>
+</nav>`;
+}
+
+function jisFooterHTML() {
+  const year = new Date().getFullYear();
+  return `<footer class="jis-footer">
+  <div class="jis-c">
+    <div class="jis-footer-in">
+      <div class="jis-footer-brand">JRZ Ink Systems</div>
+      <div class="jis-footer-legal">© ${year} JRZ Ink Systems · <a href="tel:+14077205284" style="color:inherit;">(407) 720-5284</a> · <a href="mailto:jrzinksystems@gmail.com" style="color:inherit;">jrzinksystems@gmail.com</a></div>
+    </div>
+  </div>
+</footer>
+</div>
+</body>
+</html>`;
+}
+
+// ── About Us ─────────────────────────────────────────────────────────────────
+function jisAbout() {
+  return jisHead('About JRZ Ink Systems — Performance-Based Marketing Built on Accountability', 'JRZ Ink Systems was built on one belief: marketing agencies should only get paid when clients win. Learn who we are, what we stand for, and why we operate differently.') +
+  jisNavHTML('About Us') + `
+<!-- PAGE HERO -->
+<section style="min-height:52vh;display:flex;align-items:center;padding-top:68px;background:var(--bg);border-bottom:1px solid var(--border);position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:72px 72px;pointer-events:none;"></div>
+  <div class="jis-c" style="position:relative;z-index:1;padding-top:60px;padding-bottom:80px;">
+    <p class="jis-tag">SYSTEM_FILE_01 // WHO WE ARE</p>
+    <h1 class="jis-h2" style="font-size:clamp(40px,6vw,80px);max-width:800px;">Built on One Belief:<br><span style="color:var(--dim);">We Only Win When You Win.</span></h1>
+  </div>
+</section>
+
+<!-- ORIGIN -->
+<section class="jis-sec" style="background:var(--surface);border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;">
+      <div>
+        <p class="jis-tag">ORIGIN_RECORD</p>
+        <h2 class="jis-h2" style="font-size:clamp(26px,3.5vw,44px);">Where JRZ Ink Systems Came From</h2>
+        <p style="font-size:16px;color:var(--dim);line-height:1.8;margin-bottom:20px;">JRZ Ink Systems was founded out of frustration with the standard agency model. Business after business was paying thousands of dollars per month to marketing companies and seeing little to no return — month after month, invoice after invoice.</p>
+        <p style="font-size:16px;color:var(--dim);line-height:1.8;margin-bottom:20px;">We believed there was a better way: build a system that works, tie our compensation to the results it generates, and only work with clients we're genuinely confident we can scale.</p>
+        <p style="font-size:16px;color:var(--dim);line-height:1.8;">That belief became JRZ Ink Systems. Performance-based. Fully automated. US-wide.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1px;background:var(--border2);">
+        <div style="background:var(--bg);padding:32px 28px;">
+          <div class="jis-card-id">METRIC_01</div>
+          <div style="font-size:48px;font-weight:900;letter-spacing:-0.04em;line-height:1;margin-bottom:8px;">$40K</div>
+          <div style="font-size:13px;color:var(--dim);">Highest monthly client revenue generated</div>
+        </div>
+        <div style="background:var(--bg);padding:32px 28px;">
+          <div class="jis-card-id">METRIC_02</div>
+          <div style="font-size:48px;font-weight:900;letter-spacing:-0.04em;line-height:1;margin-bottom:8px;">$0</div>
+          <div style="font-size:13px;color:var(--dim);">Retainer charged before results are delivered</div>
+        </div>
+        <div style="background:var(--bg);padding:32px 28px;">
+          <div class="jis-card-id">METRIC_03</div>
+          <div style="font-size:48px;font-weight:900;letter-spacing:-0.04em;line-height:1;margin-bottom:8px;">50</div>
+          <div style="font-size:13px;color:var(--dim);">US states we're equipped to serve</div>
+        </div>
+      </div>
+    </div>
+    @media(max-width:760px){.origin-grid{grid-template-columns:1fr!important;gap:48px!important;}}
+  </div>
+</section>
+
+<!-- MISSION + VALUES -->
+<section class="jis-sec">
+  <div class="jis-c">
+    <p class="jis-tag">CORE_VALUES // OPERATING_PRINCIPLES</p>
+    <h2 class="jis-h2">What We Stand For</h2>
+    <p class="jis-h2-sub">Three principles that govern every client relationship we take on.</p>
+    <div class="jis-cards">
+      <div class="jis-card">
+        <div class="jis-card-id">VALUE_01</div>
+        <div class="jis-card-title">Radical Accountability</div>
+        <div class="jis-card-body">We don't hide behind vanity metrics or activity reports. Our compensation is tied to the revenue we generate for you. If the system doesn't perform, we don't get paid. That's the deal — and we stand behind it.</div>
+      </div>
+      <div class="jis-card">
+        <div class="jis-card-id">VALUE_02</div>
+        <div class="jis-card-title">Systems Over Tactics</div>
+        <div class="jis-card-body">Tactics are one-time plays. Systems compound. We build infrastructure that gets better over time — acquisition engines, automation sequences, and pipelines that work harder the longer they run.</div>
+      </div>
+      <div class="jis-card">
+        <div class="jis-card-id">VALUE_03</div>
+        <div class="jis-card-title">Honest Qualification</div>
+        <div class="jis-card-body">We turn down more clients than we accept. If we don't believe the system will work for your business, we'll tell you plainly. We only take on clients we're confident we can move the needle for.</div>
+      </div>
+      <div class="jis-card">
+        <div class="jis-card-id">VALUE_04</div>
+        <div class="jis-card-title">Long-Term Alignment</div>
+        <div class="jis-card-body">We're not transaction-based. Our performance model means we grow when you grow — creating the kind of long-term partnership that traditional agencies structurally cannot offer.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO WE SERVE -->
+<section class="jis-sec jis-sec--sm" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <p class="jis-tag">TARGET_PROFILE // CLIENT_SPEC</p>
+    <h2 class="jis-h2">Who We Work With</h2>
+    <p class="jis-h2-sub">We partner with a very specific type of operator. If this is you, we should talk.</p>
+    <div class="jis-cards" style="margin-top:48px;">
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">PROFILE_01</div>
+        <div class="jis-card-title">Service business owners in the US</div>
+        <div class="jis-card-body">Any industry where you deliver a service and get paid for it — local, regional, or national. If your average client is worth $1,000 or more, the system works.</div>
+      </div>
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">PROFILE_02</div>
+        <div class="jis-card-title">Operators with a proven offer</div>
+        <div class="jis-card-body">You've delivered results before. You know your market. You just don't have the acquisition infrastructure to bring in clients consistently and predictably.</div>
+      </div>
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">PROFILE_03</div>
+        <div class="jis-card-title">Leaders ready for a system, not a vendor</div>
+        <div class="jis-card-body">You want a partner who owns the outcome — not a freelancer who submits a deliverable and disappears. You want accountability, reporting, and results.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="jis-sec jis-sec--sm" style="text-align:center;">
+  <div class="jis-c">
+    <p class="jis-tag" style="text-align:center;">NEXT_STEP</p>
+    <h2 class="jis-h2" style="max-width:600px;margin:0 auto 20px;">Ready to Work Together?</h2>
+    <p style="font-size:17px;color:var(--dim);max-width:440px;margin:0 auto 40px;line-height:1.7;">Apply in 2 minutes. If we're a fit, you'll hear from us within 24 hours.</p>
+    <a href="/contact" class="jis-btn">Apply for a System →</a>
+  </div>
+</section>
+` + jisFooterHTML();
+}
+
+// ── Why Us ───────────────────────────────────────────────────────────────────
+function jisWhyUs() {
+  return jisHead('Why JRZ Ink Systems — The Case for a Performance-Based Partner', 'Why choose JRZ Ink Systems over a traditional agency? We only get paid when you do, we build real automation systems, and we serve clients across all 50 US states.') +
+  jisNavHTML('Why Us') + `
+<!-- PAGE HERO -->
+<section style="min-height:52vh;display:flex;align-items:center;padding-top:68px;background:var(--bg);border-bottom:1px solid var(--border);position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:72px 72px;pointer-events:none;"></div>
+  <div class="jis-c" style="position:relative;z-index:1;padding-top:60px;padding-bottom:80px;">
+    <p class="jis-tag">SYSTEM_FILE_02 // THE CASE FOR US</p>
+    <h1 class="jis-h2" style="font-size:clamp(40px,6vw,80px);max-width:800px;">Why Operators Choose<br><span style="color:var(--dim);">JRZ Ink Systems.</span></h1>
+  </div>
+</section>
+
+<!-- THE DIFFERENCE -->
+<section class="jis-sec" style="background:var(--surface);border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <p class="jis-tag">DIFFERENTIATION_RECORD</p>
+    <h2 class="jis-h2">The Model Is Different.<br>The Results Prove It.</h2>
+    <p class="jis-h2-sub">Every agency claims to deliver results. We're the only ones whose paycheck depends on it.</p>
+    <div class="jis-cards">
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">REASON_01</div>
+        <div class="jis-card-title">We Don't Get Paid Until You Do</div>
+        <div class="jis-card-body">Our model is performance-based from day one. No retainer until results are flowing. You don't absorb risk alone — we're in it with you. That changes everything about how we show up and how hard we work on your account.</div>
+      </div>
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">REASON_02</div>
+        <div class="jis-card-title">We Build the Whole System</div>
+        <div class="jis-card-body">Not just ads. Not just a landing page. Not just email sequences. We engineer the entire acquisition stack — from first touch to booked appointment — so there are no gaps where leads fall through.</div>
+      </div>
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">REASON_03</div>
+        <div class="jis-card-title">Automation Runs 24/7</div>
+        <div class="jis-card-body">While traditional agencies deliver campaigns that require manual work to function, our systems run around the clock. Every lead gets followed up in seconds. Every prospect gets nurtured automatically. No human bottleneck.</div>
+      </div>
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">REASON_04</div>
+        <div class="jis-card-title">One Contact. Full Ownership.</div>
+        <div class="jis-card-body">You'll never get bounced between account managers or talk to someone who doesn't know your business. One dedicated system architect owns your account from onboarding to scale — and they're accountable for every metric.</div>
+      </div>
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">REASON_05</div>
+        <div class="jis-card-title">We Qualify Before We Accept</div>
+        <div class="jis-card-body">We review every application and only onboard clients where we're confident the system will work. This means every client we take on gets our full focus — not a diluted effort split across 200 accounts.</div>
+      </div>
+      <div class="jis-card jis-card--surface">
+        <div class="jis-card-id">REASON_06</div>
+        <div class="jis-card-title">Nationwide Reach</div>
+        <div class="jis-card-body">We're not geo-limited. Whether you serve one city or the entire country, we build and operate systems at whatever scale your business requires. All 50 US states. Local or national targeting.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF: CASE NUMBERS -->
+<section class="jis-sec">
+  <div class="jis-c">
+    <p class="jis-tag">PROOF_OF_CONCEPT // REAL_NUMBERS</p>
+    <h2 class="jis-h2">The Numbers Don't Lie.</h2>
+    <p class="jis-h2-sub">Two clients. Real revenue. Systems that run without them managing it daily.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border2);margin-top:60px;">
+      <div style="background:var(--bg);padding:52px 44px;position:relative;">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--white);"></div>
+        <div class="jis-card-id">CASE_FILE_01</div>
+        <div style="font-size:clamp(48px,7vw,80px);font-weight:900;letter-spacing:-0.04em;line-height:1;margin-bottom:14px;">$40,000<span style="font-size:0.38em;font-weight:400;opacity:.7;">/mo</span></div>
+        <div style="font-size:17px;font-weight:800;margin-bottom:10px;">Luis — Service Business Owner</div>
+        <div style="font-size:14px;color:var(--dim);line-height:1.75;">Went from inconsistent revenue and manual outreach to $40K/month — predictable, automated, and scaling without adding staff. The pipeline runs itself.</div>
+      </div>
+      <div style="background:var(--bg);padding:52px 44px;position:relative;">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--white);"></div>
+        <div class="jis-card-id">CASE_FILE_02</div>
+        <div style="font-size:clamp(48px,7vw,80px);font-weight:900;letter-spacing:-0.04em;line-height:1;margin-bottom:14px;">$2,500<span style="font-size:0.38em;font-weight:400;opacity:.7;">/wk</span></div>
+        <div style="font-size:17px;font-weight:800;margin-bottom:10px;">Adriana — Service Business Owner</div>
+        <div style="font-size:14px;color:var(--dim);line-height:1.75;">Had the skills, had the offer — lacked the acquisition system. We built it. $2,500 per week in new client revenue, fully automated and growing every month.</div>
+      </div>
+    </div>
+    @media(max-width:680px){.proof-grid{grid-template-columns:1fr!important;}}
+    <div style="text-align:center;margin-top:52px;">
+      <a href="/contact" class="jis-btn">Apply for a System →</a>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON TABLE -->
+<section class="jis-sec jis-sec--sm" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <p class="jis-tag">BENCHMARK // SIDE_BY_SIDE</p>
+    <h2 class="jis-h2">Us vs. The Old Model</h2>
+    <div style="border:1px solid var(--border2);margin-top:52px;overflow:hidden;">
+      <div style="display:grid;grid-template-columns:2.2fr 1fr 1fr;background:var(--surface2);">
+        <div style="padding:20px 24px;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);"></div>
+        <div style="padding:20px 24px;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);border-left:1px solid var(--border);text-align:center;">Traditional Agency</div>
+        <div style="padding:20px 24px;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--white);border-left:1px solid var(--border);text-align:center;">JRZ Ink Systems</div>
+      </div>
+      ${[
+        ['Paid only on results generated','✕','✓'],
+        ['Complete automation stack included','✕','✓'],
+        ['CRM and pipeline management built in','✕','✓'],
+        ['Single dedicated account owner','✕','✓'],
+        ['No retainer until results flowing','✕','✓'],
+        ['Available in all 50 US states','✕','✓'],
+        ['Monthly performance optimization','Sometimes','Always'],
+      ].map(([label,bad,good])=>`<div style="display:grid;grid-template-columns:2.2fr 1fr 1fr;border-top:1px solid var(--border);">
+        <div style="padding:18px 24px;font-size:14px;">${label}</div>
+        <div style="padding:18px 24px;font-size:14px;border-left:1px solid var(--border);text-align:center;color:var(--faint);">${bad}</div>
+        <div style="padding:18px 24px;font-size:14px;border-left:1px solid var(--border);text-align:center;color:var(--white);font-weight:700;">${good}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="jis-sec jis-sec--sm" style="text-align:center;">
+  <div class="jis-c">
+    <p class="jis-tag" style="text-align:center;">NEXT_STEP</p>
+    <h2 class="jis-h2" style="max-width:640px;margin:0 auto 20px;">The Proof Is in the Pipeline.</h2>
+    <p style="font-size:17px;color:var(--dim);max-width:460px;margin:0 auto 40px;line-height:1.7;">Apply now and see if JRZ Ink Systems is the right fit for your business.</p>
+    <a href="/contact" class="jis-btn">Apply for a System →</a>
+  </div>
+</section>
+` + jisFooterHTML();
+}
+
+// ── Our Process ───────────────────────────────────────────────────────────────
+function jisOurProcess() {
+  return jisHead('Our Process — How JRZ Ink Systems Builds Your Acquisition System', 'A step-by-step breakdown of how JRZ Ink Systems builds, deploys, and scales your client acquisition system. From application to fully booked in three phases.') +
+  jisNavHTML('Our Process') + `
+<!-- PAGE HERO -->
+<section style="min-height:52vh;display:flex;align-items:center;padding-top:68px;background:var(--bg);border-bottom:1px solid var(--border);position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:72px 72px;pointer-events:none;"></div>
+  <div class="jis-c" style="position:relative;z-index:1;padding-top:60px;padding-bottom:80px;">
+    <p class="jis-tag">SYSTEM_FILE_03 // EXECUTION_SEQUENCE</p>
+    <h1 class="jis-h2" style="font-size:clamp(40px,6vw,80px);max-width:800px;">Three Phases.<br><span style="color:var(--dim);">One Outcome: Fully Booked.</span></h1>
+  </div>
+</section>
+
+<!-- OVERVIEW -->
+<section class="jis-sec jis-sec--sm" style="background:var(--surface);border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <p class="jis-tag">PROCESS_OVERVIEW</p>
+    <h2 class="jis-h2" style="font-size:clamp(24px,3.5vw,42px);">We Don't Offer Services.<br>We Deploy Systems.</h2>
+    <p style="font-size:17px;color:var(--dim);max-width:680px;line-height:1.8;margin-top:16px;">The difference matters. A service gets delivered once. A system runs continuously — attracting, qualifying, nurturing, and closing clients on autopilot. Here's exactly how we build yours.</p>
+  </div>
+</section>
+
+<!-- PHASE 1 -->
+<section class="jis-sec" style="border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <div style="display:grid;grid-template-columns:280px 1fr;gap:80px;align-items:start;">
+      <div style="position:sticky;top:88px;">
+        <div class="jis-card-id" style="font-size:11px;">PHASE_01</div>
+        <div style="font-size:clamp(48px,6vw,72px);font-weight:900;letter-spacing:-0.04em;line-height:1;margin-top:8px;">01</div>
+        <div style="font-size:22px;font-weight:900;margin-top:12px;letter-spacing:-0.01em;">Apply &amp;<br>Qualify</div>
+      </div>
+      <div>
+        <p style="font-size:18px;color:var(--dim);line-height:1.8;margin-bottom:36px;">The first phase is about fit. We only build systems for businesses we're confident we can scale — so before anything else, we need to understand your business, your offer, and your market.</p>
+        <div style="display:flex;flex-direction:column;gap:1px;background:var(--border2);">
+          <div style="background:var(--bg);padding:28px 32px;">
+            <div class="jis-card-id" style="margin-bottom:10px;">STEP_1A</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;">Submit your application</div>
+            <div style="font-size:14px;color:var(--dim);line-height:1.7;">Complete the contact form. Tell us about your business, your current revenue, and what you're trying to achieve. Takes 2 minutes.</div>
+          </div>
+          <div style="background:var(--bg);padding:28px 32px;">
+            <div class="jis-card-id" style="margin-bottom:10px;">STEP_1B</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;">Strategy call within 24 hours</div>
+            <div style="font-size:14px;color:var(--dim);line-height:1.7;">If your application looks like a strong fit, we'll reach out within 24 hours to schedule a strategy call. We'll go deep on your offer, your market, and what a successful system would look like for you.</div>
+          </div>
+          <div style="background:var(--bg);padding:28px 32px;">
+            <div class="jis-card-id" style="margin-bottom:10px;">STEP_1C</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;">Honest assessment</div>
+            <div style="font-size:14px;color:var(--dim);line-height:1.7;">We'll tell you plainly whether the system will work for your specific situation. If it's not the right fit, we'll say so — and often point you toward what would actually move the needle for you instead.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE 2 -->
+<section class="jis-sec" style="background:var(--surface);border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <div style="display:grid;grid-template-columns:280px 1fr;gap:80px;align-items:start;">
+      <div style="position:sticky;top:88px;">
+        <div class="jis-card-id" style="font-size:11px;">PHASE_02</div>
+        <div style="font-size:clamp(48px,6vw,72px);font-weight:900;letter-spacing:-0.04em;line-height:1;margin-top:8px;">02</div>
+        <div style="font-size:22px;font-weight:900;margin-top:12px;letter-spacing:-0.01em;">Build the<br>System</div>
+      </div>
+      <div>
+        <p style="font-size:18px;color:var(--dim);line-height:1.8;margin-bottom:36px;">Once we've confirmed the fit, we build. This is where the infrastructure goes in — the targeting, the funnel, the automation, the CRM, and the conversion assets. Everything custom to your market.</p>
+        <div style="display:flex;flex-direction:column;gap:1px;background:var(--border2);">
+          <div style="background:var(--surface2);padding:28px 32px;">
+            <div class="jis-card-id" style="margin-bottom:10px;">STEP_2A</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;">Market &amp; audience mapping</div>
+            <div style="font-size:14px;color:var(--dim);line-height:1.7;">We identify exactly who your ideal clients are, where they are, and what messaging gets them to take action. This drives everything else in the system.</div>
+          </div>
+          <div style="background:var(--surface2);padding:28px 32px;">
+            <div class="jis-card-id" style="margin-bottom:10px;">STEP_2B</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;">Funnel + conversion asset build</div>
+            <div style="font-size:14px;color:var(--dim);line-height:1.7;">Landing pages, opt-in forms, and offer pages engineered to convert at every stage of the funnel. No templates — built specifically for your offer and audience.</div>
+          </div>
+          <div style="background:var(--surface2);padding:28px 32px;">
+            <div class="jis-card-id" style="margin-bottom:10px;">STEP_2C</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;">Automation sequences wired up</div>
+            <div style="font-size:14px;color:var(--dim);line-height:1.7;">SMS, email, and voicemail follow-up sequences that trigger the instant a lead comes in. Nurture flows that move prospects from interest to booked appointment — automatically.</div>
+          </div>
+          <div style="background:var(--surface2);padding:28px 32px;">
+            <div class="jis-card-id" style="margin-bottom:10px;">STEP_2D</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;">CRM + pipeline configured</div>
+            <div style="font-size:14px;color:var(--dim);line-height:1.7;">Full pipeline visibility. You see every lead, every stage, every value. No spreadsheets. No manual tracking. Everything in one place, updated in real time.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE 3 -->
+<section class="jis-sec" style="border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <div style="display:grid;grid-template-columns:280px 1fr;gap:80px;align-items:start;">
+      <div style="position:sticky;top:88px;">
+        <div class="jis-card-id" style="font-size:11px;">PHASE_03</div>
+        <div style="font-size:clamp(48px,6vw,72px);font-weight:900;letter-spacing:-0.04em;line-height:1;margin-top:8px;">03</div>
+        <div style="font-size:22px;font-weight:900;margin-top:12px;letter-spacing:-0.01em;">Deploy &amp;<br>Scale</div>
+      </div>
+      <div>
+        <p style="font-size:18px;color:var(--dim);line-height:1.8;margin-bottom:36px;">The system goes live. Leads start flowing in. You focus on delivering your service. We watch the data, optimize what's underperforming, and scale what's working.</p>
+        <div style="display:flex;flex-direction:column;gap:1px;background:var(--border2);">
+          <div style="background:var(--bg);padding:28px 32px;">
+            <div class="jis-card-id" style="margin-bottom:10px;">STEP_3A</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;">System goes live</div>
+            <div style="font-size:14px;color:var(--dim);line-height:1.7;">Ads activate, funnels go live, automation sequences arm. From day one, every lead that enters the system gets followed up automatically — in seconds, not hours.</div>
+          </div>
+          <div style="background:var(--bg);padding:28px 32px;">
+            <div class="jis-card-id" style="margin-bottom:10px;">STEP_3B</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;">Monthly performance reviews</div>
+            <div style="font-size:14px;color:var(--dim);line-height:1.7;">Every month you get a clear report: leads generated, appointments booked, revenue attributed, cost per acquisition. No fluff. Just numbers and what we're doing to improve them.</div>
+          </div>
+          <div style="background:var(--bg);padding:28px 32px;">
+            <div class="jis-card-id" style="margin-bottom:10px;">STEP_3C</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;">Continuous optimization</div>
+            <div style="font-size:14px;color:var(--dim);line-height:1.7;">We split-test ads, refine sequences, adjust targeting, and update conversion assets based on what the data shows. The system gets better every month it runs.</div>
+          </div>
+          <div style="background:var(--bg);padding:28px 32px;">
+            <div class="jis-card-id" style="margin-bottom:10px;">STEP_3D</div>
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px;">Scale on demand</div>
+            <div style="font-size:14px;color:var(--dim);line-height:1.7;">When you're ready to grow further — new markets, higher volume, expanded offers — we scale the system with you. The infrastructure is already in place. It just needs fuel.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT TO EXPECT -->
+<section class="jis-sec jis-sec--sm" style="background:var(--surface);border-bottom:1px solid var(--border);">
+  <div class="jis-c">
+    <p class="jis-tag">EXPECTATION_SETTING</p>
+    <h2 class="jis-h2" style="font-size:clamp(24px,3.5vw,42px);">What to Expect<br>When You Work With Us</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--border2);margin-top:48px;">
+      <div style="background:var(--surface2);padding:36px 28px;">
+        <div class="jis-card-id">EXPECT_01</div>
+        <div style="font-size:16px;font-weight:800;margin-bottom:10px;line-height:1.3;">Honesty over hype</div>
+        <div style="font-size:13px;color:var(--dim);line-height:1.75;">We'll tell you what's working, what isn't, and what we're changing. No vague reports. No spun metrics.</div>
+      </div>
+      <div style="background:var(--surface2);padding:36px 28px;">
+        <div class="jis-card-id">EXPECT_02</div>
+        <div style="font-size:16px;font-weight:800;margin-bottom:10px;line-height:1.3;">Speed to first results</div>
+        <div style="font-size:13px;color:var(--dim);line-height:1.75;">Most clients see leads flowing within the first weeks of go-live, not months. The system is built to produce quickly.</div>
+      </div>
+      <div style="background:var(--surface2);padding:36px 28px;">
+        <div class="jis-card-id">EXPECT_03</div>
+        <div style="font-size:16px;font-weight:800;margin-bottom:10px;line-height:1.3;">One point of contact</div>
+        <div style="font-size:13px;color:var(--dim);line-height:1.75;">You have one person who knows your account inside and out. No account manager rotation. No knowledge gaps.</div>
+      </div>
+      <div style="background:var(--surface2);padding:36px 28px;">
+        <div class="jis-card-id">EXPECT_04</div>
+        <div style="font-size:16px;font-weight:800;margin-bottom:10px;line-height:1.3;">Aligned incentives, always</div>
+        <div style="font-size:13px;color:var(--dim);line-height:1.75;">Because we earn a percentage of what we generate, we're financially motivated to push performance as hard as possible. That never changes.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="jis-sec jis-sec--sm" style="text-align:center;">
+  <div class="jis-c">
+    <p class="jis-tag" style="text-align:center;">READY_TO_BEGIN</p>
+    <h2 class="jis-h2" style="max-width:600px;margin:0 auto 20px;">Start Phase 01 Today.</h2>
+    <p style="font-size:17px;color:var(--dim);max-width:440px;margin:0 auto 40px;line-height:1.7;">Apply in 2 minutes. Hear back within 24 hours. Your pipeline gets built — you stay booked.</p>
+    <a href="/contact" class="jis-btn">Apply for a System →</a>
+  </div>
+</section>
+` + jisFooterHTML();
+}
+
+// ── Contact Us ────────────────────────────────────────────────────────────────
+function jisContactPage() {
+  return jisHead('Contact JRZ Ink Systems — Apply for a Client Acquisition System', 'Apply to work with JRZ Ink Systems. Fill out the form and we\'ll reach out within 24 hours. Phone: (407) 720-5284. Email: jrzinksystems@gmail.com. US clients only.') +
+  jisNavHTML('Contact') + `
+<style>
+.jis-contact{background:var(--surface);border-top:1px solid var(--border2);}
+.jis-contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:start;padding:96px 0;}
+@media(max-width:820px){.jis-contact-grid{grid-template-columns:1fr;gap:52px;padding:72px 0;}}
+.jis-contact-info h2{font-size:clamp(30px,4vw,48px);font-weight:900;letter-spacing:-0.025em;margin-bottom:24px;}
+.jis-contact-meta{display:flex;flex-direction:column;gap:13px;margin-bottom:40px;}
+.jis-contact-line{font-size:15px;color:var(--dim);}
+.jis-contact-line a{color:var(--white);font-weight:700;}
+.jis-contact-line a:hover{text-decoration:underline;}
+.jis-status-box{border-top:1px solid var(--border);padding-top:28px;}
+.jis-status-label{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--faint);margin-bottom:10px;}
+.jis-status-text{font-size:13px;color:var(--dim);line-height:1.7;}
+.jis-form-frame{background:var(--bg);border:1px solid var(--border);}
+</style>
+
+<!-- PAGE HERO -->
+<section style="padding:120px 0 64px;background:var(--bg);border-bottom:1px solid var(--border);position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:72px 72px;pointer-events:none;"></div>
+  <div class="jis-c" style="position:relative;z-index:1;">
+    <p class="jis-tag">SYSTEM_FILE_04 // CONTACT_ENTRY</p>
+    <h1 class="jis-h2" style="font-size:clamp(40px,6vw,72px);max-width:760px;">Apply to Work<br><span style="color:var(--dim);">With JRZ Ink Systems.</span></h1>
+    <p style="font-size:18px;color:var(--dim);max-width:540px;margin-top:16px;line-height:1.7;">The application takes 2 minutes. If there's a fit, you'll hear from us within 24 hours to talk strategy.</p>
+  </div>
+</section>
+
+<!-- CONTACT GRID + FORM -->
+<section class="jis-contact">
+  <div class="jis-c">
+    <div class="jis-contact-grid">
+      <div class="jis-contact-info">
+        <h2>Let's Build<br>Your System.</h2>
+        <p style="font-size:15px;color:var(--dim);line-height:1.7;margin-bottom:32px;">Fill out the form and we'll reach out within 24 hours to determine if JRZ Ink Systems is the right fit for your business.</p>
+        <div class="jis-contact-meta">
+          <div class="jis-contact-line">Phone: <a href="tel:+14077205284">(407) 720-5284</a></div>
+          <div class="jis-contact-line">Email: <a href="mailto:jrzinksystems@gmail.com">jrzinksystems@gmail.com</a></div>
+          <div class="jis-contact-line" style="margin-top:6px;font-size:13px;color:var(--faint);">Available nationwide — US clients only</div>
+        </div>
+        <div class="jis-status-box">
+          <p class="jis-status-label">SYSTEM_STATUS</p>
+          <p class="jis-status-text">Currently accepting new client applications. Capacity is intentionally limited — we maintain a focused client roster to ensure the quality of execution every client deserves.</p>
+        </div>
+        <div style="margin-top:40px;border-top:1px solid var(--border);padding-top:32px;">
+          <p class="jis-status-label">WHAT_HAPPENS_NEXT</p>
+          <div style="display:flex;flex-direction:column;gap:18px;margin-top:4px;">
+            <div style="display:flex;gap:16px;align-items:flex-start;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--faint);min-width:28px;margin-top:2px;">01</div>
+              <div style="font-size:14px;color:var(--dim);line-height:1.7;">We review your application and assess the fit for our system.</div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:flex-start;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--faint);min-width:28px;margin-top:2px;">02</div>
+              <div style="font-size:14px;color:var(--dim);line-height:1.7;">If there's a fit, we reach out within 24 hours to schedule a strategy call.</div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:flex-start;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--faint);min-width:28px;margin-top:2px;">03</div>
+              <div style="font-size:14px;color:var(--dim);line-height:1.7;">We confirm the fit, agree on terms, and start building your system.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="jis-form-frame">
+        <iframe
+          src="https://links.jrzmarketing.com/widget/form/3FCTNG4eH5pHYrBhrdlF"
+          style="width:100%;height:712px;border:none;display:block;"
+          id="inline-3FCTNG4eH5pHYrBhrdlF"
+          data-layout="{'id':'INLINE'}"
+          data-trigger-type="alwaysShow"
+          data-form-name="jrz ink system"
+          data-height="712"
+          data-form-id="3FCTNG4eH5pHYrBhrdlF"
+          title="jrz ink system">
+        </iframe>
+        <script src="https://links.jrzmarketing.com/js/form_embed.js"></script>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ STRIP -->
+<section class="jis-sec jis-sec--sm" style="border-top:1px solid var(--border);">
+  <div class="jis-c">
+    <p class="jis-tag">COMMON_QUESTIONS</p>
+    <h2 class="jis-h2" style="font-size:clamp(24px,3.5vw,42px);">Quick Answers</h2>
+    <div style="display:flex;flex-direction:column;gap:1px;background:var(--border2);margin-top:48px;">
+      ${[
+        ['How long does it take to get started?','Once we confirm the fit on a strategy call, onboarding and build typically begins within a few business days. Most clients see the system live within 1–2 weeks of signing.'],
+        ['Do I have to sign a long-term contract?','No long-term lock-in. Our model is performance-based — if the system isn\'t generating results, we\'re both losing. We earn your business by performing, not by trapping you in a contract.'],
+        ['What kind of businesses do you work with?','Service businesses across the US — any industry where you deliver a service and get paid for it. Ideal clients have a proven offer and an average client value of $1,000 or more.'],
+        ['What if my business is outside Florida?','We operate nationwide. All 50 US states. Whether you\'re local, regional, or national, we build systems for your market.'],
+        ['How is the 10–15% calculated?','The percentage applies to revenue we directly generate through the system we build and manage — tracked through the CRM pipeline we set up. We agree on attribution methodology upfront.'],
+      ].map(([q,a])=>`<div style="background:var(--bg);padding:32px 36px;">
+        <div style="font-size:16px;font-weight:800;margin-bottom:10px;">${q}</div>
+        <div style="font-size:14px;color:var(--dim);line-height:1.75;">${a}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+` + jisFooterHTML();
+}
+
 // GET /sofia/jrz-ink-systems — download hub for JRZ Ink Systems website
 app.get('/sofia/jrz-ink-systems', (req, res) => {
   try {
     const cacheId = crypto.randomBytes(8).toString('hex');
-    const html = jisBuildHome();
     websitePackageCache.set(cacheId, {
-      pages: { home: html },
+      pages: {
+        home:        jisBuildHome(),
+        about:       jisAbout(),
+        'why-us':    jisWhyUs(),
+        'our-process': jisOurProcess(),
+        contact:     jisContactPage(),
+      },
       clientName: 'JRZ Ink Systems',
       expires: Date.now() + 600000,
     });
+    const pageList = [
+      { key:'home',         label:'Home Page',   file:'index.html',       slug:'/ (root homepage)',  desc:'Hero · Problem · Solution · Case Studies · Comparison · Process · Pricing · Filter · Form' },
+      { key:'about',        label:'About Us',    file:'about.html',       slug:'/about',             desc:'Origin story · Values · Who we work with · Stats' },
+      { key:'why-us',       label:'Why Us',      file:'why-us.html',      slug:'/why-us',            desc:'6 reasons · Case numbers · Comparison table' },
+      { key:'our-process',  label:'Our Process', file:'our-process.html', slug:'/our-process',       desc:'3-phase deep dive: Apply · Build · Deploy + Expectations' },
+      { key:'contact',      label:'Contact Us',  file:'contact.html',     slug:'/contact',           desc:'GHL form · Phone & email · What happens next · FAQ' },
+    ];
     const hub = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JRZ Ink Systems — Website Hub</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:system-ui,sans-serif;background:#131313;color:#fff;padding:48px 20px;}
-.wrap{max-width:680px;margin:0 auto;}
+.wrap{max-width:720px;margin:0 auto;}
 .logo-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
 .logo-row svg{width:36px;height:36px;}
 .logo-row span{font-size:15px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;}
@@ -11241,25 +11860,25 @@ h1{font-size:24px;font-weight:900;margin-bottom:6px;}
 .how{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);padding:18px 22px;margin-top:24px;font-size:13px;color:rgba(255,255,255,0.4);line-height:2;}
 </style></head><body><div class="wrap">
 <div class="logo-row"><svg viewBox="0 0 36 36" fill="none"><polygon points="18,3 33,30 3,30" fill="none" stroke="white" stroke-width="2.2"/><polygon points="18,12 27,28 9,28" fill="white"/></svg><span>JRZ INK SYSTEMS</span></div>
-<div class="badge">Website Ready</div>
+<div class="badge">5 Pages Ready</div>
 <h1>JRZ Ink Systems</h1>
-<p class="sub">The Monolith Architect · Black/White · Inter · Performance Marketing · GHL Form</p>
-<div class="section-label">Download Page</div>
-<a href="/sofia/website-download?id=${cacheId}&page=home&filename=index.html" class="dl-btn">
+<p class="sub">The Monolith Architect · Black/White · Inter · Performance Marketing · Full Nav</p>
+<div class="section-label">All 5 Pages</div>
+${pageList.map(p=>`<a href="/sofia/website-download?id=${cacheId}&page=${p.key}&filename=${p.file}" class="dl-btn">
   <div class="dl-left">
-    <div class="dl-name">Home Page — Full Site</div>
-    <div class="dl-slug">GHL slug: Homepage (root /)</div>
-    <div class="dl-desc">Hero · Problem · Solution · Case Studies · Comparison · Process · Pricing · Qualification · Contact Form</div>
+    <div class="dl-name">${p.label}</div>
+    <div class="dl-slug">GHL slug: ${p.slug}</div>
+    <div class="dl-desc">${p.desc}</div>
   </div>
   <div class="dl-tag">↓ Download</div>
-</a>
+</a>`).join('')}
 <div class="how">
 <strong style="color:#fff;">How to upload to GHL:</strong><br>
-1. Download the file above<br>
-2. GHL → Sites → Websites → JRZ Ink Systems → Homepage<br>
-3. Open page → Custom Code tab → paste the full HTML → Save &amp; Publish<br>
-4. Set page slug to / (root homepage)<br><br>
-<em style="color:rgba(255,255,255,0.2);font-size:11px;">Link expires in 10 minutes. Refresh to regenerate.</em>
+1. Download each page file<br>
+2. GHL → Sites → Websites → JRZ Ink Systems → select page<br>
+3. Open page → Custom Code tab → paste full HTML → Save &amp; Publish<br>
+4. Set the page slug to match the GHL slug shown above<br><br>
+<em style="color:rgba(255,255,255,0.2);font-size:11px;">Links expire in 10 minutes. Refresh to regenerate.</em>
 </div>
 </div></body></html>`;
     res.setHeader('Content-Type', 'text/html');
