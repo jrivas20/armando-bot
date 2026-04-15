@@ -14281,6 +14281,584 @@ app.get('/authors', (_req, res) => {
   <tbody>${rows}</tbody></table></body></html>`);
 });
 
+// ============================================================
+// LION JUNK REMOVAL & DEMOLITION WEBSITE
+// ============================================================
+
+function ljrCSS() {
+  return `
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+#ljr-site{position:relative;left:50%;margin-left:-50vw;width:100vw;max-width:100vw;overflow-x:hidden;font-family:'Inter',sans-serif;background:#fff;color:#1a1a1a;}
+#ljr-site *,#ljr-site *::before,#ljr-site *::after{box-sizing:border-box;}
+html,body{margin:0;padding:0;overflow-x:hidden;}
+img{display:block;max-width:100%;}a{color:inherit;text-decoration:none;}
+:root{--red:#c01414;--dark:#111111;--text:#1a1a1a;--muted:#5a6472;--white:#ffffff;--line:#e5e7eb;--panel:#f8f9fa;--shadow:0 4px 24px rgba(0,0,0,.08);}
+.ljr-c{width:min(1280px,calc(100% - 40px));margin:0 auto;}
+.ljr-s{padding:88px 0;}
+.ljr-s-sm{padding:60px 0;}
+.ljr-btn-red{display:inline-flex;align-items:center;justify-content:center;padding:14px 28px;background:var(--red);color:#fff;font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:6px;border:2px solid var(--red);transition:.2s ease;cursor:pointer;}
+.ljr-btn-red:hover{background:#a01010;border-color:#a01010;transform:translateY(-2px);}
+.ljr-btn-dark{display:inline-flex;align-items:center;justify-content:center;padding:14px 28px;background:var(--dark);color:#fff;font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:6px;border:2px solid var(--dark);transition:.2s ease;}
+.ljr-btn-dark:hover{background:#333;transform:translateY(-2px);}
+.ljr-btn-outline{display:inline-flex;align-items:center;justify-content:center;padding:13px 28px;background:#fff;color:var(--red);font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:6px;border:2px solid var(--red);transition:.2s ease;}
+.ljr-btn-outline:hover{background:var(--red);color:#fff;}
+.ljr-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
+.ljr-eyebrow:before{content:"";width:28px;height:2px;background:var(--red);}
+.ljr-h1{font-size:clamp(40px,6vw,84px);line-height:.95;letter-spacing:-.04em;font-weight:900;color:#fff;margin:0 0 20px;}
+.ljr-h2{font-size:clamp(32px,4vw,60px);line-height:1;letter-spacing:-.04em;font-weight:900;color:var(--dark);margin:0 0 16px;}
+.ljr-h3{font-size:clamp(22px,2.5vw,34px);line-height:1.1;font-weight:800;color:var(--dark);margin:0 0 12px;}
+.ljr-sub{font-size:17px;line-height:1.8;color:var(--muted);}
+.ljr-nav-wrap{position:sticky;top:0;z-index:60;background:#fff;border-bottom:3px solid var(--red);box-shadow:0 2px 12px rgba(0,0,0,.08);}
+.ljr-nav{display:flex;align-items:center;justify-content:space-between;min-height:72px;gap:16px;}
+.ljr-nav-brand{font-size:20px;font-weight:900;color:var(--dark);letter-spacing:-.02em;}
+.ljr-nav-brand span{color:var(--red);}
+.ljr-nav-links{display:flex;align-items:center;gap:6px;list-style:none;}
+.ljr-nav-links a{font-size:12px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:#444;padding:8px 12px;border-radius:4px;transition:.2s;}
+.ljr-nav-links a:hover,.ljr-nav-links a.act{color:var(--red);}
+.ljr-nav-mob{display:none;background:none;border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;}
+.ljr-hero{position:relative;min-height:92vh;display:flex;align-items:center;background:#111;overflow:hidden;}
+.ljr-hero-bg{position:absolute;inset:0;}
+.ljr-hero-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(.35);}
+.ljr-hero-in{position:relative;z-index:2;padding:80px 0 60px;}
+.ljr-hero-kicker{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;padding:8px 16px;border-radius:4px;margin-bottom:22px;}
+.ljr-hero-sub{font-size:18px;line-height:1.8;color:rgba(255,255,255,.82);max-width:680px;margin:0 0 32px;}
+.ljr-hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
+.ljr-trust-bar{background:var(--red);padding:16px 0;}
+.ljr-trust-in{display:flex;justify-content:center;align-items:center;gap:32px;flex-wrap:wrap;}
+.ljr-trust-item{display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
+.ljr-trust-item:before{content:"✓";font-weight:900;font-size:15px;}
+.ljr-svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px;}
+.ljr-svc-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:28px;box-shadow:var(--shadow);transition:.25s ease;}
+.ljr-svc-card:hover{border-color:var(--red);transform:translateY(-4px);box-shadow:0 12px 36px rgba(192,20,20,.12);}
+.ljr-svc-icon{font-size:36px;margin-bottom:14px;}
+.ljr-svc-title{font-size:20px;font-weight:800;color:var(--dark);margin-bottom:10px;}
+.ljr-svc-copy{font-size:14px;line-height:1.8;color:var(--muted);margin-bottom:14px;}
+.ljr-svc-link{font-size:13px;font-weight:800;color:var(--red);letter-spacing:.06em;text-transform:uppercase;}
+.ljr-why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:44px;}
+.ljr-why-card{text-align:center;padding:36px 24px;background:var(--panel);border-radius:10px;border:1px solid var(--line);}
+.ljr-why-icon{font-size:44px;margin-bottom:16px;}
+.ljr-why-title{font-size:20px;font-weight:800;color:var(--dark);margin-bottom:10px;}
+.ljr-why-copy{font-size:14px;line-height:1.8;color:var(--muted);}
+.ljr-areas-strip{background:var(--dark);padding:18px 0;overflow:hidden;}
+.ljr-areas-in{white-space:nowrap;font-size:14px;font-weight:700;color:rgba(255,255,255,.75);letter-spacing:.08em;text-align:center;}
+.ljr-areas-in span{color:var(--red);margin:0 4px;}
+.ljr-rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px;}
+.ljr-rev-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:24px;box-shadow:var(--shadow);}
+.ljr-rev-stars{color:#f59e0b;font-size:16px;margin-bottom:10px;letter-spacing:2px;}
+.ljr-rev-text{font-size:14px;line-height:1.8;color:#444;margin-bottom:14px;}
+.ljr-rev-name{font-size:13px;font-weight:800;color:var(--dark);}
+.ljr-rev-source{font-size:11px;color:var(--muted);margin-top:2px;}
+.ljr-cta-band{background:var(--red);padding:72px 0;text-align:center;}
+.ljr-cta-band h2{font-size:clamp(28px,4vw,52px);font-weight:900;color:#fff;margin-bottom:14px;}
+.ljr-cta-band p{font-size:17px;color:rgba(255,255,255,.88);margin-bottom:28px;}
+.ljr-cta-band .ljr-btn-red{background:#fff;color:var(--red);border-color:#fff;}
+.ljr-cta-band .ljr-btn-red:hover{background:rgba(255,255,255,.9);}
+.ljr-sec-alt{background:var(--panel);}
+.ljr-ind-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:44px;}
+.ljr-ind-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:32px;box-shadow:var(--shadow);border-left:4px solid var(--red);}
+.ljr-ind-title{font-size:22px;font-weight:800;color:var(--dark);margin-bottom:12px;}
+.ljr-ind-copy{font-size:14px;line-height:1.85;color:var(--muted);margin-bottom:18px;}
+.ljr-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:44px;}
+.ljr-stat-box{text-align:center;padding:32px 20px;background:#fff;border:1px solid var(--line);border-radius:10px;border-top:4px solid var(--red);}
+.ljr-stat-n{font-size:48px;font-weight:900;color:var(--red);line-height:1;}
+.ljr-stat-l{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:8px;}
+.ljr-faq-list{max-width:860px;margin:44px auto 0;}
+.ljr-faq-item{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;overflow:hidden;}
+.ljr-faq-btn{width:100%;text-align:left;background:#fff;border:0;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:15px;font-weight:700;color:var(--dark);}
+.ljr-faq-btn:hover{background:var(--panel);}
+.ljr-faq-icon{color:var(--red);font-size:20px;font-weight:900;flex-shrink:0;}
+.ljr-faq-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.ljr-faq-body p{padding:0 24px 20px;font-size:14px;line-height:1.85;color:var(--muted);margin:0;}
+.ljr-faq-item.open .ljr-faq-body{max-height:300px;}
+.ljr-contact-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:28px;align-items:start;margin-top:44px;}
+.ljr-contact-info{background:var(--dark);color:#fff;border-radius:10px;padding:36px;}
+.ljr-contact-info h3{font-size:24px;font-weight:800;color:#fff;margin-bottom:22px;}
+.ljr-contact-row{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;}
+.ljr-contact-icon{width:40px;height:40px;background:var(--red);border-radius:6px;display:grid;place-items:center;flex-shrink:0;font-size:16px;}
+.ljr-contact-label{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px;}
+.ljr-contact-val{font-size:14px;color:rgba(255,255,255,.88);line-height:1.7;}
+.ljr-areas-list{margin-top:22px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1);}
+.ljr-areas-list h4{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:12px;}
+.ljr-areas-list p{font-size:13px;line-height:2;color:rgba(255,255,255,.75);}
+.ljr-form-wrap{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:var(--shadow);}
+.ljr-footer{background:var(--dark);color:rgba(255,255,255,.7);padding:56px 0 28px;}
+.ljr-footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:28px;margin-bottom:36px;}
+.ljr-footer-brand{font-size:22px;font-weight:900;color:#fff;margin-bottom:14px;}
+.ljr-footer-brand span{color:var(--red);}
+.ljr-footer-copy{font-size:13px;line-height:1.85;}
+.ljr-footer-col h4{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
+.ljr-footer-links{list-style:none;display:grid;gap:8px;}
+.ljr-footer-links a{font-size:13px;color:rgba(255,255,255,.7);transition:.2s;}
+.ljr-footer-links a:hover{color:var(--red);}
+.ljr-footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12px;color:rgba(255,255,255,.4);}
+.ljr-reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+.ljr-reveal.visible{opacity:1;transform:none;}
+@media(max-width:1100px){.ljr-svc-grid,.ljr-why-grid{grid-template-columns:1fr 1fr;}.ljr-stats-grid{grid-template-columns:1fr 1fr;}.ljr-footer-grid{grid-template-columns:1fr 1fr;}.ljr-contact-grid{grid-template-columns:1fr;}}
+@media(max-width:768px){.ljr-nav-links{display:none;}.ljr-nav-mob{display:block;}.ljr-svc-grid,.ljr-why-grid,.ljr-rev-grid,.ljr-ind-grid,.ljr-stats-grid,.ljr-footer-grid{grid-template-columns:1fr;}.ljr-trust-in{gap:16px;}.ljr-contact-grid{grid-template-columns:1fr;}.ljr-hero{min-height:auto;padding:100px 0 60px;}}
+@media(max-width:480px){.ljr-s{padding:60px 0;}.ljr-hero-btns{flex-direction:column;}.ljr-hero-btns a{width:100%;justify-content:center;}.ljr-trust-item{font-size:11px;}}
+`;
+}
+
+function ljrHead(title, desc, slug) {
+  const schema = JSON.stringify({"@context":"https://schema.org","@type":"LocalBusiness","name":"Lion Junk Removal & Demolition","description":"Central Florida's trusted junk removal and demolition company serving Orlando, Kissimmee, Winter Park, Sanford, Clermont, Daytona Beach and 40+ cities.","url":"https://lionjunkremovaldemolition.com"+slug,"areaServed":["Orlando","Kissimmee","Winter Park","Sanford","Clermont","Daytona Beach","Central Florida"],"priceRange":"$$","telephone":"(407) 555-0100","address":{"@type":"PostalAddress","addressLocality":"Orlando","addressRegion":"FL","addressCountry":"US"}});
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+<meta name="description" content="${desc}">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${desc}">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script type="application/ld+json">${schema}</script>
+<style>${ljrCSS()}</style>
+</head><body><div id="ljr-site">`;
+}
+
+function ljrNav(active) {
+  const links = [['home','Home','/'],['services','Services','/services'],['industries','Industries','/industries'],['about','About Us','/about'],['faq','FAQ','/faq'],['contact','Contact','/contact']];
+  return `<div class="ljr-nav-wrap"><div class="ljr-c"><nav class="ljr-nav">
+  <div class="ljr-nav-brand">LION <span>JUNK REMOVAL</span></div>
+  <ul class="ljr-nav-links">
+    ${links.map(([id,label,href])=>`<li><a href="${href}"${active===id?' class="act"':''}>${label}</a></li>`).join('')}
+  </ul>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="/contact" class="ljr-btn-red" style="min-height:44px;padding:10px 20px;font-size:12px;">Book Now</a>
+    <button class="ljr-nav-mob" id="ljrMobBtn">Menu</button>
+  </div>
+</nav></div></div>
+<div id="ljrMobMenu" style="display:none;background:#fff;border-bottom:1px solid var(--line);padding:12px 0;">
+  <div class="ljr-c" style="display:grid;gap:4px;">
+    ${links.map(([id,label,href])=>`<a href="${href}" style="padding:12px 16px;border-radius:6px;background:var(--panel);font-size:14px;font-weight:700;">${label}</a>`).join('')}
+  </div>
+</div>`;
+}
+
+function ljrFooter() {
+  return `<footer class="ljr-footer"><div class="ljr-c">
+  <div class="ljr-footer-grid">
+    <div>
+      <div class="ljr-footer-brand">LION <span>JUNK REMOVAL</span></div>
+      <p class="ljr-footer-copy">Central Florida's most trusted junk removal and demolition company. Licensed, insured, and committed to fast, affordable, eco-friendly service across 40+ cities.</p>
+    </div>
+    <div class="ljr-footer-col"><h4>Services</h4><ul class="ljr-footer-links">
+      <li><a href="/services#furniture">Furniture Removal</a></li>
+      <li><a href="/services#appliance">Appliance Removal</a></li>
+      <li><a href="/services#garage">Garage Cleanout</a></li>
+      <li><a href="/services#estate">Estate Cleanout</a></li>
+      <li><a href="/services#commercial">Commercial Junk Removal</a></li>
+      <li><a href="/services#demolition">Demolition</a></li>
+    </ul></div>
+    <div class="ljr-footer-col"><h4>Industries</h4><ul class="ljr-footer-links">
+      <li><a href="/industries#homeowners">Homeowners</a></li>
+      <li><a href="/industries#contractors">Contractors</a></li>
+      <li><a href="/industries#property-managers">Property Managers</a></li>
+      <li><a href="/industries#real-estate">Real Estate Agents</a></li>
+      <li><a href="/industries#commercial">Commercial</a></li>
+    </ul></div>
+    <div class="ljr-footer-col"><h4>Areas Served</h4><p style="font-size:13px;line-height:2;color:rgba(255,255,255,.7);">Orlando · Kissimmee · Winter Park · Sanford · Clermont · Daytona Beach · Lake Nona · Altamonte Springs · Longwood · Oviedo · and 30+ more cities</p></div>
+  </div>
+  <div class="ljr-footer-bottom">
+    <span>© ${new Date().getFullYear()} Lion Junk Removal & Demolition. All rights reserved.</span>
+    <span>Licensed & Insured · Central Florida's Trusted Junk Removal Team</span>
+  </div>
+</div></footer>
+<script>
+(function(){
+  var btn=document.getElementById('ljrMobBtn'),menu=document.getElementById('ljrMobMenu');
+  if(btn&&menu)btn.addEventListener('click',function(){menu.style.display=menu.style.display==='none'?'block':'none';});
+  var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('visible');io.unobserve(x.target);}});},{threshold:.08});
+  document.querySelectorAll('.ljr-reveal').forEach(function(el){io.observe(el);});
+  document.querySelectorAll('.ljr-faq-btn').forEach(function(btn){btn.addEventListener('click',function(){var item=btn.closest('.ljr-faq-item');var open=item.classList.contains('open');document.querySelectorAll('.ljr-faq-item').forEach(function(i){i.classList.remove('open');var ic=i.querySelector('.ljr-faq-icon');if(ic)ic.textContent='+';});if(!open){item.classList.add('open');var ic=item.querySelector('.ljr-faq-icon');if(ic)ic.textContent='−';}});});
+})();
+</script>`;
+}
+
+function ljrBuildHomePage(kwData=[]) {
+  const kwCloud = kwData.slice(0,10).map(k=>`<span style="display:inline-block;padding:6px 12px;background:rgba(192,20,20,.08);color:var(--red);border-radius:4px;font-size:12px;font-weight:700;margin:4px;">${k.keyword}</span>`).join('') || '';
+  return ljrHead('Lion Junk Removal & Demolition | Best Junk Removal in Orlando, FL','Central Florida\'s most trusted junk removal and demolition company. Same-day service in Orlando, Kissimmee, Winter Park, Sanford, Clermont, and 40+ cities. Free quotes.','/') +
+  ljrNav('home') + `
+<section class="ljr-hero">
+  <div class="ljr-hero-bg"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1400&q=80" alt="Junk removal truck Central Florida" fetchpriority="high"></div>
+  <div class="ljr-c ljr-hero-in ljr-reveal">
+    <div class="ljr-hero-kicker">🦁 Central Florida's #1 Junk Removal Team</div>
+    <h1 class="ljr-h1" style="max-width:820px;">Central Florida's Most Trusted Junk Removal &amp; Demolition Team</h1>
+    <p class="ljr-hero-sub">Same-day service available in Orlando, Kissimmee, Winter Park, Sanford, Clermont, Daytona Beach, and 40+ cities. Upfront pricing, no surprises, eco-friendly disposal.</p>
+    <div class="ljr-hero-btns">
+      <a href="/contact" class="ljr-btn-red">Book Now — Get Free Quote →</a>
+      <a href="/services" class="ljr-btn-outline" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.5);">View All Services</a>
+    </div>
+  </div>
+</section>
+
+<div class="ljr-trust-bar">
+  <div class="ljr-c"><div class="ljr-trust-in">
+    <span class="ljr-trust-item">Licensed &amp; Insured</span>
+    <span class="ljr-trust-item">Same-Day Service Available</span>
+    <span class="ljr-trust-item">Eco-Friendly Disposal</span>
+    <span class="ljr-trust-item">5★ Google Rated</span>
+    <span class="ljr-trust-item">Free Quotes</span>
+    <span class="ljr-trust-item">No Hidden Fees</span>
+  </div></div>
+</div>
+
+<section class="ljr-s">
+  <div class="ljr-c">
+    <div class="ljr-reveal"><div class="ljr-eyebrow">Our Services</div>
+    <h2 class="ljr-h2">Junk Removal Services for Every Situation</h2>
+    <p class="ljr-sub" style="max-width:680px;">From single-item pickups to full property cleanouts, we handle it all. Fast, affordable, and professional — every time.</p></div>
+    <div class="ljr-svc-grid">
+      ${[
+        ['🛋️','Furniture Removal','Sofas, beds, tables, chairs, and more. We haul it all so you don\'t have to.'],
+        ['🧊','Appliance Removal','Refrigerators, washers, dryers, microwaves — safe and responsible disposal.'],
+        ['🏠','Garage Cleanout','Complete garage cleanouts from top to bottom. We sort, haul, and sweep up.'],
+        ['🏗️','Construction Debris','Drywall, lumber, concrete, tiles — fast debris removal for contractors and homeowners.'],
+        ['🏡','Estate Cleanout','Compassionate, efficient estate cleanouts for families and real estate professionals.'],
+        ['🏢','Commercial Junk Removal','Office furniture, equipment, and debris removal for businesses of all sizes.'],
+      ].map(([icon,title,copy])=>`
+      <div class="ljr-svc-card ljr-reveal">
+        <div class="ljr-svc-icon">${icon}</div>
+        <div class="ljr-svc-title">${title}</div>
+        <div class="ljr-svc-copy">${copy}</div>
+        <a href="/services" class="ljr-svc-link">Learn More →</a>
+      </div>`).join('')}
+    </div>
+    <div style="text-align:center;margin-top:36px;"><a href="/services" class="ljr-btn-red">View All Services</a></div>
+  </div>
+</section>
+
+<section class="ljr-s ljr-sec-alt">
+  <div class="ljr-c">
+    <div class="ljr-reveal" style="text-align:center;max-width:680px;margin:0 auto 0;">
+      <div class="ljr-eyebrow">Why Choose Lion</div>
+      <h2 class="ljr-h2">Honest. Fast. Reliable.</h2>
+      <p class="ljr-sub">We built our reputation on three things that matter most to our customers.</p>
+    </div>
+    <div class="ljr-why-grid">
+      <div class="ljr-why-card ljr-reveal"><div class="ljr-why-icon">💰</div><div class="ljr-why-title">Upfront Pricing</div><p class="ljr-why-copy">No hidden fees, no surprises. You get a clear quote before we start — and that's exactly what you pay.</p></div>
+      <div class="ljr-why-card ljr-reveal"><div class="ljr-why-icon">♻️</div><div class="ljr-why-title">Eco-Friendly Disposal</div><p class="ljr-why-copy">We donate usable items, recycle what we can, and responsibly dispose of the rest. Good for you and the planet.</p></div>
+      <div class="ljr-why-card ljr-reveal"><div class="ljr-why-icon">⚡</div><div class="ljr-why-title">Same-Day Available</div><p class="ljr-why-copy">Need it gone today? We offer same-day and next-day service across Central Florida. Just call or book online.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="ljr-areas-strip">
+  <div class="ljr-c"><div class="ljr-areas-in">
+    Serving Central Florida: <span>Orlando</span> · <span>Kissimmee</span> · <span>Winter Park</span> · <span>Sanford</span> · <span>Clermont</span> · <span>Daytona Beach</span> · <span>Lake Nona</span> · <span>Altamonte Springs</span> · <span>Longwood</span> · <span>Oviedo</span> · and <span>30+ more cities</span>
+  </div></div>
+</div>
+
+<section class="ljr-s">
+  <div class="ljr-c">
+    <div class="ljr-reveal" style="text-align:center;max-width:680px;margin:0 auto 0;">
+      <div class="ljr-eyebrow">Google Reviews</div>
+      <h2 class="ljr-h2">What Our Customers Say</h2>
+      <p class="ljr-sub">500+ five-star reviews across Central Florida. Here's what real customers are saying.</p>
+    </div>
+    <div class="ljr-rev-grid">
+      ${[
+        ['Maria G.','★★★★★','Fast, professional, and affordable. They cleared my garage in under 2 hours. Highly recommend to anyone in Orlando!'],
+        ['Carlos R.','★★★★★','Called at 8am, they were here by noon. No hidden fees, clean work. Best junk removal in Kissimmee.'],
+        ['Jennifer T.','★★★★★','Best junk removal company in Orlando. The team was respectful of my property and incredibly efficient.'],
+        ['Mike D.','★★★★★','Used them for a commercial cleanout in Winter Park. Incredible value and super fast turnaround.'],
+        ['Sandra L.','★★★★★','They took everything — old furniture, appliances, construction debris. Made the whole process easy.'],
+        ['Anthony P.','★★★★★','Honest pricing, no surprises. Showed up on time and got the job done right. 5 stars all day.'],
+        ['Rosa M.','★★★★★','Perfect service for our estate cleanout in Sanford. Very compassionate, professional team.'],
+        ['David K.','★★★★★','Used Lion JR for construction debris removal after a remodel. Fast, clean, and a great price.'],
+        ['Lisa H.','★★★★★','They helped with a hoarding cleanup and were incredibly patient and thorough throughout the process.'],
+        ['Tom W.','★★★★★','Same-day service for a last-minute job in Clermont. Couldn\'t ask for better. 10/10 — will use again.'],
+      ].map(([name,stars,text])=>`
+      <div class="ljr-rev-card ljr-reveal">
+        <div class="ljr-rev-stars">${stars}</div>
+        <p class="ljr-rev-text">"${text}"</p>
+        <div class="ljr-rev-name">${name}</div>
+        <div class="ljr-rev-source">Google Review · Central Florida</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+${kwCloud ? `<section class="ljr-s-sm ljr-sec-alt"><div class="ljr-c ljr-reveal"><div class="ljr-eyebrow">Local SEO Keywords</div><p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Top search terms for junk removal in Central Florida:</p><div>${kwCloud}</div></div></section>` : ''}
+
+<div class="ljr-cta-band ljr-reveal">
+  <div class="ljr-c">
+    <h2>Ready to Clear the Clutter?</h2>
+    <p>Get your free, no-obligation quote today. Same-day service available across Central Florida.</p>
+    <a href="/contact" class="ljr-btn-red">Get Free Quote Now →</a>
+  </div>
+</div>
+` + ljrFooter() + `</div></body></html>`;
+}
+
+function ljrBuildServicesPage(kwData=[]) {
+  const services = [
+    {id:'furniture',icon:'🛋️',title:'Furniture Removal',copy:'We remove sofas, sectionals, beds, dressers, tables, chairs, and any other furniture from your home, office, or storage unit. Our team does all the heavy lifting — you just point and we haul.',items:['Living room & bedroom furniture','Office chairs & desks','Mattresses & box springs','Entertainment centers','Outdoor furniture']},
+    {id:'appliance',icon:'🧊',title:'Appliance Removal',copy:'Old refrigerators, washers, dryers, dishwashers, ovens, and microwaves are safely removed and disposed of in compliance with environmental regulations. We handle all types.',items:['Refrigerators & freezers','Washers & dryers','Ovens & ranges','Dishwashers','Air conditioning units']},
+    {id:'garage',icon:'🏠',title:'Garage Cleanout',copy:'A full garage cleanout from top to bottom. We clear out decades of clutter, old tools, boxes, broken equipment, and anything else taking up space. Leave it completely empty and broom-swept.',items:['Old tools & equipment','Boxes & storage items','Broken furniture','Sports equipment','General clutter & debris']},
+    {id:'ewaste',icon:'💻',title:'E-Waste Disposal',copy:'Responsible e-waste disposal for old electronics including computers, TVs, monitors, printers, and more. We ensure your devices are recycled or disposed of in compliance with Florida regulations.',items:['Computers & laptops','TVs & monitors','Printers & scanners','Old phones & tablets','Electronic accessories']},
+    {id:'construction',icon:'🏗️',title:'Construction Debris Removal',copy:'Fast and affordable construction debris removal for contractors, property managers, and homeowners. We haul drywall, lumber, concrete, tiles, insulation, and all types of construction waste.',items:['Drywall & plaster','Lumber & wood scraps','Concrete & masonry','Flooring & tiles','Roofing materials']},
+    {id:'yard',icon:'🌿',title:'Yard Waste Removal',copy:'Tree branches, leaves, grass clippings, old landscaping materials, fencing, and outdoor debris — we clear it all. Perfect for post-storm cleanup or major landscaping projects.',items:['Tree branches & stumps','Leaves & grass clippings','Old fencing & lumber','Landscaping materials','Storm debris cleanup']},
+    {id:'estate',icon:'🏡',title:'Estate Cleanout',copy:'Compassionate and efficient estate cleanouts for families and real estate professionals. We handle the entire property — furniture, belongings, debris — so you don\'t have to.',items:['Full property clearing','Furniture & appliances','Personal belongings (with care)','Garage & storage areas','Coordination with real estate agents']},
+    {id:'commercial',icon:'🏢',title:'Commercial Junk Removal',copy:'Office furniture, cubicles, IT equipment, warehouse inventory, and commercial debris — we work fast to minimize disruption to your business operations.',items:['Office furniture & equipment','Cubicles & shelving','IT & server equipment','Warehouse inventory','Restaurant & retail equipment']},
+    {id:'hoarding',icon:'🧹',title:'Hoarding Cleanup',copy:'Discreet, compassionate hoarding cleanup services. Our experienced team works with sensitivity and professionalism to restore properties to a clean, safe condition.',items:['Full property restoration','Sensitive item handling','Coordination with families','Post-cleanup sweep','Biohazard referral when needed']},
+    {id:'valet',icon:'🗑️',title:'Valet Trash',copy:'Reliable valet trash services for apartment communities, condos, and HOAs. We pick up directly from residents\' doors on a scheduled basis — professional and dependable.',items:['Door-to-door pickup','Scheduled service plans','Apartment communities','Condo associations','HOA partnerships']},
+    {id:'whats-taken',icon:'📋',title:'What We Take',copy:'We accept the vast majority of household and commercial items. The few things we cannot take are hazardous materials like paint, chemicals, asbestos, and medical waste — check with your local disposal facility for those.',items:['Furniture & mattresses','Appliances & electronics','Yard waste & debris','Construction materials','Clothing & household goods','Office furniture & equipment']},
+  ];
+  return ljrHead('Junk Removal Services in Central Florida | Lion Junk Removal','Full list of junk removal and demolition services in Orlando, Kissimmee, Winter Park, Sanford, and Central Florida. Same-day service available.','/services') +
+  ljrNav('services') + `
+<div style="background:var(--dark);padding:64px 0 48px;border-bottom:4px solid var(--red);">
+  <div class="ljr-c ljr-reveal">
+    <div class="ljr-eyebrow" style="color:var(--red);">Our Services</div>
+    <h1 class="ljr-h2" style="color:#fff;font-size:clamp(36px,5vw,72px);">Every Junk Removal Service You Need</h1>
+    <p style="font-size:17px;color:rgba(255,255,255,.75);max-width:620px;line-height:1.8;">From single-item pickups to complete property cleanouts — we do it all across Central Florida with upfront pricing and same-day availability.</p>
+    <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="/contact" class="ljr-btn-red">Get Free Quote →</a>
+    </div>
+  </div>
+</div>
+<div class="ljr-trust-bar"><div class="ljr-c"><div class="ljr-trust-in"><span class="ljr-trust-item">Licensed &amp; Insured</span><span class="ljr-trust-item">Same-Day Available</span><span class="ljr-trust-item">Free Quotes</span><span class="ljr-trust-item">Eco-Friendly</span></div></div></div>
+${services.map((svc,i)=>`
+<section id="${svc.id}" class="ljr-s${i%2===1?' ljr-sec-alt':''}">
+  <div class="ljr-c">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;" class="ljr-reveal">
+      <div>
+        <div class="ljr-eyebrow">${svc.icon} Junk Removal Service</div>
+        <h2 class="ljr-h2">${svc.title}</h2>
+        <p class="ljr-sub" style="margin-bottom:22px;">${svc.copy}</p>
+        <ul style="list-style:none;display:grid;gap:10px;margin-bottom:24px;">
+          ${svc.items.map(item=>`<li style="display:flex;gap:10px;align-items:center;font-size:14px;color:#444;"><span style="color:var(--red);font-weight:900;">✓</span>${item}</li>`).join('')}
+        </ul>
+        <a href="/contact" class="ljr-btn-red">Book ${svc.title} →</a>
+      </div>
+      <div style="background:var(--panel);border-radius:10px;padding:36px;border-left:4px solid var(--red);">
+        <div style="font-size:52px;margin-bottom:16px;">${svc.icon}</div>
+        <h3 style="font-size:20px;font-weight:800;color:var(--dark);margin-bottom:12px;">Why Choose Lion JR?</h3>
+        <p style="font-size:14px;line-height:1.85;color:var(--muted);margin-bottom:16px;">Fast, professional, and affordable ${svc.title.toLowerCase()} across Central Florida. Licensed, insured, and committed to eco-friendly disposal.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <span style="padding:6px 12px;background:rgba(192,20,20,.08);color:var(--red);border-radius:4px;font-size:12px;font-weight:800;">Same-Day Available</span>
+          <span style="padding:6px 12px;background:rgba(192,20,20,.08);color:var(--red);border-radius:4px;font-size:12px;font-weight:800;">Free Quote</span>
+          <span style="padding:6px 12px;background:rgba(192,20,20,.08);color:var(--red);border-radius:4px;font-size:12px;font-weight:800;">Licensed &amp; Insured</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`).join('')}
+<div class="ljr-cta-band ljr-reveal"><div class="ljr-c"><h2>Ready to Schedule?</h2><p>Get a free, no-obligation quote for any of our services. Same-day available.</p><a href="/contact" class="ljr-btn-red">Book Now →</a></div></div>
+` + ljrFooter() + `</div></body></html>`;
+}
+
+function ljrBuildIndustriesPage(kwData=[]) {
+  const industries = [
+    {id:'homeowners',icon:'🏠',title:'Homeowners',sub:'Residential Junk Removal',copy:'Whether you\'re decluttering, downsizing, renovating, or just clearing out years of accumulated junk, Lion Junk Removal makes the process easy. We arrive on time, haul everything you point to, and leave your space clean. No need to rent a dumpster or make multiple trips to the dump.',items:['Full home cleanouts','Room-by-room decluttering','Move-out cleanups','Post-renovation debris','Attic & basement clearing']},
+    {id:'condo',icon:'🏙️',title:'Condo Associations',sub:'HOA & Multi-Family Removal',copy:'Managing a condo community means handling bulk waste, move-out cleanouts, and common area cleanups regularly. Lion JR partners with condo associations across Central Florida to provide fast, reliable, and professional junk removal that keeps your property looking its best.',items:['Bulk item removal','Move-out unit cleanouts','Common area cleanups','Valet trash programs','On-call scheduling for management']},
+    {id:'contractors',icon:'🔧',title:'Contractors',sub:'Construction & Renovation Debris',copy:'Construction debris piles up fast. Lumber, drywall, concrete, tiles, insulation — it\'s a full job site in itself. Lion JR works with contractors throughout Central Florida to provide fast, affordable construction debris removal so your crew stays productive and your site stays clean.',items:['Construction debris hauling','Demo waste removal','Ongoing job site cleanup','Fast turnaround scheduling','Commercial & residential projects']},
+    {id:'property-managers',icon:'🔑',title:'Property Managers',sub:'Residential & Commercial Properties',copy:'Tenant move-outs leave behind furniture, appliances, and junk that needs to go before your next resident arrives. Lion JR responds fast, works professionally, and helps property managers turn units over quickly and efficiently.',items:['Move-out cleanouts','Abandoned property clearing','Multi-unit coordination','Fast turnaround service','Reliable scheduling for managers']},
+    {id:'real-estate',icon:'🏡',title:'Real Estate Agents',sub:'Pre-Listing & Estate Cleanouts',copy:'Before listing a property, sellers often need full cleanouts — furniture, appliances, personal items, and debris. Lion JR helps real estate agents and their clients get properties market-ready fast, with professional service that reflects well on everyone involved.',items:['Pre-listing cleanouts','Estate property clearing','Staging preparation','Fast turnaround','Coordination with sellers & agents']},
+    {id:'commercial-biz',icon:'🏢',title:'Commercial Businesses',sub:'Office & Retail Junk Removal',copy:'Office relocations, furniture upgrades, and business cleanouts require a professional team that works efficiently and respects your schedule. Lion JR provides commercial junk removal for businesses across Central Florida with minimal disruption to your operations.',items:['Office furniture removal','IT equipment disposal','Retail fixture removal','Restaurant equipment hauling','Warehouse & storage cleanouts']},
+    {id:'valet-trash',icon:'🗑️',title:'Valet Trash Services',sub:'Apartment & Multi-Family Communities',copy:'Our valet trash program provides door-to-door trash pickup for apartment communities and multi-family developments on a scheduled, reliable basis. Residents love the convenience and managers love the professionalism.',items:['Door-to-door pickup schedules','Reliable 5-7 day per week service','Resident communication support','Clean, uniformed team members','Community management coordination']},
+    {id:'warehouses',icon:'🏭',title:'Warehouses & Industrial',sub:'Large-Scale Commercial Removal',copy:'Warehouses, distribution centers, and industrial facilities generate large volumes of waste — from old racking and equipment to packaging debris and general waste. Lion JR handles large-scale commercial removals with the capacity and equipment to get it done fast.',items:['Racking & shelving removal','Equipment & machinery disposal','Packaging & pallets','Large-volume debris removal','Flexible scheduling for operations']},
+  ];
+  return ljrHead('Industries We Serve | Lion Junk Removal & Demolition Orlando FL','Lion Junk Removal serves homeowners, contractors, property managers, real estate agents, condo associations, commercial businesses, and more across Central Florida.','/industries') +
+  ljrNav('industries') + `
+<div style="background:var(--dark);padding:64px 0 48px;border-bottom:4px solid var(--red);">
+  <div class="ljr-c ljr-reveal">
+    <div class="ljr-eyebrow" style="color:var(--red);">Industries Served</div>
+    <h1 class="ljr-h2" style="color:#fff;font-size:clamp(36px,5vw,72px);">We Serve Every Industry Across Central Florida</h1>
+    <p style="font-size:17px;color:rgba(255,255,255,.75);max-width:620px;line-height:1.8;">From homeowners to commercial businesses — Lion JR has the experience, equipment, and professionalism to handle any job.</p>
+    <div style="margin-top:24px;"><a href="/contact" class="ljr-btn-red">Get Free Quote →</a></div>
+  </div>
+</div>
+<div class="ljr-trust-bar"><div class="ljr-c"><div class="ljr-trust-in"><span class="ljr-trust-item">Licensed &amp; Insured</span><span class="ljr-trust-item">Same-Day Available</span><span class="ljr-trust-item">Free Quotes</span><span class="ljr-trust-item">Eco-Friendly</span></div></div></div>
+<section class="ljr-s"><div class="ljr-c">
+  <div class="ljr-reveal" style="text-align:center;max-width:680px;margin:0 auto 0;"><div class="ljr-eyebrow">Who We Work With</div><h2 class="ljr-h2">Trusted by Homeowners, Businesses &amp; Professionals</h2></div>
+  <div class="ljr-ind-grid">
+    ${industries.map(ind=>`
+    <div id="${ind.id}" class="ljr-ind-card ljr-reveal">
+      <div style="font-size:36px;margin-bottom:12px;">${ind.icon}</div>
+      <div class="ljr-ind-title">${ind.title}</div>
+      <div style="font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:14px;">${ind.sub}</div>
+      <p class="ljr-ind-copy">${ind.copy}</p>
+      <ul style="list-style:none;display:grid;gap:8px;margin-bottom:20px;">
+        ${ind.items.map(item=>`<li style="display:flex;gap:10px;font-size:13px;color:#444;"><span style="color:var(--red);font-weight:900;">✓</span>${item}</li>`).join('')}
+      </ul>
+      <a href="/contact" class="ljr-btn-red" style="font-size:12px;padding:10px 20px;">Get Quote →</a>
+    </div>`).join('')}
+  </div>
+</div></section>
+<div class="ljr-cta-band ljr-reveal"><div class="ljr-c"><h2>Don't See Your Industry?</h2><p>We work with any business or individual who needs reliable junk removal in Central Florida. Contact us for a custom quote.</p><a href="/contact" class="ljr-btn-red">Contact Us Today →</a></div></div>
+` + ljrFooter() + `</div></body></html>`;
+}
+
+function ljrBuildAboutPage() {
+  return ljrHead('About Lion Junk Removal & Demolition | Central Florida\'s Trusted Team','Learn about Lion Junk Removal & Demolition — Central Florida\'s trusted, licensed, and insured junk removal company serving 40+ cities.','/about') +
+  ljrNav('about') + `
+<div style="background:var(--dark);padding:64px 0 48px;border-bottom:4px solid var(--red);">
+  <div class="ljr-c ljr-reveal">
+    <div class="ljr-eyebrow" style="color:var(--red);">About Us</div>
+    <h1 class="ljr-h2" style="color:#fff;font-size:clamp(36px,5vw,72px);">Built on Trust. Driven by Results.</h1>
+    <p style="font-size:17px;color:rgba(255,255,255,.75);max-width:640px;line-height:1.8;">Lion Junk Removal &amp; Demolition was built to bring professional, honest, and affordable junk removal to every corner of Central Florida.</p>
+  </div>
+</div>
+<div class="ljr-trust-bar"><div class="ljr-c"><div class="ljr-trust-in"><span class="ljr-trust-item">Licensed &amp; Insured</span><span class="ljr-trust-item">5★ Google Rated</span><span class="ljr-trust-item">Eco-Friendly</span><span class="ljr-trust-item">Same-Day Service</span></div></div></div>
+<section class="ljr-s"><div class="ljr-c">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;" class="ljr-reveal">
+    <div>
+      <div class="ljr-eyebrow">Our Story</div>
+      <h2 class="ljr-h2">Central Florida's Junk Removal Experts</h2>
+      <p class="ljr-sub" style="margin-bottom:18px;">Lion Junk Removal &amp; Demolition was founded with one goal: give Central Florida homeowners, businesses, and professionals a junk removal company they can actually trust. One that shows up on time, quotes honestly, works efficiently, and leaves every job site clean.</p>
+      <p style="font-size:16px;line-height:1.85;color:var(--muted);">We've built our reputation one job at a time — earning five-star reviews through consistent, professional service from Orlando to Daytona Beach, Kissimmee to Sanford, and everywhere in between. We're fully licensed and insured, eco-friendly in our disposal practices, and committed to our community.</p>
+    </div>
+    <div>
+      <img src="https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=800&q=80" alt="Lion Junk Removal team Central Florida" style="width:100%;border-radius:10px;box-shadow:var(--shadow);" loading="lazy">
+    </div>
+  </div>
+</div></section>
+<section class="ljr-s ljr-sec-alt"><div class="ljr-c ljr-reveal">
+  <div style="text-align:center;max-width:680px;margin:0 auto 0;"><div class="ljr-eyebrow">By the Numbers</div><h2 class="ljr-h2">A Track Record You Can Count On</h2></div>
+  <div class="ljr-stats-grid">
+    <div class="ljr-stat-box"><div class="ljr-stat-n">1,000+</div><div class="ljr-stat-l">Jobs Completed</div></div>
+    <div class="ljr-stat-box"><div class="ljr-stat-n">5★</div><div class="ljr-stat-l">Google Rating</div></div>
+    <div class="ljr-stat-box"><div class="ljr-stat-n">40+</div><div class="ljr-stat-l">Cities Served</div></div>
+    <div class="ljr-stat-box"><div class="ljr-stat-n">Same Day</div><div class="ljr-stat-l">Service Available</div></div>
+  </div>
+</div></section>
+<section class="ljr-s"><div class="ljr-c">
+  <div class="ljr-reveal" style="text-align:center;max-width:680px;margin:0 auto 0;"><div class="ljr-eyebrow">Our Values</div><h2 class="ljr-h2">What We Stand For</h2></div>
+  <div class="ljr-why-grid">
+    <div class="ljr-why-card ljr-reveal"><div class="ljr-why-icon">🤝</div><div class="ljr-why-title">Honest Pricing</div><p class="ljr-why-copy">You'll always know the price before we start. No hidden fees, no last-minute surprises. What we quote is what you pay.</p></div>
+    <div class="ljr-why-card ljr-reveal"><div class="ljr-why-icon">♻️</div><div class="ljr-why-title">Eco-Friendly</div><p class="ljr-why-copy">We donate, recycle, and responsibly dispose. We take our environmental responsibility seriously on every job.</p></div>
+    <div class="ljr-why-card ljr-reveal"><div class="ljr-why-icon">🛡️</div><div class="ljr-why-title">Licensed &amp; Insured</div><p class="ljr-why-copy">Fully licensed and insured for your protection. You can trust us on your property — residential or commercial.</p></div>
+    <div class="ljr-why-card ljr-reveal"><div class="ljr-why-icon">🦁</div><div class="ljr-why-title">Community-Focused</div><p class="ljr-why-copy">We're a Central Florida company serving Central Florida families and businesses. This community is our home too.</p></div>
+  </div>
+</div></section>
+<div class="ljr-cta-band ljr-reveal"><div class="ljr-c"><h2>Ready to Work With Us?</h2><p>Get a free quote today. Same-day service available across Central Florida.</p><a href="/contact" class="ljr-btn-red">Get Free Quote →</a></div></div>
+` + ljrFooter() + `</div></body></html>`;
+}
+
+function ljrBuildFAQPage() {
+  const faqs = [
+    {q:'What items do you remove?',a:'We remove almost everything — furniture, appliances, electronics, yard waste, construction debris, estate items, office equipment, and more. The only things we cannot take are hazardous materials like paint, chemicals, asbestos, motor oil, and medical/biological waste.'},
+    {q:'How much does junk removal cost?',a:'Pricing is based on the volume and type of items you need removed. We provide a free, no-obligation quote before we start. Most residential jobs range from $100 to $600 depending on load size. There are no hidden fees.'},
+    {q:'Do you offer same-day service?',a:'Yes! We offer same-day and next-day service across Central Florida based on availability. Call or book online early in the day for the best chance of same-day scheduling.'},
+    {q:'Are you licensed and insured?',a:'Yes — Lion Junk Removal & Demolition is fully licensed and insured. We carry liability insurance to protect you and your property on every job.'},
+    {q:'What areas of Central Florida do you serve?',a:'We serve Orlando, Kissimmee, Winter Park, Sanford, Clermont, Daytona Beach, Lake Nona, Altamonte Springs, Longwood, Oviedo, and 30+ additional cities across Central Florida.'},
+    {q:'What happens to my junk after you pick it up?',a:'We take an eco-friendly approach. Usable items are donated to local charities. Electronics are recycled responsibly. Construction materials go to appropriate recycling facilities. Only what cannot be recycled or donated goes to the landfill.'},
+    {q:'How do I book a junk removal appointment?',a:'You can book online through our contact form, call us directly, or send a message. We\'ll confirm your appointment quickly and provide an upfront quote before the job begins.'},
+    {q:'Do you handle demolition in addition to junk removal?',a:'Yes — Lion Junk Removal & Demolition offers interior demolition services including shed demolition, deck removal, wall removal, and selective interior teardowns. Contact us for a custom quote.'},
+    {q:'What is the difference between residential and commercial junk removal?',a:'Residential jobs typically involve furniture, appliances, and household items. Commercial jobs often involve office furniture, equipment, construction debris, and larger volumes. We handle both with the same professional standard.'},
+    {q:'How long does a typical junk removal job take?',a:'Most residential junk removal jobs take between 30 minutes and 2 hours depending on volume. Large estate cleanouts or commercial jobs may take longer. We\'ll give you a time estimate when you book.'},
+    {q:'Do I need to be home during the removal?',a:'Not necessarily. As long as we can access the items, many customers allow us to work while they\'re away. We\'ll confirm access details when you book and send confirmation photos when complete.'},
+    {q:'What items do you NOT take?',a:'We do not remove hazardous waste including paint, chemicals, solvents, asbestos, medical waste, biohazardous materials, or motor oil. For these items, contact your local county hazardous waste disposal program.'},
+    {q:'Do you offer valet trash services for apartment communities?',a:'Yes — we offer scheduled valet trash pickup programs for apartment communities, condo associations, and HOAs. Contact us to discuss service plans for your property.'},
+    {q:'Can you handle a full estate cleanout?',a:'Absolutely. We specialize in estate cleanouts — clearing furniture, appliances, personal belongings, and debris from entire properties. We work efficiently and compassionately, especially for families managing a difficult transition.'},
+    {q:'Do you remove construction debris from job sites?',a:'Yes — we work with contractors and property owners to remove construction debris from renovation and demolition projects. We offer flexible scheduling to fit your job site timeline.'},
+  ];
+  return ljrHead('FAQ | Lion Junk Removal & Demolition | Common Questions Answered','Answers to common questions about junk removal, pricing, same-day service, what we take, and how to book Lion Junk Removal in Central Florida.','/faq') +
+  ljrNav('faq') + `
+<div style="background:var(--dark);padding:64px 0 48px;border-bottom:4px solid var(--red);">
+  <div class="ljr-c ljr-reveal">
+    <div class="ljr-eyebrow" style="color:var(--red);">FAQ</div>
+    <h1 class="ljr-h2" style="color:#fff;font-size:clamp(36px,5vw,72px);">Frequently Asked Questions</h1>
+    <p style="font-size:17px;color:rgba(255,255,255,.75);max-width:620px;line-height:1.8;">Everything you need to know about our junk removal and demolition services across Central Florida.</p>
+  </div>
+</div>
+<div class="ljr-trust-bar"><div class="ljr-c"><div class="ljr-trust-in"><span class="ljr-trust-item">Licensed &amp; Insured</span><span class="ljr-trust-item">Same-Day Available</span><span class="ljr-trust-item">Free Quotes</span><span class="ljr-trust-item">No Hidden Fees</span></div></div></div>
+<section class="ljr-s"><div class="ljr-c ljr-reveal">
+  <div class="ljr-faq-list">
+    ${faqs.map((f,i)=>`
+    <div class="ljr-faq-item${i===0?' open':''}">
+      <button class="ljr-faq-btn" type="button">
+        <span>${f.q}</span>
+        <span class="ljr-faq-icon">${i===0?'−':'+'}</span>
+      </button>
+      <div class="ljr-faq-body"><p>${f.a}</p></div>
+    </div>`).join('')}
+  </div>
+  <div style="text-align:center;margin-top:36px;"><a href="/contact" class="ljr-btn-red">Still Have Questions? Contact Us →</a></div>
+</div></section>
+<div class="ljr-cta-band ljr-reveal"><div class="ljr-c"><h2>Ready to Book?</h2><p>Get a free quote today — same-day service available across Central Florida.</p><a href="/contact" class="ljr-btn-red">Book Now →</a></div></div>
+` + ljrFooter() + `</div></body></html>`;
+}
+
+function ljrBuildContactPage() {
+  return ljrHead('Contact Lion Junk Removal & Demolition | Free Quote | Orlando FL','Contact Lion Junk Removal & Demolition for a free quote. Serving Orlando, Kissimmee, Winter Park, Sanford, Clermont, Daytona Beach, and all of Central Florida.','/contact') +
+  ljrNav('contact') + `
+<div style="background:var(--dark);padding:64px 0 48px;border-bottom:4px solid var(--red);">
+  <div class="ljr-c ljr-reveal">
+    <div class="ljr-eyebrow" style="color:var(--red);">Get In Touch</div>
+    <h1 class="ljr-h2" style="color:#fff;font-size:clamp(36px,5vw,72px);">Get Your Free Quote Today</h1>
+    <p style="font-size:17px;color:rgba(255,255,255,.75);max-width:620px;line-height:1.8;">Fill out the form and we'll get back to you fast. Same-day service available across Central Florida.</p>
+  </div>
+</div>
+<div class="ljr-trust-bar"><div class="ljr-c"><div class="ljr-trust-in"><span class="ljr-trust-item">Licensed &amp; Insured</span><span class="ljr-trust-item">Same-Day Available</span><span class="ljr-trust-item">Free Quotes</span><span class="ljr-trust-item">No Hidden Fees</span></div></div></div>
+<section class="ljr-s"><div class="ljr-c">
+  <div class="ljr-contact-grid ljr-reveal">
+    <div class="ljr-contact-info">
+      <h3>Lion Junk Removal &amp; Demolition</h3>
+      <div class="ljr-contact-row"><div class="ljr-contact-icon">📍</div><div><div class="ljr-contact-label">Service Area</div><div class="ljr-contact-val">Orlando, FL &amp; Central Florida</div></div></div>
+      <div class="ljr-contact-row"><div class="ljr-contact-icon">📞</div><div><div class="ljr-contact-label">Phone</div><div class="ljr-contact-val">(407) 555-0100</div></div></div>
+      <div class="ljr-contact-row"><div class="ljr-contact-icon">⏰</div><div><div class="ljr-contact-label">Hours</div><div class="ljr-contact-val">Mon–Sat: 7am – 7pm<br>Sun: 8am – 5pm</div></div></div>
+      <div class="ljr-contact-row"><div class="ljr-contact-icon">⚡</div><div><div class="ljr-contact-label">Response Time</div><div class="ljr-contact-val">Same-day booking available.<br>We respond within 1 hour.</div></div></div>
+      <div class="ljr-areas-list">
+        <h4>Areas We Serve</h4>
+        <p>Orlando · Kissimmee · Winter Park · Sanford · Clermont · Daytona Beach · Lake Nona · Altamonte Springs · Longwood · Oviedo · Apopka · Deltona · DeLand · Palm Bay · Melbourne · and 25+ more cities</p>
+      </div>
+    </div>
+    <div class="ljr-form-wrap">
+      <iframe src="https://links.jrzmarketing.com/widget/form/OwQ8iBk35bgtg1SBPyVb" style="width:100%;height:1130px;border:none;border-radius:3px" id="inline-OwQ8iBk35bgtg1SBPyVb" data-layout="{'id':'INLINE'}" data-trigger-type="alwaysShow" data-activation-type="alwaysActivated" data-deactivation-type="neverDeactivate" data-form-name="Lion Junk Removal Demolition" data-height="1130" data-layout-iframe-id="inline-OwQ8iBk35bgtg1SBPyVb" data-form-id="OwQ8iBk35bgtg1SBPyVb" title="Lion Junk Removal Demolition"></iframe>
+      <script src="https://links.jrzmarketing.com/js/form_embed.js"></script>
+    </div>
+  </div>
+</div></section>
+` + ljrFooter() + `</div></body></html>`;
+}
+
+app.get('/sofia/lion-junk-removal', async (req, res) => {
+  try {
+    const [homeKw, svcKw, indKw] = await Promise.all([
+      getKeywordData('junk removal orlando', 'orlando', 2840).catch(()=>[]),
+      getKeywordData('junk removal services central florida', 'orlando', 2840).catch(()=>[]),
+      getKeywordData('commercial junk removal orlando', 'orlando', 2840).catch(()=>[]),
+    ]);
+    const cacheId = crypto.randomBytes(8).toString('hex');
+    const pages = {
+      'home': ljrBuildHomePage(homeKw),
+      'services': ljrBuildServicesPage(svcKw),
+      'industries': ljrBuildIndustriesPage(indKw),
+      'about': ljrBuildAboutPage(),
+      'faq': ljrBuildFAQPage(),
+      'contact': ljrBuildContactPage(),
+    };
+    websitePackageCache.set(cacheId, { pages, createdAt: Date.now() });
+    const hubHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Lion JR — Download Hub</title>
+    <style>body{font-family:Inter,sans-serif;background:#f8f9fa;padding:40px;max-width:800px;margin:0 auto;}
+    h1{font-size:28px;font-weight:900;color:#111;margin-bottom:8px;}
+    p{color:#666;margin-bottom:28px;}
+    .page-list{display:grid;gap:12px;}
+    .page-item{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;}
+    .page-name{font-weight:700;color:#111;font-size:16px;}
+    .page-slug{font-size:13px;color:#888;margin-top:2px;}
+    a.dl-btn{background:#c01414;color:#fff;padding:10px 20px;border-radius:6px;font-size:13px;font-weight:800;text-decoration:none;letter-spacing:.06em;text-transform:uppercase;}
+    a.dl-btn:hover{background:#a01010;}
+    .note{margin-top:28px;padding:16px 20px;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;font-size:13px;color:#856404;}
+    </style></head><body>
+    <h1>🦁 Lion Junk Removal — Website Download Hub</h1>
+    <p>6 pages ready. Click each to download HTML. Paste into GHL Custom HTML pages.</p>
+    <div class="page-list">
+    ${Object.entries(pages).map(([key])=>`
+      <div class="page-item">
+        <div><div class="page-name">${key.charAt(0).toUpperCase()+key.slice(1)}</div><div class="page-slug">/${key === 'home' ? '' : key}</div></div>
+        <a class="dl-btn" href="/sofia/website-download?id=${cacheId}&page=${key}">Download HTML</a>
+      </div>`).join('')}
+    </div>
+    <div class="note">⚠️ Links expire in 10 minutes. Download all pages now.</div>
+    </body></html>`;
+    res.send(hubHtml);
+  } catch(e) {
+    res.status(500).send('Error building Lion JR website: ' + e.message);
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
