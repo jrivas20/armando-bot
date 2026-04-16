@@ -4887,6 +4887,119 @@ app.post('/webhook/hot-lead', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
+// ANGI LEAD WEBHOOK — Cooney Homes
+// Setup: GHL Cooney Homes → Workflow → "Customer Replied" (angi.com)
+//        → Action: Send Webhook → https://armando-bot-1.onrender.com/webhook/angi-lead
+// Parses lead name from Angi email body, creates GHL contact + opportunity,
+// sends SMS alert to Spencer Cooney
+// ═══════════════════════════════════════════════════════════
+app.post('/webhook/angi-lead', async (req, res) => {
+  res.json({ ok: true });
+  try {
+    const payload = req.body;
+
+    // ── Extract email body from GHL webhook payload ──────────
+    const msgBody = payload?.message?.body
+      || payload?.messageBody
+      || payload?.body
+      || payload?.email?.body
+      || '';
+
+    const msgSubject = payload?.message?.subject
+      || payload?.subject
+      || payload?.email?.subject
+      || '';
+
+    // ── Parse lead name: "Grant Stewart has sent you a message" ──
+    const nameMatch = msgBody.match(/([A-Z][a-z]+(?: [A-Z][a-z]+)+)\s+has sent you a message/);
+    const leadName  = nameMatch ? nameMatch[1] : (msgSubject || 'Angi Lead');
+    const [firstName, ...rest] = leadName.trim().split(' ');
+    const lastName = rest.join(' ') || '';
+
+    const COONEY_KEY      = 'pit-fbb00e26-bee4-43b5-9108-512f61ea71bf';
+    const COONEY_LOC      = 'Gc4sUcLiRI2edddJ5Lfl';
+    const COONEY_PIPELINE = '3bwYP7DRop9rWrnTFlhf';
+    const NEW_LEAD_STAGE  = 'cec57fe9-6746-4667-82c3-bbb6afbcef46';
+    const SPENCER_PHONE   = '+14074903632';
+
+    const headers = {
+      'Authorization': `Bearer ${COONEY_KEY}`,
+      'Version': '2021-07-28',
+      'Content-Type': 'application/json'
+    };
+
+    // ── 1. Create contact ────────────────────────────────────
+    const contactRes = await axios.post(
+      'https://services.leadconnectorhq.com/contacts/',
+      {
+        firstName,
+        lastName,
+        locationId: COONEY_LOC,
+        source: 'Angi',
+        tags: ['angi-lead'],
+        customFields: [{ key: 'lead_source_detail', value: 'Angi Lead Notification' }]
+      },
+      { headers }
+    ).catch(e => { console.error('[Angi] Create contact error:', e.response?.data || e.message); return null; });
+
+    const contactId = contactRes?.data?.contact?.id;
+    console.log(`[Angi] Contact created: ${leadName} (${contactId})`);
+
+    // ── 2. Create opportunity ────────────────────────────────
+    if (contactId) {
+      await axios.post(
+        'https://services.leadconnectorhq.com/opportunities/',
+        {
+          title: `Angi Lead — ${leadName}`,
+          pipelineId: COONEY_PIPELINE,
+          pipelineStageId: NEW_LEAD_STAGE,
+          contactId,
+          locationId: COONEY_LOC,
+          status: 'open',
+          source: 'Angi'
+        },
+        { headers }
+      ).catch(e => console.error('[Angi] Create opportunity error:', e.response?.data || e.message));
+      console.log(`[Angi] Opportunity created for ${leadName}`);
+    }
+
+    // ── 3. Find or create Spencer conversation → send SMS ────
+    const now = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const smsMsg = `🏠 New Angi Lead!\n\n${leadName} sent a message about a project.\n\nContact + opportunity created in GHL.\n\nLog into Angi for their phone + email:\nhttps://pro.angi.com\n\n— ${now}`;
+
+    // Search for Spencer's contact to send SMS via GHL
+    const spencerSearch = await axios.get(
+      `https://services.leadconnectorhq.com/contacts/?locationId=${COONEY_LOC}&query=490-3632&limit=3`,
+      { headers }
+    ).catch(() => null);
+
+    let spencerContactId = spencerSearch?.data?.contacts?.[0]?.id;
+
+    // If not found, create Spencer as internal contact
+    if (!spencerContactId) {
+      const sc = await axios.post(
+        'https://services.leadconnectorhq.com/contacts/',
+        { firstName: 'Spencer', lastName: 'Cooney', phone: SPENCER_PHONE, locationId: COONEY_LOC, tags: ['internal-team'] },
+        { headers }
+      ).catch(() => null);
+      spencerContactId = sc?.data?.contact?.id;
+    }
+
+    if (spencerContactId) {
+      await axios.post(
+        'https://services.leadconnectorhq.com/conversations/messages',
+        { type: 'SMS', contactId: spencerContactId, locationId: COONEY_LOC, message: smsMsg },
+        { headers }
+      ).catch(e => console.error('[Angi] SMS error:', e.response?.data || e.message));
+      console.log(`[Angi] SMS sent to Spencer for lead: ${leadName}`);
+    }
+
+  } catch (err) {
+    console.error('[Angi Webhook] Error:', err.message);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
 // FEATURE 4 — CLIENT CHECK-INS (30-day rolling)
 // ═══════════════════════════════════════════════════════════
 
