@@ -3400,24 +3400,6 @@ app.post('/webhook/angi-lead', async (req, res) => {
       console.log(`[CooneyAngi] Opportunity created: Angi Lead — ${leadName}`);
     }
 
-    // 3. SMS Spencer
-    const now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-    const sms = `🏠 New Angi Lead!\n\n${leadName} sent a message about a project.\n\nContact + opportunity created in GHL.\n\nLog into Angi:\nhttps://pro.angi.com\n\n— ${now}`;
-    let spencerId = null;
-    const ss = await axios.get(`https://services.leadconnectorhq.com/contacts/?locationId=${LOC}&query=4074903632&limit=3`,{headers}).catch(()=>null);
-    spencerId = ss?.data?.contacts?.[0]?.id;
-    if (!spencerId) {
-      const sc = await axios.post('https://services.leadconnectorhq.com/contacts/',
-        {firstName:'Spencer',lastName:'Cooney',phone:'+14074903632',locationId:LOC,tags:['internal-team']},{headers}
-      ).catch(()=>null);
-      spencerId = sc?.data?.contact?.id;
-    }
-    if (spencerId) {
-      await axios.post('https://services.leadconnectorhq.com/conversations/messages',
-        {type:'SMS',contactId:spencerId,locationId:LOC,message:sms},{headers}
-      ).catch(e=>console.error('[CooneyAngi] SMS error:',e.response?.data||e.message));
-      console.log('[CooneyAngi] SMS sent to Spencer');
-    }
   } catch(err) { console.error('[CooneyAngi] Error:',err.message); }
 });
 
