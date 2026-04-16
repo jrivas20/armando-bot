@@ -4887,18 +4887,19 @@ app.post('/webhook/hot-lead', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
-// ANGI LEAD WEBHOOK — Cooney Homes
-// Setup: GHL Cooney Homes → Workflow → "Customer Replied" (angi.com)
+// COONEY HOMES INBOUND EMAIL WEBHOOK
+// Fires for ALL emails forwarded to info@email.cooneyhomesfl.com
+// Setup: GHL Cooney Homes → Workflow → "Customer Replied" (Email)
 //        → Action: Send Webhook → https://armando-bot-1.onrender.com/webhook/angi-lead
-// Parses lead name from Angi email body, creates GHL contact + opportunity,
-// sends SMS alert to Spencer Cooney
+// Detects source (Angi, Houzz, generic), parses lead name,
+// creates GHL contact + opportunity, SMS Spencer
 // ═══════════════════════════════════════════════════════════
 app.post('/webhook/angi-lead', async (req, res) => {
   res.json({ ok: true });
   try {
     const payload = req.body;
 
-    // ── Extract email body from GHL webhook payload ──────────
+    // ── Extract email fields from GHL webhook payload ────────
     const msgBody = payload?.message?.body
       || payload?.messageBody
       || payload?.body
@@ -4910,9 +4911,46 @@ app.post('/webhook/angi-lead', async (req, res) => {
       || payload?.email?.subject
       || '';
 
-    // ── Parse lead name: "Grant Stewart has sent you a message" ──
-    const nameMatch = msgBody.match(/([A-Z][a-z]+(?: [A-Z][a-z]+)+)\s+has sent you a message/);
-    const leadName  = nameMatch ? nameMatch[1] : (msgSubject || 'Angi Lead');
+    const fromEmail = payload?.message?.from
+      || payload?.from
+      || payload?.email?.from
+      || payload?.contact?.email
+      || '';
+
+    // ── Detect source ────────────────────────────────────────
+    let source = 'Email Lead';
+    let tag    = 'email-lead';
+    if (fromEmail.includes('angi.com'))  { source = 'Angi';  tag = 'angi-lead'; }
+    if (fromEmail.includes('houzz.com')) { source = 'Houzz'; tag = 'houzz-lead'; }
+    if (fromEmail.includes('thumbtack')) { source = 'Thumbtack'; tag = 'thumbtack-lead'; }
+    if (fromEmail.includes('homeadvisor')) { source = 'HomeAdvisor'; tag = 'homeadvisor-lead'; }
+
+    // ── Parse lead name (multi-format) ──────────────────────
+    // Angi:       "Grant Stewart has sent you a message about an Angi project."
+    // Houzz:      "New message from Grant Stewart"
+    // Generic:    use subject line
+    let leadName = '';
+
+    const patterns = [
+      /([A-Z][a-z]+(?: [A-Z][a-z]+)+)\s+has sent you a message/,
+      /[Nn]ew (?:message|lead|inquiry) from ([A-Z][a-z]+(?: [A-Z][a-z]+)+)/,
+      /([A-Z][a-z]+(?: [A-Z][a-z]+)+)\s+(?:submitted|requested|inquired)/,
+      /Name:\s*([A-Za-z]+(?: [A-Za-z]+)+)/,
+      /Customer:\s*([A-Za-z]+(?: [A-Za-z]+)+)/,
+    ];
+
+    for (const p of patterns) {
+      const m = msgBody.match(p);
+      if (m) { leadName = m[1]; break; }
+    }
+
+    // Fallback: clean up subject line
+    if (!leadName && msgSubject) {
+      leadName = msgSubject.replace(/^(Re:|Fwd:|New lead:|Lead:)/i,'').trim().slice(0,40);
+    }
+
+    if (!leadName) leadName = `${source} Lead`;
+
     const [firstName, ...rest] = leadName.trim().split(' ');
     const lastName = rest.join(' ') || '';
 
@@ -4931,41 +4969,35 @@ app.post('/webhook/angi-lead', async (req, res) => {
     // ── 1. Create contact ────────────────────────────────────
     const contactRes = await axios.post(
       'https://services.leadconnectorhq.com/contacts/',
-      {
-        firstName,
-        lastName,
-        locationId: COONEY_LOC,
-        source: 'Angi',
-        tags: ['angi-lead'],
-        customFields: [{ key: 'lead_source_detail', value: 'Angi Lead Notification' }]
-      },
+      { firstName, lastName, locationId: COONEY_LOC, source, tags: [tag] },
       { headers }
-    ).catch(e => { console.error('[Angi] Create contact error:', e.response?.data || e.message); return null; });
+    ).catch(e => { console.error('[CooneyLead] Create contact error:', e.response?.data || e.message); return null; });
 
     const contactId = contactRes?.data?.contact?.id;
-    console.log(`[Angi] Contact created: ${leadName} (${contactId})`);
+    console.log(`[CooneyLead] Contact created: ${leadName} | source: ${source} (${contactId})`);
 
     // ── 2. Create opportunity ────────────────────────────────
     if (contactId) {
       await axios.post(
         'https://services.leadconnectorhq.com/opportunities/',
         {
-          title: `Angi Lead — ${leadName}`,
+          title: `${source} Lead — ${leadName}`,
           pipelineId: COONEY_PIPELINE,
           pipelineStageId: NEW_LEAD_STAGE,
           contactId,
           locationId: COONEY_LOC,
           status: 'open',
-          source: 'Angi'
+          source
         },
         { headers }
-      ).catch(e => console.error('[Angi] Create opportunity error:', e.response?.data || e.message));
-      console.log(`[Angi] Opportunity created for ${leadName}`);
+      ).catch(e => console.error('[CooneyLead] Create opportunity error:', e.response?.data || e.message));
+      console.log(`[CooneyLead] Opportunity created: ${source} Lead — ${leadName}`);
     }
 
-    // ── 3. Find or create Spencer conversation → send SMS ────
-    const now = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-    const smsMsg = `🏠 New Angi Lead!\n\n${leadName} sent a message about a project.\n\nContact + opportunity created in GHL.\n\nLog into Angi for their phone + email:\nhttps://pro.angi.com\n\n— ${now}`;
+    // ── 3. SMS Spencer ───────────────────────────────────────
+    const now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const loginUrl = source === 'Angi' ? 'https://pro.angi.com' : source === 'Houzz' ? 'https://www.houzz.com/pro' : '';
+    const smsMsg = `🏠 New ${source} Lead!\n\n${leadName} sent an inquiry.\n\nContact + opportunity created in GHL.\n${loginUrl ? `\nLog into ${source} for phone + email:\n${loginUrl}\n` : ''}\n— ${now}`;
 
     // Search for Spencer's contact to send SMS via GHL
     const spencerSearch = await axios.get(
