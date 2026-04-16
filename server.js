@@ -3352,6 +3352,8 @@ app.post('/webhook', async (req, res) => {
 // ═══════════════════════════════════════════════════════════
 // COONEY HOMES ANGI LEAD WEBHOOK (must be before /:locationId catch-all)
 // GHL Workflow → Send Webhook → https://armando-bot-1.onrender.com/webhook/angi-lead
+// Parses FULL lead data from Angi new-lead emails:
+//   name, phone, email, address, service type, comments
 // ═══════════════════════════════════════════════════════════
 app.post('/webhook/angi-lead', async (req, res) => {
   res.json({ ok: true });
@@ -3359,24 +3361,6 @@ app.post('/webhook/angi-lead', async (req, res) => {
     const payload = req.body;
     const msgBody    = payload?.message?.body || payload?.messageBody || payload?.body || payload?.email?.body || '';
     const msgSubject = payload?.message?.subject || payload?.subject || payload?.email?.subject || '';
-    const fromEmail  = payload?.message?.from || payload?.from || payload?.email?.from || payload?.contact?.email || '';
-
-    let source = 'Angi'; let tag = 'angi-lead';
-
-    // Parse lead name — multi-format
-    let leadName = '';
-    const patterns = [
-      /([A-Z][a-z]+(?: [A-Z][a-z]+)+)\s+has sent you a message/,
-      /[Nn]ew (?:message|lead|inquiry) from ([A-Z][a-z]+(?: [A-Z][a-z]+)+)/,
-      /([A-Z][a-z]+(?: [A-Z][a-z]+)+)\s+(?:submitted|requested|inquired)/,
-      /Name:\s*([A-Za-z]+(?: [A-Za-z]+)+)/,
-    ];
-    for (const p of patterns) { const m = msgBody.match(p); if (m) { leadName = m[1]; break; } }
-    if (!leadName && msgSubject) leadName = msgSubject.replace(/^(Re:|Fwd:|New lead:|Lead:)/i,'').trim().slice(0,40);
-    if (!leadName) leadName = 'Angi Lead';
-
-    const [firstName, ...rest] = leadName.trim().split(' ');
-    const lastName = rest.join(' ') || '';
 
     const KEY      = 'pit-fbb00e26-bee4-43b5-9108-512f61ea71bf';
     const LOC      = 'Gc4sUcLiRI2edddJ5Lfl';
@@ -3384,20 +3368,93 @@ app.post('/webhook/angi-lead', async (req, res) => {
     const STAGE    = 'cec57fe9-6746-4667-82c3-bbb6afbcef46';
     const headers  = { 'Authorization': `Bearer ${KEY}`, 'Version': '2021-07-28', 'Content-Type': 'application/json' };
 
-    // 1. Create contact
-    const cr = await axios.post('https://services.leadconnectorhq.com/contacts/',
-      { firstName, lastName, locationId: LOC, source, tags: [tag] }, { headers }
-    ).catch(e => { console.error('[CooneyAngi] contact error:', e.response?.data || e.message); return null; });
-    const contactId = cr?.data?.contact?.id;
-    console.log(`[CooneyAngi] Contact: ${leadName} (${contactId})`);
+    // Strip HTML tags for plain text parsing
+    const plain = msgBody.replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ');
 
-    // 2. Create opportunity
+    // ── Detect email type ────────────────────────────────────
+    const isNewLead = /you have a new lead/i.test(plain) || /you have a new lead/i.test(msgSubject);
+
+    // ── Parse name ───────────────────────────────────────────
+    let leadName = '';
+    if (isNewLead) {
+      // New lead email: name appears bold after "Customer Information"
+      const nm = plain.match(/Customer Information\s+([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+)+)/);
+      if (nm) leadName = nm[1];
+    }
+    if (!leadName) {
+      const patterns = [
+        /([A-Z][a-z]+(?: [A-Z][a-z]+)+)\s+has sent you a message/,
+        /[Nn]ew (?:message|lead|inquiry) from ([A-Z][a-z]+(?: [A-Z][a-z]+)+)/,
+        /Name:\s*([A-Za-z]+(?: [A-Za-z]+)+)/,
+      ];
+      for (const p of patterns) { const m = plain.match(p); if (m) { leadName = m[1]; break; } }
+    }
+    if (!leadName && msgSubject) leadName = msgSubject.replace(/^(Re:|Fwd:|You have a new lead!?)/i,'').trim().slice(0,60);
+    if (!leadName) leadName = 'Angi Lead';
+
+    // ── Parse phone ──────────────────────────────────────────
+    const phoneMatch = plain.match(/\((\d{3})\)\s*(\d{3})-(\d{4})/);
+    const phone = phoneMatch ? `+1${phoneMatch[1]}${phoneMatch[2]}${phoneMatch[3]}` : '';
+
+    // ── Parse email ──────────────────────────────────────────
+    const emailMatch = plain.match(/([a-zA-Z0-9._%+\-]+@(?!angi\.com)[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/);
+    const leadEmail = emailMatch ? emailMatch[1] : '';
+
+    // ── Parse address ────────────────────────────────────────
+    const addrMatch = plain.match(/(\d+\s+[A-Za-z0-9\s,]+(?:FL|GA|TX|CA|NY|NC|SC|TN|OH|PA|VA|MD|CO|AZ|WA|NV|OR)\s+\d{5})/);
+    const address = addrMatch ? addrMatch[1].trim() : '';
+
+    // ── Parse service type ───────────────────────────────────
+    const serviceMatch = msgSubject.match(/You have a new lead!?\s*(.+)/i)
+      || plain.match(/You have a new lead!\s*([A-Z][^\n]{5,60})/);
+    const service = serviceMatch ? serviceMatch[1].trim() : '';
+
+    // ── Parse comments ───────────────────────────────────────
+    const commentsMatch = plain.match(/Comments:\s*(.{20,500}?)(?:Job #|View Lead|$)/is);
+    const comments = commentsMatch ? commentsMatch[1].trim() : '';
+
+    // ── Parse job number ─────────────────────────────────────
+    const jobMatch = plain.match(/Job #[:\s]*(\d{6,12})/);
+    const jobNum = jobMatch ? jobMatch[1] : '';
+
+    const [firstName, ...rest] = leadName.trim().split(' ');
+    const lastName = rest.join(' ') || '';
+
+    console.log(`[CooneyAngi] Parsed lead: ${leadName} | phone: ${phone} | email: ${leadEmail} | service: ${service}`);
+
+    // ── 1. Create full contact ───────────────────────────────
+    const contactPayload = {
+      firstName, lastName,
+      locationId: LOC,
+      source: 'Angi',
+      tags: ['angi-lead'],
+      ...(phone      && { phone }),
+      ...(leadEmail  && { email: leadEmail }),
+      ...(address    && { address1: address }),
+    };
+
+    const cr = await axios.post('https://services.leadconnectorhq.com/contacts/', contactPayload, { headers })
+      .catch(e => { console.error('[CooneyAngi] contact error:', e.response?.data || e.message); return null; });
+    const contactId = cr?.data?.contact?.id;
+    console.log(`[CooneyAngi] Contact created: ${leadName} (${contactId})`);
+
+    // ── 2. Create opportunity ────────────────────────────────
     if (contactId) {
+      const oppTitle = service ? `Angi — ${service} — ${leadName}` : `Angi Lead — ${leadName}`;
       await axios.post('https://services.leadconnectorhq.com/opportunities/',
-        { title: `Angi Lead — ${leadName}`, pipelineId: PIPELINE, pipelineStageId: STAGE, contactId, locationId: LOC, status: 'open', source },
+        {
+          title: oppTitle,
+          pipelineId: PIPELINE,
+          pipelineStageId: STAGE,
+          contactId,
+          locationId: LOC,
+          status: 'open',
+          source: 'Angi',
+          ...(comments && { description: `${comments}${jobNum ? `\n\nAngi Job #: ${jobNum}` : ''}` }),
+        },
         { headers }
       ).catch(e => console.error('[CooneyAngi] opp error:', e.response?.data || e.message));
-      console.log(`[CooneyAngi] Opportunity created: Angi Lead — ${leadName}`);
+      console.log(`[CooneyAngi] Opportunity created: ${oppTitle}`);
     }
 
   } catch(err) { console.error('[CooneyAngi] Error:',err.message); }
