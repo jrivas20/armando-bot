@@ -23,6 +23,8 @@ const SEO_CLIENTS = {
     name: 'Railing Max',
     domain: 'railingmax.com',
     lang: 'en',
+    blogEnabled: false,
+    gbpEnabled: false,
     industry: 'floating stairs, railing, and glass installation',
     competitors: ['viewrail.com', 'agsstainless.com', 'stairsupplies.com'],
     author: {
