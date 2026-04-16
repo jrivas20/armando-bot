@@ -3349,6 +3349,78 @@ app.post('/webhook', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// COONEY HOMES ANGI LEAD WEBHOOK (must be before /:locationId catch-all)
+// GHL Workflow → Send Webhook → https://armando-bot-1.onrender.com/webhook/angi-lead
+// ═══════════════════════════════════════════════════════════
+app.post('/webhook/angi-lead', async (req, res) => {
+  res.json({ ok: true });
+  try {
+    const payload = req.body;
+    const msgBody    = payload?.message?.body || payload?.messageBody || payload?.body || payload?.email?.body || '';
+    const msgSubject = payload?.message?.subject || payload?.subject || payload?.email?.subject || '';
+    const fromEmail  = payload?.message?.from || payload?.from || payload?.email?.from || payload?.contact?.email || '';
+
+    let source = 'Angi'; let tag = 'angi-lead';
+
+    // Parse lead name — multi-format
+    let leadName = '';
+    const patterns = [
+      /([A-Z][a-z]+(?: [A-Z][a-z]+)+)\s+has sent you a message/,
+      /[Nn]ew (?:message|lead|inquiry) from ([A-Z][a-z]+(?: [A-Z][a-z]+)+)/,
+      /([A-Z][a-z]+(?: [A-Z][a-z]+)+)\s+(?:submitted|requested|inquired)/,
+      /Name:\s*([A-Za-z]+(?: [A-Za-z]+)+)/,
+    ];
+    for (const p of patterns) { const m = msgBody.match(p); if (m) { leadName = m[1]; break; } }
+    if (!leadName && msgSubject) leadName = msgSubject.replace(/^(Re:|Fwd:|New lead:|Lead:)/i,'').trim().slice(0,40);
+    if (!leadName) leadName = 'Angi Lead';
+
+    const [firstName, ...rest] = leadName.trim().split(' ');
+    const lastName = rest.join(' ') || '';
+
+    const KEY      = 'pit-fbb00e26-bee4-43b5-9108-512f61ea71bf';
+    const LOC      = 'Gc4sUcLiRI2edddJ5Lfl';
+    const PIPELINE = '3bwYP7DRop9rWrnTFlhf';
+    const STAGE    = 'cec57fe9-6746-4667-82c3-bbb6afbcef46';
+    const headers  = { 'Authorization': `Bearer ${KEY}`, 'Version': '2021-07-28', 'Content-Type': 'application/json' };
+
+    // 1. Create contact
+    const cr = await axios.post('https://services.leadconnectorhq.com/contacts/',
+      { firstName, lastName, locationId: LOC, source, tags: [tag] }, { headers }
+    ).catch(e => { console.error('[CooneyAngi] contact error:', e.response?.data || e.message); return null; });
+    const contactId = cr?.data?.contact?.id;
+    console.log(`[CooneyAngi] Contact: ${leadName} (${contactId})`);
+
+    // 2. Create opportunity
+    if (contactId) {
+      await axios.post('https://services.leadconnectorhq.com/opportunities/',
+        { title: `Angi Lead — ${leadName}`, pipelineId: PIPELINE, pipelineStageId: STAGE, contactId, locationId: LOC, status: 'open', source },
+        { headers }
+      ).catch(e => console.error('[CooneyAngi] opp error:', e.response?.data || e.message));
+      console.log(`[CooneyAngi] Opportunity created: Angi Lead — ${leadName}`);
+    }
+
+    // 3. SMS Spencer
+    const now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    const sms = `🏠 New Angi Lead!\n\n${leadName} sent a message about a project.\n\nContact + opportunity created in GHL.\n\nLog into Angi:\nhttps://pro.angi.com\n\n— ${now}`;
+    let spencerId = null;
+    const ss = await axios.get(`https://services.leadconnectorhq.com/contacts/?locationId=${LOC}&query=4074903632&limit=3`,{headers}).catch(()=>null);
+    spencerId = ss?.data?.contacts?.[0]?.id;
+    if (!spencerId) {
+      const sc = await axios.post('https://services.leadconnectorhq.com/contacts/',
+        {firstName:'Spencer',lastName:'Cooney',phone:'+14074903632',locationId:LOC,tags:['internal-team']},{headers}
+      ).catch(()=>null);
+      spencerId = sc?.data?.contact?.id;
+    }
+    if (spencerId) {
+      await axios.post('https://services.leadconnectorhq.com/conversations/messages',
+        {type:'SMS',contactId:spencerId,locationId:LOC,message:sms},{headers}
+      ).catch(e=>console.error('[CooneyAngi] SMS error:',e.response?.data||e.message));
+      console.log('[CooneyAngi] SMS sent to Spencer');
+    }
+  } catch(err) { console.error('[CooneyAngi] Error:',err.message); }
+});
+
 // MULTI-TENANT WEBHOOK — /webhook/:locationId
 // Routes DMs from client sub-accounts to their persona bot.
 // Setup: client GHL → Settings → Webhooks → https://armando-bot-1.onrender.com/webhook/{locationId}
