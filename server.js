@@ -43,6 +43,15 @@ const BOOKING_URL = 'https://jrzmarketing.com/contact-us';
 const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
 const GHL_FORM_ID = process.env.GHL_FORM_ID || '5XhL0vWCuJ59HWHQoHGG'; // universal lead capture form
 
+// ── Meta Ads — LiftMo campaign monitor ────────────────────
+const META_ACCESS_TOKEN = 'EAAYoO6CtmWIBRDX9ysyigWVAcOsfSvcrfLZArNtFic6AXNf6FHSSrvXZBBj5QHgdQTwQdCiZC6cZBrSSgBLEvPbnR12YqSVI8OAldAJMvThBonZCpLxRmShEOVJmjRj4oimvnfcvasn7JSqKcZC4qCDd2ZCga1aqZB9oAHtZBB7AqLXsB1KzdXkgZBbslQkfNwZAxPMldtIsphKZCkAz1qDKhToeGuCCdz3wPl3EBQ7Lza1AFHNijBCqZB1jVwG5XZCSdL3G5nxDf7DRYZB9ndbPSMZCAwGgKtKjiEfVCZBR2yAZDZD';
+const META_AD_ACCOUNT = 'act_2569067933237980';
+const META_CAMPAIGNS = {
+  c2_cart_abandoners: { id: '120243790415910078', adset_id: '120243790455760078', name: 'Cart Abandoners', budget: 1000 },
+  c3_web_visitors:    { id: '120243790415450078', adset_id: '120243790454730078', name: 'Web Visitors 30d', budget: 500 },
+  c1_cold_traffic:    { id: '120243790416100078', adset_id: '120243790456680078', name: 'Cold Traffic TOFU', budget: 1000 }
+};
+
 // ─── Blocked usernames — Armando will never message these ────────────────────
 const BLOCKED_USERS = [
   'luisadlc_',
@@ -14096,6 +14105,9 @@ setInterval(async () => {
       runCron('diego-standup', runDiegoStandup, true);
     }
 
+    // 8:05am Monday — Meta Ads weekly monitor
+    if (hour === 8 && minute === 5 && dayOfWeek === 1) { runMetaAdsMonitor(); }
+
     // 8:00am Monday — competitor monitoring
     if (hour === 8 && minute < 5 && dayOfWeek === 1 && lastCompetitorDate !== today) {
       lastCompetitorDate = today;
@@ -15113,6 +15125,139 @@ app.get('/sofia/lion-junk-removal', async (req, res) => {
   } catch(e) {
     res.status(500).send('Error building Lion JR website: ' + e.message);
   }
+});
+
+// ═══════════════════════════════════════════════════════════
+// META ADS MONITOR — runs Monday 8:05am EST
+// Pulls 7-day insights for all LiftMo campaigns, scales
+// budgets on winners, pauses weak ads, activates cold traffic
+// when retargeting converts. Emails a full report to Jose.
+// ═══════════════════════════════════════════════════════════
+
+async function runMetaAdsMonitor() {
+  console.log('[META] Weekly ads monitor starting...');
+  const baseUrl = 'https://graph.facebook.com/v19.0';
+  const token = META_ACCESS_TOKEN;
+  const results = [];
+  const actions = [];
+
+  for (const [key, camp] of Object.entries(META_CAMPAIGNS)) {
+    try {
+      // Pull 7-day insights
+      const insightRes = await axios.get(`${baseUrl}/${camp.id}/insights`, {
+        params: {
+          fields: 'spend,clicks,impressions,ctr,cpc,cpm,actions,action_values',
+          date_preset: 'last_7d',
+          access_token: token
+        }
+      });
+
+      const d = insightRes.data.data[0] || {};
+      const spend = parseFloat(d.spend || 0);
+      const ctr = parseFloat(d.ctr || 0);
+      const cpm = parseFloat(d.cpm || 0);
+      const cpc = parseFloat(d.cpc || 0);
+
+      const purchaseAction = (d.actions || []).find(a => a.action_type === 'purchase');
+      const purchaseValue = (d.action_values || []).find(a => a.action_type === 'purchase');
+      const purchases = parseInt(purchaseAction?.value || 0);
+      const revenue = parseFloat(purchaseValue?.value || 0);
+      const roas = spend > 0 ? (revenue / spend).toFixed(2) : 0;
+
+      results.push({ name: camp.name, spend, ctr, cpm, cpc, purchases, revenue, roas });
+
+      // SCALE: ROAS >= 3 or 3+ purchases → increase budget 20%
+      if ((roas >= 3 || purchases >= 3) && key !== 'c1_cold_traffic') {
+        const newBudget = Math.min(Math.round(camp.budget * 1.2), 500000);
+        await axios.post(`${baseUrl}/${camp.id}`, null, {
+          params: { daily_budget: newBudget, access_token: token }
+        });
+        actions.push(`✅ SCALED ${camp.name}: budget increased 20% (ROAS: ${roas}x, Purchases: ${purchases})`);
+        META_CAMPAIGNS[key].budget = newBudget;
+      }
+
+      // ACTIVATE C1: if retargeting has 3+ purchases, turn on cold traffic
+      if (purchases >= 3 && key !== 'c1_cold_traffic') {
+        await axios.post(`${baseUrl}/${META_CAMPAIGNS.c1_cold_traffic.id}`, null, {
+          params: { status: 'ACTIVE', daily_budget: 1000, access_token: token }
+        });
+        actions.push(`🚀 ACTIVATED C1 Cold Traffic at $10/day — retargeting hit ${purchases} purchases`);
+      }
+
+      // KILL weak ads: CTR < 0.5% after $10 spend
+      if (spend >= 10 && ctr < 0.5) {
+        const adsRes = await axios.get(`${baseUrl}/${camp.adset_id}/ads`, {
+          params: { fields: 'id,name,status', access_token: token }
+        });
+        for (const ad of adsRes.data.data || []) {
+          if (ad.status !== 'ACTIVE') continue;
+          const adInsight = await axios.get(`${baseUrl}/${ad.id}/insights`, {
+            params: { fields: 'spend,ctr', date_preset: 'last_7d', access_token: token }
+          });
+          const adData = adInsight.data.data[0] || {};
+          const adSpend = parseFloat(adData.spend || 0);
+          const adCtr = parseFloat(adData.ctr || 0);
+          if (adSpend >= 10 && adCtr < 0.5) {
+            await axios.post(`${baseUrl}/${ad.id}`, null, {
+              params: { status: 'PAUSED', access_token: token }
+            });
+            actions.push(`⏸ PAUSED weak ad: ${ad.name} (CTR: ${adCtr.toFixed(2)}%, Spend: $${adSpend.toFixed(2)})`);
+          }
+        }
+      }
+
+    } catch (err) {
+      results.push({ name: camp.name, error: err.response?.data?.error?.message || err.message });
+      actions.push(`⚠️ ERROR pulling ${camp.name}: ${err.response?.data?.error?.message || err.message}`);
+    }
+  }
+
+  // Build email report
+  const now = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const rows = results.map(r => r.error
+    ? `<tr><td>${r.name}</td><td colspan="6" style="color:red">${r.error}</td></tr>`
+    : `<tr>
+        <td>${r.name}</td>
+        <td>$${r.spend.toFixed(2)}</td>
+        <td>${r.purchases}</td>
+        <td>$${r.revenue.toFixed(2)}</td>
+        <td>${r.roas}x</td>
+        <td>${r.ctr.toFixed(2)}%</td>
+        <td>$${r.cpm.toFixed(2)}</td>
+       </tr>`
+  ).join('');
+
+  const actionsHtml = actions.length
+    ? actions.map(a => `<li>${a}</li>`).join('')
+    : '<li>No automated actions taken this week — campaigns within normal range.</li>';
+
+  const html = `
+    <h2 style="font-family:sans-serif">LiftMo Meta Ads — Weekly Report</h2>
+    <p style="font-family:sans-serif;color:#666">${now}</p>
+    <table border="1" cellpadding="8" cellspacing="0" style="font-family:sans-serif;border-collapse:collapse;width:100%">
+      <tr style="background:#1a1a2e;color:white">
+        <th>Campaign</th><th>Spend</th><th>Purchases</th><th>Revenue</th><th>ROAS</th><th>CTR</th><th>CPM</th>
+      </tr>
+      ${rows}
+    </table>
+    <h3 style="font-family:sans-serif;margin-top:24px">Actions Taken This Week</h3>
+    <ul style="font-family:sans-serif">${actionsHtml}</ul>
+    <h3 style="font-family:sans-serif">Next 7 Days</h3>
+    <ul style="font-family:sans-serif">
+      <li>Watch for CTR above 1% — those ads are working</li>
+      <li>First 3 purchases triggers automatic budget scale</li>
+      <li>C1 Cold Traffic activates automatically when retargeting converts</li>
+    </ul>
+    <p style="font-family:sans-serif;color:#999;font-size:12px">Automated by JRZ Marketing AI — Armando + Diego</p>
+  `;
+
+  await sendEmail(OWNER_CONTACT_ID, `LiftMo Meta Ads — Weekly Report ${now}`, html);
+  console.log('[META] Monitor complete. Actions taken:', actions.length);
+}
+
+app.post('/meta/ads-monitor', async (req, res) => {
+  res.json({ status: 'Meta ads monitor triggered' });
+  runMetaAdsMonitor();
 });
 
 const PORT = process.env.PORT || 3000;
