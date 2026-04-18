@@ -44,7 +44,8 @@ const OWNER_CONTACT_ID = process.env.OWNER_CONTACT_ID || 'hywFWrMca0eSCse2Wjs8';
 const GHL_FORM_ID = process.env.GHL_FORM_ID || '5XhL0vWCuJ59HWHQoHGG'; // universal lead capture form
 
 // ── Meta Ads — LiftMo campaign monitor ────────────────────
-const META_ACCESS_TOKEN = 'EAAYoO6CtmWIBRDX9ysyigWVAcOsfSvcrfLZArNtFic6AXNf6FHSSrvXZBBj5QHgdQTwQdCiZC6cZBrSSgBLEvPbnR12YqSVI8OAldAJMvThBonZCpLxRmShEOVJmjRj4oimvnfcvasn7JSqKcZC4qCDd2ZCga1aqZB9oAHtZBB7AqLXsB1KzdXkgZBbslQkfNwZAxPMldtIsphKZCkAz1qDKhToeGuCCdz3wPl3EBQ7Lza1AFHNijBCqZB1jVwG5XZCSdL3G5nxDf7DRYZB9ndbPSMZCAwGgKtKjiEfVCZBR2yAZDZD';
+// Long-lived token — expires June 17, 2026
+const META_ACCESS_TOKEN = 'EAAYoO6CtmWIBRCIaAkifvEXjdS5ZBQcglwIAhCnFwWm0EUZBO9KNGgiLjnPKEQJJ19YAjkwePAZBQ9zkENrAiqil0WqyyXZB9WF6A1uQkjcDRJT7F7bMZByZCsGFLZAOPZBriGjecrW7qrFFQEcW47kGPU18NAFUy5wJzSRBvlfKXIsVM78aR4SJGiSWB0RYagqkHwizPr9nI6iIASD7';
 const META_AD_ACCOUNT = 'act_2569067933237980';
 const META_CAMPAIGNS = {
   c2_cart_abandoners: { id: '120243790415910078', adset_id: '120243790455760078', name: 'Cart Abandoners', budget: 1000 },
