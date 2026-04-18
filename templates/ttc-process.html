@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Process | The Ticking Club — From First Inquiry To Your Wrist</title>
+<style>
+/* GHL FULL-BLEED NUCLEAR OVERRIDE */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body,.container,.wrapper,.page,.site,
+[class*="container"],[class*="wrapper"],[id*="wrapper"],[id*="container"]{
+  max-width:100%!important;width:100%!important;
+  padding-left:0!important;padding-right:0!important;
+  margin-left:0!important;margin-right:0!important;
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gd:#04100a;--gdk:#0a1f10;--gp:#1a3d28;--gm:#2a6040;
+  --go:#b8902a;--gob:#d4af37;--gl:#c9a84c;--gp2:#f0e0a0;
+  --wh:#ffffff;--of:#f5f3ee;--tx:#111111;--tm:#3a3a3a;--tl:#888888;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Montserrat',sans-serif;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+}
+html,body{background:var(--wh);color:var(--tx);font-family:var(--sans);font-weight:400;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+img{max-width:100%;display:block;}
+a{text-decoration:none;color:inherit;}
+ul{list-style:none;}
+
+/* ===== CURSOR ===== */
+@media(hover:hover) and (pointer:fine){
+  html,body{cursor:none;}
+  a,button,input,iframe,.MBtn{cursor:none;}
+  .cur{position:fixed;top:0;left:0;width:10px;height:10px;background:var(--gob);border-radius:50%;pointer-events:none;z-index:9999;transition:transform .15s var(--ease);mix-blend-mode:difference;}
+  .curR{position:fixed;top:0;left:0;width:40px;height:40px;border:1px solid var(--gob);border-radius:50%;pointer-events:none;z-index:9998;transition:transform .3s var(--ease),width .3s,height .3s;}
+}
+@media(hover:none),(pointer:coarse){
+  html,body{cursor:auto!important;}
+  .cur,.curR{display:none!important;}
+}
+
+/* ===== NAV ===== */
+#nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:22px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,16,10,.85);backdrop-filter:blur(14px);border-bottom:1px solid rgba(212,175,55,.18);transition:all .4s var(--ease);}
+.nLogo img{height:48px;width:auto;}
+.nLinks{display:flex;gap:42px;}
+.nLinks a{font-family:var(--sans);font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#e8e4d6;position:relative;padding:6px 0;transition:color .3s;}
+.nLinks a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--gob);transition:width .4s var(--ease);}
+.nLinks a:hover{color:var(--gob);}
+.nLinks a:hover::after{width:100%;}
+.MBtn{display:inline-flex;align-items:center;padding:14px 30px;background:transparent;border:1px solid var(--gob);color:var(--gob);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;position:relative;overflow:hidden;transition:color .4s var(--ease);}
+.MBtn span{position:relative;z-index:2;}
+.MBtn::before{content:"";position:absolute;inset:0;background:var(--gob);transform:translateX(-101%);transition:transform .45s var(--ease);z-index:1;}
+.MBtn:hover{color:var(--gd);}
+.MBtn:hover::before{transform:translateX(0);}
+
+/* ===== SHARED ===== */
+.eyebrow{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--gob);display:inline-block;padding-bottom:16px;position:relative;margin-bottom:24px;}
+.eyebrow::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:40px;height:1px;background:var(--gob);}
+.eyebrow.left::after{left:0;transform:none;}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:400;line-height:1.15;color:var(--tx);}
+
+/* ===== HERO ===== */
+.pageHero{background:linear-gradient(180deg,var(--gd) 0%,var(--gdk) 100%);color:#e8e4d6;padding:200px 60px 120px;text-align:center;position:relative;overflow:hidden;}
+.pageHero::before{content:"";position:absolute;top:20%;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(212,175,55,.08),transparent 60%);pointer-events:none;}
+.pageHero .inner{max-width:1000px;margin:0 auto;position:relative;z-index:2;}
+.pageHero h1{font-size:clamp(48px,7vw,96px);color:var(--wh);margin-bottom:28px;font-weight:300;}
+.pageHero h1 em{color:var(--gob);font-weight:400;}
+.pageHero .sub{font-family:var(--serif);font-style:italic;font-size:clamp(20px,2.2vw,26px);color:#c7c1ae;max-width:780px;margin:0 auto;line-height:1.5;}
+
+/* ===== STEP BLOCKS ===== */
+.step{padding:140px 60px;position:relative;overflow:hidden;}
+.step.white{background:var(--wh);}
+.step.off{background:var(--of);}
+.step .ghost{position:absolute;font-family:var(--serif);font-style:italic;font-size:clamp(240px,32vw,460px);color:rgba(184,144,42,.05);font-weight:400;line-height:.8;top:50%;transform:translateY(-50%);pointer-events:none;user-select:none;}
+.step.alt .ghost{right:-40px;}
+.step:not(.alt) .ghost{left:-40px;}
+.step .grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center;position:relative;z-index:2;}
+.step.alt .grid{grid-template-columns:1fr 1fr;}
+.step.alt .photoWrap{order:2;}
+.step.alt .content{order:1;}
+.step .photoWrap{position:relative;padding:20px;}
+.step .photoWrap::before,.step .photoWrap::after{content:"";position:absolute;width:70px;height:70px;border:1px solid var(--gob);}
+.step .photoWrap::before{top:0;left:0;border-right:none;border-bottom:none;}
+.step .photoWrap::after{bottom:0;right:0;border-left:none;border-top:none;}
+.step .photoWrap img{width:100%;aspect-ratio:4/5;object-fit:cover;filter:sepia(6%) contrast(1.05);}
+.step .stepCircle{display:inline-flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:50%;border:1px solid var(--gob);background:transparent;color:var(--gob);font-family:var(--serif);font-size:38px;font-style:italic;margin-bottom:30px;}
+.step .stepLbl{font-family:var(--sans);font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gob);margin-bottom:14px;display:block;}
+.step h2{font-size:clamp(36px,4.6vw,60px);margin-bottom:28px;}
+.step h2 em{color:var(--gm);font-style:italic;}
+.step p{font-size:17px;color:var(--tm);line-height:1.85;margin-bottom:22px;}
+.step ul.check{margin-top:32px;padding-top:28px;border-top:1px solid rgba(184,144,42,.2);}
+.step ul.check li{position:relative;padding-left:36px;margin-bottom:16px;font-family:var(--serif);font-size:19px;color:var(--tx);line-height:1.5;}
+.step ul.check li::before{content:"";position:absolute;left:0;top:10px;width:18px;height:9px;border-left:1.5px solid var(--gob);border-bottom:1.5px solid var(--gob);transform:rotate(-45deg);}
+
+/* ===== TIMELINE BANNER ===== */
+.tlBand{background:linear-gradient(180deg,var(--gd),var(--gdk));color:#e8e4d6;padding:120px 60px;text-align:center;border-top:1px solid rgba(212,175,55,.15);border-bottom:1px solid rgba(212,175,55,.15);}
+.tlBand .head{max-width:900px;margin:0 auto 60px;}
+.tlBand h2{color:var(--wh);font-size:clamp(34px,4.4vw,56px);}
+.tlBand h2 em{color:var(--gob);font-style:italic;}
+.tlBand .badges{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:30px;}
+.tlBand .badge{padding:40px 30px;border:1px solid rgba(212,175,55,.3);background:rgba(255,255,255,.02);transition:all .5s var(--ease);}
+.tlBand .badge:hover{background:rgba(212,175,55,.06);transform:translateY(-6px);}
+.tlBand .badge .big{font-family:var(--serif);font-size:44px;color:var(--gob);font-style:italic;margin-bottom:12px;line-height:1;}
+.tlBand .badge .lbl{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#c7c1ae;}
+
+/* ===== FAQ ===== */
+.faq{padding:140px 60px;background:var(--wh);}
+.faq .head{max-width:880px;margin:0 auto 70px;text-align:center;}
+.faq h2{font-size:clamp(36px,4.4vw,58px);}
+.faq h2 em{color:var(--gm);font-style:italic;}
+.faq .list{max-width:960px;margin:0 auto;}
+.ttcFaqItem{border-bottom:1px solid rgba(184,144,42,.2);}
+.ttcFaqItem:first-child{border-top:1px solid rgba(184,144,42,.2);}
+.ttcFaqBtn{width:100%;background:none;border:none;text-align:left;padding:32px 0;display:flex;justify-content:space-between;align-items:center;gap:30px;font-family:var(--serif);font-size:clamp(20px,2vw,26px);color:var(--tx);transition:color .3s;}
+.ttcFaqBtn:hover{color:var(--gm);}
+.ttcFaqBtn .plus{flex-shrink:0;width:36px;height:36px;border-radius:50%;border:1px solid var(--gob);display:flex;align-items:center;justify-content:center;position:relative;transition:all .4s var(--ease);}
+.ttcFaqBtn .plus::before,.ttcFaqBtn .plus::after{content:"";position:absolute;background:var(--gob);transition:transform .4s var(--ease);}
+.ttcFaqBtn .plus::before{width:14px;height:1.5px;}
+.ttcFaqBtn .plus::after{width:1.5px;height:14px;}
+.ttcFaqItem.open .ttcFaqBtn .plus{background:var(--gob);}
+.ttcFaqItem.open .ttcFaqBtn .plus::before,.ttcFaqItem.open .ttcFaqBtn .plus::after{background:var(--gd);}
+.ttcFaqItem.open .ttcFaqBtn .plus::after{transform:scaleY(0);}
+.ttcFaqBody{max-height:0;overflow:hidden;transition:max-height .55s var(--ease);}
+.ttcFaqBody .inner{padding:0 0 32px 0;font-size:16px;color:var(--tm);line-height:1.85;max-width:720px;}
+
+/* ===== CTA BAND ===== */
+.ctaBand{background:linear-gradient(135deg,var(--gd) 0%,var(--gp) 100%);padding:150px 60px;text-align:center;color:#e8e4d6;position:relative;overflow:hidden;}
+.ctaBand::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(212,175,55,.18),transparent 65%);}
+.ctaBand::after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gob),transparent);}
+.ctaBand .inner{max-width:920px;margin:0 auto;position:relative;z-index:2;}
+.ctaBand h2{font-size:clamp(44px,5.6vw,80px);color:var(--wh);margin-bottom:26px;}
+.ctaBand h2 em{color:var(--gob);font-style:italic;}
+.ctaBand p{font-family:var(--serif);font-style:italic;font-size:22px;color:#c7c1ae;margin-bottom:44px;}
+.ctaBand .goldBtn{display:inline-flex;align-items:center;padding:22px 56px;background:var(--gob);color:var(--gd);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;transition:all .4s var(--ease);}
+.ctaBand .goldBtn:hover{background:var(--wh);transform:translateY(-3px);box-shadow:0 20px 40px rgba(212,175,55,.3);}
+
+/* ===== FOOTER ===== */
+footer{background:var(--gd);color:#9a9585;padding:90px 60px 40px;border-top:1px solid rgba(212,175,55,.12);}
+footer .grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:60px;}
+footer .col h4{font-family:var(--sans);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gob);margin-bottom:24px;font-weight:600;}
+footer .col img{height:44px;margin-bottom:22px;}
+footer .col p{font-size:14px;line-height:1.8;color:#9a9585;}
+footer .col ul li{margin-bottom:12px;}
+footer .col ul a{font-size:14px;color:#9a9585;transition:color .3s;}
+footer .col ul a:hover{color:var(--gob);}
+footer .bot{max-width:1320px;margin:70px auto 0;padding-top:30px;border-top:1px solid rgba(212,175,55,.1);display:flex;justify-content:space-between;font-size:12px;color:#6a6558;letter-spacing:1px;}
+
+/* ===== REVEAL ===== */
+.rev{opacity:0;transform:translateY(40px);transition:all 1s var(--ease);}
+.rev.on{opacity:1;transform:translateY(0);}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1100px){
+  #nav{padding:18px 32px;}
+  .nLinks{gap:28px;}
+  .step .grid{grid-template-columns:1fr;gap:70px;}
+  .step.alt .photoWrap{order:0;}
+  .step.alt .content{order:0;}
+  .tlBand .badges{grid-template-columns:1fr;gap:20px;}
+  footer .grid{grid-template-columns:1fr 1fr;gap:50px;}
+}
+@media(max-width:860px){
+  #nav{padding:16px 24px;}
+  .nLinks{display:none;}
+  .pageHero{padding:160px 24px 90px;}
+  .step,.tlBand,.faq,.ctaBand{padding:90px 24px;}
+  .step .ghost{font-size:200px;}
+  footer .grid{grid-template-columns:1fr;gap:40px;}
+  footer .bot{flex-direction:column;gap:12px;text-align:center;}
+}
+@media(max-width:480px){
+  .step .stepCircle{width:70px;height:70px;font-size:30px;}
+  .ttcFaqBtn{padding:24px 0;gap:18px;}
+}
+</style>
+</head>
+<body>
+<div class="cur"></div>
+<div class="curR"></div>
+
+<nav id="nav">
+  <div class="nLogo"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69b251837fc07c2514b161d1.png" alt="The Ticking Club"></div>
+  <ul class="nLinks">
+    <li><a href="ttc-home.html">Home</a></li>
+    <li><a href="ttc-about.html">About</a></li>
+    <li><a href="ttc-collection.html">Collection</a></li>
+    <li><a href="ttc-process.html">Process</a></li>
+    <li><a href="ttc-why-us.html">Why Us</a></li>
+  </ul>
+  <a href="ttc-contact.html" class="MBtn"><span>Book Consultation</span></a>
+</nav>
+
+<!-- HERO -->
+<section class="pageHero">
+  <div class="inner">
+    <div class="eyebrow rev">The Process</div>
+    <h1 class="rev">From First Inquiry <em>To Your Wrist</em></h1>
+    <p class="sub rev">A four-step ritual refined over a decade — most bespoke acquisitions complete in two to six weeks, depending on the reference and the client's timeline.</p>
+  </div>
+</section>
+
+<!-- STEP I -->
+<section class="step white">
+  <div class="ghost">01</div>
+  <div class="grid">
+    <div class="photoWrap rev">
+      <img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10f6190683601a3f341a.jpeg" alt="Book a consultation">
+    </div>
+    <div class="content rev">
+      <div class="stepCircle">I</div>
+      <span class="stepLbl">Step One</span>
+      <h2>Book A <em>Private Consultation</em></h2>
+      <p>Your journey begins with a single, confidential form. There are no inventory pages to browse, no pressure to commit, and no public trail. Submit your inquiry and one of our senior specialists will personally respond within twenty-four hours to schedule your private intake call.</p>
+      <p>This first touchpoint is where relationship replaces transaction. We listen. We learn. We establish the foundation of trust upon which every subsequent acquisition will rest.</p>
+      <ul class="check">
+        <li>Personal response within 24 hours from a dedicated specialist</li>
+        <li>Private intake call scheduled at your convenience</li>
+        <li>Complete confidentiality from the first contact forward</li>
+        <li>No obligation, no pressure, no sales script</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- STEP II -->
+<section class="step off alt">
+  <div class="ghost">02</div>
+  <div class="grid">
+    <div class="photoWrap rev">
+      <img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10f6190683601a3f341b.jpeg" alt="Discovery session">
+    </div>
+    <div class="content rev">
+      <div class="stepCircle">II</div>
+      <span class="stepLbl">Step Two</span>
+      <h2>The <em>Discovery Session</em></h2>
+      <p>During your private consultation, your specialist explores the dimensions that matter most — your taste, your lifestyle, your existing collection, your intended use, your budget range, and your long-term horological ambitions. This is not an interrogation; it is a conversation between connoisseurs.</p>
+      <p>By the end of this session, your specialist has a clear and nuanced portrait of the wrist for which they are curating. From this point forward, every reference they consider is filtered through an understanding as specific as it is discreet.</p>
+      <ul class="check">
+        <li>In-depth exploration of taste, lifestyle, and horological goals</li>
+        <li>Review of existing collection and gap analysis</li>
+        <li>Budget range and investment philosophy discussion</li>
+        <li>Curated shortlist presented — never a generic catalog</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- STEP III -->
+<section class="step white">
+  <div class="ghost">03</div>
+  <div class="grid">
+    <div class="photoWrap rev">
+      <img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10f6109243d2cce1b840.jpeg" alt="Sourcing and authentication">
+    </div>
+    <div class="content rev">
+      <div class="stepCircle">III</div>
+      <span class="stepLbl">Step Three</span>
+      <h2>Sourcing &amp; <em>Authentication</em></h2>
+      <p>With your brief in hand, we activate our global network — authorized boutiques, independent watchmakers, private collectors, and vetted dealers from Geneva to Tokyo. Most sourcing windows close within one to two weeks, though rarer references may require patient pursuit measured in months.</p>
+      <p>Every candidate timepiece undergoes a rigorous multi-point horological inspection — caliber authentication, case and dial verification, bracelet and clasp review, and complete provenance documentation. Only pieces that pass every stage reach you.</p>
+      <ul class="check">
+        <li>Global network activation through trusted private channels</li>
+        <li>Certified multi-point horological authentication</li>
+        <li>Complete provenance and service history documentation</li>
+        <li>Written authenticity guarantee with every acquisition</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- STEP IV -->
+<section class="step off alt">
+  <div class="ghost">04</div>
+  <div class="grid">
+    <div class="photoWrap rev">
+      <img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10df80b446d0fb9199bb.jpeg" alt="White-glove delivery">
+    </div>
+    <div class="content rev">
+      <div class="stepCircle">IV</div>
+      <span class="stepLbl">Step Four</span>
+      <h2>White-Glove <em>Delivery</em></h2>
+      <p>The final act of a bespoke acquisition should feel ceremonial. Your timepiece arrives in its original presentation, accompanied by authentication documentation, service records, and warranty materials — all hand-delivered, insured, and scheduled to your preference. Where appropriate, we accompany the delivery personally.</p>
+      <p>The relationship does not end at handover. Your specialist remains your concierge for sizing, servicing, insurance coordination, and future acquisitions — for as long as you wear the watch.</p>
+      <ul class="check">
+        <li>Insured, hand-delivered, and scheduled at your convenience</li>
+        <li>Complete documentation package with every timepiece</li>
+        <li>Ongoing concierge for service, sizing, and insurance</li>
+        <li>Lifetime relationship with your dedicated specialist</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE BANNER -->
+<section class="tlBand">
+  <div class="head">
+    <div class="eyebrow rev">The Timeline</div>
+    <h2 class="rev">Most Acquisitions Complete In <em>Two To Six Weeks</em></h2>
+  </div>
+  <div class="badges">
+    <div class="badge rev">
+      <div class="big">24h</div>
+      <div class="lbl">Specialist Response</div>
+    </div>
+    <div class="badge rev">
+      <div class="big">1–2 Weeks</div>
+      <div class="lbl">Sourcing Window</div>
+    </div>
+    <div class="badge rev">
+      <div class="big">Same Week</div>
+      <div class="lbl">White-Glove Delivery</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="head">
+    <div class="eyebrow rev">Frequently Asked</div>
+    <h2 class="rev">Questions From <em>Discerning Clients</em></h2>
+  </div>
+  <div class="list">
+    <div class="ttcFaqItem rev">
+      <button class="ttcFaqBtn"><span>How long does the process take from start to finish?</span><span class="plus"></span></button>
+      <div class="ttcFaqBody"><div class="inner">Most bespoke acquisitions complete within two to six weeks — from initial consultation to white-glove delivery. Readily available references can be sourced and delivered in as little as seven to ten days. Rarer complications, vintage pieces, and limited editions may require extended timelines measured in months, and your specialist will set clear expectations at every stage.</div></div>
+    </div>
+    <div class="ttcFaqItem rev">
+      <button class="ttcFaqBtn"><span>Do I need to know exactly what I want before reaching out?</span><span class="plus"></span></button>
+      <div class="ttcFaqBody"><div class="inner">Not at all. Many of our clients arrive with only an instinct — a brand they admire, a complication that intrigues them, or simply the desire to begin collecting thoughtfully. Our discovery session is designed precisely for this; your specialist will help you clarify taste, establish priorities, and curate a shortlist that reflects who you are on the wrist.</div></div>
+    </div>
+    <div class="ttcFaqItem rev">
+      <button class="ttcFaqBtn"><span>Can you source limited editions and hard-to-find references?</span><span class="plus"></span></button>
+      <div class="ttcFaqBody"><div class="inner">Yes. Our network includes authorized boutiques, independent watchmakers, and private collectors across Geneva, Glashütte, Tokyo, and major global markets. We regularly secure references that remain inaccessible through public waitlists or retail channels — including limited editions, discontinued complications, and grail-tier vintage pieces.</div></div>
+    </div>
+    <div class="ttcFaqItem rev">
+      <button class="ttcFaqBtn"><span>What happens if I'm not satisfied with what's sourced?</span><span class="plus"></span></button>
+      <div class="ttcFaqBody"><div class="inner">You are under no obligation at any point before final acquisition. If a piece we source does not meet your expectations, we simply continue searching until it does — or refund any holding deposit in full. Our commitment is to place the right watch, not to make a sale.</div></div>
+    </div>
+    <div class="ttcFaqItem rev">
+      <button class="ttcFaqBtn"><span>Is there a minimum budget or price range?</span><span class="plus"></span></button>
+      <div class="ttcFaqBody"><div class="inner">We typically work with clients seeking timepieces from reputable Swiss and German manufactures, with most acquisitions starting in the mid-five figures. That said, budget is a conversation, not a gatekeeper — during your consultation we will discuss the range that best aligns with your goals and guide you toward the most prudent allocation of your investment.</div></div>
+    </div>
+    <div class="ttcFaqItem rev">
+      <button class="ttcFaqBtn"><span>Do you offer financing or payment plans?</span><span class="plus"></span></button>
+      <div class="ttcFaqBody"><div class="inner">Yes. We have relationships with discreet, specialty lenders who understand the horological asset class and can structure financing appropriate for fine timepiece acquisition. Your specialist can introduce you to these options and coordinate the paperwork on your behalf.</div></div>
+    </div>
+    <div class="ttcFaqItem rev">
+      <button class="ttcFaqBtn"><span>Can I trade in my current watch?</span><span class="plus"></span></button>
+      <div class="ttcFaqBody"><div class="inner">Absolutely. Trade-ins are a natural part of curating a collection. We will provide a confidential market valuation of your existing piece and apply its value toward your next acquisition — often unlocking references that would otherwise remain out of reach. Your current watch is placed through the same vetted network it would pass through in reverse.</div></div>
+    </div>
+    <div class="ttcFaqItem rev">
+      <button class="ttcFaqBtn"><span>What documentation comes with my timepiece?</span><span class="plus"></span></button>
+      <div class="ttcFaqBody"><div class="inner">Every acquisition includes a written authentication report, manufacturer warranty (where applicable), service history, original presentation (box and papers when available), and The Ticking Club's own provenance certificate. For vintage pieces, we also provide the complete ownership lineage we have been able to verify.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="ctaBand">
+  <div class="inner">
+    <div class="eyebrow rev">The First Step</div>
+    <h2 class="rev">Ready To <em>Begin?</em></h2>
+    <p class="rev">One form. One specialist. One conversation. The rest of the process unfolds with the care and precision of the timepieces themselves.</p>
+    <a href="ttc-contact.html" class="goldBtn rev">Book Your Consultation</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="grid">
+    <div class="col">
+      <img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69b251837fc07c2514b161d1.png" alt="The Ticking Club">
+      <p>Central Florida's most trusted name in bespoke watch consultation. Curated timepieces, personal specialists, legacy-defining moments.</p>
+    </div>
+    <div class="col">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="ttc-home.html">Home</a></li>
+        <li><a href="ttc-about.html">About Us</a></li>
+        <li><a href="ttc-collection.html">Collection</a></li>
+        <li><a href="ttc-process.html">Our Process</a></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="ttc-why-us.html">Why Us</a></li>
+        <li><a href="ttc-contact.html">Consultation</a></li>
+        <li><a href="ttc-contact.html">Authentication</a></li>
+        <li><a href="ttc-contact.html">Sourcing</a></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h4>Contact</h4>
+      <ul>
+        <li>Central Florida</li>
+        <li>By Appointment</li>
+        <li><a href="ttc-contact.html">Book Consultation</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="bot">
+    <span>© 2026 The Ticking Club. All rights reserved.</span>
+    <span>Bespoke · Curated · Discreet</span>
+  </div>
+</footer>
+
+<script>
+// CURSOR
+(function(){
+  if(window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+    const c=document.querySelector('.cur'),r=document.querySelector('.curR');
+    let mx=0,my=0,rx=0,ry=0;
+    window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;c.style.transform=`translate(${mx-5}px,${my-5}px)`;});
+    function loop(){rx+=(mx-rx-20)*.12;ry+=(my-ry-20)*.12;r.style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(loop);}loop();
+    document.querySelectorAll('a,button,.MBtn').forEach(el=>{
+      el.addEventListener('mouseenter',()=>{r.style.width='60px';r.style.height='60px';});
+      el.addEventListener('mouseleave',()=>{r.style.width='40px';r.style.height='40px';});
+    });
+  }
+})();
+// REVEAL
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}}),{threshold:.12,rootMargin:'0px 0px -60px 0px'});
+document.querySelectorAll('.rev').forEach(el=>io.observe(el));
+// NAV SCROLL
+window.addEventListener('scroll',()=>{
+  const n=document.getElementById('nav');
+  if(window.scrollY>50){n.style.padding='14px 60px';n.style.background='rgba(4,16,10,.96)';}
+  else{n.style.padding='22px 60px';n.style.background='rgba(4,16,10,.85)';}
+});
+// FAQ ACCORDION
+document.querySelectorAll('.ttcFaqBtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item=btn.parentElement;
+    const body=item.querySelector('.ttcFaqBody');
+    const open=item.classList.contains('open');
+    document.querySelectorAll('.ttcFaqItem.open').forEach(o=>{
+      o.classList.remove('open');
+      o.querySelector('.ttcFaqBody').style.maxHeight=null;
+    });
+    if(!open){
+      item.classList.add('open');
+      body.style.maxHeight=body.scrollHeight+'px';
+    }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Collection — The Ticking Club</title>
+<style>
+/* GHL FULL-BLEED NUCLEAR OVERRIDE */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body,.container,.wrapper,.page,.site,
+[class*="container"],[class*="wrapper"],[id*="wrapper"],[id*="container"]{
+  max-width:100%!important;width:100%!important;
+  padding-left:0!important;padding-right:0!important;
+  margin-left:0!important;margin-right:0!important;
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gd:#04100a;--gdk:#0a1f10;--gp:#1a3d28;--gm:#2a6040;
+  --go:#b8902a;--gob:#d4af37;--gl:#c9a84c;--gp2:#f0e0a0;
+  --wh:#ffffff;--of:#f5f3ee;--tx:#111111;--tm:#3a3a3a;--tl:#888888;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Montserrat',sans-serif;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+}
+html,body{background:var(--gd);color:var(--wh);font-family:var(--sans);overflow-x:hidden;}
+body{cursor:none;}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+.eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:var(--gl);font-weight:500;display:inline-flex;align-items:center;gap:14px;}
+.eyebrow::before{content:"";width:32px;height:1px;background:var(--gl);}
+.btn{display:inline-flex;align-items:center;gap:14px;padding:18px 38px;background:linear-gradient(135deg,var(--go),var(--gob));color:var(--gd);font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;border:none;cursor:none;transition:.4s var(--ease);}
+.btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(212,175,55,.32);}
+
+#C{position:fixed;width:8px;height:8px;background:var(--gob);border-radius:50%;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference;}
+#CF{position:fixed;width:38px;height:38px;border:1px solid var(--gob);border-radius:50%;top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .25s var(--ease),width .3s,height .3s;}
+@media(max-width:860px){body{cursor:auto;}#C,#CF{display:none;}}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:24px 60px;display:flex;align-items:center;justify-content:space-between;transition:.5s var(--ease);background:rgba(4,16,10,.85);backdrop-filter:blur(20px);}
+nav.s{background:rgba(4,16,10,.97);padding:16px 60px;box-shadow:0 4px 30px rgba(0,0,0,.3);}
+nav .lg{height:54px;transition:.4s;}
+nav.s .lg{height:46px;}
+nav .links{display:flex;gap:42px;list-style:none;}
+nav .links a{font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;color:var(--wh);transition:.3s;position:relative;}
+nav .links a::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:1px;background:var(--gob);transition:.4s var(--ease);}
+nav .links a:hover{color:var(--gob);}
+nav .links a:hover::after{width:100%;}
+nav .nbtn{padding:13px 28px;background:linear-gradient(135deg,var(--go),var(--gob));color:var(--gd);font-size:10px;letter-spacing:.24em;text-transform:uppercase;font-weight:600;cursor:none;}
+nav .ham{display:none;flex-direction:column;gap:6px;cursor:none;}
+nav .ham span{width:28px;height:1px;background:var(--wh);}
+@media(max-width:980px){nav{padding:18px 24px;}nav .links,nav .nbtn{display:none;}nav .ham{display:flex;}}
+
+#MM{position:fixed;inset:0;background:var(--gd);z-index:480;display:flex;align-items:center;justify-content:center;transform:translateY(-100%);transition:.6s var(--ease);}
+#MM.open{transform:translateY(0);}
+#MM ul{list-style:none;text-align:center;}
+#MM li{margin:22px 0;}
+#MM a{font-family:var(--serif);font-size:42px;color:var(--wh);font-weight:300;}
+#MM a:hover{color:var(--gob);font-style:italic;}
+
+/* PAGE HERO */
+.phero{padding:200px 60px 120px;background:var(--gd);text-align:center;position:relative;overflow:hidden;}
+.phero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(184,144,42,.12),transparent 55%);}
+.phero .inner{position:relative;max-width:880px;margin:0 auto;}
+.phero h1{font-family:var(--serif);font-size:clamp(54px,7vw,116px);line-height:.98;font-weight:300;color:var(--wh);margin:30px 0 28px;letter-spacing:-.02em;}
+.phero h1 em{color:var(--gob);font-weight:400;font-style:italic;display:block;}
+.phero p{font-size:16px;line-height:1.85;color:rgba(255,255,255,.7);max-width:640px;margin:0 auto;font-weight:300;}
+
+/* GALLERY */
+.gal{background:var(--gd);padding:80px 60px 140px;}
+.gal .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:24px;max-width:1500px;margin:0 auto;}
+.gCard{position:relative;aspect-ratio:3/4;overflow:hidden;border:1px solid rgba(212,175,55,.18);cursor:none;}
+.gCard img{width:100%;height:100%;object-fit:cover;transition:1.2s var(--ease);}
+.gCard:hover img{transform:scale(1.12);}
+.gCard .ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(4,16,10,.95) 0%,rgba(4,16,10,.4) 50%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:30px;}
+.gCard .br{font-size:10px;letter-spacing:.3em;color:var(--gob);text-transform:uppercase;}
+.gCard .md{font-family:var(--serif);font-size:22px;color:var(--wh);font-weight:400;margin-top:6px;font-style:italic;}
+.gCard .lk{margin-top:14px;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--gob);opacity:0;transform:translateY(10px);transition:.4s;}
+.gCard:hover .lk{opacity:1;transform:translateY(0);}
+@media(max-width:1200px){.gal .grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:760px){.gal{padding:60px 24px 90px;}.gal .grid{grid-template-columns:repeat(2,1fr);gap:14px;}.gCard .ov{padding:20px;}.gCard .md{font-size:18px;}}
+
+/* ACQUISITION BANNER */
+.acq{background:var(--gdk);padding:120px 60px;text-align:center;position:relative;overflow:hidden;border-top:1px solid rgba(212,175,55,.12);border-bottom:1px solid rgba(212,175,55,.12);}
+.acq::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(184,144,42,.1),transparent 60%);}
+.acq .inner{position:relative;max-width:840px;margin:0 auto;}
+.acq h2{font-family:var(--serif);font-size:clamp(40px,5vw,76px);font-weight:300;color:var(--wh);line-height:1.05;margin:24px 0 28px;}
+.acq h2 em{color:var(--gob);font-style:italic;}
+.acq p{font-size:16px;line-height:1.85;color:rgba(255,255,255,.7);font-weight:300;max-width:600px;margin:0 auto 42px;}
+
+/* TRUST */
+.trust{background:var(--wh);color:var(--tx);padding:100px 60px;}
+.trust .head{text-align:center;max-width:780px;margin:0 auto 60px;}
+.trust .head .eyebrow{color:var(--go);}
+.trust .head .eyebrow::before{background:var(--go);}
+.trust .head h2{font-family:var(--serif);font-size:clamp(36px,4vw,58px);font-weight:300;margin-top:24px;line-height:1.05;}
+.trust .head h2 em{color:var(--go);font-style:italic;}
+.trust .row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:60px;max-width:1340px;margin:0 auto;}
+.trust span{font-family:var(--serif);font-size:26px;color:var(--tl);font-weight:400;font-style:italic;letter-spacing:.04em;transition:.4s;}
+.trust span:hover{color:var(--go);}
+@media(max-width:980px){.trust{padding:70px 24px;}.trust .row{gap:24px;}.trust span{font-size:18px;}}
+
+/* PROCESS CONDENSED */
+.proc{background:var(--of);color:var(--tx);padding:120px 60px;}
+.proc .head{text-align:center;max-width:780px;margin:0 auto 70px;}
+.proc .head h2{font-family:var(--serif);font-size:clamp(36px,4vw,58px);font-weight:300;margin-top:24px;line-height:1.05;}
+.proc .head h2 em{color:var(--go);font-style:italic;}
+.proc .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;max-width:1340px;margin:0 auto 60px;position:relative;}
+.proc .steps::before{content:"";position:absolute;top:42px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--gob),transparent);}
+.proc .step{text-align:center;position:relative;}
+.proc .step .rn{width:84px;height:84px;border-radius:50%;border:1px solid var(--gob);background:var(--of);color:var(--gob);font-family:var(--serif);font-size:32px;font-style:italic;display:flex;align-items:center;justify-content:center;margin:0 auto 26px;position:relative;z-index:2;}
+.proc .step h3{font-family:var(--serif);font-size:24px;font-weight:400;margin-bottom:12px;}
+.proc .step p{font-size:13px;line-height:1.8;color:var(--tm);font-weight:300;max-width:240px;margin:0 auto;}
+.proc .cta{text-align:center;margin-top:40px;}
+@media(max-width:980px){.proc{padding:80px 24px;}.proc .steps{grid-template-columns:1fr;gap:50px;}.proc .steps::before{display:none;}}
+
+/* FOOTER */
+footer{background:var(--gd);color:var(--wh);padding:100px 60px 40px;border-top:1px solid rgba(212,175,55,.18);}
+footer .grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:60px;max-width:1340px;margin:0 auto 60px;}
+footer .lg{height:60px;margin-bottom:26px;}
+footer .tag{font-family:var(--serif);font-size:16px;font-style:italic;color:rgba(255,255,255,.6);line-height:1.7;max-width:300px;}
+footer h5{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gob);margin-bottom:24px;font-weight:600;}
+footer ul{list-style:none;}
+footer ul li{margin-bottom:14px;}
+footer ul a{font-size:13px;color:rgba(255,255,255,.65);font-weight:300;transition:.3s;}
+footer ul a:hover{color:var(--gob);}
+footer .bot{max-width:1340px;margin:0 auto;border-top:1px solid rgba(212,175,55,.12);padding-top:30px;display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.1em;}
+@media(max-width:980px){footer{padding:70px 24px 30px;}footer .grid{grid-template-columns:1fr 1fr;gap:40px;}footer .bot{flex-direction:column;gap:14px;text-align:center;}}
+</style>
+</head>
+<body>
+
+<div id="C"></div>
+<div id="CF"></div>
+
+<nav id="NV">
+  <a href="ttc-home.html"><img class="lg" src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69b251837fc07c2514b161d1.png" alt="The Ticking Club"></a>
+  <ul class="links">
+    <li><a href="ttc-home.html">Home</a></li>
+    <li><a href="ttc-home.html#about">The Atelier</a></li>
+    <li><a href="ttc-collection.html">Collection</a></li>
+    <li><a href="ttc-home.html#process">Process</a></li>
+    <li><a href="ttc-contact.html">Contact</a></li>
+  </ul>
+  <a class="nbtn" href="ttc-contact.html">Book Consultation</a>
+  <div class="ham" id="HM"><span></span><span></span><span></span></div>
+</nav>
+
+<div id="MM">
+  <ul>
+    <li><a href="ttc-home.html">Home</a></li>
+    <li><a href="ttc-home.html#about">The Atelier</a></li>
+    <li><a href="ttc-collection.html">Collection</a></li>
+    <li><a href="ttc-home.html#process">Process</a></li>
+    <li><a href="ttc-contact.html">Contact</a></li>
+  </ul>
+</div>
+
+<section class="phero">
+  <div class="inner">
+    <span class="eyebrow">Our Collection</span>
+    <h1>Timepieces<br>We Have <em>Placed.</em></h1>
+    <p>A curated selection of haute horlogerie acquired and delivered to discerning collectors across Central Florida — every reference authenticated, every provenance verified, every legacy preserved.</p>
+  </div>
+</section>
+
+<section class="gal">
+  <div class="grid">
+    <div class="gCard"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10df80b446d0fb9199bb.jpeg" alt=""><div class="ov"><div class="br">Rolex</div><div class="md">Cosmograph Daytona</div><div class="lk">Inquire →</div></div></div>
+    <div class="gCard"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10de190683601a3f2f18.jpeg" alt=""><div class="ov"><div class="br">Patek Philippe</div><div class="md">Nautilus 5711</div><div class="lk">Inquire →</div></div></div>
+    <div class="gCard"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10df109243d2cce1b2c2.jpeg" alt=""><div class="ov"><div class="br">Audemars Piguet</div><div class="md">Royal Oak 15500</div><div class="lk">Inquire →</div></div></div>
+    <div class="gCard"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10e580b446d0fb919b07.jpeg" alt=""><div class="ov"><div class="br">Richard Mille</div><div class="md">RM 011 Felipe Massa</div><div class="lk">Inquire →</div></div></div>
+    <div class="gCard"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10e5109243d2cce1b420.jpeg" alt=""><div class="ov"><div class="br">Rolex</div><div class="md">GMT-Master II</div><div class="lk">Inquire →</div></div></div>
+    <div class="gCard"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10e580b446d0fb919b08.jpeg" alt=""><div class="ov"><div class="br">A. Lange &amp; Söhne</div><div class="md">Lange 1</div><div class="lk">Inquire →</div></div></div>
+    <div class="gCard"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10eb243975ecf728bf05.jpeg" alt=""><div class="ov"><div class="br">Vacheron Constantin</div><div class="md">Overseas</div><div class="lk">Inquire →</div></div></div>
+    <div class="gCard"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10f6190683601a3f341a.jpeg" alt=""><div class="ov"><div class="br">IWC Schaffhausen</div><div class="md">Portugieser</div><div class="lk">Inquire →</div></div></div>
+    <div class="gCard"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10f6190683601a3f341b.jpeg" alt=""><div class="ov"><div class="br">Jaeger-LeCoultre</div><div class="md">Reverso Tribute</div><div class="lk">Inquire →</div></div></div>
+    <div class="gCard"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10f6109243d2cce1b840.jpeg" alt=""><div class="ov"><div class="br">Panerai</div><div class="md">Luminor Marina</div><div class="lk">Inquire →</div></div></div>
+  </div>
+</section>
+
+<section class="acq">
+  <div class="inner">
+    <span class="eyebrow">Bespoke Acquisition</span>
+    <h2>Seeking A Specific <em>Reference?</em></h2>
+    <p>Our specialists maintain discreet relationships with the world's most prestigious dealers and private collectors. Whatever masterpiece you covet — we will find it.</p>
+    <a class="btn" href="ttc-contact.html">Begin Your Search →</a>
+  </div>
+</section>
+
+<section class="trust">
+  <div class="head">
+    <span class="eyebrow">Maisons We Source</span>
+    <h2>The <em>Houses</em> We Honor</h2>
+  </div>
+  <div class="row">
+    <span>Rolex</span><span>·</span><span>Patek Philippe</span><span>·</span><span>Audemars Piguet</span><span>·</span><span>Richard Mille</span><span>·</span><span>IWC</span><span>·</span><span>Vacheron Constantin</span><span>·</span><span>Jaeger-LeCoultre</span>
+  </div>
+</section>
+
+<section class="proc">
+  <div class="head">
+    <span class="eyebrow" style="color:var(--go);">The Process</span>
+    <h2>A Bespoke Path To <em>Acquisition</em></h2>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="rn">I</div><h3>Book</h3><p>Schedule a private consultation at your convenience.</p></div>
+    <div class="step"><div class="rn">II</div><h3>Discovery</h3><p>We listen to your aspirations and collection goals.</p></div>
+    <div class="step"><div class="rn">III</div><h3>Sourcing</h3><p>Our network mobilizes — accessing the unobtainable.</p></div>
+    <div class="step"><div class="rn">IV</div><h3>Delivery</h3><p>White-glove insured delivery with full provenance.</p></div>
+  </div>
+  <div class="cta"><a class="btn" href="ttc-contact.html">Begin Your Consultation →</a></div>
+</section>
+
+<footer>
+  <div class="grid">
+    <div>
+      <img class="lg" src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69b251837fc07c2514b161d1.png" alt="The Ticking Club">
+      <p class="tag">"Where horological mastery meets the discerning collector — a private atelier serving Central Florida's most distinguished gentlemen."</p>
+    </div>
+    <div>
+      <h5>Navigation</h5>
+      <ul><li><a href="ttc-home.html">Home</a></li><li><a href="ttc-home.html#about">The Atelier</a></li><li><a href="ttc-collection.html">Collection</a></li><li><a href="ttc-home.html#process">Process</a></li></ul>
+    </div>
+    <div>
+      <h5>Services</h5>
+      <ul><li><a href="ttc-contact.html">Private Consultation</a></li><li><a href="ttc-contact.html">Bespoke Sourcing</a></li><li><a href="ttc-contact.html">Authentication</a></li><li><a href="ttc-contact.html">Investment Advisory</a></li></ul>
+    </div>
+    <div>
+      <h5>Contact</h5>
+      <ul><li><a href="ttc-contact.html">By Appointment Only</a></li><li><a href="mailto:concierge@thetickingclub.com">concierge@thetickingclub.com</a></li><li><a href="ttc-contact.html">Central Florida</a></li></ul>
+    </div>
+  </div>
+  <div class="bot">
+    <div>© 2026 The Ticking Club · All Rights Reserved</div>
+    <div>A Private Horological Atelier</div>
+  </div>
+</footer>
+
+<script>
+const C=document.getElementById('C'),CF=document.getElementById('CF');
+let mx=0,my=0,fx=0,fy=0;
+window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;C.style.left=mx+'px';C.style.top=my+'px';});
+function lp(){fx+=(mx-fx)*.15;fy+=(my-fy)*.15;CF.style.left=fx+'px';CF.style.top=fy+'px';requestAnimationFrame(lp);}lp();
+document.querySelectorAll('a,button,.btn,.gCard,.ham').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{CF.style.width='62px';CF.style.height='62px';});
+  el.addEventListener('mouseleave',()=>{CF.style.width='38px';CF.style.height='38px';});
+});
+
+const NV=document.getElementById('NV');
+window.addEventListener('scroll',()=>{NV.classList.toggle('s',window.scrollY>80);});
+
+const HM=document.getElementById('HM'),MM=document.getElementById('MM');
+HM.addEventListener('click',()=>MM.classList.toggle('open'));
+MM.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>MM.classList.remove('open')));
+</script>
+</body>
+</html>

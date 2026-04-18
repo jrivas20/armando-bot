@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About | The Ticking Club — Where Passion Meets Precision</title>
+<style>
+/* GHL FULL-BLEED NUCLEAR OVERRIDE */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body,.container,.wrapper,.page,.site,
+[class*="container"],[class*="wrapper"],[id*="wrapper"],[id*="container"]{
+  max-width:100%!important;width:100%!important;
+  padding-left:0!important;padding-right:0!important;
+  margin-left:0!important;margin-right:0!important;
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gd:#04100a;--gdk:#0a1f10;--gp:#1a3d28;--gm:#2a6040;
+  --go:#b8902a;--gob:#d4af37;--gl:#c9a84c;--gp2:#f0e0a0;
+  --wh:#ffffff;--of:#f5f3ee;--tx:#111111;--tm:#3a3a3a;--tl:#888888;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Montserrat',sans-serif;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+}
+html,body{background:var(--wh);color:var(--tx);font-family:var(--sans);font-weight:400;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+img{max-width:100%;display:block;}
+a{text-decoration:none;color:inherit;}
+ul{list-style:none;}
+
+/* ===== CURSOR ===== */
+@media(hover:hover) and (pointer:fine){
+  html,body{cursor:none;}
+  a,button,input,iframe,.MBtn{cursor:none;}
+  .cur{position:fixed;top:0;left:0;width:10px;height:10px;background:var(--gob);border-radius:50%;pointer-events:none;z-index:9999;transition:transform .15s var(--ease);mix-blend-mode:difference;}
+  .curR{position:fixed;top:0;left:0;width:40px;height:40px;border:1px solid var(--gob);border-radius:50%;pointer-events:none;z-index:9998;transition:transform .3s var(--ease),width .3s,height .3s;}
+}
+@media(hover:none),(pointer:coarse){
+  html,body{cursor:auto!important;}
+  .cur,.curR{display:none!important;}
+}
+
+/* ===== NAV ===== */
+#nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:22px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,16,10,.85);backdrop-filter:blur(14px);border-bottom:1px solid rgba(212,175,55,.18);transition:all .4s var(--ease);}
+.nLogo img{height:48px;width:auto;}
+.nLinks{display:flex;gap:42px;}
+.nLinks a{font-family:var(--sans);font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#e8e4d6;position:relative;padding:6px 0;transition:color .3s;}
+.nLinks a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--gob);transition:width .4s var(--ease);}
+.nLinks a:hover{color:var(--gob);}
+.nLinks a:hover::after{width:100%;}
+.MBtn{display:inline-flex;align-items:center;padding:14px 30px;background:transparent;border:1px solid var(--gob);color:var(--gob);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;position:relative;overflow:hidden;transition:color .4s var(--ease);}
+.MBtn span{position:relative;z-index:2;}
+.MBtn::before{content:"";position:absolute;inset:0;background:var(--gob);transform:translateX(-101%);transition:transform .45s var(--ease);z-index:1;}
+.MBtn:hover{color:var(--gd);}
+.MBtn:hover::before{transform:translateX(0);}
+
+/* ===== SHARED ===== */
+.eyebrow{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--gob);display:inline-block;padding-bottom:16px;position:relative;margin-bottom:24px;}
+.eyebrow::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:40px;height:1px;background:var(--gob);}
+.eyebrow.left::after{left:0;transform:none;}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:400;line-height:1.15;color:var(--tx);}
+.serif-it{font-style:italic;font-family:var(--serif);}
+
+/* ===== PAGE HERO ===== */
+.pageHero{background:linear-gradient(180deg,var(--gd) 0%,var(--gdk) 100%);color:#e8e4d6;padding:200px 60px 120px;text-align:center;position:relative;overflow:hidden;}
+.pageHero::before{content:"";position:absolute;top:20%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(212,175,55,.08),transparent 60%);pointer-events:none;}
+.pageHero .inner{max-width:1000px;margin:0 auto;position:relative;z-index:2;}
+.pageHero h1{font-size:clamp(48px,7vw,96px);color:var(--wh);margin-bottom:28px;font-weight:300;}
+.pageHero h1 em{color:var(--gob);font-weight:400;}
+.pageHero .sub{font-family:var(--serif);font-style:italic;font-size:clamp(20px,2.2vw,26px);color:#c7c1ae;max-width:760px;margin:0 auto;line-height:1.5;}
+
+/* ===== ORIGIN STORY ===== */
+.origin{padding:140px 60px;background:var(--wh);}
+.origin .grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr 1.1fr;gap:100px;align-items:center;}
+.origin .photoWrap{position:relative;}
+.origin .photoFrame{position:relative;padding:20px;}
+.origin .photoFrame::before,.origin .photoFrame::after{content:"";position:absolute;width:60px;height:60px;border:1px solid var(--gob);}
+.origin .photoFrame::before{top:0;left:0;border-right:none;border-bottom:none;}
+.origin .photoFrame::after{bottom:0;right:0;border-left:none;border-top:none;}
+.origin .photoFrame img{width:100%;aspect-ratio:3/4;object-fit:cover;filter:grayscale(20%) contrast(1.05);}
+.origin .estBadge{position:absolute;bottom:40px;right:-30px;width:140px;height:140px;border-radius:50%;background:var(--gd);color:var(--gob);display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--gob);font-family:var(--serif);box-shadow:0 20px 40px rgba(4,16,10,.3);}
+.origin .estBadge span:first-child{font-size:11px;letter-spacing:3px;text-transform:uppercase;font-family:var(--sans);font-weight:500;}
+.origin .estBadge span:last-child{font-size:32px;font-style:italic;margin-top:4px;}
+.origin h2{font-size:clamp(36px,4.4vw,58px);margin-bottom:32px;}
+.origin h2 em{color:var(--gm);}
+.origin p{font-size:17px;color:var(--tm);line-height:1.85;margin-bottom:22px;}
+.origin .goldBtn{display:inline-flex;align-items:center;margin-top:20px;padding:18px 42px;background:var(--gob);color:var(--gd);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;transition:all .4s var(--ease);}
+.origin .goldBtn:hover{background:var(--gd);color:var(--gob);}
+
+/* ===== PHILOSOPHY ===== */
+.philo{padding:140px 60px;background:var(--of);text-align:center;}
+.philo .head{max-width:820px;margin:0 auto 80px;}
+.philo h2{font-size:clamp(36px,4.4vw,58px);}
+.philo .cards{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;}
+.philo .card{background:var(--wh);padding:60px 44px;border:1px solid rgba(184,144,42,.15);text-align:left;transition:all .5s var(--ease);position:relative;}
+.philo .card::before{content:"";position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--gob),var(--gp2));transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease);}
+.philo .card:hover{transform:translateY(-8px);box-shadow:0 40px 60px rgba(4,16,10,.08);}
+.philo .card:hover::before{transform:scaleX(1);}
+.philo .ico{width:60px;height:60px;display:flex;align-items:center;justify-content:center;border:1px solid var(--gob);border-radius:50%;margin-bottom:32px;color:var(--gob);}
+.philo .ico svg{width:28px;height:28px;}
+.philo .card h3{font-size:32px;margin-bottom:20px;color:var(--tx);}
+.philo .card p{font-size:15px;color:var(--tm);line-height:1.85;}
+
+/* ===== STATS ===== */
+.stats{background:linear-gradient(180deg,var(--gd),var(--gdk));color:#e8e4d6;padding:120px 60px;text-align:center;border-top:1px solid rgba(212,175,55,.15);border-bottom:1px solid rgba(212,175,55,.15);}
+.stats .head{max-width:720px;margin:0 auto 70px;}
+.stats .head h2{color:var(--wh);font-size:clamp(32px,4vw,48px);}
+.stats .row{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:40px;}
+.stats .stat{padding:40px 20px;border-right:1px solid rgba(212,175,55,.12);}
+.stats .stat:last-child{border-right:none;}
+.stats .num{font-family:var(--serif);font-size:clamp(56px,6vw,84px);color:var(--gob);font-weight:400;line-height:1;font-style:italic;margin-bottom:18px;}
+.stats .lbl{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#c7c1ae;}
+
+/* ===== EXPERTISE ===== */
+.exp{padding:140px 60px;background:var(--wh);}
+.exp .grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1.1fr 1fr;gap:100px;align-items:center;}
+.exp h2{font-size:clamp(36px,4.4vw,58px);margin-bottom:32px;}
+.exp h2 em{color:var(--gm);}
+.exp p{font-size:17px;color:var(--tm);line-height:1.85;margin-bottom:22px;}
+.exp .brandList{margin-top:36px;display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.exp .brandList li{font-family:var(--serif);font-size:20px;color:var(--tx);padding-left:24px;position:relative;}
+.exp .brandList li::before{content:"";position:absolute;left:0;top:12px;width:14px;height:1px;background:var(--gob);}
+.exp .photoWrap{position:relative;padding:20px;}
+.exp .photoWrap::before,.exp .photoWrap::after{content:"";position:absolute;width:60px;height:60px;border:1px solid var(--gob);}
+.exp .photoWrap::before{top:0;right:0;border-left:none;border-bottom:none;}
+.exp .photoWrap::after{bottom:0;left:0;border-right:none;border-top:none;}
+.exp .photoWrap img{width:100%;aspect-ratio:4/5;object-fit:cover;filter:sepia(10%) contrast(1.05);}
+
+/* ===== BRAND TRUST ===== */
+.brands{padding:90px 60px;background:var(--of);text-align:center;border-top:1px solid rgba(184,144,42,.1);border-bottom:1px solid rgba(184,144,42,.1);}
+.brands .lbl{font-family:var(--sans);font-size:11px;letter-spacing:3.5px;text-transform:uppercase;color:var(--tl);margin-bottom:36px;}
+.brands .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center;gap:50px 70px;align-items:center;}
+.brands .row span{font-family:var(--serif);font-style:italic;font-size:clamp(22px,2.4vw,30px);color:var(--tx);opacity:.75;transition:all .4s;letter-spacing:.5px;}
+.brands .row span:hover{opacity:1;color:var(--gm);}
+
+/* ===== CTA BAND ===== */
+.ctaBand{background:linear-gradient(180deg,var(--gdk),var(--gd));padding:140px 60px;text-align:center;color:#e8e4d6;position:relative;overflow:hidden;}
+.ctaBand::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(212,175,55,.1),transparent 60%);}
+.ctaBand .inner{max-width:880px;margin:0 auto;position:relative;z-index:2;}
+.ctaBand h2{font-size:clamp(40px,5vw,72px);color:var(--wh);margin-bottom:26px;}
+.ctaBand h2 em{color:var(--gob);}
+.ctaBand p{font-family:var(--serif);font-style:italic;font-size:22px;color:#c7c1ae;margin-bottom:44px;}
+.ctaBand .goldBtn{display:inline-flex;align-items:center;padding:20px 52px;background:var(--gob);color:var(--gd);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;transition:all .4s var(--ease);}
+.ctaBand .goldBtn:hover{background:var(--wh);transform:translateY(-3px);}
+
+/* ===== FOOTER ===== */
+footer{background:var(--gd);color:#9a9585;padding:90px 60px 40px;border-top:1px solid rgba(212,175,55,.12);}
+footer .grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:60px;}
+footer .col h4{font-family:var(--sans);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gob);margin-bottom:24px;font-weight:600;}
+footer .col img{height:44px;margin-bottom:22px;}
+footer .col p{font-size:14px;line-height:1.8;color:#9a9585;}
+footer .col ul li{margin-bottom:12px;}
+footer .col ul a{font-size:14px;color:#9a9585;transition:color .3s;}
+footer .col ul a:hover{color:var(--gob);}
+footer .bot{max-width:1320px;margin:70px auto 0;padding-top:30px;border-top:1px solid rgba(212,175,55,.1);display:flex;justify-content:space-between;font-size:12px;color:#6a6558;letter-spacing:1px;}
+
+/* ===== REVEAL ===== */
+.rev{opacity:0;transform:translateY(40px);transition:all 1s var(--ease);}
+.rev.on{opacity:1;transform:translateY(0);}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1100px){
+  #nav{padding:18px 32px;}
+  .nLinks{gap:28px;}
+  .origin .grid,.exp .grid{grid-template-columns:1fr;gap:70px;}
+  .philo .cards{grid-template-columns:1fr;}
+  .stats .row{grid-template-columns:repeat(2,1fr);gap:50px 30px;}
+  .stats .stat:nth-child(2){border-right:none;}
+  footer .grid{grid-template-columns:1fr 1fr;gap:50px;}
+}
+@media(max-width:860px){
+  #nav{padding:16px 24px;}
+  .nLinks{display:none;}
+  .pageHero{padding:160px 24px 90px;}
+  .origin,.philo,.exp,.ctaBand{padding:90px 24px;}
+  .stats{padding:90px 24px;}
+  .brands{padding:70px 24px;}
+  .origin .estBadge{right:0;width:110px;height:110px;}
+  .exp .brandList{grid-template-columns:1fr;}
+  footer .grid{grid-template-columns:1fr;gap:40px;}
+  footer .bot{flex-direction:column;gap:12px;text-align:center;}
+}
+@media(max-width:480px){
+  .stats .row{grid-template-columns:1fr;}
+  .stats .stat{border-right:none;border-bottom:1px solid rgba(212,175,55,.12);padding-bottom:30px;}
+  .stats .stat:last-child{border-bottom:none;}
+}
+</style>
+</head>
+<body>
+<div class="cur"></div>
+<div class="curR"></div>
+
+<nav id="nav">
+  <div class="nLogo"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69b251837fc07c2514b161d1.png" alt="The Ticking Club"></div>
+  <ul class="nLinks">
+    <li><a href="ttc-home.html">Home</a></li>
+    <li><a href="ttc-about.html">About</a></li>
+    <li><a href="ttc-collection.html">Collection</a></li>
+    <li><a href="ttc-process.html">Process</a></li>
+    <li><a href="ttc-why-us.html">Why Us</a></li>
+  </ul>
+  <a href="ttc-contact.html" class="MBtn"><span>Book Consultation</span></a>
+</nav>
+
+<!-- HERO -->
+<section class="pageHero">
+  <div class="inner">
+    <div class="eyebrow rev">Our Story</div>
+    <h1 class="rev">Where Passion <em>Meets</em> Precision</h1>
+    <p class="sub rev">Founded on the belief that acquiring a timepiece should feel as exceptional as the watch itself — a conversation, a ritual, a legacy-defining moment.</p>
+  </div>
+</section>
+
+<!-- ORIGIN -->
+<section class="origin">
+  <div class="grid">
+    <div class="photoWrap rev">
+      <div class="photoFrame">
+        <img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10e5109243d2cce1b420.jpeg" alt="The Ticking Club founder">
+      </div>
+      <div class="estBadge"><span>Established</span><span>2012</span></div>
+    </div>
+    <div class="rev">
+      <div class="eyebrow left">The Foundation</div>
+      <h2>Born From A <em>Lifelong Obsession</em> With Time</h2>
+      <p>The Ticking Club was founded in 2012 out of a single, uncompromising conviction: that the acquisition of a fine timepiece deserves the same care, intimacy, and discretion as the horological mastery invested in the watch itself. What began as a private circle of collectors quietly trading references has become Central Florida's most trusted name in bespoke watch consultation.</p>
+      <p>Our philosophy is shaped by the watchmakers we admire — that patience, precision, and personal service are not luxuries but prerequisites. Every client is paired with a dedicated specialist. Every piece is authenticated, documented, and placed with deliberate intention. There is no showroom pressure, no fluorescent lights, no transactional haste. Only the quiet attention a connoisseur deserves.</p>
+      <p>Rooted in Central Florida and connected to a global network of makers, dealers, and collectors, we have spent over a decade refining what it means to acquire a watch the way it was always meant to be acquired — through relationship, through knowledge, and through time.</p>
+      <a href="ttc-contact.html" class="goldBtn">Begin Your Journey</a>
+    </div>
+  </div>
+</section>
+
+<!-- PHILOSOPHY -->
+<section class="philo">
+  <div class="head">
+    <div class="eyebrow rev">The Philosophy</div>
+    <h2 class="rev">Three Principles That <em class="serif-it">Guide Everything We Do</em></h2>
+  </div>
+  <div class="cards">
+    <div class="card rev">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <h3>Total Discretion</h3>
+      <p>Our clientele includes some of the most private individuals in the region. Every consultation, transaction, and delivery is handled with the confidentiality of a trusted advisor. Your taste, your collection, and your acquisitions remain entirely your own.</p>
+    </div>
+    <div class="card rev">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg></div>
+      <h3>Uncompromising Authenticity</h3>
+      <p>Every timepiece is authenticated through a multi-point horological inspection by our certified specialists. We source only from vetted channels, document provenance rigorously, and stand behind every piece with a written authenticity guarantee.</p>
+    </div>
+    <div class="card rev">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <h3>The Client First. Always.</h3>
+      <p>We do not sell inventory — we source intentions. Our specialists listen first, advise second, and never place a watch on a wrist that doesn't belong there. If the right piece isn't available today, we wait. The client, not the sale, defines success.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="head">
+    <div class="eyebrow rev">By The Numbers</div>
+    <h2 class="rev">A Decade Of <em class="serif-it">Quiet Excellence</em></h2>
+  </div>
+  <div class="row">
+    <div class="stat rev"><div class="num">500+</div><div class="lbl">Discerning Clients</div></div>
+    <div class="stat rev"><div class="num">12+</div><div class="lbl">Years Of Mastery</div></div>
+    <div class="stat rev"><div class="num">$2M+</div><div class="lbl">In Watches Placed</div></div>
+    <div class="stat rev"><div class="num">100%</div><div class="lbl">Authenticated</div></div>
+  </div>
+</section>
+
+<!-- EXPERTISE -->
+<section class="exp">
+  <div class="grid">
+    <div class="rev">
+      <div class="eyebrow left">Our Expertise</div>
+      <h2>Horological Knowledge, <em>Human Service</em></h2>
+      <p>Behind every consultation stands a team of certified horologists, seasoned collectors, and market strategists who have dedicated their careers to the study of fine watchmaking. We understand caliber architectures, complication lineages, and the subtle market dynamics that separate a prudent acquisition from a regrettable one.</p>
+      <p>Our mastery spans the full spectrum of haute horlogerie — from the iconic sports references that define the modern market to the rarest grand complications reserved for true connoisseurs. We speak the language of Geneva, Glashütte, and Le Sentier fluently, and we translate it into counsel that serves you.</p>
+      <ul class="brandList">
+        <li>Rolex</li>
+        <li>Patek Philippe</li>
+        <li>Audemars Piguet</li>
+        <li>Richard Mille</li>
+        <li>IWC Schaffhausen</li>
+        <li>Vacheron Constantin</li>
+        <li>Jaeger-LeCoultre</li>
+        <li>A. Lange &amp; Söhne</li>
+      </ul>
+    </div>
+    <div class="photoWrap rev">
+      <img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10e580b446d0fb919b07.jpeg" alt="Horological expertise">
+    </div>
+  </div>
+</section>
+
+<!-- BRANDS -->
+<section class="brands">
+  <div class="lbl rev">Brands We Specialize In</div>
+  <div class="row rev">
+    <span>Rolex</span>
+    <span>Patek Philippe</span>
+    <span>Audemars Piguet</span>
+    <span>Richard Mille</span>
+    <span>IWC</span>
+    <span>Vacheron Constantin</span>
+    <span>Jaeger-LeCoultre</span>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="ctaBand">
+  <div class="inner">
+    <div class="eyebrow rev">The Beginning</div>
+    <h2 class="rev">Your Journey Starts With <em>A Conversation</em>.</h2>
+    <p class="rev">No inventory lists. No pressure. Only a private dialogue about the timepiece that belongs on your wrist.</p>
+    <a href="ttc-contact.html" class="goldBtn rev">Book Your Consultation</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="grid">
+    <div class="col">
+      <img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69b251837fc07c2514b161d1.png" alt="The Ticking Club">
+      <p>Central Florida's most trusted name in bespoke watch consultation. Curated timepieces, personal specialists, legacy-defining moments.</p>
+    </div>
+    <div class="col">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="ttc-home.html">Home</a></li>
+        <li><a href="ttc-about.html">About Us</a></li>
+        <li><a href="ttc-collection.html">Collection</a></li>
+        <li><a href="ttc-process.html">Our Process</a></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="ttc-why-us.html">Why Us</a></li>
+        <li><a href="ttc-contact.html">Consultation</a></li>
+        <li><a href="ttc-contact.html">Authentication</a></li>
+        <li><a href="ttc-contact.html">Sourcing</a></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h4>Contact</h4>
+      <ul>
+        <li>Central Florida</li>
+        <li>By Appointment</li>
+        <li><a href="ttc-contact.html">Book Consultation</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="bot">
+    <span>© 2026 The Ticking Club. All rights reserved.</span>
+    <span>Bespoke · Curated · Discreet</span>
+  </div>
+</footer>
+
+<script>
+// CURSOR
+(function(){
+  if(window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+    const c=document.querySelector('.cur'),r=document.querySelector('.curR');
+    let mx=0,my=0,rx=0,ry=0;
+    window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;c.style.transform=`translate(${mx-5}px,${my-5}px)`;});
+    function loop(){rx+=(mx-rx-20)*.12;ry+=(my-ry-20)*.12;r.style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(loop);}loop();
+    document.querySelectorAll('a,button,.MBtn').forEach(el=>{
+      el.addEventListener('mouseenter',()=>{r.style.width='60px';r.style.height='60px';});
+      el.addEventListener('mouseleave',()=>{r.style.width='40px';r.style.height='40px';});
+    });
+  }
+})();
+// REVEAL
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}}),{threshold:.12,rootMargin:'0px 0px -60px 0px'});
+document.querySelectorAll('.rev').forEach(el=>io.observe(el));
+// NAV SCROLL
+window.addEventListener('scroll',()=>{
+  const n=document.getElementById('nav');
+  if(window.scrollY>50){n.style.padding='14px 60px';n.style.background='rgba(4,16,10,.96)';}
+  else{n.style.padding='22px 60px';n.style.background='rgba(4,16,10,.85)';}
+});
+</script>
+</body>
+</html>

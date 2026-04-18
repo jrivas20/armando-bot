@@ -41,6 +41,12 @@ services:
         sync: false
       - key: GOOGLE_PLACES_API_KEY
         value: AIzaSyC1ra5_WT5mE6QJr64HDrVixFHbionXUkM
+      - key: GOOGLE_REFRESH_TOKEN
+        sync: false
+      - key: GOOGLE_OAUTH2_CLIENT_ID
+        sync: false
+      - key: GOOGLE_OAUTH2_SECRET
+        sync: false
       - key: PEXELS_API_KEY
         value: KKnsOB57rfTFv5cuySAq8I9xm0ek6AiKZo4xeOURePlXJvnnw4EDbBdg
       - key: STITCH_API_KEY

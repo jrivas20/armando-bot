@@ -92,9 +92,12 @@ const DATAFORSEO_PASSWORD = process.env.DATAFORSEO_PASSWORD || '';
 const DATAFORSEO_BASE     = 'https://api.dataforseo.com';
 
 // ── Google APIs ─────────────────────────────────────────────
-const GOOGLE_PLACES_API_KEY  = process.env.GOOGLE_PLACES_API_KEY  || 'AIzaSyC1ra5_WT5mE6QJr64HDrVixFHbionXUkM';
-const GOOGLE_INDEXING_BASE   = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
-const GOOGLE_PLACES_BASE     = 'https://maps.googleapis.com/maps/api';
+const GOOGLE_PLACES_API_KEY   = process.env.GOOGLE_PLACES_API_KEY   || 'AIzaSyC1ra5_WT5mE6QJr64HDrVixFHbionXUkM';
+const GOOGLE_INDEXING_BASE    = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
+const GOOGLE_PLACES_BASE      = 'https://maps.googleapis.com/maps/api';
+const GOOGLE_OAUTH2_CLIENT_ID = process.env.GOOGLE_OAUTH2_CLIENT_ID || '';
+const GOOGLE_OAUTH2_SECRET    = process.env.GOOGLE_OAUTH2_SECRET    || '';
+const GOOGLE_REFRESH_TOKEN    = process.env.GOOGLE_REFRESH_TOKEN    || '';
 
 // ── Pexels — free stock photos for blog posts ────────────────
 const PEXELS_API_KEY = process.env.PEXELS_API_KEY || 'KKnsOB57rfTFv5cuySAq8I9xm0ek6AiKZo4xeOURePlXJvnnw4EDbBdg';
@@ -2073,11 +2076,49 @@ Format: Return ONLY the HTML body content (no <html>, <head>, or <body> tags). S
       }
     );
 
-    console.log(`[Blog] ✅ Blog post published: "${topic}" — ID: ${res.data?.blogPost?._id}`);
-    return { success: true, title: topic, id: res.data?.blogPost?._id };
+    const blogId = res.data?.blogPost?._id;
+    console.log(`[Blog] ✅ Blog post published: "${topic}" — ID: ${blogId}`);
+
+    // Submit to Google Indexing API immediately after publish
+    const blogUrl = `https://jrzmarketing.com/post/${blogId}`;
+    submitToGoogleIndexing(blogUrl); // non-blocking
+
+    return { success: true, title: topic, id: blogId };
   } catch (err) {
     console.error('[Blog] ❌ Failed to create blog post:', err?.response?.data || err.message);
     return { success: false, error: err.message };
+  }
+}
+
+// ─── GOOGLE INDEXING API ─────────────────────────────────────────────────────
+// Submits a URL to Google for immediate crawling after blog publish.
+// Free — 200 submissions/day. Fires after every blog post created.
+async function submitToGoogleIndexing(url) {
+  if (!GOOGLE_REFRESH_TOKEN) {
+    console.log('[Indexing] Skipped — GOOGLE_REFRESH_TOKEN not set');
+    return false;
+  }
+  try {
+    // Step 1: Exchange refresh token for access token
+    const tokenRes = await axios.post('https://oauth2.googleapis.com/token', {
+      client_id: GOOGLE_OAUTH2_CLIENT_ID,
+      client_secret: GOOGLE_OAUTH2_SECRET,
+      refresh_token: GOOGLE_REFRESH_TOKEN,
+      grant_type: 'refresh_token'
+    });
+    const accessToken = tokenRes.data.access_token;
+
+    // Step 2: Submit URL to Google Indexing API
+    await axios.post(GOOGLE_INDEXING_BASE,
+      { url, type: 'URL_UPDATED' },
+      { headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
+    );
+
+    console.log(`[Indexing] ✅ Submitted to Google: ${url}`);
+    return true;
+  } catch (err) {
+    console.error('[Indexing] ❌ Failed:', err?.response?.data || err.message);
+    return false;
   }
 }
 
@@ -2436,6 +2477,10 @@ Return ONLY a valid JSON object — no markdown, no code fences — with these e
 
     const postId = postRes.data?.blogPost?._id;
     console.log(`[SEO Blog] ✅ Published: "${title}" targeting "${targetKeyword}" — ID: ${postId}`);
+
+    // Submit to Google Indexing API immediately after publish
+    const postUrl = `https://jrzmarketing.com/post/${postId}`;
+    submitToGoogleIndexing(postUrl); // non-blocking
 
     // Save to blog history for learning loop (JRZ Marketing)
     loadBlogHistory().then(hist => {

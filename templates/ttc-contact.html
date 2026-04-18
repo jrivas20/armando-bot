@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Private Consultation — The Ticking Club</title>
+<style>
+/* GHL FULL-BLEED NUCLEAR OVERRIDE */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body,.container,.wrapper,.page,.site,
+[class*="container"],[class*="wrapper"],[id*="wrapper"],[id*="container"]{
+  max-width:100%!important;width:100%!important;
+  padding-left:0!important;padding-right:0!important;
+  margin-left:0!important;margin-right:0!important;
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gd:#04100a;--gdk:#0a1f10;--gp:#1a3d28;--gm:#2a6040;
+  --go:#b8902a;--gob:#d4af37;--gl:#c9a84c;--gp2:#f0e0a0;
+  --wh:#ffffff;--of:#f5f3ee;--tx:#111111;--tm:#3a3a3a;--tl:#888888;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Montserrat',sans-serif;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+}
+html,body{background:var(--gd);color:var(--wh);font-family:var(--sans);overflow-x:hidden;}
+body{cursor:none;}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+.eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:var(--gl);font-weight:500;display:inline-flex;align-items:center;gap:14px;}
+.eyebrow::before{content:"";width:32px;height:1px;background:var(--gl);}
+.btn{display:inline-flex;align-items:center;gap:14px;padding:18px 38px;background:linear-gradient(135deg,var(--go),var(--gob));color:var(--gd);font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;border:none;cursor:none;transition:.4s var(--ease);}
+.btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(212,175,55,.32);}
+
+#C{position:fixed;width:8px;height:8px;background:var(--gob);border-radius:50%;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference;}
+#CF{position:fixed;width:38px;height:38px;border:1px solid var(--gob);border-radius:50%;top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:.25s var(--ease);}
+@media(max-width:860px){body{cursor:auto;}#C,#CF{display:none;}}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:24px 60px;display:flex;align-items:center;justify-content:space-between;transition:.5s var(--ease);background:rgba(4,16,10,.85);backdrop-filter:blur(20px);}
+nav.s{background:rgba(4,16,10,.97);padding:16px 60px;box-shadow:0 4px 30px rgba(0,0,0,.3);}
+nav .lg{height:54px;transition:.4s;}
+nav.s .lg{height:46px;}
+nav .links{display:flex;gap:42px;list-style:none;}
+nav .links a{font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;color:var(--wh);transition:.3s;position:relative;}
+nav .links a::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:1px;background:var(--gob);transition:.4s var(--ease);}
+nav .links a:hover{color:var(--gob);}
+nav .links a:hover::after{width:100%;}
+nav .nbtn{padding:13px 28px;background:linear-gradient(135deg,var(--go),var(--gob));color:var(--gd);font-size:10px;letter-spacing:.24em;text-transform:uppercase;font-weight:600;cursor:none;}
+nav .ham{display:none;flex-direction:column;gap:6px;cursor:none;}
+nav .ham span{width:28px;height:1px;background:var(--wh);}
+@media(max-width:980px){nav{padding:18px 24px;}nav .links,nav .nbtn{display:none;}nav .ham{display:flex;}}
+
+#MM{position:fixed;inset:0;background:var(--gd);z-index:480;display:flex;align-items:center;justify-content:center;transform:translateY(-100%);transition:.6s var(--ease);}
+#MM.open{transform:translateY(0);}
+#MM ul{list-style:none;text-align:center;}
+#MM li{margin:22px 0;}
+#MM a{font-family:var(--serif);font-size:42px;color:var(--wh);font-weight:300;}
+#MM a:hover{color:var(--gob);font-style:italic;}
+
+/* PAGE HERO */
+.phero{padding:200px 60px 110px;background:var(--gd);text-align:center;position:relative;overflow:hidden;}
+.phero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(184,144,42,.12),transparent 55%);}
+.phero .inner{position:relative;max-width:880px;margin:0 auto;}
+.phero h1{font-family:var(--serif);font-size:clamp(50px,6.4vw,108px);line-height:.98;font-weight:300;color:var(--wh);margin:30px 0 28px;letter-spacing:-.02em;}
+.phero h1 em{color:var(--gob);font-weight:400;font-style:italic;display:block;}
+.phero p{font-size:16px;line-height:1.85;color:rgba(255,255,255,.7);max-width:640px;margin:0 auto;font-weight:300;}
+@media(max-width:860px){.phero{padding:160px 24px 80px;}}
+
+/* FORM SECTION */
+.cons{background:var(--of);color:var(--tx);padding:120px 60px;}
+.cons .grid{display:grid;grid-template-columns:1fr 1.1fr;gap:80px;max-width:1340px;margin:0 auto;align-items:start;}
+.cons h2{font-family:var(--serif);font-size:clamp(40px,4.4vw,72px);font-weight:300;line-height:1.05;margin:24px 0 36px;}
+.cons h2 em{color:var(--go);font-style:italic;}
+.cons .lead{font-size:15px;line-height:1.85;color:var(--tm);margin-bottom:42px;font-weight:300;}
+.cons .perks{list-style:none;margin-bottom:48px;}
+.cons .perks li{display:flex;gap:18px;margin-bottom:24px;align-items:flex-start;}
+.cons .perks .ck{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--go),var(--gob));color:var(--gd);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:700;}
+.cons .perks .tx h4{font-family:var(--serif);font-size:20px;font-weight:500;margin-bottom:4px;}
+.cons .perks .tx p{font-size:13px;color:var(--tm);font-weight:300;line-height:1.65;}
+.cons .info{border-top:1px solid #ddd6c2;padding-top:36px;}
+.cons .info h5{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--go);margin-bottom:18px;font-weight:600;}
+.cons .info .row{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start;}
+.cons .info .row .lb{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--tl);min-width:90px;font-weight:500;padding-top:3px;}
+.cons .info .row .vl{font-family:var(--serif);font-size:18px;color:var(--tx);font-weight:400;}
+.cons .card{background:var(--wh);padding:48px 42px;border:1px solid #ece8dc;box-shadow:0 30px 80px rgba(4,16,10,.08);}
+.cons .card .lh{display:flex;align-items:center;gap:16px;padding-bottom:28px;margin-bottom:28px;border-bottom:1px solid #ece8dc;}
+.cons .card .lh img{height:54px;}
+.cons .card .lh .tt{font-family:var(--serif);font-size:22px;font-weight:500;}
+.cons .card .lh .st{font-size:11px;color:var(--tl);letter-spacing:.16em;text-transform:uppercase;margin-top:2px;}
+@media(max-width:980px){.cons{padding:80px 24px;}.cons .grid{grid-template-columns:1fr;gap:60px;}.cons .card{padding:32px 24px;}}
+
+/* PROCESS STRIP */
+.proc{background:var(--wh);color:var(--tx);padding:120px 60px;}
+.proc .head{text-align:center;max-width:780px;margin:0 auto 70px;}
+.proc .head .eyebrow{color:var(--go);}
+.proc .head .eyebrow::before{background:var(--go);}
+.proc .head h2{font-family:var(--serif);font-size:clamp(36px,4vw,58px);font-weight:300;margin-top:24px;line-height:1.05;}
+.proc .head h2 em{color:var(--go);font-style:italic;}
+.proc .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;max-width:1340px;margin:0 auto;position:relative;}
+.proc .steps::before{content:"";position:absolute;top:42px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--gob),transparent);}
+.proc .step{text-align:center;position:relative;}
+.proc .step .rn{width:84px;height:84px;border-radius:50%;border:1px solid var(--gob);background:var(--wh);color:var(--gob);font-family:var(--serif);font-size:32px;font-style:italic;display:flex;align-items:center;justify-content:center;margin:0 auto 26px;position:relative;z-index:2;}
+.proc .step h3{font-family:var(--serif);font-size:24px;font-weight:400;margin-bottom:12px;}
+.proc .step p{font-size:13px;line-height:1.8;color:var(--tm);font-weight:300;max-width:240px;margin:0 auto;}
+@media(max-width:980px){.proc{padding:80px 24px;}.proc .steps{grid-template-columns:1fr;gap:50px;}.proc .steps::before{display:none;}}
+
+/* FAQ */
+.faq{background:var(--of);color:var(--tx);padding:140px 60px;}
+.faq .head{text-align:center;max-width:780px;margin:0 auto 70px;}
+.faq .head .eyebrow{color:var(--go);}
+.faq .head .eyebrow::before{background:var(--go);}
+.faq .head h2{font-family:var(--serif);font-size:clamp(40px,4.4vw,68px);font-weight:300;margin-top:24px;line-height:1.05;}
+.faq .head h2 em{color:var(--go);font-style:italic;}
+.faq .list{max-width:920px;margin:0 auto;}
+.faq .item{border-bottom:1px solid #ddd6c2;padding:30px 0;cursor:none;transition:.3s;}
+.faq .item .q{display:flex;justify-content:space-between;align-items:flex-start;gap:30px;}
+.faq .item .q h3{font-family:var(--serif);font-size:24px;font-weight:400;color:var(--tx);transition:.3s;}
+.faq .item .q .pl{font-family:var(--serif);font-size:30px;color:var(--go);font-weight:300;line-height:.8;transition:.4s var(--ease);flex-shrink:0;}
+.faq .item.op .q .pl{transform:rotate(45deg);}
+.faq .item:hover .q h3{color:var(--go);font-style:italic;}
+.faq .item .a{max-height:0;overflow:hidden;transition:.5s var(--ease);}
+.faq .item .a p{font-size:14px;line-height:1.85;color:var(--tm);font-weight:300;padding-top:18px;max-width:760px;}
+.faq .item.op .a{max-height:300px;}
+@media(max-width:860px){.faq{padding:90px 24px;}.faq .item .q h3{font-size:19px;}}
+
+/* FOOTER */
+footer{background:var(--gd);color:var(--wh);padding:100px 60px 40px;border-top:1px solid rgba(212,175,55,.18);}
+footer .grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:60px;max-width:1340px;margin:0 auto 60px;}
+footer .lg{height:60px;margin-bottom:26px;}
+footer .tag{font-family:var(--serif);font-size:16px;font-style:italic;color:rgba(255,255,255,.6);line-height:1.7;max-width:300px;}
+footer h5{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gob);margin-bottom:24px;font-weight:600;}
+footer ul{list-style:none;}
+footer ul li{margin-bottom:14px;}
+footer ul a{font-size:13px;color:rgba(255,255,255,.65);font-weight:300;transition:.3s;}
+footer ul a:hover{color:var(--gob);}
+footer .bot{max-width:1340px;margin:0 auto;border-top:1px solid rgba(212,175,55,.12);padding-top:30px;display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.1em;}
+@media(max-width:980px){footer{padding:70px 24px 30px;}footer .grid{grid-template-columns:1fr 1fr;gap:40px;}footer .bot{flex-direction:column;gap:14px;text-align:center;}}
+</style>
+</head>
+<body>
+
+<div id="C"></div>
+<div id="CF"></div>
+
+<nav id="NV">
+  <a href="ttc-home.html"><img class="lg" src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69b251837fc07c2514b161d1.png" alt="The Ticking Club"></a>
+  <ul class="links">
+    <li><a href="ttc-home.html">Home</a></li>
+    <li><a href="ttc-home.html#about">The Atelier</a></li>
+    <li><a href="ttc-collection.html">Collection</a></li>
+    <li><a href="ttc-home.html#process">Process</a></li>
+    <li><a href="ttc-contact.html">Contact</a></li>
+  </ul>
+  <a class="nbtn" href="#consult">Book Consultation</a>
+  <div class="ham" id="HM"><span></span><span></span><span></span></div>
+</nav>
+
+<div id="MM">
+  <ul>
+    <li><a href="ttc-home.html">Home</a></li>
+    <li><a href="ttc-home.html#about">The Atelier</a></li>
+    <li><a href="ttc-collection.html">Collection</a></li>
+    <li><a href="ttc-home.html#process">Process</a></li>
+    <li><a href="ttc-contact.html">Contact</a></li>
+  </ul>
+</div>
+
+<section class="phero">
+  <div class="inner">
+    <span class="eyebrow">Private Consultation</span>
+    <h1>Your Specialist<br>Is <em>Ready.</em></h1>
+    <p>Discreet. Bespoke. Uncompromising. Every consultation begins with a single conversation — entirely confidential, never obligatory, always worthy of the timepieces we represent.</p>
+  </div>
+</section>
+
+<section class="cons" id="consult">
+  <div class="grid">
+    <div class="left">
+      <span class="eyebrow" style="color:var(--go);">Begin Your Acquisition</span>
+      <h2>A Bespoke <em>Conversation.</em></h2>
+      <p class="lead">Submit your details below and a senior horological consultant will reach out within twelve hours to schedule your private discovery session. Every interaction is held to the standard of the masterpieces we curate.</p>
+      <ul class="perks">
+        <li><div class="ck">✓</div><div class="tx"><h4>Complimentary Consultation</h4><p>An hour with a senior specialist at no cost or commitment.</p></div></li>
+        <li><div class="ck">✓</div><div class="tx"><h4>Absolute Discretion</h4><p>Your identity, holdings, and aspirations remain confidential — always.</p></div></li>
+        <li><div class="ck">✓</div><div class="tx"><h4>White-Glove Service</h4><p>From sourcing to insured delivery — an experience worthy of the masterpiece itself.</p></div></li>
+      </ul>
+      <div class="info">
+        <h5>Direct Correspondence</h5>
+        <div class="row"><div class="lb">Email</div><div class="vl">concierge@thetickingclub.com</div></div>
+        <div class="row"><div class="lb">Location</div><div class="vl">Central Florida — By Appointment</div></div>
+        <div class="row"><div class="lb">Hours</div><div class="vl">Monday – Saturday · 10am – 7pm</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="lh">
+        <img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69b251837fc07c2514b161d1.png" alt="">
+        <div><div class="tt">Private Consultation</div><div class="st">By Appointment Only</div></div>
+      </div>
+      <iframe src="https://links.jrzmarketing.com/widget/form/evdZQml8kUtQSMECA8ud"
+        data-layout="{'id':'INLINE'}" data-trigger-type="alwaysShow"
+        data-form-name="Form" data-height="848"
+        data-layout-iframe-id="inline-evdZQml8kUtQSMECA8ud"
+        data-form-id="evdZQml8kUtQSMECA8ud" title="Form"
+        style="width:100%;height:848px;border:none;display:block;">
+      </iframe>
+      <script src="https://links.jrzmarketing.com/js/form_embed.js"></script>
+    </div>
+  </div>
+</section>
+
+<section class="proc">
+  <div class="head">
+    <span class="eyebrow">The Process</span>
+    <h2>A Bespoke Path To <em>Acquisition</em></h2>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="rn">I</div><h3>Book</h3><p>Schedule a private consultation at your convenience.</p></div>
+    <div class="step"><div class="rn">II</div><h3>Discovery</h3><p>We listen to your aspirations and collection goals.</p></div>
+    <div class="step"><div class="rn">III</div><h3>Sourcing</h3><p>Our network mobilizes — accessing the unobtainable.</p></div>
+    <div class="step"><div class="rn">IV</div><h3>Delivery</h3><p>White-glove insured delivery with full provenance.</p></div>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="head">
+    <span class="eyebrow">Frequently Considered</span>
+    <h2>Questions From The <em>Discerning</em></h2>
+  </div>
+  <div class="list">
+    <div class="item"><div class="q"><h3>What brands do you specialize in?</h3><div class="pl">+</div></div><div class="a"><p>Our specialists curate exclusively from the most prestigious maisons of Haute Horlogerie — Rolex, Patek Philippe, Audemars Piguet, Richard Mille, Vacheron Constantin, A. Lange &amp; Söhne, Jaeger-LeCoultre, IWC Schaffhausen, Panerai, and other connoisseur-tier brands. We do not source mass-market timepieces.</p></div></div>
+    <div class="item"><div class="q"><h3>Is the consultation free?</h3><div class="pl">+</div></div><div class="a"><p>Yes. Your initial consultation with a senior horological specialist is entirely complimentary and carries no obligation. We believe a relationship built on trust must begin without a price tag attached.</p></div></div>
+    <div class="item"><div class="q"><h3>How do you authenticate timepieces?</h3><div class="pl">+</div></div><div class="a"><p>Every reference undergoes a rigorous multi-point authentication protocol — movement examination, serial verification, case and dial analysis, papers and provenance review. Our master horologists hold over a decade of experience in identifying both authentic masterpieces and the most sophisticated counterfeits on the market.</p></div></div>
+    <div class="item"><div class="q"><h3>Can you source a specific reference that's hard to find?</h3><div class="pl">+</div></div><div class="a"><p>Bespoke sourcing is the cornerstone of our atelier. Through our discreet relationships with international dealers, private collectors, and waitlist holders, we have placed references that clients had been pursuing for years. Tell us what you covet — we will find it.</p></div></div>
+    <div class="item"><div class="q"><h3>Do you handle pre-owned watches?</h3><div class="pl">+</div></div><div class="a"><p>Absolutely. The vintage and pre-owned market houses some of the most coveted masterpieces in horology. Every pre-owned timepiece we place is authenticated, condition-graded, and accompanied by complete provenance documentation.</p></div></div>
+    <div class="item"><div class="q"><h3>What is the typical acquisition timeline?</h3><div class="pl">+</div></div><div class="a"><p>Timeline depends on the rarity of the reference. In-stock pieces from our network can be delivered within days. Bespoke acquisitions of waitlisted or vintage references may take weeks to months — but we work with the patience worthy of pursuing a true masterpiece.</p></div></div>
+    <div class="item"><div class="q"><h3>Do you offer trade-in services?</h3><div class="pl">+</div></div><div class="a"><p>Yes. We facilitate trade-in valuations for clients seeking to refine their collection or fund a new acquisition. Each trade is appraised at fair market value by our senior specialists with full transparency throughout the process.</p></div></div>
+    <div class="item"><div class="q"><h3>Is my information kept confidential?</h3><div class="pl">+</div></div><div class="a"><p>Absolute discretion is non-negotiable. Your identity, holdings, communications, and acquisitions remain entirely confidential. We never share client information with third parties — a principle we hold with the same reverence as the timepieces we represent.</p></div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="grid">
+    <div>
+      <img class="lg" src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69b251837fc07c2514b161d1.png" alt="The Ticking Club">
+      <p class="tag">"Where horological mastery meets the discerning collector — a private atelier serving Central Florida's most distinguished gentlemen."</p>
+    </div>
+    <div>
+      <h5>Navigation</h5>
+      <ul><li><a href="ttc-home.html">Home</a></li><li><a href="ttc-home.html#about">The Atelier</a></li><li><a href="ttc-collection.html">Collection</a></li><li><a href="ttc-home.html#process">Process</a></li></ul>
+    </div>
+    <div>
+      <h5>Services</h5>
+      <ul><li><a href="#consult">Private Consultation</a></li><li><a href="#consult">Bespoke Sourcing</a></li><li><a href="#consult">Authentication</a></li><li><a href="#consult">Investment Advisory</a></li></ul>
+    </div>
+    <div>
+      <h5>Contact</h5>
+      <ul><li><a href="ttc-contact.html">By Appointment Only</a></li><li><a href="mailto:concierge@thetickingclub.com">concierge@thetickingclub.com</a></li><li><a href="ttc-contact.html">Central Florida</a></li></ul>
+    </div>
+  </div>
+  <div class="bot">
+    <div>© 2026 The Ticking Club · All Rights Reserved</div>
+    <div>A Private Horological Atelier</div>
+  </div>
+</footer>
+
+<script>
+const C=document.getElementById('C'),CF=document.getElementById('CF');
+let mx=0,my=0,fx=0,fy=0;
+window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;C.style.left=mx+'px';C.style.top=my+'px';});
+function lp(){fx+=(mx-fx)*.15;fy+=(my-fy)*.15;CF.style.left=fx+'px';CF.style.top=fy+'px';requestAnimationFrame(lp);}lp();
+document.querySelectorAll('a,button,.btn,.faq .item,.ham').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{CF.style.width='62px';CF.style.height='62px';});
+  el.addEventListener('mouseleave',()=>{CF.style.width='38px';CF.style.height='38px';});
+});
+
+const NV=document.getElementById('NV');
+window.addEventListener('scroll',()=>{NV.classList.toggle('s',window.scrollY>80);});
+
+const HM=document.getElementById('HM'),MM=document.getElementById('MM');
+HM.addEventListener('click',()=>MM.classList.toggle('open'));
+MM.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>MM.classList.remove('open')));
+
+document.querySelectorAll('.faq .item').forEach(it=>{
+  it.addEventListener('click',()=>{
+    const wasOp=it.classList.contains('op');
+    document.querySelectorAll('.faq .item').forEach(i=>i.classList.remove('op'));
+    if(!wasOp)it.classList.add('op');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Us | The Ticking Club — The Standard Others Aspire To Match</title>
+<style>
+/* GHL FULL-BLEED NUCLEAR OVERRIDE */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body,.container,.wrapper,.page,.site,
+[class*="container"],[class*="wrapper"],[id*="wrapper"],[id*="container"]{
+  max-width:100%!important;width:100%!important;
+  padding-left:0!important;padding-right:0!important;
+  margin-left:0!important;margin-right:0!important;
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gd:#04100a;--gdk:#0a1f10;--gp:#1a3d28;--gm:#2a6040;
+  --go:#b8902a;--gob:#d4af37;--gl:#c9a84c;--gp2:#f0e0a0;
+  --wh:#ffffff;--of:#f5f3ee;--tx:#111111;--tm:#3a3a3a;--tl:#888888;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Montserrat',sans-serif;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+}
+html,body{background:var(--wh);color:var(--tx);font-family:var(--sans);font-weight:400;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+img{max-width:100%;display:block;}
+a{text-decoration:none;color:inherit;}
+ul{list-style:none;}
+
+/* ===== CURSOR ===== */
+@media(hover:hover) and (pointer:fine){
+  html,body{cursor:none;}
+  a,button,input,iframe,.MBtn{cursor:none;}
+  .cur{position:fixed;top:0;left:0;width:10px;height:10px;background:var(--gob);border-radius:50%;pointer-events:none;z-index:9999;transition:transform .15s var(--ease);mix-blend-mode:difference;}
+  .curR{position:fixed;top:0;left:0;width:40px;height:40px;border:1px solid var(--gob);border-radius:50%;pointer-events:none;z-index:9998;transition:transform .3s var(--ease),width .3s,height .3s;}
+}
+@media(hover:none),(pointer:coarse){
+  html,body{cursor:auto!important;}
+  .cur,.curR{display:none!important;}
+}
+
+/* ===== NAV ===== */
+#nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:22px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,16,10,.85);backdrop-filter:blur(14px);border-bottom:1px solid rgba(212,175,55,.18);transition:all .4s var(--ease);}
+.nLogo img{height:48px;width:auto;}
+.nLinks{display:flex;gap:42px;}
+.nLinks a{font-family:var(--sans);font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#e8e4d6;position:relative;padding:6px 0;transition:color .3s;}
+.nLinks a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--gob);transition:width .4s var(--ease);}
+.nLinks a:hover{color:var(--gob);}
+.nLinks a:hover::after{width:100%;}
+.MBtn{display:inline-flex;align-items:center;padding:14px 30px;background:transparent;border:1px solid var(--gob);color:var(--gob);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;position:relative;overflow:hidden;transition:color .4s var(--ease);}
+.MBtn span{position:relative;z-index:2;}
+.MBtn::before{content:"";position:absolute;inset:0;background:var(--gob);transform:translateX(-101%);transition:transform .45s var(--ease);z-index:1;}
+.MBtn:hover{color:var(--gd);}
+.MBtn:hover::before{transform:translateX(0);}
+
+/* ===== SHARED ===== */
+.eyebrow{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--gob);display:inline-block;padding-bottom:16px;position:relative;margin-bottom:24px;}
+.eyebrow::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:40px;height:1px;background:var(--gob);}
+.eyebrow.left::after{left:0;transform:none;}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:400;line-height:1.15;color:var(--tx);}
+
+/* ===== HERO ===== */
+.pageHero{background:linear-gradient(180deg,var(--gd) 0%,var(--gdk) 100%);color:#e8e4d6;padding:200px 60px 120px;text-align:center;position:relative;overflow:hidden;}
+.pageHero::before{content:"";position:absolute;top:20%;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(212,175,55,.08),transparent 60%);pointer-events:none;}
+.pageHero .inner{max-width:1000px;margin:0 auto;position:relative;z-index:2;}
+.pageHero h1{font-size:clamp(48px,7vw,96px);color:var(--wh);margin-bottom:28px;font-weight:300;}
+.pageHero h1 em{color:var(--gob);font-weight:400;}
+.pageHero .sub{font-family:var(--serif);font-style:italic;font-size:clamp(20px,2.2vw,26px);color:#c7c1ae;max-width:780px;margin:0 auto;line-height:1.5;}
+
+/* ===== PILLARS ===== */
+.pillars{padding:140px 60px;background:var(--wh);}
+.pillars .head{max-width:880px;margin:0 auto 80px;text-align:center;}
+.pillars h2{font-size:clamp(36px,4.4vw,58px);}
+.pillars h2 em{color:var(--gm);font-style:italic;}
+.pillars .grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;}
+.pillars .card{background:var(--of);padding:56px 44px;border:1px solid rgba(184,144,42,.15);position:relative;transition:all .5s var(--ease);}
+.pillars .card::before{content:"";position:absolute;top:0;left:0;width:0;height:2px;background:var(--gob);transition:width .6s var(--ease);}
+.pillars .card:hover{background:var(--wh);transform:translateY(-10px);box-shadow:0 50px 70px rgba(4,16,10,.1);}
+.pillars .card:hover::before{width:100%;}
+.pillars .roman{font-family:var(--serif);font-size:44px;color:var(--gob);font-style:italic;margin-bottom:24px;font-weight:400;display:block;line-height:1;}
+.pillars .card h3{font-size:28px;margin-bottom:18px;color:var(--tx);}
+.pillars .card p{font-size:15px;color:var(--tm);line-height:1.85;}
+
+/* ===== COMPARISON ===== */
+.compare{padding:140px 60px;background:var(--of);}
+.compare .head{max-width:880px;margin:0 auto 70px;text-align:center;}
+.compare h2{font-size:clamp(36px,4.4vw,58px);}
+.compare h2 em{color:var(--gm);font-style:italic;}
+.compare .tbl{max-width:1100px;margin:0 auto;background:var(--wh);border:1px solid rgba(184,144,42,.2);overflow:hidden;}
+.compare table{width:100%;border-collapse:collapse;}
+.compare thead tr{background:var(--gd);}
+.compare thead th{padding:32px 28px;text-align:left;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:#e8e4d6;border-right:1px solid rgba(212,175,55,.15);}
+.compare thead th:nth-child(2){color:var(--gob);background:var(--gp);text-align:center;}
+.compare thead th:nth-child(3){color:#8a8677;text-align:center;}
+.compare thead th:last-child{border-right:none;}
+.compare tbody td{padding:26px 28px;font-size:14px;color:var(--tm);border-bottom:1px solid rgba(184,144,42,.12);border-right:1px solid rgba(184,144,42,.08);}
+.compare tbody td:nth-child(2){background:rgba(26,61,40,.04);text-align:center;color:var(--gm);font-weight:600;}
+.compare tbody td:nth-child(3){text-align:center;color:var(--tl);}
+.compare tbody td:last-child{border-right:none;}
+.compare tbody tr:last-child td{border-bottom:none;}
+.compare tbody td:first-child{font-family:var(--serif);font-size:19px;color:var(--tx);}
+.compare .check{color:var(--gob);font-size:22px;font-weight:700;}
+.compare .xmark{color:#bbb;font-size:20px;}
+.compare .note{text-align:center;color:var(--tl);margin-top:30px;font-family:var(--serif);font-style:italic;font-size:18px;}
+
+/* ===== TESTIMONIALS ===== */
+.tSec{background:linear-gradient(180deg,var(--gd),var(--gdk));padding:140px 60px;color:#e8e4d6;border-top:1px solid rgba(212,175,55,.15);}
+.tSec .head{max-width:880px;margin:0 auto 80px;text-align:center;}
+.tSec .head h2{color:var(--wh);font-size:clamp(36px,4.4vw,58px);}
+.tSec .head h2 em{color:var(--gob);font-style:italic;}
+.tSec .tCards{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;}
+.tSec .tCard{background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.18);padding:54px 42px;position:relative;backdrop-filter:blur(10px);transition:all .5s var(--ease);}
+.tSec .tCard::before{content:"\201C";position:absolute;top:10px;left:30px;font-family:var(--serif);font-size:120px;color:var(--gob);opacity:.2;line-height:1;}
+.tSec .tCard:hover{background:rgba(212,175,55,.05);transform:translateY(-8px);}
+.tSec .stars{color:var(--gob);font-size:16px;margin-bottom:22px;letter-spacing:3px;position:relative;z-index:2;}
+.tSec .tCard p{font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.7;color:#e8e4d6;margin-bottom:32px;position:relative;z-index:2;}
+.tSec .tAuthor{border-top:1px solid rgba(212,175,55,.18);padding-top:22px;}
+.tSec .tAuthor .name{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gob);margin-bottom:6px;}
+.tSec .tAuthor .role{font-size:12px;color:#9a9585;letter-spacing:1px;}
+
+/* ===== PHOTO FEATURE ===== */
+.pFeat{padding:140px 60px;background:var(--wh);}
+.pFeat .grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr 1.1fr;gap:100px;align-items:center;}
+.pFeat .photoWrap{position:relative;padding:20px;}
+.pFeat .photoWrap::before,.pFeat .photoWrap::after{content:"";position:absolute;width:70px;height:70px;border:1px solid var(--gob);}
+.pFeat .photoWrap::before{top:0;left:0;border-right:none;border-bottom:none;}
+.pFeat .photoWrap::after{bottom:0;right:0;border-left:none;border-top:none;}
+.pFeat .photoWrap img{width:100%;aspect-ratio:4/5;object-fit:cover;filter:sepia(8%) contrast(1.05);}
+.pFeat h2{font-size:clamp(36px,4.4vw,58px);margin-bottom:30px;}
+.pFeat h2 em{color:var(--gm);font-style:italic;}
+.pFeat p{font-size:17px;color:var(--tm);line-height:1.85;margin-bottom:22px;}
+.pFeat .kpi{margin-top:30px;display:flex;gap:50px;padding-top:32px;border-top:1px solid rgba(184,144,42,.2);}
+.pFeat .kpi .k{}
+.pFeat .kpi .k strong{font-family:var(--serif);font-size:44px;color:var(--gob);font-style:italic;display:block;line-height:1;}
+.pFeat .kpi .k span{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--tl);}
+
+/* ===== CTA BAND ===== */
+.ctaBand{background:linear-gradient(135deg,var(--gd) 0%,var(--gp) 100%);padding:140px 60px;text-align:center;color:#e8e4d6;position:relative;overflow:hidden;}
+.ctaBand::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(212,175,55,.15),transparent 65%);}
+.ctaBand .inner{max-width:900px;margin:0 auto;position:relative;z-index:2;}
+.ctaBand h2{font-size:clamp(40px,5.2vw,72px);color:var(--wh);margin-bottom:26px;}
+.ctaBand h2 em{color:var(--gob);font-style:italic;}
+.ctaBand p{font-family:var(--serif);font-style:italic;font-size:22px;color:#c7c1ae;margin-bottom:44px;}
+.ctaBand .goldBtn{display:inline-flex;align-items:center;padding:22px 56px;background:var(--gob);color:var(--gd);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;transition:all .4s var(--ease);}
+.ctaBand .goldBtn:hover{background:var(--wh);transform:translateY(-3px);box-shadow:0 20px 40px rgba(212,175,55,.3);}
+
+/* ===== FOOTER ===== */
+footer{background:var(--gd);color:#9a9585;padding:90px 60px 40px;border-top:1px solid rgba(212,175,55,.12);}
+footer .grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:60px;}
+footer .col h4{font-family:var(--sans);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gob);margin-bottom:24px;font-weight:600;}
+footer .col img{height:44px;margin-bottom:22px;}
+footer .col p{font-size:14px;line-height:1.8;color:#9a9585;}
+footer .col ul li{margin-bottom:12px;}
+footer .col ul a{font-size:14px;color:#9a9585;transition:color .3s;}
+footer .col ul a:hover{color:var(--gob);}
+footer .bot{max-width:1320px;margin:70px auto 0;padding-top:30px;border-top:1px solid rgba(212,175,55,.1);display:flex;justify-content:space-between;font-size:12px;color:#6a6558;letter-spacing:1px;}
+
+/* ===== REVEAL ===== */
+.rev{opacity:0;transform:translateY(40px);transition:all 1s var(--ease);}
+.rev.on{opacity:1;transform:translateY(0);}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1100px){
+  #nav{padding:18px 32px;}
+  .nLinks{gap:28px;}
+  .pillars .grid,.tSec .tCards{grid-template-columns:1fr 1fr;}
+  .pFeat .grid{grid-template-columns:1fr;gap:70px;}
+  footer .grid{grid-template-columns:1fr 1fr;gap:50px;}
+  .compare thead th,.compare tbody td{padding:20px 16px;font-size:13px;}
+  .compare tbody td:first-child{font-size:16px;}
+}
+@media(max-width:860px){
+  #nav{padding:16px 24px;}
+  .nLinks{display:none;}
+  .pageHero{padding:160px 24px 90px;}
+  .pillars,.compare,.tSec,.pFeat,.ctaBand{padding:90px 24px;}
+  .pillars .grid,.tSec .tCards{grid-template-columns:1fr;}
+  .pFeat .kpi{gap:30px;}
+  footer .grid{grid-template-columns:1fr;gap:40px;}
+  footer .bot{flex-direction:column;gap:12px;text-align:center;}
+  .compare .tbl{overflow-x:auto;}
+  .compare table{min-width:580px;}
+}
+</style>
+</head>
+<body>
+<div class="cur"></div>
+<div class="curR"></div>
+
+<nav id="nav">
+  <div class="nLogo"><img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69b251837fc07c2514b161d1.png" alt="The Ticking Club"></div>
+  <ul class="nLinks">
+    <li><a href="ttc-home.html">Home</a></li>
+    <li><a href="ttc-about.html">About</a></li>
+    <li><a href="ttc-collection.html">Collection</a></li>
+    <li><a href="ttc-process.html">Process</a></li>
+    <li><a href="ttc-why-us.html">Why Us</a></li>
+  </ul>
+  <a href="ttc-contact.html" class="MBtn"><span>Book Consultation</span></a>
+</nav>
+
+<!-- HERO -->
+<section class="pageHero">
+  <div class="inner">
+    <div class="eyebrow rev">The Difference</div>
+    <h1 class="rev">The Standard Others <em>Aspire To Match</em></h1>
+    <p class="sub rev">Central Florida's most discerning collectors trust The Ticking Club for reasons you won't find in a showroom — and experiences you won't forget.</p>
+  </div>
+</section>
+
+<!-- PILLARS -->
+<section class="pillars">
+  <div class="head">
+    <div class="eyebrow rev">The Six Pillars</div>
+    <h2 class="rev">Six Reasons Discerning Collectors <em>Choose The Ticking Club</em></h2>
+  </div>
+  <div class="grid">
+    <div class="card rev">
+      <span class="roman">I</span>
+      <h3>Private Access &amp; Allocation</h3>
+      <p>Skip the public waitlists and dealer politics. Our decade-deep relationships with authorized boutiques, independent watchmakers, and private collectors unlock references that never reach the open market. Priority access is not a promise — it is a standing arrangement.</p>
+    </div>
+    <div class="card rev">
+      <span class="roman">II</span>
+      <h3>Authentication Guaranteed</h3>
+      <p>Every timepiece passes a certified horological inspection — caliber, case, dial, bracelet, and provenance. You receive a documented authentication report with each acquisition, and our written guarantee stands behind the piece for as long as you own it.</p>
+    </div>
+    <div class="card rev">
+      <span class="roman">III</span>
+      <h3>Your Dedicated Specialist</h3>
+      <p>One specialist. Yours. They learn your taste, your collection, your lifestyle, and your long-term vision. When a reference you've mentioned becomes available — or when the market moves against a watch on your wishlist — you hear about it first, from someone who remembers.</p>
+    </div>
+    <div class="card rev">
+      <span class="roman">IV</span>
+      <h3>Investment Intelligence</h3>
+      <p>A fine watch is both a possession and a position. We provide market data, value trajectory analysis, and portfolio-minded counsel so your collection appreciates as intentionally as it was assembled. Passion and prudence are not opposites — they are partners.</p>
+    </div>
+    <div class="card rev">
+      <span class="roman">V</span>
+      <h3>Central Florida's Network</h3>
+      <p>Rooted in the region and connected to a global network of makers, dealers, and collectors from Geneva to Tokyo, we bring global reach with local relationships. Our clients know us by name — and we know theirs.</p>
+    </div>
+    <div class="card rev">
+      <span class="roman">VI</span>
+      <h3>White-Glove Concierge</h3>
+      <p>From private intake to insured, white-glove delivery, every touchpoint is choreographed. Sizing, documentation, insurance coordination, service scheduling — handled. You wear the watch. We handle everything else.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="compare">
+  <div class="head">
+    <div class="eyebrow rev">Measured Against The Market</div>
+    <h2 class="rev">TTC vs. <em>The Typical Dealer</em></h2>
+  </div>
+  <div class="tbl rev">
+    <table>
+      <thead>
+        <tr>
+          <th>The Experience</th>
+          <th>The Ticking Club</th>
+          <th>Typical Dealer</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Personalized Specialist</td>
+          <td><span class="check">✓</span></td>
+          <td><span class="xmark">✗</span></td>
+        </tr>
+        <tr>
+          <td>Priority Allocation</td>
+          <td><span class="check">✓</span></td>
+          <td><span class="xmark">✗</span></td>
+        </tr>
+        <tr>
+          <td>Authentication Report</td>
+          <td><span class="check">✓</span></td>
+          <td>sometimes</td>
+        </tr>
+        <tr>
+          <td>Investment Guidance</td>
+          <td><span class="check">✓</span></td>
+          <td><span class="xmark">✗</span></td>
+        </tr>
+        <tr>
+          <td>Discretion &amp; Privacy</td>
+          <td><span class="check">✓</span></td>
+          <td><span class="xmark">✗</span></td>
+        </tr>
+        <tr>
+          <td>After-Sale Support</td>
+          <td><span class="check">✓</span></td>
+          <td>rarely</td>
+        </tr>
+        <tr>
+          <td>White-Glove Delivery</td>
+          <td><span class="check">✓</span></td>
+          <td><span class="xmark">✗</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note rev">The difference is not what we sell — it is how we serve.</p>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="tSec">
+  <div class="head">
+    <div class="eyebrow rev">Client Voices</div>
+    <h2 class="rev">In Their Own <em>Words</em></h2>
+  </div>
+  <div class="tCards">
+    <div class="tCard rev">
+      <div class="stars">★ ★ ★ ★ ★</div>
+      <p>I had been on a Patek waitlist for three years. The Ticking Club secured my reference in eleven days — and introduced me to a vintage piece I never knew I wanted. This is what bespoke actually means.</p>
+      <div class="tAuthor">
+        <div class="name">Alexander R.</div>
+        <div class="role">Private Collector · Winter Park</div>
+      </div>
+    </div>
+    <div class="tCard rev">
+      <div class="stars">★ ★ ★ ★ ★</div>
+      <p>My specialist remembers my wife's birthday, my son's graduation, and every reference I've mentioned in passing. When the Royal Oak I'd been tracking finally surfaced, I got the call before it hit any market. Unmatched.</p>
+      <div class="tAuthor">
+        <div class="name">Marcus D.</div>
+        <div class="role">Entrepreneur · Orlando</div>
+      </div>
+    </div>
+    <div class="tCard rev">
+      <div class="stars">★ ★ ★ ★ ★</div>
+      <p>The discretion alone is worth the relationship. I have acquired six timepieces through TTC over four years — each one authenticated, documented, and delivered with a level of care I simply have not experienced elsewhere.</p>
+      <div class="tAuthor">
+        <div class="name">Dr. Catherine W.</div>
+        <div class="role">Connoisseur · Tampa</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHOTO FEATURE -->
+<section class="pFeat">
+  <div class="grid">
+    <div class="photoWrap rev">
+      <img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69df10eb243975ecf728bf05.jpeg" alt="Built on trust">
+    </div>
+    <div class="rev">
+      <div class="eyebrow left">Built On Trust</div>
+      <h2>Over 500 Clients. <em>Every Single One Referred.</em></h2>
+      <p>The Ticking Club has never advertised for clients. Not once. Every collector who has walked through our private door has arrived on the recommendation of another — a brother, a partner, a friend, a trusted advisor. We consider this the highest compliment a consultancy can earn, and we guard it the way one guards a family reputation.</p>
+      <p>Discretion is not a policy — it is the foundation upon which our entire practice rests. When a client refers us, they are putting their own reputation on the line. We treat every introduction as a bond to be honored, not a lead to be worked. It is why our clients return for their second, fifth, and tenth acquisition — and why they continue to send us the people they trust most.</p>
+      <div class="kpi">
+        <div class="k"><strong>500+</strong><span>Clients Served</span></div>
+        <div class="k"><strong>100%</strong><span>Referral Driven</span></div>
+        <div class="k"><strong>12+</strong><span>Years Active</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="ctaBand">
+  <div class="inner">
+    <div class="eyebrow rev">The Invitation</div>
+    <h2 class="rev">Experience The Difference <em>Firsthand</em></h2>
+    <p class="rev">No obligation. No pressure. Simply a private conversation with a specialist who will listen before they ever recommend.</p>
+    <a href="ttc-contact.html" class="goldBtn rev">Book Your Consultation</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="grid">
+    <div class="col">
+      <img src="https://assets.cdn.filesafe.space/Hen1RHBy8xX6tL8kTKFZ/media/69b251837fc07c2514b161d1.png" alt="The Ticking Club">
+      <p>Central Florida's most trusted name in bespoke watch consultation. Curated timepieces, personal specialists, legacy-defining moments.</p>
+    </div>
+    <div class="col">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="ttc-home.html">Home</a></li>
+        <li><a href="ttc-about.html">About Us</a></li>
+        <li><a href="ttc-collection.html">Collection</a></li>
+        <li><a href="ttc-process.html">Our Process</a></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="ttc-why-us.html">Why Us</a></li>
+        <li><a href="ttc-contact.html">Consultation</a></li>
+        <li><a href="ttc-contact.html">Authentication</a></li>
+        <li><a href="ttc-contact.html">Sourcing</a></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h4>Contact</h4>
+      <ul>
+        <li>Central Florida</li>
+        <li>By Appointment</li>
+        <li><a href="ttc-contact.html">Book Consultation</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="bot">
+    <span>© 2026 The Ticking Club. All rights reserved.</span>
+    <span>Bespoke · Curated · Discreet</span>
+  </div>
+</footer>
+
+<script>
+// CURSOR
+(function(){
+  if(window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+    const c=document.querySelector('.cur'),r=document.querySelector('.curR');
+    let mx=0,my=0,rx=0,ry=0;
+    window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;c.style.transform=`translate(${mx-5}px,${my-5}px)`;});
+    function loop(){rx+=(mx-rx-20)*.12;ry+=(my-ry-20)*.12;r.style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(loop);}loop();
+    document.querySelectorAll('a,button,.MBtn').forEach(el=>{
+      el.addEventListener('mouseenter',()=>{r.style.width='60px';r.style.height='60px';});
+      el.addEventListener('mouseleave',()=>{r.style.width='40px';r.style.height='40px';});
+    });
+  }
+})();
+// REVEAL
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}}),{threshold:.12,rootMargin:'0px 0px -60px 0px'});
+document.querySelectorAll('.rev').forEach(el=>io.observe(el));
+// NAV SCROLL
+window.addEventListener('scroll',()=>{
+  const n=document.getElementById('nav');
+  if(window.scrollY>50){n.style.padding='14px 60px';n.style.background='rgba(4,16,10,.96)';}
+  else{n.style.padding='22px 60px';n.style.background='rgba(4,16,10,.85)';}
+});
+</script>
+</body>
+</html>
