@@ -97,7 +97,6 @@ const GOOGLE_INDEXING_BASE    = 'https://indexing.googleapis.com/v3/urlNotificat
 const GOOGLE_PLACES_BASE      = 'https://maps.googleapis.com/maps/api';
 const GOOGLE_OAUTH2_CLIENT_ID = process.env.GOOGLE_OAUTH2_CLIENT_ID || '';
 const GOOGLE_OAUTH2_SECRET    = process.env.GOOGLE_OAUTH2_SECRET    || '';
-const GOOGLE_REFRESH_TOKEN    = process.env.GOOGLE_REFRESH_TOKEN    || '';
 
 // ── Pexels — free stock photos for blog posts ────────────────
 const PEXELS_API_KEY = process.env.PEXELS_API_KEY || 'KKnsOB57rfTFv5cuySAq8I9xm0ek6AiKZo4xeOURePlXJvnnw4EDbBdg';
