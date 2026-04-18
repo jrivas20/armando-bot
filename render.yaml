@@ -41,8 +41,6 @@ services:
         sync: false
       - key: GOOGLE_PLACES_API_KEY
         value: AIzaSyC1ra5_WT5mE6QJr64HDrVixFHbionXUkM
-      - key: GOOGLE_REFRESH_TOKEN
-        sync: false
       - key: GOOGLE_OAUTH2_CLIENT_ID
         sync: false
       - key: GOOGLE_OAUTH2_SECRET
