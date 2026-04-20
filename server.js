@@ -10022,6 +10022,142 @@ Return ONLY the JSON object.`;
   }
 });
 
+// ── 5. AD ACCOUNT FINDER ────────────────────────────────────
+// GET /ad-accounts?business_id=XXX
+// Finds all ad accounts under a Business ID + lists their active ads
+app.get('/ad-accounts', async (req, res) => {
+  try {
+    const { business_id } = req.query;
+    if (!business_id) return res.status(400).json({ ok: false, error: 'business_id required' });
+
+    const token = META_LIB_TOKEN();
+
+    // Get all ad accounts under the business
+    const accountsRes = await axios.get(
+      `https://graph.facebook.com/v19.0/${business_id}/owned_ad_accounts`,
+      { params: { fields: 'id,name,account_status,currency,spend_cap', access_token: token, limit: 50 } }
+    ).catch(e => ({ data: null, _err: e.response?.data || e.message }));
+
+    if (accountsRes._err || !accountsRes.data?.data) {
+      return res.json({ ok: false, error: accountsRes._err || 'No accounts returned', hint: 'Token may need business_management permission' });
+    }
+
+    const accounts = accountsRes.data.data;
+
+    // For each account pull active campaigns + ads
+    const results = await Promise.all(accounts.map(async acct => {
+      const adsRes = await axios.get(
+        `https://graph.facebook.com/v19.0/${acct.id}/ads`,
+        {
+          params: {
+            fields: 'id,name,status,creative{id,body,title,description},adset{name},campaign{name}',
+            filtering: JSON.stringify([{ field: 'ad.effective_status', operator: 'IN', value: ['ACTIVE', 'PAUSED'] }]),
+            access_token: token,
+            limit: 50,
+          }
+        }
+      ).catch(() => ({ data: { data: [] } }));
+
+      return {
+        account_id:  acct.id,
+        account_name: acct.name,
+        status:      acct.account_status === 1 ? 'ACTIVE' : acct.account_status === 2 ? 'DISABLED' : `STATUS_${acct.account_status}`,
+        ads: (adsRes.data?.data || []).map(ad => ({
+          ad_id:       ad.id,
+          ad_name:     ad.name,
+          ad_status:   ad.status,
+          campaign:    ad.campaign?.name || '—',
+          adset:       ad.adset?.name || '—',
+          creative_id: ad.creative?.id || '—',
+          body:        ad.creative?.body || '—',
+          title:       ad.creative?.title || '—',
+        })),
+      };
+    }));
+
+    res.json({ ok: true, business_id, total_accounts: accounts.length, accounts: results });
+  } catch (e) {
+    console.error('[ad-accounts]', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// ── 6. AD COPY UPDATER ───────────────────────────────────────
+// POST /ad-update-copy
+// Body: { account_id, ad_id, body, title, description? }
+// Creates a new AdCreative with updated copy and swaps it onto the ad
+app.post('/ad-update-copy', async (req, res) => {
+  try {
+    const { account_id, ad_id, body, title, description } = req.body;
+    if (!account_id || !ad_id || !body) {
+      return res.status(400).json({ ok: false, error: 'account_id, ad_id, and body are required' });
+    }
+
+    const token = META_LIB_TOKEN();
+
+    // Step 1 — get the current ad to find existing creative
+    const adRes = await axios.get(
+      `https://graph.facebook.com/v19.0/${ad_id}`,
+      { params: { fields: 'id,name,status,creative{id,body,title,description,object_story_spec,image_hash,link_url,call_to_action_type}', access_token: token } }
+    ).catch(e => ({ data: null, _err: e.response?.data || e.message }));
+
+    if (adRes._err || !adRes.data) {
+      return res.json({ ok: false, step: 'fetch_ad', error: adRes._err || 'Ad not found' });
+    }
+
+    const currentCreative = adRes.data.creative || {};
+
+    // Step 2 — create new AdCreative with updated copy
+    const creativePayload = {
+      name:        `Updated Creative ${Date.now()}`,
+      body:        body,
+      access_token: token,
+    };
+    if (title)       creativePayload.title       = title;
+    if (description) creativePayload.description = description;
+
+    // Carry over image/link/story spec if present
+    if (currentCreative.object_story_spec) creativePayload.object_story_spec = JSON.stringify(currentCreative.object_story_spec);
+    if (currentCreative.image_hash)        creativePayload.image_hash         = currentCreative.image_hash;
+    if (currentCreative.link_url)          creativePayload.link_url           = currentCreative.link_url;
+
+    const newCreativeRes = await axios.post(
+      `https://graph.facebook.com/v19.0/${account_id}/adcreatives`,
+      creativePayload
+    ).catch(e => ({ data: null, _err: e.response?.data || e.message }));
+
+    if (newCreativeRes._err || !newCreativeRes.data?.id) {
+      return res.json({ ok: false, step: 'create_creative', error: newCreativeRes._err || 'Creative creation failed', hint: 'Token may need ads_management permission' });
+    }
+
+    const newCreativeId = newCreativeRes.data.id;
+
+    // Step 3 — update the ad to use the new creative
+    const updateRes = await axios.post(
+      `https://graph.facebook.com/v19.0/${ad_id}`,
+      { creative: JSON.stringify({ creative_id: newCreativeId }), access_token: token }
+    ).catch(e => ({ data: null, _err: e.response?.data || e.message }));
+
+    if (updateRes._err || !updateRes.data?.success) {
+      return res.json({ ok: false, step: 'update_ad', error: updateRes._err || 'Ad update failed', new_creative_id: newCreativeId });
+    }
+
+    res.json({
+      ok:              true,
+      ad_id,
+      account_id,
+      old_creative_id: currentCreative.id || '—',
+      new_creative_id: newCreativeId,
+      new_body:        body,
+      new_title:       title || currentCreative.title || '—',
+      message:         'Ad copy updated successfully. Changes live within 60 seconds.',
+    });
+  } catch (e) {
+    console.error('[ad-update-copy]', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 // ── END AD INTELLIGENCE SYSTEM ───────────────────────────────
 
 // GET /sofia/test-design?industry=roofing&city=Orlando — test AI design system generation
