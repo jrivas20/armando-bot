@@ -3203,6 +3203,33 @@ Escribe el insight en español. Solo el párrafo, sin títulos.`,
 }
 
 // ═══════════════════════════════════════════════════════════
+// PROXY — LUIS FARRERA BOOKING FORM → GHL WEBHOOK
+// Bypasses GHL page CSP by routing through Render server
+// ═══════════════════════════════════════════════════════════
+app.post('/proxy/lf-booking', async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+  try {
+    await axios.post(
+      'https://services.leadconnectorhq.com/hooks/Q6FIvQ5WitCeq9wyXZ3L/webhook-trigger/6eb41369-d80b-4c90-ba76-f55fe9d4cb60',
+      req.body,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    res.json({ ok: true });
+  } catch(e) {
+    console.error('[LF Booking Proxy] Error:', e.message);
+    res.json({ ok: false, error: e.message });
+  }
+});
+
+app.options('/proxy/lf-booking', (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+  res.sendStatus(200);
+});
+
+// ═══════════════════════════════════════════════════════════
 // WEBHOOK — ARMANDO DM HANDLER
 // ═══════════════════════════════════════════════════════════
 app.post('/webhook', async (req, res) => {

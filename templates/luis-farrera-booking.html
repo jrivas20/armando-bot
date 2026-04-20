@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Your Session — Luis A. Farrera Tattoo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- ── GHL FULL BLEED OVERRIDE — Required on every GHL page ── -->
+<style>
+html, body,
+.page-section, .page-section--content,
+.funnelish-section, .funnelish-section--content,
+.section-wrap, .section-wrap--content,
+.hl_page-section, .hl_page-section--content,
+.container, .container-fluid,
+.row, .col, [class*="col-"],
+[class*="section"], [class*="container"],
+[class*="wrapper"], [class*="inner"],
+[class*="page-section"], [class*="hl_"] {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+body { overflow-x: hidden !important; }
+</style>
+<!-- ── END GHL FULL BLEED ── -->
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:    #050505;
+  --gold:  #cfa947;
+  --gold2: #e2c66f;
+  --text:  #f0ece3;
+  --muted: rgba(240,236,227,0.38);
+  --dim:   rgba(240,236,227,0.18);
+  --border:rgba(207,169,71,0.18);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  cursor: none;
+}
+
+/* ── BACKGROUND ATMOSPHERE ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(207,169,71,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 35% at 90% 95%, rgba(207,169,71,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── CUSTOM CURSOR ── */
+.cursor {
+  position: fixed;
+  width: 7px; height: 7px;
+  background: var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.12s ease;
+}
+.cursor-ring {
+  position: fixed;
+  width: 30px; height: 30px;
+  border: 1px solid rgba(207,169,71,0.45);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+.cursor.hover  { transform: translate(-50%,-50%) scale(2.2); }
+.cursor-ring.hover { width: 50px; height: 50px; }
+
+/* ── PROGRESS BAR ── */
+.tf-progress {
+  position: fixed; top: 0; left: 0;
+  height: 2px;
+  background: var(--gold);
+  box-shadow: 0 0 14px rgba(207,169,71,0.7);
+  z-index: 200;
+  transition: width 0.65s cubic-bezier(0.4,0,0.2,1), background 0.5s;
+}
+.tf-progress.done {
+  background: #4ade80;
+  box-shadow: 0 0 14px rgba(74,222,128,0.7);
+}
+
+/* ── LOGO BAR ── */
+.tf-logo {
+  position: fixed;
+  top: 26px; left: 32px;
+  z-index: 100;
+  display: flex; align-items: center; gap: 12px;
+}
+.tf-logo-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 19px; letter-spacing: 2px;
+  color: var(--gold);
+}
+.tf-logo-sep { width: 1px; height: 18px; background: var(--border); }
+.tf-logo-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px; font-style: italic;
+  color: var(--muted); letter-spacing: 0.8px;
+}
+
+/* ── STEP COUNTER ── */
+.tf-counter {
+  position: fixed;
+  top: 26px; right: 32px;
+  z-index: 100;
+  font-size: 11px; letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dim);
+  display: none;
+}
+.tf-counter b { color: var(--gold); font-weight: 400; }
+
+/* ── SLIDES WRAP ── */
+.slides { position: relative; width: 100%; height: 100vh; z-index: 1; }
+
+/* ── SLIDE BASE ── */
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 90px 28px 80px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(36px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.slide.active {
+  opacity: 1; pointer-events: all;
+  transform: translateY(0);
+}
+.slide.exit {
+  opacity: 0;
+  transform: translateY(-36px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+}
+
+/* ── WELCOME SLIDE ── */
+.sl-welcome .eyebrow {
+  font-size: 10px; letter-spacing: 3.5px; text-transform: uppercase;
+  color: var(--gold); opacity: 0.7;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 28px;
+}
+.sl-welcome .eyebrow::before,
+.sl-welcome .eyebrow::after {
+  content: ''; width: 28px; height: 1px;
+  background: var(--gold); opacity: 0.5;
+}
+.sl-welcome h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(56px, 9vw, 108px);
+  line-height: 0.92; letter-spacing: 2px;
+  text-align: center; margin-bottom: 22px;
+}
+.sl-welcome h1 span { color: var(--gold); }
+.sl-welcome .subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(17px, 2vw, 21px); font-style: italic;
+  color: var(--muted); text-align: center;
+  max-width: 440px; line-height: 1.65; margin-bottom: 48px;
+}
+.sl-welcome .time-note {
+  margin-top: 18px;
+  font-size: 11px; color: var(--dim);
+  letter-spacing: 1.2px;
+}
+
+/* ── QUESTION LAYOUT ── */
+.q-wrap {
+  width: 100%; max-width: 580px;
+  display: flex; flex-direction: column;
+}
+.q-num {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); opacity: 0.55;
+  margin-bottom: 16px;
+}
+.q-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(38px, 5.5vw, 68px);
+  letter-spacing: 1px; line-height: 1.0;
+  color: var(--text); margin-bottom: 8px;
+}
+.q-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-style: italic;
+  color: var(--muted); line-height: 1.55;
+  margin-bottom: 36px;
+}
+
+/* ── TEXT INPUT ── */
+.tf-input, .tf-textarea {
+  width: 100%;
+  background: transparent;
+  border: none; border-bottom: 2px solid var(--border);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(22px, 3vw, 34px); font-weight: 300;
+  padding: 10px 0 14px;
+  outline: none;
+  caret-color: var(--gold);
+  transition: border-color 0.3s;
+}
+.tf-input:focus, .tf-textarea:focus { border-bottom-color: var(--gold); }
+.tf-input::placeholder, .tf-textarea::placeholder {
+  color: rgba(240,236,227,0.17); font-style: italic;
+}
+.tf-textarea { resize: none; line-height: 1.5; }
+
+/* ── OPTION LIST ── */
+.tf-options {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 4px;
+}
+.tf-opt {
+  display: flex; align-items: center; gap: 15px;
+  padding: 13px 18px;
+  border: 1px solid rgba(207,169,71,0.12);
+  border-radius: 4px;
+  background: rgba(207,169,71,0.02);
+  cursor: none;
+  transition: all 0.2s;
+  user-select: none;
+}
+.tf-opt:hover {
+  border-color: rgba(207,169,71,0.4);
+  background: rgba(207,169,71,0.05);
+}
+.tf-opt.sel {
+  border-color: var(--gold);
+  background: rgba(207,169,71,0.08);
+}
+.tf-opt-key {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px; letter-spacing: 1px;
+  color: var(--gold); opacity: 0.65;
+  width: 18px; flex-shrink: 0;
+}
+.tf-opt-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; color: var(--text);
+}
+
+/* ── BUTTON ── */
+.tf-btn {
+  display: inline-flex; align-items: center; gap: 11px;
+  padding: 13px 30px;
+  background: var(--gold);
+  color: #050505;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px; letter-spacing: 2.5px;
+  border: none; border-radius: 3px;
+  cursor: none;
+  transition: background 0.2s, transform 0.2s;
+  margin-top: 30px;
+}
+.tf-btn:hover { background: var(--gold2); transform: translateY(-1px); }
+.tf-btn:disabled { opacity: 0.55; transform: none; }
+.tf-btn svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+/* Spinner inside button */
+.spin {
+  width: 17px; height: 17px;
+  border: 2px solid rgba(5,5,5,0.25);
+  border-top-color: #050505;
+  border-radius: 50%;
+  animation: spinning 0.6s linear infinite;
+  display: none;
+}
+.loading .spin { display: block; }
+.loading .btn-label, .loading .btn-icon { display: none; }
+
+@keyframes spinning { to { transform: rotate(360deg); } }
+
+/* ── FIELD ERROR ── */
+.f-err {
+  font-size: 11px; letter-spacing: 1px; color: #e05c5c;
+  margin-top: 10px; display: none;
+}
+.f-err.on { display: block; }
+
+/* ── ENTER HINT ── */
+.enter-hint {
+  position: fixed; bottom: 36px; left: 50%;
+  transform: translateX(-50%);
+  display: none; align-items: center; gap: 7px;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(240,236,227,0.2);
+  z-index: 100;
+}
+.enter-hint .key {
+  padding: 2px 7px;
+  border: 1px solid rgba(240,236,227,0.18);
+  border-radius: 2px; font-size: 9px;
+}
+.enter-hint.show { display: flex; }
+
+/* ── NAV ARROWS ── */
+.tf-nav {
+  position: fixed; bottom: 32px; right: 32px;
+  display: none; gap: 8px; z-index: 100;
+}
+.tf-nav.show { display: flex; }
+.nav-btn {
+  width: 38px; height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--muted);
+  cursor: none;
+  transition: all 0.2s;
+}
+.nav-btn:hover { border-color: var(--gold); color: var(--gold); }
+.nav-btn:disabled { opacity: 0.2; pointer-events: none; }
+.nav-btn svg { width: 14px; height: 14px; }
+
+/* ── SUCCESS SLIDE ── */
+.sl-success {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+}
+.success-ring {
+  width: 70px; height: 70px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold); margin-bottom: 32px;
+}
+.sl-success h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(52px, 7vw, 88px);
+  letter-spacing: 2px; margin-bottom: 18px;
+}
+.sl-success h2 span { color: var(--gold); }
+.sl-success p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px; font-style: italic;
+  color: var(--muted); max-width: 420px; line-height: 1.65;
+}
+.sl-success .back-link {
+  margin-top: 36px;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--dim); text-decoration: none;
+  transition: color 0.2s;
+}
+.sl-success .back-link:hover { color: var(--gold); }
+
+/* ── MOBILE ── */
+@media (max-width: 640px) {
+  html, body { cursor: auto; overflow-y: auto; }
+  .cursor, .cursor-ring { display: none; }
+  .slide { padding: 100px 22px 100px; overflow-y: auto; justify-content: flex-start; }
+  .slide.active { overflow-y: auto; }
+  .tf-logo { top: 18px; left: 18px; }
+  .tf-counter { top: 18px; right: 18px; }
+  .tf-opt, .tf-btn, .nav-btn { cursor: pointer; }
+}
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- PROGRESS BAR -->
+<div class="tf-progress" id="progressBar" style="width:0%"></div>
+
+<!-- LOGO -->
+<div class="tf-logo">
+  <span class="tf-logo-mark">LAF</span>
+  <div class="tf-logo-sep"></div>
+  <span class="tf-logo-sub">Book a Session</span>
+</div>
+
+<!-- STEP COUNTER -->
+<div class="tf-counter" id="counter">
+  <b id="cNum">1</b> / 7
+</div>
+
+<!-- SLIDES -->
+<div class="slides" id="slides">
+
+  <!-- 0: WELCOME -->
+  <div class="slide sl-welcome active" data-s="0">
+    <div class="eyebrow">Luis A. Farrera · Orlando, FL</div>
+    <h1>Reserve<br>Your <span>Spot</span></h1>
+    <p class="subtitle">Tell Luis about your vision — he reviews every request personally and responds within 24 hours.</p>
+    <button class="tf-btn" id="startBtn">
+      <span class="btn-label">Let's Begin</span>
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+    <span class="time-note">Takes 2 minutes · Completely free</span>
+  </div>
+
+  <!-- 1: NAME -->
+  <div class="slide" data-s="1">
+    <div class="q-wrap">
+      <div class="q-num">01 / 08</div>
+      <div class="q-label">What's your name?</div>
+      <div class="q-sub">First and last — so Luis knows who he's reaching out to.</div>
+      <input type="text" class="tf-input" id="f-name" placeholder="Your full name" autocomplete="name">
+      <div class="f-err" id="e-name">Please enter your name to continue.</div>
+      <button class="tf-btn" data-adv="1">
+        <span class="btn-label">OK</span>
+        <div class="spin"></div>
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2: PHONE -->
+  <div class="slide" data-s="2">
+    <div class="q-wrap">
+      <div class="q-num">02 / 08</div>
+      <div class="q-label">Best phone number?</div>
+      <div class="q-sub">Luis will personally text you to discuss your concept.</div>
+      <input type="tel" class="tf-input" id="f-phone" placeholder="+1 (___) ___-____" autocomplete="tel">
+      <div class="f-err" id="e-phone">Please enter a valid phone number.</div>
+      <button class="tf-btn" data-adv="2">
+        <span class="btn-label">OK</span>
+        <div class="spin"></div>
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3: EMAIL -->
+  <div class="slide" data-s="3">
+    <div class="q-wrap">
+      <div class="q-num">03 / 08</div>
+      <div class="q-label">Your email address?</div>
+      <div class="q-sub">For booking confirmation and design sketches.</div>
+      <input type="email" class="tf-input" id="f-email" placeholder="you@example.com" autocomplete="email">
+      <div class="f-err" id="e-email">Please enter a valid email address.</div>
+      <button class="tf-btn" data-adv="3">
+        <span class="btn-label">OK</span>
+        <div class="spin"></div>
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 4: CONCEPT -->
+  <div class="slide" data-s="4">
+    <div class="q-wrap">
+      <div class="q-num">04 / 08</div>
+      <div class="q-label">What are you envisioning?</div>
+      <div class="q-sub">Describe the style, subject, or feeling. Anything helps.</div>
+      <textarea class="tf-textarea" id="f-concept" placeholder="e.g. A black and grey wolf, realism style, full detail — chest piece…" rows="3"></textarea>
+      <div class="f-err" id="e-concept">Please describe your tattoo concept.</div>
+      <button class="tf-btn" data-adv="4">
+        <span class="btn-label">OK</span>
+        <div class="spin"></div>
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 5: PLACEMENT -->
+  <div class="slide" data-s="5">
+    <div class="q-wrap">
+      <div class="q-num">05 / 08</div>
+      <div class="q-label">Where on your body?</div>
+      <div class="q-sub">Placement affects sizing, detail, and session length.</div>
+      <div class="tf-options" id="opts-placement">
+        <div class="tf-opt" data-f="placement" data-v="Forearm / Arm">
+          <span class="tf-opt-key">A</span><span class="tf-opt-label">Forearm / Arm</span>
+        </div>
+        <div class="tf-opt" data-f="placement" data-v="Upper Arm / Bicep">
+          <span class="tf-opt-key">B</span><span class="tf-opt-label">Upper Arm / Bicep</span>
+        </div>
+        <div class="tf-opt" data-f="placement" data-v="Chest / Ribs">
+          <span class="tf-opt-key">C</span><span class="tf-opt-label">Chest / Ribs</span>
+        </div>
+        <div class="tf-opt" data-f="placement" data-v="Back / Shoulder">
+          <span class="tf-opt-key">D</span><span class="tf-opt-label">Back / Shoulder</span>
+        </div>
+        <div class="tf-opt" data-f="placement" data-v="Leg / Thigh / Calf">
+          <span class="tf-opt-key">E</span><span class="tf-opt-label">Leg / Thigh / Calf</span>
+        </div>
+        <div class="tf-opt" data-f="placement" data-v="Other / Not sure yet">
+          <span class="tf-opt-key">F</span><span class="tf-opt-label">Other / Not sure yet</span>
+        </div>
+      </div>
+      <div class="f-err" id="e-placement">Please select a placement to continue.</div>
+    </div>
+  </div>
+
+  <!-- 6: SIZE -->
+  <div class="slide" data-s="6">
+    <div class="q-wrap">
+      <div class="q-num">06 / 08</div>
+      <div class="q-label">How large are you thinking?</div>
+      <div class="q-sub">Rough estimate is fine — Luis can advise during your consultation.</div>
+      <div class="tf-options" id="opts-size">
+        <div class="tf-opt" data-f="size" data-v="Small — 2 to 4 inches">
+          <span class="tf-opt-key">A</span><span class="tf-opt-label">Small — 2 to 4 inches</span>
+        </div>
+        <div class="tf-opt" data-f="size" data-v="Medium — 4 to 6 inches">
+          <span class="tf-opt-key">B</span><span class="tf-opt-label">Medium — 4 to 6 inches</span>
+        </div>
+        <div class="tf-opt" data-f="size" data-v="Large — 6+ inches">
+          <span class="tf-opt-key">C</span><span class="tf-opt-label">Large — 6+ inches</span>
+        </div>
+        <div class="tf-opt" data-f="size" data-v="Full Sleeve / Large Piece">
+          <span class="tf-opt-key">D</span><span class="tf-opt-label">Full Sleeve / Large Piece</span>
+        </div>
+        <div class="tf-opt" data-f="size" data-v="Not sure yet">
+          <span class="tf-opt-key">E</span><span class="tf-opt-label">Not sure yet</span>
+        </div>
+      </div>
+      <div class="f-err" id="e-size">Please select a size to continue.</div>
+    </div>
+  </div>
+
+  <!-- 7: BEST TIME -->
+  <div class="slide" data-s="7">
+    <div class="q-wrap">
+      <div class="q-num">07 / 08</div>
+      <div class="q-label">Best time to reach you?</div>
+      <div class="q-sub">Luis will contact you at your preferred time.</div>
+      <div class="tf-options" id="opts-time">
+        <div class="tf-opt" data-f="time" data-v="Morning (9am – 12pm)">
+          <span class="tf-opt-key">A</span><span class="tf-opt-label">Morning — 9am to 12pm</span>
+        </div>
+        <div class="tf-opt" data-f="time" data-v="Afternoon (12pm – 5pm)">
+          <span class="tf-opt-key">B</span><span class="tf-opt-label">Afternoon — 12pm to 5pm</span>
+        </div>
+        <div class="tf-opt" data-f="time" data-v="Evening (5pm – 8pm)">
+          <span class="tf-opt-key">C</span><span class="tf-opt-label">Evening — 5pm to 8pm</span>
+        </div>
+        <div class="tf-opt" data-f="time" data-v="Anytime works">
+          <span class="tf-opt-key">D</span><span class="tf-opt-label">Anytime works for me</span>
+        </div>
+      </div>
+      <div class="f-err" id="e-time">Please select a preferred time.</div>
+    </div>
+  </div>
+
+  <!-- 8: TIMELINE -->
+  <div class="slide" data-s="8">
+    <div class="q-wrap">
+      <div class="q-num">08 / 08</div>
+      <div class="q-label">When are you looking to get tattooed?</div>
+      <div class="q-sub">Helps Luis prioritize his schedule and slot you in at the right time.</div>
+      <div class="tf-options" id="opts-when">
+        <div class="tf-opt" data-f="when" data-v="As soon as possible">
+          <span class="tf-opt-key">A</span><span class="tf-opt-label">As soon as possible</span>
+        </div>
+        <div class="tf-opt" data-f="when" data-v="Within 1–3 months">
+          <span class="tf-opt-key">B</span><span class="tf-opt-label">Within 1–3 months</span>
+        </div>
+        <div class="tf-opt" data-f="when" data-v="Within 3–6 months">
+          <span class="tf-opt-key">C</span><span class="tf-opt-label">Within 3–6 months</span>
+        </div>
+        <div class="tf-opt" data-f="when" data-v="Just exploring for now">
+          <span class="tf-opt-key">D</span><span class="tf-opt-label">Just exploring for now</span>
+        </div>
+      </div>
+      <div class="f-err" id="e-when">Please select a timeline to continue.</div>
+      <button class="tf-btn" id="submitBtn" style="margin-top:28px">
+        <span class="btn-label">Submit Request</span>
+        <div class="spin"></div>
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 9: SUCCESS -->
+  <div class="slide sl-success" data-s="9">
+    <div class="success-ring">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <h2>Request<br><span>Received</span></h2>
+    <p>Luis will personally review your concept and reach out within 24 hours. You'll also get an email confirmation shortly.</p>
+    <a href="https://luisfarreratattoo.com" class="back-link">← Back to website</a>
+  </div>
+
+</div><!-- /slides -->
+
+<!-- ENTER HINT -->
+<div class="enter-hint" id="enterHint">
+  press <span class="key">Enter ↵</span> to continue
+</div>
+
+<!-- NAV BUTTONS -->
+<div class="tf-nav" id="navBtns">
+  <button class="nav-btn" id="navUp" title="Previous">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+  <button class="nav-btn" id="navDown" title="Next">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+</div>
+
+<script>
+// ── FORM DATA ────────────────────────────────────────
+const fd = { name:'', phone:'', email:'', concept:'', placement:'', size:'', time:'', when:'' };
+const TOTAL = 8;
+let cur = 0;
+const allSlides = document.querySelectorAll('.slide');
+
+// ── CURSOR ───────────────────────────────────────────
+const curEl = document.getElementById('cursor');
+const ringEl = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  curEl.style.left = mx + 'px'; curEl.style.top = my + 'px';
+});
+(function raf() {
+  rx += (mx - rx) * 0.11; ry += (my - ry) * 0.11;
+  ringEl.style.left = rx + 'px'; ringEl.style.top = ry + 'px';
+  requestAnimationFrame(raf);
+})();
+
+function addHover(el) {
+  el.addEventListener('mouseenter', () => { curEl.classList.add('hover'); ringEl.classList.add('hover'); });
+  el.addEventListener('mouseleave', () => { curEl.classList.remove('hover'); ringEl.classList.remove('hover'); });
+}
+document.querySelectorAll('button, .tf-opt, a').forEach(addHover);
+
+// ── SLIDE ENGINE ─────────────────────────────────────
+function goTo(n, dir = 1) {
+  const from = allSlides[cur];
+  from.classList.remove('active');
+  from.classList.add('exit');
+  setTimeout(() => { from.classList.remove('exit'); }, 400);
+
+  cur = n;
+  const to = allSlides[cur];
+  to.classList.add('active');
+  setTimeout(() => { const inp = to.querySelector('input,textarea'); if (inp) inp.focus(); }, 80);
+  refreshUI();
+}
+
+function refreshUI() {
+  const bar    = document.getElementById('progressBar');
+  const counter= document.getElementById('counter');
+  const cNum   = document.getElementById('cNum');
+  const hint   = document.getElementById('enterHint');
+  const nav    = document.getElementById('navBtns');
+  const navUp  = document.getElementById('navUp');
+
+  if (cur === 0) {
+    bar.style.width = '0%'; counter.style.display='none';
+    hint.classList.remove('show'); nav.classList.remove('show'); return;
+  }
+  if (cur === 9) {
+    bar.classList.add('done'); bar.style.width='100%';
+    counter.style.display='none'; hint.classList.remove('show'); nav.classList.remove('show'); return;
+  }
+
+  bar.style.width = (cur / TOTAL * 100) + '%';
+  counter.style.display = 'block'; cNum.textContent = cur;
+
+  const activeSlide = allSlides[cur];
+  const hasInput = !!activeSlide.querySelector('input,textarea');
+  hint.classList.toggle('show', hasInput);
+
+  nav.classList.add('show');
+  navUp.disabled = cur <= 1;
+}
+
+// ── VALIDATORS ───────────────────────────────────────
+const validators = {
+  1: () => document.getElementById('f-name').value.trim().length > 1,
+  2: () => document.getElementById('f-phone').value.replace(/\D/g,'').length >= 10,
+  3: () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('f-email').value.trim()),
+  4: () => document.getElementById('f-concept').value.trim().length > 3,
+  5: () => !!fd.placement,
+  6: () => !!fd.size,
+  7: () => !!fd.time,
+  8: () => !!fd.when,
+};
+const errIds = { 1:'e-name', 2:'e-phone', 3:'e-email', 4:'e-concept', 5:'e-placement', 6:'e-size', 7:'e-time', 8:'e-when' };
+
+function validate(n) {
+  const ok = validators[n] ? validators[n]() : true;
+  const eid = errIds[n];
+  if (eid) document.getElementById(eid).classList.toggle('on', !ok);
+  return ok;
+}
+
+function saveInput(n) {
+  const map = { 1:['name','f-name'], 2:['phone','f-phone'], 3:['email','f-email'], 4:['concept','f-concept'] };
+  if (map[n]) fd[map[n][0]] = document.getElementById(map[n][1]).value.trim();
+}
+
+// ── ADVANCE ──────────────────────────────────────────
+function advance(n) {
+  if (!validate(n)) return;
+  saveInput(n);
+  if (n === 8) { submitForm(); return; }
+  goTo(n + 1);
+}
+
+// ── OPTION SELECT ────────────────────────────────────
+document.querySelectorAll('.tf-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    const field = opt.dataset.f;
+    const val   = opt.dataset.v;
+    document.querySelectorAll(`.tf-opt[data-f="${field}"]`).forEach(o => o.classList.remove('sel'));
+    opt.classList.add('sel');
+    fd[field] = val;
+    document.getElementById('e-' + field)?.classList.remove('on');
+
+    // auto-advance for placement, size, time; not for when (has submit btn)
+    if (field !== 'when') {
+      setTimeout(() => advance(cur), 280);
+    }
+  });
+  addHover(opt);
+});
+
+// ── BUTTON WIRING ─────────────────────────────────────
+document.getElementById('startBtn').addEventListener('click', () => goTo(1));
+
+document.querySelectorAll('[data-adv]').forEach(btn => {
+  btn.addEventListener('click', () => advance(+btn.dataset.adv));
+});
+
+document.getElementById('submitBtn').addEventListener('click', submitForm);
+
+document.getElementById('navUp').addEventListener('click', () => { if (cur > 1) goTo(cur - 1, -1); });
+document.getElementById('navDown').addEventListener('click', () => { if (cur < 8) advance(cur); });
+
+// ── KEYBOARD ─────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (cur === 0 || cur === 8) return;
+
+  // Letter shortcuts for option slides
+  if ([5,6,7,8].includes(cur)) {
+    const optMaps = {
+      5: ['a','b','c','d','e','f'],
+      6: ['a','b','c','d','e'],
+      7: ['a','b','c','d'],
+      8: ['a','b','c','d']
+    };
+    const fieldMap = { 5:'placement', 6:'size', 7:'time', 8:'when' };
+    const keys = optMaps[cur];
+    const idx = keys.indexOf(e.key.toLowerCase());
+    if (idx !== -1) {
+      const opts = document.querySelectorAll(`.tf-opt[data-f="${fieldMap[cur]}"]`);
+      if (opts[idx]) opts[idx].click();
+    }
+  }
+
+  if (e.key === 'Enter') {
+    const active = document.activeElement;
+    if (active?.tagName === 'TEXTAREA' && !e.shiftKey) {
+      e.preventDefault(); advance(cur);
+    } else if (active?.tagName !== 'TEXTAREA') {
+      if (cur >= 1 && cur <= 4) { e.preventDefault(); advance(cur); }
+    }
+  }
+
+  if (e.key === 'ArrowUp' && !['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)) {
+    if (cur > 1) goTo(cur - 1, -1);
+  }
+});
+
+// ── INPUT ENTER KEY ───────────────────────────────────
+document.querySelectorAll('.tf-input').forEach(inp => {
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); advance(cur); }
+  });
+  inp.addEventListener('input', () => {
+    const n = +inp.closest('.slide').dataset.s;
+    document.getElementById(errIds[n])?.classList.remove('on');
+  });
+});
+
+// ── SUBMIT ────────────────────────────────────────────
+async function submitForm() {
+  if (!validate(8)) return;
+
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('loading'); btn.disabled = true;
+
+  const notes = [
+    'Tattoo concept: '    + fd.concept,
+    'Placement: '         + fd.placement,
+    'Size: '              + fd.size,
+    'Timeline: '          + fd.when,
+    'Best time to call: ' + fd.time
+  ].join('\n');
+
+  const parts = fd.name.trim().split(' ');
+  const firstName = parts[0];
+  const lastName  = parts.slice(1).join(' ');
+
+  const WEBHOOK = 'https://armando-bot-1.onrender.com/proxy/lf-booking';
+  const payload = JSON.stringify({
+    full_name:  fd.name,
+    first_name: firstName,
+    last_name:  lastName,
+    phone:      fd.phone,
+    email:      fd.email,
+    concept:    fd.concept,
+    placement:  fd.placement,
+    size:       fd.size,
+    timeline:   fd.when,
+    best_time:  fd.time,
+    notes:      notes,
+    source:     'Luis Farrera Booking Form'
+  });
+
+  // POST to armando-bot proxy (bypasses GHL page CSP)
+  try {
+    await fetch(WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: payload
+    });
+  } catch(e) {
+    console.error('[LF Booking] Submit error:', e.message);
+  }
+
+  window.location.href = 'https://luisfarreratattoo.com/thank-you';
+}
+
+// ── INIT ──────────────────────────────────────────────
+refreshUI();
+</script>
+</body>
+</html>
