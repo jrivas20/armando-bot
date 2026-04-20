@@ -9588,6 +9588,437 @@ Return ONLY a JSON object (no markdown):
   });
 });
 
+// ============================================================
+//  AD INTELLIGENCE SYSTEM — 4-FEATURE ELITE STACK
+//  Ad Scorecard · Hook Library · Performance Feedback Loop · Pre-launch Checklist
+// ============================================================
+
+const HOOK_LIBRARY_PID = 'jrz/hook_library';
+const HOOK_LIBRARY_URL = `https://res.cloudinary.com/dbsuw1mfm/raw/upload/${HOOK_LIBRARY_PID}.json`;
+
+async function readHookLibrary() {
+  try {
+    const res = await axios.get(`${HOOK_LIBRARY_URL}?t=${Date.now()}`);
+    return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  } catch (e) {
+    return {};
+  }
+}
+
+async function saveHookLibrary(data) {
+  const ts  = Math.floor(Date.now() / 1000);
+  const sig = crypto.createHash('sha1')
+    .update(`overwrite=true&public_id=${HOOK_LIBRARY_PID}&timestamp=${ts}${CLOUDINARY_API_SECRET}`)
+    .digest('hex');
+  const form = new FormData();
+  form.append('file', Buffer.from(JSON.stringify(data)), { filename: 'file.json', contentType: 'application/json' });
+  form.append('public_id', HOOK_LIBRARY_PID);
+  form.append('resource_type', 'raw');
+  form.append('timestamp', String(ts));
+  form.append('api_key', CLOUDINARY_API_KEY);
+  form.append('signature', sig);
+  form.append('overwrite', 'true');
+  await axios.post(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`, form, { headers: form.getHeaders() });
+}
+
+// ── 1. AD SCORECARD ─────────────────────────────────────────
+// POST /ad-scorecard
+// Body: { hook, offer, cta, audience, visual_format, landing_page, industry?, client? }
+// Returns: scores (6 dimensions), total/100, pass/fail, confidence%, rewrite if <70
+app.post('/ad-scorecard', async (req, res) => {
+  try {
+    const { hook, offer, cta, audience, visual_format, landing_page, industry = '', client = '' } = req.body;
+    if (!hook || !offer || !cta) return res.status(400).json({ ok: false, error: 'hook, offer, cta are required' });
+
+    const prompt = `You are an elite Meta Ads strategist. Score this ad brief across 6 dimensions (each 0–100), then return a weighted total out of 100 and a confidence percentage.
+
+AD BRIEF:
+- Hook: ${hook}
+- Offer: ${offer}
+- CTA: ${cta}
+- Target Audience: ${audience || 'Not specified'}
+- Visual Format: ${visual_format || 'Not specified'}
+- Landing Page: ${landing_page || 'Not specified'}
+- Industry: ${industry || 'General'}
+- Client: ${client || 'N/A'}
+
+SCORING DIMENSIONS (each 0-100):
+1. Hook Strength — Does it stop the scroll? Pattern interrupt? Curiosity or pain?
+2. Offer Clarity — Is the offer specific, compelling, and easy to understand in 3 seconds?
+3. CTA Power — Is the action clear, urgent, and low-friction?
+4. Audience Match — Does the copy speak directly to the target audience's desires/pain?
+5. Creative Format Fit — Is the visual format right for the message and platform?
+6. Landing Page Alignment — Does the LP match the ad promise? Is it likely to convert?
+
+WEIGHTS: Hook 25%, Offer 25%, CTA 15%, Audience 15%, Creative 10%, Landing Page 10%
+
+If total score < 70, rewrite the hook and offer to score 85+.
+
+Respond ONLY in this JSON format:
+{
+  "scores": {
+    "hook_strength": 0,
+    "offer_clarity": 0,
+    "cta_power": 0,
+    "audience_match": 0,
+    "creative_format_fit": 0,
+    "landing_page_alignment": 0
+  },
+  "total": 0,
+  "confidence_pct": 0,
+  "verdict": "LAUNCH" | "REVISE" | "REBUILD",
+  "top_weakness": "...",
+  "rewrite": {
+    "hook": "...",
+    "offer": "..."
+  },
+  "launch_notes": "..."
+}
+Return ONLY the JSON object, no markdown.`;
+
+    const aiRes = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    let parsed;
+    try {
+      parsed = JSON.parse(aiRes.content[0].text.trim());
+    } catch (e) {
+      return res.json({ ok: false, error: 'AI parse error', raw: aiRes.content[0].text });
+    }
+
+    res.json({
+      ok: true,
+      client: client || 'N/A',
+      industry: industry || 'General',
+      scorecard: parsed,
+    });
+  } catch (e) {
+    console.error('[ad-scorecard]', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// ── 2. HOOK LIBRARY ─────────────────────────────────────────
+// GET  /hooks/top?industry=fitness        — top hooks for an industry
+// POST /hooks/save                        — save a winning hook
+// GET  /hooks/all                         — full library dump
+
+app.get('/hooks/top', async (req, res) => {
+  try {
+    const { industry } = req.query;
+    const library = await readHookLibrary();
+
+    if (industry) {
+      const key = industry.toLowerCase().trim();
+      const hooks = library[key] || [];
+      const sorted = hooks.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 10);
+      return res.json({ ok: true, industry: key, count: sorted.length, hooks: sorted });
+    }
+
+    // No industry — return top hook per industry
+    const summary = {};
+    for (const [ind, hooks] of Object.entries(library)) {
+      if (Array.isArray(hooks) && hooks.length) {
+        summary[ind] = hooks.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
+      }
+    }
+    res.json({ ok: true, industries: Object.keys(summary).length, top_hooks: summary });
+  } catch (e) {
+    console.error('[hooks/top]', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.post('/hooks/save', async (req, res) => {
+  try {
+    const { hook, industry, score, source, client, notes } = req.body;
+    if (!hook || !industry) return res.status(400).json({ ok: false, error: 'hook and industry are required' });
+
+    const library = await readHookLibrary();
+    const key = industry.toLowerCase().trim();
+    if (!library[key]) library[key] = [];
+
+    // Dedupe by hook text
+    const exists = library[key].find(h => h.hook === hook);
+    if (exists) {
+      exists.score     = score || exists.score;
+      exists.notes     = notes || exists.notes;
+      exists.updated   = new Date().toISOString();
+    } else {
+      library[key].push({
+        hook,
+        score:   score || null,
+        source:  source || 'manual',
+        client:  client || null,
+        notes:   notes  || null,
+        saved:   new Date().toISOString(),
+        updated: new Date().toISOString(),
+      });
+    }
+
+    await saveHookLibrary(library);
+    res.json({ ok: true, saved: hook, industry: key, total_in_industry: library[key].length });
+  } catch (e) {
+    console.error('[hooks/save]', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.get('/hooks/all', async (req, res) => {
+  try {
+    const library = await readHookLibrary();
+    const stats = {};
+    let total = 0;
+    for (const [ind, hooks] of Object.entries(library)) {
+      stats[ind] = Array.isArray(hooks) ? hooks.length : 0;
+      total += stats[ind];
+    }
+    res.json({ ok: true, total_hooks: total, by_industry: stats, library });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// ── 3. PERFORMANCE FEEDBACK LOOP ────────────────────────────
+// POST /ad-performance/sync
+// Body: { account_id, days? }  — pulls last N days from Meta Ads API, Claude analyzes, updates hook library
+// Requires: META_USER_TOKEN with ads_management permission
+
+app.post('/ad-performance/sync', async (req, res) => {
+  try {
+    const { account_id, days = 7, dry_run = false } = req.body;
+    if (!account_id) return res.status(400).json({ ok: false, error: 'account_id required (e.g. act_123456789)' });
+
+    const token = META_LIB_TOKEN();
+    const since = Math.floor((Date.now() - days * 86400000) / 1000);
+
+    // Pull ad-level insights from Meta Ads API
+    const insightRes = await axios.get(
+      `https://graph.facebook.com/v19.0/${account_id}/ads`,
+      {
+        params: {
+          fields: 'id,name,status,creative{body,title,description},insights.date_preset(last_7d){impressions,clicks,spend,ctr,cpm,actions,action_values,cost_per_action_type}',
+          limit: 50,
+          access_token: token,
+        },
+      }
+    ).catch(e => ({ data: null, error: e.response?.data || e.message }));
+
+    if (insightRes.error || !insightRes.data?.data) {
+      return res.json({ ok: false, error: insightRes.error || 'No ad data returned', hint: 'Verify META_USER_TOKEN has ads_management permission and account_id is correct (format: act_XXXXXXXXX)' });
+    }
+
+    const ads = insightRes.data.data.filter(ad => ad.insights?.data?.length);
+    if (!ads.length) return res.json({ ok: true, message: `No ads with data in last ${days} days`, account_id });
+
+    // Build structured summary for Claude
+    const adSummaries = ads.map(ad => {
+      const ins = ad.insights.data[0];
+      const conversions = (ins.actions || []).find(a => ['purchase', 'lead', 'complete_registration'].includes(a.action_type));
+      return {
+        name: ad.name,
+        status: ad.status,
+        hook: ad.creative?.body?.substring(0, 120) || 'N/A',
+        headline: ad.creative?.title || 'N/A',
+        impressions: parseInt(ins.impressions || 0),
+        clicks: parseInt(ins.clicks || 0),
+        spend: parseFloat(ins.spend || 0).toFixed(2),
+        ctr: parseFloat(ins.ctr || 0).toFixed(2),
+        cpm: parseFloat(ins.cpm || 0).toFixed(2),
+        conversions: conversions ? conversions.value : 0,
+        cost_per_conversion: conversions && ins.spend ? (parseFloat(ins.spend) / parseFloat(conversions.value)).toFixed(2) : 'N/A',
+      };
+    });
+
+    const analysisPrompt = `You are an elite Meta Ads performance analyst. Analyze these ${ads.length} ads from the last ${days} days and extract what's working.
+
+AD PERFORMANCE DATA:
+${JSON.stringify(adSummaries, null, 2)}
+
+ANALYZE AND RESPOND IN THIS JSON FORMAT:
+{
+  "winner_ads": [{ "name": "...", "why_it_won": "...", "hook": "...", "key_metric": "..." }],
+  "loser_ads": [{ "name": "...", "why_it_failed": "...", "fix": "..." }],
+  "winning_patterns": ["pattern 1", "pattern 2", "pattern 3"],
+  "hook_themes_that_worked": ["theme 1", "theme 2"],
+  "hook_themes_that_failed": ["theme 1", "theme 2"],
+  "industry_guess": "fitness|dental|home_services|restaurant|real_estate|other",
+  "recommended_hooks": [
+    { "hook": "...", "score": 85, "why": "..." },
+    { "hook": "...", "score": 80, "why": "..." }
+  ],
+  "next_test": "What single change should be tested next week?",
+  "summary": "2-sentence executive summary"
+}
+Return ONLY the JSON object.`;
+
+    const aiRes = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1500,
+      messages: [{ role: 'user', content: analysisPrompt }],
+    });
+
+    let analysis;
+    try {
+      analysis = JSON.parse(aiRes.content[0].text.trim());
+    } catch (e) {
+      return res.json({ ok: false, error: 'AI parse error', raw: aiRes.content[0].text });
+    }
+
+    // Auto-save winning hooks to Hook Library
+    let hooksSaved = 0;
+    if (!dry_run && analysis.recommended_hooks?.length) {
+      const industry = analysis.industry_guess || 'general';
+      for (const rec of analysis.recommended_hooks) {
+        if (rec.hook && rec.score >= 75) {
+          const library = await readHookLibrary();
+          const key = industry.toLowerCase();
+          if (!library[key]) library[key] = [];
+          const exists = library[key].find(h => h.hook === rec.hook);
+          if (!exists) {
+            library[key].push({
+              hook:    rec.hook,
+              score:   rec.score,
+              source:  'performance_loop',
+              client:  account_id,
+              notes:   rec.why,
+              saved:   new Date().toISOString(),
+              updated: new Date().toISOString(),
+            });
+            await saveHookLibrary(library);
+            hooksSaved++;
+          }
+        }
+      }
+    }
+
+    res.json({
+      ok: true,
+      account_id,
+      days_analyzed: days,
+      ads_with_data: ads.length,
+      hooks_saved_to_library: hooksSaved,
+      dry_run,
+      analysis,
+      raw_ads: adSummaries,
+    });
+  } catch (e) {
+    console.error('[ad-performance/sync]', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// ── 4. PRE-LAUNCH CHECKLIST ──────────────────────────────────
+// POST /ad-preflight
+// Body: { hook, offer, cta, audience, creative_format, landing_page_url, industry?, client? }
+// Returns: pass/fail per dimension, overall readiness score, go/no-go decision, blockers
+
+app.post('/ad-preflight', async (req, res) => {
+  try {
+    const {
+      hook, offer, cta, audience, creative_format,
+      landing_page_url, industry = '', client = '',
+    } = req.body;
+
+    if (!hook || !offer || !cta) {
+      return res.status(400).json({ ok: false, error: 'hook, offer, and cta are required' });
+    }
+
+    // Fetch top hooks from library for comparison
+    let topHooks = [];
+    try {
+      const library = await readHookLibrary();
+      const key = (industry || 'general').toLowerCase();
+      topHooks = (library[key] || [])
+        .sort((a, b) => (b.score || 0) - (a.score || 0))
+        .slice(0, 3)
+        .map(h => h.hook);
+    } catch (e) { /* ignore */ }
+
+    const prompt = `You are a Meta Ads launch director doing a final pre-launch review. Check every dimension below and return a GO or NO-GO with specific blockers.
+
+AD TO REVIEW:
+- Hook: ${hook}
+- Offer: ${offer}
+- CTA: ${cta}
+- Target Audience: ${audience || 'Not specified'}
+- Creative Format: ${creative_format || 'Not specified'}
+- Landing Page URL: ${landing_page_url || 'Not provided'}
+- Industry: ${industry || 'General'}
+- Client: ${client || 'N/A'}
+
+TOP HOOKS IN LIBRARY FOR THIS INDUSTRY (for comparison):
+${topHooks.length ? topHooks.map((h, i) => `${i + 1}. ${h}`).join('\n') : 'No hooks in library yet for this industry.'}
+
+CHECKLIST (score each: PASS / WARN / FAIL + reason):
+1. Hook — Is it specific, pattern-interrupting, and scroll-stopping?
+2. Offer — Is it clear, valuable, and low-risk to the prospect?
+3. CTA — Single clear action, matches funnel stage?
+4. Audience Fit — Does the copy language match the audience's reality?
+5. Creative Format — Right format for message type? (video vs image vs carousel)
+6. Landing Page — URL provided? Does offer match? Is friction low?
+7. Compliance — No superlatives (best, #1) without substantiation? No prohibited claims?
+8. Hook vs Library — Is this hook as strong or stronger than library benchmarks?
+
+RESPOND IN THIS JSON FORMAT ONLY:
+{
+  "checklist": {
+    "hook":            { "status": "PASS|WARN|FAIL", "reason": "..." },
+    "offer":           { "status": "PASS|WARN|FAIL", "reason": "..." },
+    "cta":             { "status": "PASS|WARN|FAIL", "reason": "..." },
+    "audience_fit":    { "status": "PASS|WARN|FAIL", "reason": "..." },
+    "creative_format": { "status": "PASS|WARN|FAIL", "reason": "..." },
+    "landing_page":    { "status": "PASS|WARN|FAIL", "reason": "..." },
+    "compliance":      { "status": "PASS|WARN|FAIL", "reason": "..." },
+    "hook_vs_library": { "status": "PASS|WARN|FAIL", "reason": "..." }
+  },
+  "readiness_score": 0,
+  "decision": "GO" | "GO_WITH_WARNINGS" | "NO_GO",
+  "blockers": ["..."],
+  "warnings": ["..."],
+  "launch_tip": "One sentence: the single highest-leverage improvement before launch.",
+  "estimated_performance": "Expected CTR range and why, based on hook and audience quality."
+}
+Return ONLY the JSON object.`;
+
+    const aiRes = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1200,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    let parsed;
+    try {
+      parsed = JSON.parse(aiRes.content[0].text.trim());
+    } catch (e) {
+      return res.json({ ok: false, error: 'AI parse error', raw: aiRes.content[0].text });
+    }
+
+    // Count pass/warn/fail
+    const checks = Object.values(parsed.checklist || {});
+    const passCount = checks.filter(c => c.status === 'PASS').length;
+    const warnCount = checks.filter(c => c.status === 'WARN').length;
+    const failCount = checks.filter(c => c.status === 'FAIL').length;
+
+    res.json({
+      ok: true,
+      client: client || 'N/A',
+      industry: industry || 'General',
+      summary: { pass: passCount, warn: warnCount, fail: failCount, total: checks.length },
+      preflight: parsed,
+      library_hooks_compared: topHooks.length,
+    });
+  } catch (e) {
+    console.error('[ad-preflight]', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// ── END AD INTELLIGENCE SYSTEM ───────────────────────────────
+
 // GET /sofia/test-design?industry=roofing&city=Orlando — test AI design system generation
 app.get('/sofia/test-design', async (req, res) => {
   try {
