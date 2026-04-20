@@ -9594,6 +9594,11 @@ Return ONLY a JSON object (no markdown):
 // ============================================================
 
 const HOOK_LIBRARY_PID = 'jrz/hook_library';
+
+// Strip markdown fences Claude sometimes wraps around JSON responses
+function stripJsonFences(text) {
+  return text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+}
 const HOOK_LIBRARY_URL = `https://res.cloudinary.com/dbsuw1mfm/raw/upload/${HOOK_LIBRARY_PID}.json`;
 
 async function readHookLibrary() {
@@ -9684,7 +9689,7 @@ Return ONLY the JSON object, no markdown.`;
 
     let parsed;
     try {
-      parsed = JSON.parse(aiRes.content[0].text.trim());
+      parsed = JSON.parse(stripJsonFences(aiRes.content[0].text));
     } catch (e) {
       return res.json({ ok: false, error: 'AI parse error', raw: aiRes.content[0].text });
     }
@@ -9863,7 +9868,7 @@ Return ONLY the JSON object.`;
 
     let analysis;
     try {
-      analysis = JSON.parse(aiRes.content[0].text.trim());
+      analysis = JSON.parse(stripJsonFences(aiRes.content[0].text));
     } catch (e) {
       return res.json({ ok: false, error: 'AI parse error', raw: aiRes.content[0].text });
     }
@@ -9992,7 +9997,7 @@ Return ONLY the JSON object.`;
 
     let parsed;
     try {
-      parsed = JSON.parse(aiRes.content[0].text.trim());
+      parsed = JSON.parse(stripJsonFences(aiRes.content[0].text));
     } catch (e) {
       return res.json({ ok: false, error: 'AI parse error', raw: aiRes.content[0].text });
     }
