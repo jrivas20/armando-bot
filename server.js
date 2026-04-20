@@ -3203,21 +3203,67 @@ Escribe el insight en español. Solo el párrafo, sin títulos.`,
 }
 
 // ═══════════════════════════════════════════════════════════
-// PROXY — LUIS FARRERA BOOKING FORM → GHL WEBHOOK
-// Bypasses GHL page CSP by routing through Render server
+// PROXY — LUIS FARRERA BOOKING FORM → GHL CONTACTS API
+// Creates contact + note directly via GHL API (bypasses CSP)
 // ═══════════════════════════════════════════════════════════
+const LF_API_KEY     = 'pit-23df4abd-73d1-4fd4-895d-4d4d7c48c8c8';
+const LF_LOCATION_ID = 'Q6FIvQ5WitCeq9wyXZ3L';
+const LF_GHL_HEADERS = {
+  'Authorization': `Bearer ${LF_API_KEY}`,
+  'Version': '2021-07-28',
+  'Content-Type': 'application/json'
+};
+
 app.post('/proxy/lf-booking', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Headers', 'Content-Type');
+  const { full_name, first_name, last_name, phone, email, concept, placement, size, timeline, best_time, source } = req.body;
   try {
-    await axios.post(
+    // Step 1: Create or update contact
+    const contactRes = await axios.post(
+      'https://services.leadconnectorhq.com/contacts/',
+      {
+        locationId: LF_LOCATION_ID,
+        firstName:  first_name || full_name || '',
+        lastName:   last_name  || '',
+        email:      email      || '',
+        phone:      phone      || '',
+        source:     source     || 'Luis Farrera Booking Form',
+        tags:       ['booking-form']
+      },
+      { headers: LF_GHL_HEADERS }
+    );
+    const contactId = contactRes.data?.contact?.id;
+    console.log(`[LF Booking] Contact created: ${contactId}`);
+
+    // Step 2: Add note with tattoo details
+    if (contactId) {
+      const noteBody = [
+        `Tattoo concept: ${concept || '—'}`,
+        `Placement: ${placement || '—'}`,
+        `Size: ${size || '—'}`,
+        `Timeline: ${timeline || '—'}`,
+        `Best time to call: ${best_time || '—'}`
+      ].join('\n');
+
+      await axios.post(
+        `https://services.leadconnectorhq.com/contacts/${contactId}/notes`,
+        { body: noteBody, userId: 'ALHFH3LlHUg7V4GuSbop' },
+        { headers: LF_GHL_HEADERS }
+      );
+      console.log(`[LF Booking] Note added to contact ${contactId}`);
+    }
+
+    // Step 3: Also fire the GHL webhook for workflow automation
+    axios.post(
       'https://services.leadconnectorhq.com/hooks/Q6FIvQ5WitCeq9wyXZ3L/webhook-trigger/6eb41369-d80b-4c90-ba76-f55fe9d4cb60',
       req.body,
       { headers: { 'Content-Type': 'application/json' } }
-    );
-    res.json({ ok: true });
+    ).catch(e => console.error('[LF Booking] Webhook fire error:', e.message));
+
+    res.json({ ok: true, contactId });
   } catch(e) {
-    console.error('[LF Booking Proxy] Error:', e.message);
+    console.error('[LF Booking Proxy] Error:', e.response?.data || e.message);
     res.json({ ok: false, error: e.message });
   }
 });
