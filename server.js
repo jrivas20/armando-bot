@@ -9233,6 +9233,154 @@ app.get('/ad-spy/page', async (req, res) => {
   }
 });
 
+/**
+ * GET /ad-spy/analyze?q=HYROX+training&client=SOCF+Fitness&country=US&limit=20
+ *
+ * Pulls competitor ads from Meta Ad Library THEN passes them through Claude for
+ * strategic intelligence. Returns hooks, offer patterns, creative angles, threat
+ * level, and a ready-to-use ad brief for the client.
+ *
+ * Examples:
+ *   /ad-spy/analyze?q=HYROX+training&client=SOCF+Fitness
+ *   /ad-spy/analyze?q=tattoo+studio&client=Luis+Farrera+Tattoo
+ *   /ad-spy/analyze?q=water+damage+restoration&client=AV4+Water+Damage
+ */
+app.get('/ad-spy/analyze', async (req, res) => {
+  try {
+    const q       = req.query.q       || 'fitness Orlando';
+    const client  = req.query.client  || 'our client';
+    const country = req.query.country || 'US';
+    const limit   = Math.min(parseInt(req.query.limit) || 20, 50);
+
+    if (!process.env.META_USER_TOKEN && !META_APP_SECRET) {
+      return res.status(500).json({ ok: false, error: 'META_USER_TOKEN not set in Render env vars.' });
+    }
+
+    // ── Step 1: Pull ads from Meta Ad Library ────────────────────────────────
+    const fields = [
+      'id','page_id','page_name',
+      'ad_creative_bodies','ad_creative_link_titles','ad_creative_link_descriptions',
+      'ad_snapshot_url','ad_delivery_start_time','publisher_platforms',
+      'impressions','spend','currency',
+    ].join(',');
+
+    const params = new URLSearchParams({
+      access_token:         META_LIB_TOKEN(),
+      search_terms:         q,
+      ad_reached_countries: JSON.stringify([country]),
+      ad_active_status:     'ACTIVE',
+      fields,
+      limit:                String(limit),
+      search_type:          'KEYWORD_UNORDERED',
+    });
+
+    const { data: fbData } = await axios.get(
+      `https://graph.facebook.com/v19.0/ads_archive?${params.toString()}`,
+      { timeout: 15000 }
+    );
+
+    const rawAds = (fbData.data || []).map(ad => ({
+      page:      ad.page_name || '—',
+      page_id:   ad.page_id,
+      copy:      (ad.ad_creative_bodies || [])[0] || (ad.ad_creative_link_descriptions || [])[0] || '',
+      headline:  (ad.ad_creative_link_titles || [])[0] || '',
+      platforms: ad.publisher_platforms || [],
+      started:   ad.ad_delivery_start_time || null,
+      snapshot:  ad.ad_snapshot_url || null,
+    }));
+
+    if (rawAds.length === 0) {
+      return res.json({
+        ok: true, query: q, client, total: 0,
+        analysis: null,
+        message: 'No active ads found for this search. Try broader terms.',
+        ads: [],
+      });
+    }
+
+    // Sort longest-running first
+    rawAds.sort((a, b) => {
+      const da = a.started ? new Date(a.started) : new Date();
+      const db = b.started ? new Date(b.started) : new Date();
+      return da - db;
+    });
+
+    // ── Step 2: Build Claude prompt ───────────────────────────────────────────
+    const adsText = rawAds.map((ad, i) =>
+      `Ad ${i + 1}:
+  Page: ${ad.page}
+  Headline: ${ad.headline || '(none)'}
+  Copy: ${ad.copy ? ad.copy.slice(0, 400) : '(none)'}
+  Platforms: ${ad.platforms.join(', ')}
+  Running since: ${ad.started || 'unknown'}`
+    ).join('\n\n');
+
+    const prompt = `You are a senior Facebook ads strategist. Analyze these ${rawAds.length} active competitor ads for the search term "${q}". Our client is "${client}".
+
+COMPETITOR ADS:
+${adsText}
+
+Return a JSON object with EXACTLY this structure (no markdown, pure JSON):
+{
+  "threat_level": "low | medium | high",
+  "threat_reason": "one sentence explaining the threat level",
+  "top_hooks": ["hook 1", "hook 2", "hook 3"],
+  "offer_patterns": ["pattern 1", "pattern 2"],
+  "creative_angles": ["angle 1", "angle 2", "angle 3"],
+  "dominant_competitors": [{"name": "page name", "why_they_matter": "one sentence"}],
+  "gap_opportunity": "what no competitor is doing that ${client} should do",
+  "recommended_hook": "the single best opening line ${client} should test first",
+  "recommended_offer": "the best offer ${client} should lead with",
+  "ready_to_use_ad": {
+    "headline": "ad headline for ${client}",
+    "primary_text": "full ad copy for ${client} (3-5 sentences, conversational, ends with CTA)",
+    "cta_button": "LEARN_MORE | SIGN_UP | GET_QUOTE | BOOK_NOW | CONTACT_US"
+  },
+  "marco_brief": "2-3 sentences briefing the content team on what creative to produce based on this intel"
+}`;
+
+    // ── Step 3: Claude analysis ───────────────────────────────────────────────
+    const aiResponse = await anthropic.messages.create({
+      model:      'claude-haiku-4-5-20251001',
+      max_tokens: 1200,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    let analysis = null;
+    const raw = aiResponse.content[0]?.text?.trim() || '';
+    try {
+      // Strip any accidental markdown fences
+      const cleaned = raw.replace(/^```json\s*/i,'').replace(/```$/,'').trim();
+      analysis = JSON.parse(cleaned);
+    } catch {
+      analysis = { parse_error: true, raw_response: raw };
+    }
+
+    // ── Step 4: Return full intelligence package ──────────────────────────────
+    res.json({
+      ok:       true,
+      query:    q,
+      client,
+      country,
+      total:    rawAds.length,
+      analysis,
+      ads:      rawAds,
+      snapshot_links: rawAds.filter(a => a.snapshot).map(a => ({
+        page: a.page,
+        url:  a.snapshot,
+      })),
+    });
+
+  } catch (err) {
+    const fbError = err.response?.data?.error;
+    res.status(500).json({
+      ok:    false,
+      error: fbError?.message || err.message,
+      code:  fbError?.code    || null,
+    });
+  }
+});
+
 // GET /sofia/test-design?industry=roofing&city=Orlando — test AI design system generation
 app.get('/sofia/test-design', async (req, res) => {
   try {
