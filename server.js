@@ -3206,8 +3206,10 @@ Escribe el insight en español. Solo el párrafo, sin títulos.`,
 // PROXY — LUIS FARRERA BOOKING FORM → GHL CONTACTS API
 // Creates contact + note directly via GHL API (bypasses CSP)
 // ═══════════════════════════════════════════════════════════
-const LF_API_KEY     = 'pit-23df4abd-73d1-4fd4-895d-4d4d7c48c8c8';
-const LF_LOCATION_ID = 'Q6FIvQ5WitCeq9wyXZ3L';
+const LF_API_KEY        = 'pit-23df4abd-73d1-4fd4-895d-4d4d7c48c8c8';
+const LF_LOCATION_ID    = 'Q6FIvQ5WitCeq9wyXZ3L';
+const LF_PIPELINE_ID    = 'vQ5x2R2Yoq4wHkrJMSTQ';   // Book Now pipeline
+const LF_STAGE_NEW_INQUIRY = '46c5d35a-bd61-456a-bca6-056884aeab21'; // 🔵 New Inquiry
 const LF_GHL_HEADERS = {
   'Authorization': `Bearer ${LF_API_KEY}`,
   'Version': '2021-07-28',
@@ -3229,7 +3231,7 @@ app.post('/proxy/lf-booking', async (req, res) => {
         email:      email      || '',
         phone:      phone      || '',
         source:     source     || 'Luis Farrera Booking Form',
-        tags:       ['booking-form']
+        tags:       ['booking-form', 'new-inquiry']
       },
       { headers: LF_GHL_HEADERS }
     );
@@ -3239,11 +3241,15 @@ app.post('/proxy/lf-booking', async (req, res) => {
     // Step 2: Add note with tattoo details
     if (contactId) {
       const noteBody = [
+        `📋 BOOKING REQUEST — Luis Farrera Tattoo`,
+        ``,
         `Tattoo concept: ${concept || '—'}`,
         `Placement: ${placement || '—'}`,
         `Size: ${size || '—'}`,
         `Timeline: ${timeline || '—'}`,
-        `Best time to call: ${best_time || '—'}`
+        `Best time to call: ${best_time || '—'}`,
+        ``,
+        `Source: Luis Farrera Booking Form`
       ].join('\n');
 
       await axios.post(
@@ -3252,9 +3258,29 @@ app.post('/proxy/lf-booking', async (req, res) => {
         { headers: LF_GHL_HEADERS }
       );
       console.log(`[LF Booking] Note added to contact ${contactId}`);
+
+      // Step 3: Create opportunity in Book Now pipeline → New Inquiry stage
+      try {
+        const oppName = `${first_name || full_name || 'New'} ${last_name || ''} — Tattoo Booking`.trim();
+        await axios.post(
+          'https://services.leadconnectorhq.com/opportunities/',
+          {
+            pipelineId:      LF_PIPELINE_ID,
+            locationId:      LF_LOCATION_ID,
+            name:            oppName,
+            pipelineStageId: LF_STAGE_NEW_INQUIRY,
+            status:          'open',
+            contactId:       contactId
+          },
+          { headers: LF_GHL_HEADERS }
+        );
+        console.log(`[LF Booking] Opportunity created in Book Now pipeline → New Inquiry`);
+      } catch(oppErr) {
+        console.error('[LF Booking] Opportunity creation error:', oppErr.response?.data || oppErr.message);
+      }
     }
 
-    // Step 3: Also fire the GHL webhook for workflow automation
+    // Step 4: Also fire the GHL webhook for workflow automation
     axios.post(
       'https://services.leadconnectorhq.com/hooks/Q6FIvQ5WitCeq9wyXZ3L/webhook-trigger/6eb41369-d80b-4c90-ba76-f55fe9d4cb60',
       req.body,
