@@ -9113,14 +9113,15 @@ app.get('/ad-spy', async (req, res) => {
       return res.status(500).json({ ok: false, error: 'META_USER_TOKEN not set in Render environment variables.' });
     }
 
+    // Note: singular field names deprecated in v13+, use plural versions
     const fields = [
       'id',
       'page_id',
       'page_name',
-      'ad_creative_body',
-      'ad_creative_link_caption',
-      'ad_creative_link_description',
-      'ad_creative_link_title',
+      'ad_creative_bodies',
+      'ad_creative_link_captions',
+      'ad_creative_link_descriptions',
+      'ad_creative_link_titles',
       'ad_snapshot_url',
       'ad_delivery_start_time',
       'ad_delivery_stop_time',
@@ -9128,7 +9129,6 @@ app.get('/ad-spy', async (req, res) => {
       'impressions',
       'spend',
       'currency',
-      'demographic_distribution',
     ].join(',');
 
     const params = new URLSearchParams({
@@ -9148,9 +9148,10 @@ app.get('/ad-spy', async (req, res) => {
       id:           ad.id,
       page:         ad.page_name || '—',
       page_id:      ad.page_id,
-      copy:         ad.ad_creative_body || ad.ad_creative_link_description || '(no copy)',
-      headline:     ad.ad_creative_link_title || '',
-      caption:      ad.ad_creative_link_caption || '',
+      copy:         (ad.ad_creative_bodies || [])[0] || (ad.ad_creative_link_descriptions || [])[0] || '(no copy)',
+      headline:     (ad.ad_creative_link_titles || [])[0] || '',
+      caption:      (ad.ad_creative_link_captions || [])[0] || '',
+      all_copies:   ad.ad_creative_bodies || [],
       snapshot_url: ad.ad_snapshot_url || null,
       platforms:    ad.publisher_platforms || [],
       started:      ad.ad_delivery_start_time || null,
@@ -9207,7 +9208,7 @@ app.get('/ad-spy/page', async (req, res) => {
     if (!page_id) return res.status(400).json({ ok: false, error: 'page_id required. Get it from /ad-spy results.' });
     if (!META_APP_SECRET) return res.status(500).json({ ok: false, error: 'META_APP_SECRET not set.' });
 
-    const fields = 'id,page_name,ad_creative_body,ad_creative_link_title,ad_snapshot_url,ad_delivery_start_time,impressions,spend,publisher_platforms';
+    const fields = 'id,page_name,ad_creative_bodies,ad_creative_link_titles,ad_snapshot_url,ad_delivery_start_time,impressions,spend,publisher_platforms';
     const params = new URLSearchParams({
       access_token:         META_LIB_TOKEN(),
       search_page_ids:      page_id,
