@@ -9381,6 +9381,213 @@ Return a JSON object with EXACTLY this structure (no markdown, pure JSON):
   }
 });
 
+/**
+ * GET /ad-spy/analyze/all
+ *
+ * Runs competitor ad intelligence for ALL JRZ clients in one call.
+ * Each client has defined search terms matching their industry + location.
+ * Returns a full report per client: threat level, top hooks, ready-to-use ad copy.
+ *
+ * Takes ~30-60 seconds (sequential to avoid rate limits).
+ * Use ?client=SOCF+Fitness to run for a single client by name.
+ */
+app.get('/ad-spy/analyze/all', async (req, res) => {
+  // ── Client → search terms map ─────────────────────────────────────────────
+  const CLIENT_SEARCHES = [
+    {
+      client:  'SOCF Fitness',
+      queries: ['HYROX training', 'functional fitness gym Orlando', 'CrossFit Orlando'],
+    },
+    {
+      client:  'Luis Farrera Tattoo',
+      queries: ['tattoo studio Orlando', 'color tattoo artist', 'custom tattoo booking'],
+    },
+    {
+      client:  'AV4 Water Damage',
+      queries: ['water damage restoration Orlando', 'flood cleanup Orlando', 'emergency water damage'],
+    },
+    {
+      client:  'JR Paver Sealing',
+      queries: ['paver sealing Orlando', 'driveway sealing Orlando', 'paver cleaning restoration'],
+    },
+    {
+      client:  'Lion Junk Removal',
+      queries: ['junk removal Orlando', 'same day junk removal', 'junk hauling Orlando'],
+    },
+    {
+      client:  'Cooney Homes',
+      queries: ['new home builder Orlando', 'custom homes Orlando', 'home construction Florida'],
+    },
+    {
+      client:  'Escobar Kitchen',
+      queries: ['Latin restaurant Orlando', 'Colombian food Orlando', 'restaurant delivery Orlando'],
+    },
+    {
+      client:  'Railing Max',
+      queries: ['stair railing installation', 'iron railing contractor', 'custom railings Florida'],
+    },
+    {
+      client:  'USA Latino CPA',
+      queries: ['tax preparation Latino', 'CPA services Orlando', 'impuestos Orlando contabilidad'],
+    },
+  ];
+
+  // Filter to single client if ?client= param passed
+  const filterClient = req.query.client ? req.query.client.toLowerCase() : null;
+  const targets = filterClient
+    ? CLIENT_SEARCHES.filter(c => c.client.toLowerCase().includes(filterClient))
+    : CLIENT_SEARCHES;
+
+  if (targets.length === 0) {
+    return res.json({ ok: false, error: `No client found matching "${req.query.client}"` });
+  }
+
+  const country = req.query.country || 'US';
+  const results = [];
+
+  // ── Run analysis per client (sequential to respect rate limits) ──────────
+  for (const target of targets) {
+    const clientResult = { client: target.client, queries: [], summary: null };
+
+    // Collect ads across all search terms for this client
+    let allAds = [];
+    for (const q of target.queries) {
+      try {
+        const fields = 'id,page_id,page_name,ad_creative_bodies,ad_creative_link_titles,ad_delivery_start_time,publisher_platforms,ad_snapshot_url';
+        const params = new URLSearchParams({
+          access_token:         META_LIB_TOKEN(),
+          search_terms:         q,
+          ad_reached_countries: JSON.stringify([country]),
+          ad_active_status:     'ACTIVE',
+          fields,
+          limit:                '10',
+          search_type:          'KEYWORD_UNORDERED',
+        });
+        const { data: fbData } = await axios.get(
+          `https://graph.facebook.com/v19.0/ads_archive?${params.toString()}`,
+          { timeout: 12000 }
+        );
+        const ads = (fbData.data || []).map(ad => ({
+          query:     q,
+          page:      ad.page_name || '—',
+          page_id:   ad.page_id,
+          copy:      (ad.ad_creative_bodies || [])[0]?.slice(0, 400) || '',
+          headline:  (ad.ad_creative_link_titles || [])[0] || '',
+          platforms: ad.publisher_platforms || [],
+          started:   ad.ad_delivery_start_time || null,
+          snapshot:  ad.ad_snapshot_url || null,
+        }));
+        allAds = allAds.concat(ads);
+        clientResult.queries.push({ q, count: ads.length });
+      } catch (e) {
+        clientResult.queries.push({ q, count: 0, error: e.message });
+      }
+    }
+
+    // Deduplicate by page+copy
+    const seen = new Set();
+    allAds = allAds.filter(ad => {
+      const key = `${ad.page}|${ad.copy?.slice(0,80)}`;
+      if (seen.has(key)) return false;
+      seen.add(key); return true;
+    });
+
+    // Sort longest-running first
+    allAds.sort((a, b) => {
+      const da = a.started ? new Date(a.started) : new Date();
+      const db = b.started ? new Date(b.started) : new Date();
+      return da - db;
+    });
+
+    clientResult.total_ads = allAds.length;
+    clientResult.ads = allAds;
+
+    if (allAds.length === 0) {
+      clientResult.summary = {
+        threat_level: 'low',
+        threat_reason: 'No active competitor ads found — this is a massive opportunity.',
+        top_hooks: [],
+        offer_patterns: [],
+        gap_opportunity: `Nobody is running paid ads for ${target.client}'s keywords. First-mover wins.`,
+        recommended_hook: `Are you looking for ${target.client.split(' ').slice(-1)[0].toLowerCase()} in Orlando? Here's what makes us different.`,
+        recommended_offer: 'Free consultation / Free trial / Free quote — no competitors to fight',
+        ready_to_use_ad: {
+          headline: `${target.client} | Orlando's Best`,
+          primary_text: `Nobody in Orlando is advertising this right now — which means your next client is searching and finding nobody. We're here. Contact us today.`,
+          cta_button: 'CONTACT_US',
+        },
+        marco_brief: `Zero competitor ads found. ${target.client} can own this space immediately with any creative. Priority: launch fast, own the keyword before someone else does.`,
+      };
+    } else {
+      // Claude analysis
+      try {
+        const adsText = allAds.slice(0, 15).map((ad, i) =>
+          `Ad ${i+1} [query: "${ad.query}"]:\n  Page: ${ad.page}\n  Headline: ${ad.headline || '(none)'}\n  Copy: ${ad.copy || '(none)'}\n  Platforms: ${ad.platforms.join(', ')}\n  Running since: ${ad.started || 'unknown'}`
+        ).join('\n\n');
+
+        const prompt = `You are a senior Facebook ads strategist. Analyze ${allAds.length} active competitor ads across these search terms: ${target.queries.join(', ')}. Our client is "${target.client}" based in Orlando, FL.
+
+COMPETITOR ADS:
+${adsText}
+
+Return ONLY a JSON object (no markdown):
+{
+  "threat_level": "low | medium | high",
+  "threat_reason": "one sentence",
+  "top_hooks": ["hook 1", "hook 2", "hook 3"],
+  "offer_patterns": ["pattern 1", "pattern 2"],
+  "gap_opportunity": "what competitors are NOT doing that ${target.client} should exploit",
+  "recommended_hook": "single best opening line to test",
+  "recommended_offer": "best offer to lead with",
+  "ready_to_use_ad": {
+    "headline": "ad headline for ${target.client}",
+    "primary_text": "full ad copy (3-5 sentences, ends with CTA)",
+    "cta_button": "LEARN_MORE | SIGN_UP | GET_QUOTE | BOOK_NOW | CONTACT_US"
+  },
+  "marco_brief": "2-3 sentences briefing the creative team on what video/image to produce"
+}`;
+
+        const aiResp = await anthropic.messages.create({
+          model:      'claude-haiku-4-5-20251001',
+          max_tokens: 1000,
+          messages:   [{ role: 'user', content: prompt }],
+        });
+
+        const raw = aiResp.content[0]?.text?.trim() || '';
+        const cleaned = raw.replace(/^```json\s*/i,'').replace(/```$/,'').trim();
+        clientResult.summary = JSON.parse(cleaned);
+      } catch (e) {
+        clientResult.summary = { parse_error: true, message: e.message };
+      }
+    }
+
+    results.push(clientResult);
+  }
+
+  // ── Build executive summary across all clients ────────────────────────────
+  const highThreats  = results.filter(r => r.summary?.threat_level === 'high').map(r => r.client);
+  const medThreats   = results.filter(r => r.summary?.threat_level === 'medium').map(r => r.client);
+  const opportunities = results.filter(r => r.summary?.threat_level === 'low').map(r => r.client);
+
+  res.json({
+    ok:          true,
+    generated:   new Date().toISOString(),
+    country,
+    clients_run: results.length,
+    executive_summary: {
+      high_threat:    highThreats,
+      medium_threat:  medThreats,
+      opportunities:  opportunities,
+      priority_action: highThreats.length > 0
+        ? `Launch ads ASAP for: ${highThreats.join(', ')} — competitors are spending heavily`
+        : medThreats.length > 0
+        ? `Monitor and prep creatives for: ${medThreats.join(', ')}`
+        : `All clear — low competition across the board. First-mover wins everywhere.`,
+    },
+    clients: results,
+  });
+});
+
 // GET /sofia/test-design?industry=roofing&city=Orlando — test AI design system generation
 app.get('/sofia/test-design', async (req, res) => {
   try {
