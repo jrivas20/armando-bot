@@ -9083,8 +9083,11 @@ app.post('/sofia/build-website', async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const META_APP_ID     = '1733086424176994';
-const META_APP_SECRET = process.env.META_APP_SECRET; // set in Render env vars
-const META_LIB_TOKEN  = () => `${META_APP_ID}|${META_APP_SECRET}`;
+const META_APP_SECRET = process.env.META_APP_SECRET;
+// User token with ads_read — required for Ad Library API (ads_archive endpoint)
+// Expires ~60 days. Refresh at: https://developers.facebook.com/tools/explorer/
+// App: JRZ Claude AI | Permissions: ads_read, ads_management
+const META_LIB_TOKEN  = () => process.env.META_USER_TOKEN || `${META_APP_ID}|${META_APP_SECRET}`;
 
 /**
  * GET /ad-spy?q=HYROX+Orlando&country=US&status=ACTIVE&limit=20
@@ -9106,8 +9109,8 @@ app.get('/ad-spy', async (req, res) => {
     const status  = req.query.status  || 'ACTIVE';
     const limit   = Math.min(parseInt(req.query.limit) || 20, 50);
 
-    if (!META_APP_SECRET) {
-      return res.status(500).json({ ok: false, error: 'META_APP_SECRET not set in environment variables.' });
+    if (!process.env.META_USER_TOKEN && !META_APP_SECRET) {
+      return res.status(500).json({ ok: false, error: 'META_USER_TOKEN not set in Render environment variables.' });
     }
 
     const fields = [
