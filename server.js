@@ -9078,6 +9078,157 @@ app.post('/sofia/build-website', async (req, res) => {
   }
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// META AD LIBRARY — Competitor intelligence via Facebook Ad Library API
+// ─────────────────────────────────────────────────────────────────────────────
+
+const META_APP_ID     = '1733086424176994';
+const META_APP_SECRET = process.env.META_APP_SECRET; // set in Render env vars
+const META_LIB_TOKEN  = () => `${META_APP_ID}|${META_APP_SECRET}`;
+
+/**
+ * GET /ad-spy?q=HYROX+Orlando&country=US&status=ACTIVE&limit=20
+ *
+ * Searches the Facebook Ad Library for active ads matching a keyword.
+ * Returns: page_name, ad copy, snapshot URL, platforms, start date, impressions, spend
+ *
+ * Examples:
+ *   /ad-spy?q=HYROX+Orlando          → fitness competitor research
+ *   /ad-spy?q=water+damage+Orlando   → AV4 competitor research
+ *   /ad-spy?q=tattoo+studio+Orlando  → Luis Farrera competitor research
+ *   /ad-spy?q=junk+removal+Orlando   → Lion Junk Removal competitor research
+ *   /ad-spy?q=pavers+Orlando         → JR Paver competitor research
+ */
+app.get('/ad-spy', async (req, res) => {
+  try {
+    const q       = req.query.q       || 'fitness Orlando';
+    const country = req.query.country || 'US';
+    const status  = req.query.status  || 'ACTIVE';
+    const limit   = Math.min(parseInt(req.query.limit) || 20, 50);
+
+    if (!META_APP_SECRET) {
+      return res.status(500).json({ ok: false, error: 'META_APP_SECRET not set in environment variables.' });
+    }
+
+    const fields = [
+      'id',
+      'page_id',
+      'page_name',
+      'ad_creative_body',
+      'ad_creative_link_caption',
+      'ad_creative_link_description',
+      'ad_creative_link_title',
+      'ad_snapshot_url',
+      'ad_delivery_start_time',
+      'ad_delivery_stop_time',
+      'publisher_platforms',
+      'impressions',
+      'spend',
+      'currency',
+      'demographic_distribution',
+    ].join(',');
+
+    const params = new URLSearchParams({
+      access_token:        META_LIB_TOKEN(),
+      search_terms:        q,
+      ad_reached_countries: JSON.stringify([country]),
+      ad_active_status:    status,
+      fields,
+      limit:               String(limit),
+      search_type:         'KEYWORD_UNORDERED',
+    });
+
+    const url = `https://graph.facebook.com/v19.0/ads_archive?${params.toString()}`;
+    const { data } = await axios.get(url, { timeout: 15000 });
+
+    const ads = (data.data || []).map(ad => ({
+      id:           ad.id,
+      page:         ad.page_name || '—',
+      page_id:      ad.page_id,
+      copy:         ad.ad_creative_body || ad.ad_creative_link_description || '(no copy)',
+      headline:     ad.ad_creative_link_title || '',
+      caption:      ad.ad_creative_link_caption || '',
+      snapshot_url: ad.ad_snapshot_url || null,
+      platforms:    ad.publisher_platforms || [],
+      started:      ad.ad_delivery_start_time || null,
+      stopped:      ad.ad_delivery_stop_time  || null,
+      impressions:  ad.impressions  || null,
+      spend:        ad.spend        || null,
+      currency:     ad.currency     || 'USD',
+    }));
+
+    // Sort: longest-running first (best signal of profitable ad)
+    ads.sort((a, b) => {
+      const da = a.started ? new Date(a.started) : new Date();
+      const db = b.started ? new Date(b.started) : new Date();
+      return da - db;
+    });
+
+    res.json({
+      ok:     true,
+      query:  q,
+      country,
+      status,
+      total:  ads.length,
+      note:   ads.length === 0
+        ? 'No ads found. Try broader terms or check that Marketing API is enabled on your app.'
+        : `${ads.length} ads found — sorted by longest-running first (these are profitable).`,
+      ads,
+      paging: data.paging || null,
+    });
+
+  } catch (err) {
+    const fbError = err.response?.data?.error;
+    res.status(500).json({
+      ok:    false,
+      error: fbError?.message || err.message,
+      code:  fbError?.code    || null,
+      hint:  fbError?.code === 190
+        ? 'Invalid access token — check APP_ID and META_APP_SECRET in Render env vars.'
+        : fbError?.code === 100
+        ? 'Marketing API not enabled on your app — go to developers.facebook.com/apps/1733086424176994/add-product/ and add Marketing API.'
+        : 'Check Render logs for full stack trace.',
+    });
+  }
+});
+
+/**
+ * GET /ad-spy/page?page_id=123456&country=US&limit=10
+ *
+ * Pull ALL active ads from a SPECIFIC competitor page.
+ * Use this when you find a strong competitor in /ad-spy and want to see everything they're running.
+ */
+app.get('/ad-spy/page', async (req, res) => {
+  try {
+    const { page_id, country = 'US', limit = 10 } = req.query;
+    if (!page_id) return res.status(400).json({ ok: false, error: 'page_id required. Get it from /ad-spy results.' });
+    if (!META_APP_SECRET) return res.status(500).json({ ok: false, error: 'META_APP_SECRET not set.' });
+
+    const fields = 'id,page_name,ad_creative_body,ad_creative_link_title,ad_snapshot_url,ad_delivery_start_time,impressions,spend,publisher_platforms';
+    const params = new URLSearchParams({
+      access_token:         META_LIB_TOKEN(),
+      search_page_ids:      page_id,
+      ad_reached_countries: JSON.stringify([country]),
+      ad_active_status:     'ACTIVE',
+      fields,
+      limit:                String(Math.min(parseInt(limit) || 10, 50)),
+    });
+
+    const { data } = await axios.get(`https://graph.facebook.com/v19.0/ads_archive?${params.toString()}`, { timeout: 15000 });
+
+    res.json({
+      ok:    true,
+      page_id,
+      total: (data.data || []).length,
+      ads:   data.data || [],
+    });
+
+  } catch (err) {
+    const fbError = err.response?.data?.error;
+    res.status(500).json({ ok: false, error: fbError?.message || err.message, code: fbError?.code || null });
+  }
+});
+
 // GET /sofia/test-design?industry=roofing&city=Orlando — test AI design system generation
 app.get('/sofia/test-design', async (req, res) => {
   try {
