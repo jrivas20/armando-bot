@@ -16568,6 +16568,76 @@ app.get('/generate-image/styles', (_req, res) => {
   res.json({ styles: Object.keys(STYLE_PROMPTS), provider: 'pollinations.ai', cost: 'free' });
 });
 
+// ─── Hero Video Finder — Pexels (Free, No Watermark) ─────────────────────────
+// GET /hero-video?query=tattoo+artist&orientation=landscape&size=large
+// Returns best cinematic video URL ready to use in <video> tags on any website
+// orientation: landscape (default) | portrait | square
+// size: large (1080p+) | medium (720p) | small
+
+const PEXELS_VIDEO_NICHES = {
+  tattoo:       'tattoo artist studio cinematic',
+  restaurant:   'restaurant food cinematic luxury',
+  construction: 'construction building cinematic',
+  gym:          'gym fitness workout cinematic',
+  photography:  'photographer cinematic dark studio',
+  wedding:      'wedding cinematic luxury',
+  realestate:   'luxury real estate home cinematic',
+  spa:          'spa wellness luxury cinematic',
+  barbershop:   'barbershop haircut cinematic',
+  law:          'law office professional cinematic',
+  dental:       'dental clinic modern cinematic',
+  roofing:      'roofing construction aerial cinematic',
+  cleaning:     'cleaning service professional cinematic',
+  plumbing:     'plumbing service cinematic',
+  landscape:    'landscape gardening cinematic',
+};
+
+app.get('/hero-video', async (req, res) => {
+  const { query, orientation = 'landscape', size = 'large', niche } = req.query;
+
+  const searchQuery = query || PEXELS_VIDEO_NICHES[niche] || 'cinematic business professional';
+
+  try {
+    const response = await axios.get('https://api.pexels.com/videos/search', {
+      headers: { Authorization: PEXELS_API_KEY },
+      params: { query: searchQuery, orientation, size, per_page: 5, page: 1 },
+    });
+
+    const videos = response.data.videos;
+    if (!videos || videos.length === 0) return res.status(404).json({ error: 'No videos found' });
+
+    // Pick the best quality file from the first result
+    const top = videos[0];
+    const files = top.video_files.sort((a, b) => b.width - a.width);
+    const best  = files.find(f => f.width >= 1280) || files[0];
+    const thumb = files.find(f => f.width <= 640)  || files[files.length - 1];
+
+    res.json({
+      status:      'ok',
+      query:       searchQuery,
+      videoUrl:    best.link,       // use in <video src="..."> — full quality
+      thumbUrl:    thumb.link,      // low-res version for mobile / lazy load
+      previewUrl:  top.image,       // static poster frame for before video loads
+      width:       best.width,
+      height:      best.height,
+      duration:    top.duration,
+      photographer: top.user.name,
+      pexelsUrl:   top.url,
+      // Drop-in HTML snippet ready to paste into any GHL page
+      htmlSnippet: `<video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:0" poster="${top.image}"><source src="${best.link}" type="video/mp4"></video>`,
+    });
+
+  } catch (err) {
+    console.error('[Hero Video] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /hero-video/niches — list all available niche shortcuts
+app.get('/hero-video/niches', (_req, res) => {
+  res.json({ niches: Object.keys(PEXELS_VIDEO_NICHES), usage: 'GET /hero-video?niche=tattoo' });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
