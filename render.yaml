@@ -49,3 +49,5 @@ services:
         value: KKnsOB57rfTFv5cuySAq8I9xm0ek6AiKZo4xeOURePlXJvnnw4EDbBdg
       - key: STITCH_API_KEY
         sync: false
+      - key: HF_API_KEY
+        sync: false

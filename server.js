@@ -16496,6 +16496,78 @@ app.post('/meta/ads-monitor', async (req, res) => {
   runMetaAdsMonitor();
 });
 
+// ─── Image Generation — Hugging Face (Free Tier) ─────────────────────────────
+// POST /generate-image
+// Body: { prompt, style?, client?, type? }
+// style options: "cinematic", "luxury", "editorial", "product", "social"
+// type options: "hero", "social", "ad", "portfolio"
+// Returns: { imageUrl } — base64 PNG converted to data URL OR Cloudinary URL
+const HF_API_KEY = process.env.HF_API_KEY;
+const HF_MODEL   = 'black-forest-labs/FLUX.1-schnell'; // best free model — fast + high quality
+
+const STYLE_PROMPTS = {
+  cinematic:  'cinematic photography, dramatic lighting, film grain, dark moody atmosphere, professional color grading, 8K',
+  luxury:     'luxury brand photography, editorial style, clean minimalist, high-end aesthetic, soft natural light, 8K',
+  editorial:  'editorial photography, magazine quality, sharp focus, professional studio lighting, high contrast, 8K',
+  product:    'product photography, white background, studio lighting, sharp details, commercial quality, 8K',
+  social:     'social media content, vibrant colors, modern aesthetic, eye-catching composition, 4K',
+};
+
+async function generateHFImage(prompt, style = 'luxury') {
+  const styleModifier = STYLE_PROMPTS[style] || STYLE_PROMPTS.luxury;
+  const fullPrompt    = `${prompt}, ${styleModifier}`;
+
+  const response = await axios.post(
+    `https://api-inference.huggingface.co/models/${HF_MODEL}`,
+    { inputs: fullPrompt, parameters: { num_inference_steps: 4, guidance_scale: 0 } },
+    {
+      headers: { Authorization: `Bearer ${HF_API_KEY}`, 'Content-Type': 'application/json' },
+      responseType: 'arraybuffer',
+      timeout: 60000,
+    }
+  );
+
+  // Convert binary to base64 data URL
+  const base64 = Buffer.from(response.data).toString('base64');
+  return `data:image/png;base64,${base64}`;
+}
+
+app.post('/generate-image', async (req, res) => {
+  const { prompt, style = 'luxury', client = 'JRZ', type = 'social' } = req.body;
+
+  if (!prompt) return res.status(400).json({ error: 'prompt is required' });
+  if (!HF_API_KEY) return res.status(500).json({ error: 'HF_API_KEY not set in environment' });
+
+  try {
+    console.log(`[Image Gen] Client: ${client} | Type: ${type} | Style: ${style}`);
+    console.log(`[Image Gen] Prompt: ${prompt}`);
+
+    const imageUrl = await generateHFImage(prompt, style);
+
+    res.json({
+      status: 'ok',
+      client,
+      type,
+      style,
+      prompt,
+      imageUrl, // base64 data URL — paste directly into <img src="..."> or save as file
+    });
+
+    console.log(`[Image Gen] ✅ Done — ${client} ${type}`);
+  } catch (err) {
+    const msg = err.response?.status === 503
+      ? 'Model is loading — try again in 20 seconds'
+      : err.message;
+    console.error('[Image Gen] Error:', msg);
+    res.status(500).json({ error: msg });
+  }
+});
+
+// GET /generate-image/styles — list all available styles
+app.get('/generate-image/styles', (_req, res) => {
+  res.json({ styles: Object.keys(STYLE_PROMPTS), model: HF_MODEL });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
