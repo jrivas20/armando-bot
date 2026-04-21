@@ -8,7 +8,7 @@ const crypto = require('crypto');
 const FormData = require('form-data');
 
 // ─── Google Ads Service ───────────────────────────────────────────────────────
-const googleAds = require('../meta-ai-engine/services/google-ads-service');
+const googleAds = require('./services/google-ads-service');
 
 // ─── Shared helpers (retry, cron logging, build hash) ────────────────────────
 const {
@@ -16784,6 +16784,27 @@ app.post('/google-ads/campaign/status', async (req, res) => {
     res.json({ ok: true, customerId: cid, campaignResourceName, status, result });
   } catch (err) {
     console.error('[GoogleAds] campaign/status error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /google-ads/unlink — remove a sub-account from MCC 646-514-4890
+// Body: { cid: "1234567890" }  ← customer ID of the account to unlink
+// Does NOT delete the account — just severs the manager link
+app.post('/google-ads/unlink', async (req, res) => {
+  try {
+    const { cid } = req.body;
+    if (!cid) return res.status(400).json({ ok: false, error: 'Required: cid (customer ID to unlink)' });
+
+    // Safety: never unlink your own JRZ account
+    if (cid.replace(/-/g, '') === DEFAULT_ADS_CUSTOMER) {
+      return res.status(400).json({ ok: false, error: 'Cannot unlink your own JRZ Marketing account' });
+    }
+
+    const result = await googleAds.unlinkSubAccount(cid);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error('[GoogleAds] unlink error:', err.message);
     res.status(500).json({ ok: false, error: err.message });
   }
 });
