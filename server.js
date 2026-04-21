@@ -3611,6 +3611,25 @@ app.post('/webhook/angi-lead', async (req, res) => {
         { headers }
       ).catch(e => console.error('[CooneyAngi] opp error:', e.response?.data || e.message));
       console.log(`[CooneyAngi] Opportunity created: ${oppTitle}`);
+
+      // ── 3. Create task (no SMS) ──────────────────────────────
+      const dueDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      const taskBody = [
+        `New Angi lead — follow up within 24 hours.`,
+        service   ? `Service: ${service}`        : '',
+        phone     ? `Phone: ${phone}`            : '',
+        leadEmail ? `Email: ${leadEmail}`        : '',
+        comments  ? `Comments: ${comments}`      : '',
+        jobNum    ? `Angi Job #: ${jobNum}`      : '',
+        `View lead: https://pro.angi.com`,
+      ].filter(Boolean).join('\n');
+
+      await axios.post(
+        `https://services.leadconnectorhq.com/contacts/${contactId}/tasks`,
+        { title: `Follow up — Angi: ${leadName}`, body: taskBody, dueDate, completed: false },
+        { headers }
+      ).catch(e => console.error('[CooneyAngi] task error:', e.response?.data || e.message));
+      console.log(`[CooneyAngi] Task created for: ${leadName}`);
     }
 
   } catch(err) { console.error('[CooneyAngi] Error:',err.message); }
@@ -5261,36 +5280,24 @@ app.post('/webhook/angi-lead', async (req, res) => {
       console.log(`[CooneyLead] Opportunity created: ${source} Lead — ${leadName}`);
     }
 
-    // ── 3. SMS Spencer ───────────────────────────────────────
-    const now = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    // ── 3. Create Task for Spencer + Lincoln ─────────────────
     const loginUrl = source === 'Angi' ? 'https://pro.angi.com' : source === 'Houzz' ? 'https://www.houzz.com/pro' : '';
-    const smsMsg = `🏠 New ${source} Lead!\n\n${leadName} sent an inquiry.\n\nContact + opportunity created in GHL.\n${loginUrl ? `\nLog into ${source} for phone + email:\n${loginUrl}\n` : ''}\n— ${now}`;
+    const SPENCER_CONTACT = 'u0kqHFG9AzDVnbn4JVL5'; // Spencer Cooney user ID
+    const dueDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // due tomorrow
 
-    // Search for Spencer's contact to send SMS via GHL
-    const spencerSearch = await axios.get(
-      `https://services.leadconnectorhq.com/contacts/?locationId=${COONEY_LOC}&query=490-3632&limit=3`,
-      { headers }
-    ).catch(() => null);
-
-    let spencerContactId = spencerSearch?.data?.contacts?.[0]?.id;
-
-    // If not found, create Spencer as internal contact
-    if (!spencerContactId) {
-      const sc = await axios.post(
-        'https://services.leadconnectorhq.com/contacts/',
-        { firstName: 'Spencer', lastName: 'Cooney', phone: SPENCER_PHONE, locationId: COONEY_LOC, tags: ['internal-team'] },
-        { headers }
-      ).catch(() => null);
-      spencerContactId = sc?.data?.contact?.id;
-    }
-
-    if (spencerContactId) {
+    if (contactId) {
       await axios.post(
-        'https://services.leadconnectorhq.com/conversations/messages',
-        { type: 'SMS', contactId: spencerContactId, locationId: COONEY_LOC, message: smsMsg },
+        `https://services.leadconnectorhq.com/contacts/${contactId}/tasks`,
+        {
+          title: `Follow up — ${source} Lead: ${leadName}`,
+          body: `New ${source} lead came in. Contact + opportunity created in GHL.\n${loginUrl ? `Log into ${source} for phone/email: ${loginUrl}` : ''}`,
+          dueDate,
+          assignedTo: SPENCER_CONTACT,
+          completed: false,
+        },
         { headers }
-      ).catch(e => console.error('[Angi] SMS error:', e.response?.data || e.message));
-      console.log(`[Angi] SMS sent to Spencer for lead: ${leadName}`);
+      ).catch(e => console.error('[Angi] Task error:', e.response?.data || e.message));
+      console.log(`[Angi] Task created for lead: ${leadName}`);
     }
 
   } catch (err) {
