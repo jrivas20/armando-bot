@@ -16503,7 +16503,7 @@ app.post('/meta/ads-monitor', async (req, res) => {
 // type options: "hero", "social", "ad", "portfolio"
 // Returns: { imageUrl } — base64 PNG converted to data URL OR Cloudinary URL
 const HF_API_KEY = process.env.HF_API_KEY;
-const HF_MODEL   = 'black-forest-labs/FLUX.1-schnell'; // best free model — fast + high quality
+const HF_MODEL   = 'stabilityai/stable-diffusion-xl-base-1.0'; // SDXL — best no-license free model
 
 const STYLE_PROMPTS = {
   cinematic:  'cinematic photography, dramatic lighting, film grain, dark moody atmosphere, professional color grading, 8K',
@@ -16519,7 +16519,7 @@ async function generateHFImage(prompt, style = 'luxury') {
 
   const response = await axios.post(
     `https://api-inference.huggingface.co/models/${HF_MODEL}`,
-    { inputs: fullPrompt, parameters: { num_inference_steps: 4, guidance_scale: 0 } },
+    { inputs: fullPrompt, parameters: { num_inference_steps: 30, guidance_scale: 7.5 } },
     {
       headers: { Authorization: `Bearer ${HF_API_KEY}`, 'Content-Type': 'application/json' },
       responseType: 'arraybuffer',
