@@ -16650,6 +16650,35 @@ app.get('/hero-video/niches', (_req, res) => {
 
 const DEFAULT_ADS_CUSTOMER = '5192590797';
 
+// GET /google-ads/accounts — list ALL accounts accessible under MCC 646-514-4890
+// Use this to discover customer IDs for every client and verify access
+app.get('/google-ads/accounts', async (req, res) => {
+  try {
+    const accounts = await googleAds.listAccessibleCustomers();
+
+    // Cross-reference with known client configs
+    const CLIENT_MAP = {
+      '5192590797': 'JRZ Marketing',
+    };
+
+    const enriched = accounts.map(a => ({
+      ...a,
+      knownClient: CLIENT_MAP[a.customerId] || null,
+    }));
+
+    res.json({
+      ok: true,
+      mcc: googleAds.MANAGER_ID,
+      total: enriched.length,
+      accounts: enriched,
+      note: 'Match customerId values to your clients, then update their config files',
+    });
+  } catch (err) {
+    console.error('[GoogleAds] accounts error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // GET /google-ads/test — verify API connection, returns account summary
 app.get('/google-ads/test', async (req, res) => {
   try {
