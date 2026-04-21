@@ -146,6 +146,15 @@ GET  /sofia/preview-page?industry=&city=&name=&phone=
 GET  /sofia/pagespeed?url=
 GET  /sofia/search-console?url=
 POST /cron/*  (manual triggers for all cron functions)
+GET  /generate-image        (Pollinations.ai — body: { prompt, style, width, height })
+GET  /hero-video?niche=     (Pexels 4K cinematic video by niche shortcut)
+GET  /hero-video/niches     (list all niche shortcuts)
+GET  /google-ads/test?cid=  (verify API connection, returns account summary)
+GET  /google-ads/performance?cid=&days=  (campaign + keyword + ad performance)
+GET  /google-ads/report?cid=&name=       (full weekly report with pacing alerts)
+POST /google-ads/build-campaign          (create full search campaign stack, starts PAUSED)
+POST /google-ads/campaign/status         (pause or enable a campaign)
+POST /google-ads/query                   (run raw GAQL query)
 ```
 
 ---

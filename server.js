@@ -7,6 +7,9 @@ const path = require('path');
 const crypto = require('crypto');
 const FormData = require('form-data');
 
+// ─── Google Ads Service ───────────────────────────────────────────────────────
+const googleAds = require('../meta-ai-engine/services/google-ads-service');
+
 // ─── Shared helpers (retry, cron logging, build hash) ────────────────────────
 const {
   SERVER_START_TIME, BUILD_HASH,
@@ -16636,6 +16639,138 @@ app.get('/hero-video', async (req, res) => {
 // GET /hero-video/niches — list all available niche shortcuts
 app.get('/hero-video/niches', (_req, res) => {
   res.json({ niches: Object.keys(PEXELS_VIDEO_NICHES), usage: 'GET /hero-video?niche=tattoo' });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GOOGLE ADS ENDPOINTS
+// Developer Token: saVkv7v1x6X9dsnDyPVCYg | MCC: 646-514-4890
+// Basic Access approved April 20, 2026
+// Default customer: 5192590797 (JRZ Marketing)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DEFAULT_ADS_CUSTOMER = '5192590797';
+
+// GET /google-ads/test — verify API connection, returns account summary
+app.get('/google-ads/test', async (req, res) => {
+  try {
+    const customerId = req.query.cid || DEFAULT_ADS_CUSTOMER;
+    const summary = await googleAds.getAccountSummary(customerId, 30);
+    res.json({ ok: true, customerId, summary });
+  } catch (err) {
+    console.error('[GoogleAds] test error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// GET /google-ads/performance?cid=5192590797&days=7 — campaign performance
+app.get('/google-ads/performance', async (req, res) => {
+  try {
+    const customerId = req.query.cid || DEFAULT_ADS_CUSTOMER;
+    const days = parseInt(req.query.days) || 7;
+    const [campaigns, keywords, ads] = await Promise.all([
+      googleAds.getCampaignPerformance(customerId, days),
+      googleAds.getKeywordPerformance(customerId, days),
+      googleAds.getAdPerformance(customerId, days),
+    ]);
+    res.json({ ok: true, customerId, days, campaigns, keywords, ads });
+  } catch (err) {
+    console.error('[GoogleAds] performance error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// GET /google-ads/report?cid=5192590797&days=30 — full weekly report with budget pacing alerts
+app.get('/google-ads/report', async (req, res) => {
+  try {
+    const customerId = req.query.cid || DEFAULT_ADS_CUSTOMER;
+    const clientName = req.query.name || 'JRZ Marketing';
+    const report = await googleAds.getWeeklyReport(customerId, clientName);
+    res.json({ ok: true, customerId, report });
+  } catch (err) {
+    console.error('[GoogleAds] report error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /google-ads/build-campaign — build full search campaign (paused by default)
+// Body: { cid, name, budget, keywords, headlines, descriptions, finalUrl, location }
+// Example: { name: "JRZ Marketing - Local SEO", budget: 15, keywords: ["seo agency houston"], ... }
+app.post('/google-ads/build-campaign', async (req, res) => {
+  try {
+    const {
+      cid = DEFAULT_ADS_CUSTOMER,
+      name,
+      budget,
+      keywords = [],
+      headlines = [],
+      descriptions = [],
+      finalUrl,
+      location = 'Houston, TX',
+      matchType = 'PHRASE',
+    } = req.body;
+
+    if (!name || !budget || !keywords.length || !headlines.length || !descriptions.length || !finalUrl) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Required: name, budget, keywords[], headlines[], descriptions[], finalUrl',
+        example: {
+          cid: '5192590797',
+          name: 'JRZ Marketing - Local SEO',
+          budget: 15,
+          keywords: ['seo agency houston', 'digital marketing houston'],
+          headlines: ['Houston SEO Agency', 'Grow Your Business Online', 'Top Digital Marketing'],
+          descriptions: ['Get more leads with proven SEO strategy.', 'We grow Houston businesses online.'],
+          finalUrl: 'https://jrzmarketing.com',
+          location: 'Houston, TX',
+        },
+      });
+    }
+
+    const result = await googleAds.buildSearchCampaign(cid, {
+      name, budget, keywords, headlines, descriptions, finalUrl, location, matchType,
+    });
+
+    res.json({ ok: true, customerId: cid, result, note: 'Campaign created PAUSED — enable manually after review' });
+  } catch (err) {
+    console.error('[GoogleAds] build-campaign error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /google-ads/campaign/status — pause or enable a campaign
+// Body: { cid, campaignResourceName, status: "PAUSED" | "ENABLED" }
+app.post('/google-ads/campaign/status', async (req, res) => {
+  try {
+    const {
+      cid = DEFAULT_ADS_CUSTOMER,
+      campaignResourceName,
+      status = 'PAUSED',
+    } = req.body;
+
+    if (!campaignResourceName) {
+      return res.status(400).json({ ok: false, error: 'Required: campaignResourceName (e.g. customers/5192590797/campaigns/12345)' });
+    }
+
+    const result = await googleAds.setCampaignStatus(cid, campaignResourceName, status.toUpperCase());
+    res.json({ ok: true, customerId: cid, campaignResourceName, status, result });
+  } catch (err) {
+    console.error('[GoogleAds] campaign/status error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /google-ads/query — run raw GAQL query (power users only)
+// Body: { cid, query }
+app.post('/google-ads/query', async (req, res) => {
+  try {
+    const { cid = DEFAULT_ADS_CUSTOMER, query } = req.body;
+    if (!query) return res.status(400).json({ ok: false, error: 'Required: query (GAQL string)' });
+    const rows = await googleAds.gaqlSearch(cid, query);
+    res.json({ ok: true, customerId: cid, rowCount: rows.length, rows });
+  } catch (err) {
+    console.error('[GoogleAds] query error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
