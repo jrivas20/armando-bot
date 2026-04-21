@@ -16496,14 +16496,12 @@ app.post('/meta/ads-monitor', async (req, res) => {
   runMetaAdsMonitor();
 });
 
-// ─── Image Generation — Hugging Face (Free Tier) ─────────────────────────────
+// ─── Image Generation — Pollinations.ai (100% Free, No Key) ──────────────────
 // POST /generate-image
-// Body: { prompt, style?, client?, type? }
+// Body: { prompt, style?, client?, type?, width?, height? }
 // style options: "cinematic", "luxury", "editorial", "product", "social"
 // type options: "hero", "social", "ad", "portfolio"
-// Returns: { imageUrl } — base64 PNG converted to data URL OR Cloudinary URL
-const HF_API_KEY = process.env.HF_API_KEY;
-const HF_MODEL   = 'stabilityai/stable-diffusion-xl-base-1.0'; // SDXL — best no-license free model
+// Returns: { imageUrl } — direct JPEG URL (hotlinkable) + base64 for embedding
 
 const STYLE_PROMPTS = {
   cinematic:  'cinematic photography, dramatic lighting, film grain, dark moody atmosphere, professional color grading, 8K',
@@ -16513,59 +16511,61 @@ const STYLE_PROMPTS = {
   social:     'social media content, vibrant colors, modern aesthetic, eye-catching composition, 4K',
 };
 
-async function generateHFImage(prompt, style = 'luxury') {
+async function generatePollinationsImage(prompt, style = 'luxury', width = 1024, height = 1024) {
   const styleModifier = STYLE_PROMPTS[style] || STYLE_PROMPTS.luxury;
-  const fullPrompt    = `${prompt}, ${styleModifier}`;
+  const fullPrompt    = encodeURIComponent(`${prompt}, ${styleModifier}`);
+  const url           = `https://image.pollinations.ai/prompt/${fullPrompt}?width=${width}&height=${height}&nologo=true&enhance=true`;
 
-  const response = await axios.post(
-    `https://api-inference.huggingface.co/models/${HF_MODEL}`,
-    { inputs: fullPrompt, parameters: { num_inference_steps: 30, guidance_scale: 7.5 } },
-    {
-      headers: { Authorization: `Bearer ${HF_API_KEY}`, 'Content-Type': 'application/json' },
-      responseType: 'arraybuffer',
-      timeout: 60000,
-    }
-  );
+  const response = await axios.get(url, { responseType: 'arraybuffer', timeout: 60000 });
 
-  // Convert binary to base64 data URL
-  const base64 = Buffer.from(response.data).toString('base64');
-  return `data:image/png;base64,${base64}`;
+  const base64   = Buffer.from(response.data).toString('base64');
+  const dataUrl  = `data:image/jpeg;base64,${base64}`;
+  return { dataUrl, directUrl: url };
 }
 
 app.post('/generate-image', async (req, res) => {
-  const { prompt, style = 'luxury', client = 'JRZ', type = 'social' } = req.body;
+  const { prompt, style = 'luxury', client = 'JRZ', type = 'social', width = 1024, height = 1024 } = req.body;
 
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
-  if (!HF_API_KEY) return res.status(500).json({ error: 'HF_API_KEY not set in environment' });
 
   try {
     console.log(`[Image Gen] Client: ${client} | Type: ${type} | Style: ${style}`);
     console.log(`[Image Gen] Prompt: ${prompt}`);
 
-    const imageUrl = await generateHFImage(prompt, style);
+    const { dataUrl, directUrl } = await generatePollinationsImage(prompt, style, width, height);
 
     res.json({
-      status: 'ok',
+      status:     'ok',
       client,
       type,
       style,
       prompt,
-      imageUrl, // base64 data URL — paste directly into <img src="..."> or save as file
+      imageUrl:   dataUrl,    // base64 — use in <img src="..."> directly
+      directUrl,              // hotlink URL — use in HTML templates or GHL pages
+      provider:   'pollinations.ai',
     });
 
     console.log(`[Image Gen] ✅ Done — ${client} ${type}`);
   } catch (err) {
-    const msg = err.response?.status === 503
-      ? 'Model is loading — try again in 20 seconds'
-      : err.message;
-    console.error('[Image Gen] Error:', msg);
-    res.status(500).json({ error: msg });
+    console.error('[Image Gen] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /generate-image/preview?prompt=...&style=... — returns the image directly in browser
+app.get('/generate-image/preview', async (req, res) => {
+  const { prompt = 'luxury brand photo', style = 'luxury', width = 1024, height = 1024 } = req.query;
+  try {
+    const { dataUrl } = await generatePollinationsImage(prompt, style, Number(width), Number(height));
+    res.send(`<html><body style="margin:0;background:#000"><img src="${dataUrl}" style="max-width:100%;display:block;margin:auto"></body></html>`);
+  } catch (err) {
+    res.status(500).send(`Error: ${err.message}`);
   }
 });
 
 // GET /generate-image/styles — list all available styles
 app.get('/generate-image/styles', (_req, res) => {
-  res.json({ styles: Object.keys(STYLE_PROMPTS), model: HF_MODEL });
+  res.json({ styles: Object.keys(STYLE_PROMPTS), provider: 'pollinations.ai', cost: 'free' });
 });
 
 const PORT = process.env.PORT || 3000;
