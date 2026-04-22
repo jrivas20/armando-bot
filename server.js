@@ -16823,6 +16823,11 @@ app.post('/google-ads/query', async (req, res) => {
   }
 });
 
+// ── AMS Glazing — Static homepage (Wix iframe embed) ─────────────────────────
+app.get('/sofia/ams-glazing', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'ams-glazing-home.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
