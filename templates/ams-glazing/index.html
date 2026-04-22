@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMS Glazing | Commercial & Industrial Glazing Contractor in Houston, TX</title>
+  <meta name="description" content="AMS Glazing is a Houston-based commercial and industrial glazing contractor specializing in storefront systems, curtain walls, impact-rated glass, and emergency glass repair. Call for a free estimate.">
+  <meta name="keywords" content="commercial glazing Houston, glazing contractor Houston TX, commercial glass Houston, industrial glazing Houston, storefront glass Houston, curtain wall contractor Houston, commercial glass installation Houston">
+  <meta name="geo.region" content="US-TX">
+  <meta name="geo.placename" content="Houston, TX">
+  <link rel="icon" href="https://static.wixstatic.com/media/e1b08d_dd79d1aa179a46d8811b9ca599eda965~mv2.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"LocalBusiness","name":"AMS Glazing","description":"Commercial and industrial glazing contractor in Houston, TX","telephone":"+12816912338","email":"dalvarezmedina@amsglazing.com","url":"https://amsglazing.info","address":{"@type":"PostalAddress","addressLocality":"Houston","addressRegion":"TX","addressCountry":"US"},"areaServed":["Houston","Katy","Sugar Land","The Woodlands","Pearland","Cypress","Pasadena","Baytown"],"sameAs":["https://amsglazing.info"]}
+  </script>
+  <style>
+    :root{--obs:#0c0e13;--mid:#141820;--blue:#3478d6;--blue-l:#5a9cf0;--white:#fff;--gray:#8892a4;--card:#1a2030;--border:rgba(52,120,214,.18);--glow:rgba(52,120,214,.12);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--obs);color:var(--white);font-family:'Montserrat',sans-serif;line-height:1.6;overflow-x:hidden;animation:fadeIn .5s ease;}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    img{max-width:100%;}
+    a{text-decoration:none;color:inherit;}
+
+    /* NAV */
+    nav{position:fixed;top:0;width:100%;z-index:1000;padding:22px 60px;display:flex;align-items:center;justify-content:space-between;transition:all .35s;}
+    nav.scrolled{background:rgba(12,14,19,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:14px 60px;border-bottom:1px solid var(--border);}
+    .nav-logo img{height:42px;display:block;}
+    .nav-links{display:flex;gap:36px;align-items:center;}
+    .nav-links a{color:rgba(255,255,255,.78);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;position:relative;transition:color .25s;}
+    .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;background:var(--blue);transition:width .3s;}
+    .nav-links a:hover{color:#fff;}
+    .nav-links a:hover::after{width:100%;}
+    .nav-links a.active{color:#fff;}
+    .nav-links a.active::after{width:100%;}
+    .nav-cta{background:var(--blue)!important;color:#fff!important;padding:10px 24px;border-radius:4px;transition:background .25s,transform .25s,box-shadow .25s!important;}
+    .nav-cta:hover{background:var(--blue-l)!important;transform:translateY(-1px)!important;box-shadow:0 6px 24px rgba(52,120,214,.35)!important;}
+    .nav-cta::after{display:none!important;}
+    .hamburger{display:none;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px;}
+    .mob-nav{display:none;position:fixed;inset:0;background:var(--obs);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:36px;}
+    .mob-nav.open{display:flex;}
+    .mob-nav a{color:#fff;font-size:20px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;}
+    .mob-close{position:absolute;top:24px;right:28px;background:none;border:none;color:#fff;font-size:30px;cursor:pointer;}
+    @media(max-width:900px){.hamburger{display:block;}.nav-links{display:none;}nav{padding:18px 28px;}nav.scrolled{padding:14px 28px;}}
+
+    /* HERO */
+    .hero{position:relative;height:100vh;min-height:640px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;}
+    .hero-bg{position:absolute;inset:0;background:url('https://static.wixstatic.com/media/e1b08d_95f82d49eab541f2bfda7b7783a03799~mv2.jpg') center/cover no-repeat;transform:scale(1.06);transition:transform 8s ease;animation:zoomOut 8s ease forwards;}
+    @keyframes zoomOut{from{transform:scale(1.06)}to{transform:scale(1)}}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,14,19,.72) 0%,rgba(12,14,19,.55) 50%,rgba(12,14,19,.85) 100%);}
+    .hero-canvas{position:absolute;inset:0;pointer-events:none;}
+    .hero-content{position:relative;z-index:2;max-width:860px;padding:0 24px;}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);margin-bottom:24px;opacity:0;animation:slideUp .7s .3s ease forwards;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'';width:28px;height:1px;background:var(--blue);}
+    .hero-logo{display:block;margin:0 auto 28px;height:64px;opacity:0;animation:slideUp .7s .1s ease forwards;}
+    .hero h1{font-size:clamp(32px,5.5vw,64px);font-weight:900;line-height:1.08;letter-spacing:-.01em;margin-bottom:22px;opacity:0;animation:slideUp .7s .5s ease forwards;}
+    .hero h1 span{color:var(--blue);}
+    .hero-sub{font-size:clamp(14px,1.6vw,18px);color:rgba(255,255,255,.7);max-width:580px;margin:0 auto 36px;line-height:1.7;opacity:0;animation:slideUp .7s .7s ease forwards;}
+    .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;opacity:0;animation:slideUp .7s .9s ease forwards;}
+    @keyframes slideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:15px 34px;border-radius:4px;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;transition:all .28s;cursor:pointer;border:none;}
+    .btn-primary{background:var(--blue);color:#fff;}
+    .btn-primary:hover{background:var(--blue-l);transform:translateY(-2px);box-shadow:0 10px 32px rgba(52,120,214,.4);}
+    .btn-ghost{border:1.5px solid rgba(255,255,255,.3);color:#fff;background:transparent;}
+    .btn-ghost:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-2px);}
+    .hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:.5;animation:bounce 2s infinite;}
+    .hero-scroll span{font-size:10px;letter-spacing:.18em;text-transform:uppercase;}
+    .hero-scroll-line{width:1px;height:36px;background:linear-gradient(180deg,rgba(255,255,255,.6),transparent);}
+    @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+    /* TRUST BAR */
+    .trust{background:var(--mid);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:48px 60px;}
+    .trust-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;}
+    .trust-item .num{font-size:clamp(36px,4vw,54px);font-weight:900;color:var(--blue);line-height:1;margin-bottom:6px;}
+    .trust-item .label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);}
+    @media(max-width:768px){.trust{padding:40px 24px;}.trust-grid{grid-template-columns:repeat(2,1fr);gap:32px;}}
+
+    /* SECTIONS */
+    section{padding:100px 60px;}
+    .container{max-width:1200px;margin:0 auto;}
+    .sec-header{margin-bottom:56px;}
+    .sec-label{font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+    .sec-title{font-size:clamp(26px,3.5vw,44px);font-weight:900;line-height:1.12;margin-bottom:14px;}
+    .sec-title span{color:var(--blue);}
+    .sec-sub{font-size:15px;color:var(--gray);max-width:560px;line-height:1.75;}
+    @media(max-width:768px){section{padding:72px 24px;}}
+
+    /* SERVICES GRID */
+    .services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+    .svc-card{background:var(--card);padding:40px 32px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;border:1px solid transparent;}
+    .svc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--blue);transform:scaleX(0);transition:transform .35s;transform-origin:left;}
+    .svc-card:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(0,0,0,.35);border-color:var(--border);}
+    .svc-card:hover::before{transform:scaleX(1);}
+    .svc-icon{width:48px;height:48px;background:var(--glow);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px;}
+    .svc-card h3{font-size:16px;font-weight:800;margin-bottom:10px;letter-spacing:.02em;}
+    .svc-card p{font-size:13px;color:var(--gray);line-height:1.7;}
+    .svc-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-top:18px;transition:gap .25s;}
+    .svc-link:hover{gap:10px;}
+    @media(max-width:900px){.services-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:560px){.services-grid{grid-template-columns:1fr;}}
+
+    /* PORTFOLIO */
+    .portfolio{background:var(--mid);}
+    .portfolio-masonry{columns:3;gap:6px;}
+    .portfolio-masonry img{width:100%;display:block;margin-bottom:6px;object-fit:cover;transition:transform .4s,filter .4s;cursor:pointer;}
+    .portfolio-masonry img:hover{transform:scale(1.02);filter:brightness(1.1);}
+    @media(max-width:900px){.portfolio-masonry{columns:2;}}
+    @media(max-width:560px){.portfolio-masonry{columns:1;}}
+
+    /* SERVICE AREAS */
+    .areas{background:var(--obs);}
+    .areas-wrap{display:flex;gap:80px;align-items:flex-start;flex-wrap:wrap;}
+    .areas-text{flex:1;min-width:280px;}
+    .areas-text p{font-size:15px;color:var(--gray);line-height:1.8;margin-bottom:20px;}
+    .areas-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+    .area-pill{background:var(--card);border:1px solid var(--border);padding:8px 18px;border-radius:2px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);transition:all .25s;}
+    .area-pill:hover{border-color:var(--blue);color:var(--white);}
+    .areas-img{flex:1;min-width:280px;position:relative;}
+    .areas-img img{width:100%;border-radius:2px;object-fit:cover;height:360px;}
+    .areas-img::before{content:'Houston, TX';position:absolute;bottom:20px;left:20px;background:rgba(12,14,19,.85);backdrop-filter:blur(8px);padding:10px 18px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);border:1px solid var(--border);border-radius:2px;}
+
+    /* CTA BAND */
+    .cta-band{background:linear-gradient(135deg,var(--mid) 0%,#0d1828 100%);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:80px 60px;text-align:center;}
+    .cta-band h2{font-size:clamp(26px,3.5vw,44px);font-weight:900;margin-bottom:14px;}
+    .cta-band h2 span{color:var(--blue);}
+    .cta-band p{font-size:15px;color:var(--gray);max-width:520px;margin:0 auto 36px;line-height:1.7;}
+    .cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+    @media(max-width:768px){.cta-band{padding:60px 24px;}}
+
+    /* FOOTER */
+    footer{background:var(--mid);border-top:1px solid var(--border);padding:60px 60px 32px;}
+    .foot-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
+    .foot-brand img{height:36px;display:block;margin-bottom:16px;}
+    .foot-brand p{font-size:13px;color:var(--gray);line-height:1.75;max-width:240px;}
+    .foot-col h4{font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:18px;}
+    .foot-col a,.foot-col p{display:block;font-size:13px;color:var(--gray);margin-bottom:9px;transition:color .2s;}
+    .foot-col a:hover{color:#fff;}
+    .foot-bottom{max-width:1200px;margin:0 auto;border-top:1px solid var(--border);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+    .foot-bottom p{font-size:12px;color:#3a4255;}
+    @media(max-width:900px){.foot-grid{grid-template-columns:1fr 1fr;gap:32px;}footer{padding:48px 28px 24px;}}
+    @media(max-width:560px){.foot-grid{grid-template-columns:1fr;}}
+
+    /* SCROLL REVEAL */
+    .reveal{opacity:0;transform:translateY(44px);transition:opacity .75s ease,transform .75s ease;}
+    .reveal.visible{opacity:1;transform:none;}
+    .stagger>*{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease;}
+    .stagger.visible>*:nth-child(1){opacity:1;transform:none;transition-delay:0s;}
+    .stagger.visible>*:nth-child(2){opacity:1;transform:none;transition-delay:.08s;}
+    .stagger.visible>*:nth-child(3){opacity:1;transform:none;transition-delay:.16s;}
+    .stagger.visible>*:nth-child(4){opacity:1;transform:none;transition-delay:.24s;}
+    .stagger.visible>*:nth-child(5){opacity:1;transform:none;transition-delay:.32s;}
+    .stagger.visible>*:nth-child(6){opacity:1;transform:none;transition-delay:.40s;}
+  </style>
+</head>
+<body>
+
+<!-- MOBILE NAV -->
+<div class="mob-nav" id="mobNav">
+  <button class="mob-close" onclick="closeMob()">✕</button>
+  <a href="/" target="_top">Home</a>
+  <a href="/about-us" target="_top">About</a>
+  <a href="/services" target="_top">Services</a>
+  <a href="/why-us" target="_top">Why Us</a>
+  <a href="/contact" target="_top">Contact</a>
+</div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="/" target="_top" class="nav-logo"><img src="https://static.wixstatic.com/media/e1b08d_df600fd4bf23496a803ce9febf897c5e~mv2.png" alt="AMS Glazing Logo"></a>
+  <div class="nav-links">
+    <a href="/" target="_top" class="active">Home</a>
+    <a href="/about-us" target="_top">About</a>
+    <a href="/services" target="_top">Services</a>
+    <a href="/why-us" target="_top">Why Us</a>
+    <a href="/contact" target="_top" class="nav-cta">Contact</a>
+  </div>
+  <button class="hamburger" onclick="openMob()">☰</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <canvas class="hero-canvas" id="heroCanvas"></canvas>
+  <div class="hero-content">
+    <img class="hero-logo" src="https://static.wixstatic.com/media/e1b08d_df600fd4bf23496a803ce9febf897c5e~mv2.png" alt="AMS Glazing">
+    <div class="hero-eyebrow">Houston, Texas — Commercial &amp; Industrial</div>
+    <h1>Commercial &amp; Industrial<br>Glazing Contractor<br>in <span>Houston, TX</span></h1>
+    <p class="hero-sub">Precision-engineered storefront systems, curtain walls, impact-rated glass, and emergency glass repair for demanding commercial and industrial projects across Greater Houston.</p>
+    <div class="hero-btns">
+      <a href="tel:+12816912338" class="btn btn-primary">📞 Call (281) 691-2338</a>
+      <a href="/services" target="_top" class="btn btn-ghost">View Services →</a>
+    </div>
+  </div>
+  <div class="hero-scroll"><span>Scroll</span><div class="hero-scroll-line"></div></div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust">
+  <div class="trust-grid stagger" id="trustGrid">
+    <div class="trust-item"><div class="num" data-count="15">0</div><div class="label">Years of Experience</div></div>
+    <div class="trust-item"><div class="num" data-count="500">0</div><div class="label">Projects Completed</div></div>
+    <div class="trust-item"><div class="num" data-count="8">0</div><div class="label">Houston-Area Cities Served</div></div>
+    <div class="trust-item"><div class="num" data-count="24">0</div><div class="label">Emergency Response Hours</div></div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section style="background:var(--obs);">
+  <div class="container">
+    <div class="sec-header reveal">
+      <div class="sec-label">What We Do</div>
+      <h2 class="sec-title">Houston Commercial Glass &amp; <span>Glazing Services</span></h2>
+      <p class="sec-sub">Full-service commercial glazing contractor serving retail, industrial, high-rise, and institutional projects across the Greater Houston area.</p>
+    </div>
+    <div class="services-grid stagger">
+      <div class="svc-card">
+        <div class="svc-icon">🏢</div>
+        <h3>Aluminum Storefront Installation</h3>
+        <p>Custom aluminum framing systems for retail, office, and commercial storefronts. Code-compliant, energy-efficient, and built for Houston's climate.</p>
+        <a href="/services" target="_top" class="svc-link">Learn More →</a>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">🏗️</div>
+        <h3>Curtain Wall Systems</h3>
+        <p>Engineered curtain wall assemblies for mid-rise and high-rise structures. Structural integrity, thermal performance, and architectural precision.</p>
+        <a href="/services" target="_top" class="svc-link">Learn More →</a>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">🛡️</div>
+        <h3>Impact-Rated Glazing</h3>
+        <p>Hurricane and impact-resistant glass systems meeting Texas building codes. Protection without sacrificing light transmission or aesthetics.</p>
+        <a href="/services" target="_top" class="svc-link">Learn More →</a>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">⚡</div>
+        <h3>Emergency Glass Repair</h3>
+        <p>24-hour emergency board-up and glass replacement for commercial properties. Rapid response throughout Houston and surrounding areas.</p>
+        <a href="/services" target="_top" class="svc-link">Learn More →</a>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">✨</div>
+        <h3>Interior Glass Systems</h3>
+        <p>Glass partitions, office dividers, entrance systems, and specialty interior glass installations for modern commercial spaces.</p>
+        <a href="/services" target="_top" class="svc-link">Learn More →</a>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">💥</div>
+        <h3>Blast-Resistant Glass</h3>
+        <p>Security glazing and blast-resistant systems for government, industrial, and high-security commercial facilities requiring enhanced protection.</p>
+        <a href="/services" target="_top" class="svc-link">Learn More →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section class="portfolio">
+  <div class="container">
+    <div class="sec-header reveal">
+      <div class="sec-label">Our Work</div>
+      <h2 class="sec-title">Built for <span>Demanding Commercial Projects</span></h2>
+      <p class="sec-sub">From storefront installations to large-scale curtain wall systems — AMS Glazing delivers precision on every project across Houston, TX.</p>
+    </div>
+    <div class="portfolio-masonry reveal">
+      <img src="https://static.wixstatic.com/media/e1b08d_95f82d49eab541f2bfda7b7783a03799~mv2.jpg" alt="Commercial glazing installation Houston TX" loading="lazy">
+      <img src="https://static.wixstatic.com/media/e1b08d_2484ba4a4d3e4dfd8e9fccace1e83c56~mv2.png" alt="Storefront glass contractor Houston" loading="lazy">
+      <img src="https://static.wixstatic.com/media/e1b08d_ce3a3977b55148bba69d6ada69e2e819~mv2.jpeg" alt="Curtain wall system Houston TX" loading="lazy">
+      <img src="https://static.wixstatic.com/media/e1b08d_01475860c3074eaa908e7e4793e6bde0~mv2.jpeg" alt="Industrial glazing Houston" loading="lazy">
+      <img src="https://static.wixstatic.com/media/e1b08d_c6fb8c65686b431abf4da7fdff8e767c~mv2.png" alt="Commercial glass installation Houston TX" loading="lazy">
+      <img src="https://static.wixstatic.com/media/e1b08d_77607af8869b4260b52c9e7a9a45b376~mv2.png" alt="Impact-rated glass Houston" loading="lazy">
+      <img src="https://static.wixstatic.com/media/e1b08d_014e8ad926524c98ae0744dd1f8bdac0~mv2.png" alt="Glazing contractor Greater Houston" loading="lazy">
+      <img src="https://static.wixstatic.com/media/e1b08d_f426966e48514fb49170d5edc8e3f138~mv2.png" alt="AMS Glazing project Houston TX" loading="lazy">
+      <img src="https://static.wixstatic.com/media/e1b08d_55169e2741cf44bbb5fce36ec4c6d582~mv2.png" alt="Commercial storefront glass Houston" loading="lazy">
+      <img src="https://static.wixstatic.com/media/e1b08d_b6dd66f86b384d01be6f9a02c4c439fd~mv2.png" alt="AMS Glazing Houston commercial project" loading="lazy">
+      <img src="https://static.wixstatic.com/media/e1b08d_6e8d9524e3a040edb9ec5dd0e1689268~mv2.png" alt="Glass contractor Houston TX" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- SERVICE AREAS -->
+<section class="areas">
+  <div class="container">
+    <div class="areas-wrap">
+      <div class="areas-text reveal-left">
+        <div class="sec-label">Coverage</div>
+        <h2 class="sec-title">Serving Houston &amp;<br><span>Surrounding Areas</span></h2>
+        <p>AMS Glazing provides commercial glazing services throughout Greater Houston and the surrounding region. Whether you're in the Energy Corridor, the Medical Center, or the suburbs — we bring the same precision and professionalism to every job site.</p>
+        <div class="areas-grid">
+          <span class="area-pill">Houston</span>
+          <span class="area-pill">Katy</span>
+          <span class="area-pill">Sugar Land</span>
+          <span class="area-pill">The Woodlands</span>
+          <span class="area-pill">Pearland</span>
+          <span class="area-pill">Cypress</span>
+          <span class="area-pill">Pasadena</span>
+          <span class="area-pill">Baytown</span>
+        </div>
+        <div style="margin-top:32px;">
+          <a href="/contact" target="_top" class="btn btn-primary">Request an Estimate →</a>
+        </div>
+      </div>
+      <div class="areas-img reveal-right">
+        <img src="https://static.wixstatic.com/media/e1b08d_55169e2741cf44bbb5fce36ec4c6d582~mv2.png" alt="AMS Glazing serves Greater Houston TX">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <div class="reveal">
+    <h2>Ready to Start Your <span>Glazing Project</span>?</h2>
+    <p>Contact AMS Glazing today for a professional estimate on your commercial or industrial glazing project in Houston, TX.</p>
+    <div class="cta-btns">
+      <a href="tel:+12816912338" class="btn btn-primary">📞 (281) 691-2338</a>
+      <a href="mailto:dalvarezmedina@amsglazing.com" class="btn btn-ghost">Email Us</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <img src="https://static.wixstatic.com/media/e1b08d_df600fd4bf23496a803ce9febf897c5e~mv2.png" alt="AMS Glazing">
+      <p>Houston's trusted commercial and industrial glazing contractor. Precision installation, code compliance, and rapid response on every project.</p>
+    </div>
+    <div class="foot-col">
+      <h4>Pages</h4>
+      <a href="/" target="_top">Home</a>
+      <a href="/about-us" target="_top">About Us</a>
+      <a href="/services" target="_top">Services</a>
+      <a href="/why-us" target="_top">Why Us</a>
+      <a href="/contact" target="_top">Contact</a>
+    </div>
+    <div class="foot-col">
+      <h4>Services</h4>
+      <a href="/services" target="_top">Storefront Installation</a>
+      <a href="/services" target="_top">Curtain Wall Systems</a>
+      <a href="/services" target="_top">Impact-Rated Glazing</a>
+      <a href="/services" target="_top">Emergency Glass Repair</a>
+      <a href="/services" target="_top">Interior Glass Systems</a>
+    </div>
+    <div class="foot-col">
+      <h4>Contact</h4>
+      <a href="tel:+12816912338">(281) 691-2338</a>
+      <a href="mailto:dalvarezmedina@amsglazing.com">dalvarezmedina@amsglazing.com</a>
+      <p>Houston, Texas</p>
+      <p>Mon–Fri: 7am–6pm</p>
+      <p>Emergency: 24/7</p>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <p>© 2025 AMS Glazing. All Rights Reserved. Houston, TX Commercial Glazing Contractor.</p>
+    <p>Commercial Glazing Houston · Storefront Glass · Curtain Wall · Impact Glass</p>
+  </div>
+</footer>
+
+<script>
+  // NAV SCROLL
+  const nav = document.getElementById('mainNav');
+  window.addEventListener('scroll',()=>{ nav.classList.toggle('scrolled', window.scrollY > 60); });
+
+  // MOBILE NAV
+  function openMob(){ document.getElementById('mobNav').classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeMob(){ document.getElementById('mobNav').classList.remove('open'); document.body.style.overflow=''; }
+
+  // SCROLL REVEAL
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }});
+  },{threshold:.12});
+  document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger').forEach(el=>obs.observe(el));
+
+  // COUNTER ANIMATION
+  function animateCounters(){
+    document.querySelectorAll('[data-count]').forEach(el=>{
+      const target=parseInt(el.dataset.count);
+      let current=0;
+      const inc=Math.ceil(target/60);
+      const timer=setInterval(()=>{
+        current=Math.min(current+inc,target);
+        el.textContent=current+(target>=100?'+':target===24?'/7':'+');
+        if(current>=target) clearInterval(timer);
+      },22);
+    });
+  }
+  const trustObs=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ animateCounters(); trustObs.disconnect(); }});
+  },{threshold:.3});
+  const tg=document.getElementById('trustGrid');
+  if(tg) trustObs.observe(tg);
+
+  // HERO CANVAS PARTICLES
+  const canvas=document.getElementById('heroCanvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,particles=[];
+  function resize(){ W=canvas.width=canvas.offsetWidth; H=canvas.height=canvas.offsetHeight; }
+  resize();
+  window.addEventListener('resize',resize);
+  for(let i=0;i<60;i++){
+    particles.push({x:Math.random()*2000,y:Math.random()*1000,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.5+.5,a:Math.random()*.4+.1});
+  }
+  function drawParticles(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(52,120,214,${p.a})`;
+      ctx.fill();
+    });
+    // Draw connecting lines
+    particles.forEach((a,i)=>{
+      particles.slice(i+1).forEach(b=>{
+        const dx=a.x-b.x,dy=a.y-b.y,dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<120){
+          ctx.beginPath();
+          ctx.moveTo(a.x,a.y);
+          ctx.lineTo(b.x,b.y);
+          ctx.strokeStyle=`rgba(52,120,214,${.12*(1-dist/120)})`;
+          ctx.lineWidth=.5;
+          ctx.stroke();
+        }
+      });
+    });
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+</script>
+</body>
+</html>
