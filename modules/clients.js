@@ -152,6 +152,12 @@ const SEO_CLIENTS = {
       'top orlando restaurants locals actually love in 2026',
     ],
     cta: 'Order direct at theescobarkitchen.com/locations — no app fees, pickup in 15 minutes',
+    ctaUrl: 'https://theescobarkitchen.com/locations',
+    locationPages: {
+      'Hunters Creek': 'https://theescobarkitchen.com/hunters-creek',
+      'Lake Nona': 'https://theescobarkitchen.com/lake-nona',
+      'Downtown Orlando': 'https://theescobarkitchen.com/downtown-orlando',
+    },
     ga4PropertyId: '529262280',
     apiKey: 'pit-5d229b3d-b6ad-4c81-9935-69076152ea1a',
     brand: {

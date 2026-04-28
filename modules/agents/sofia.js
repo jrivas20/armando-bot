@@ -127,7 +127,8 @@ async function getClientBlog(locationId, token) {
 
 // Publish one SEO blog post to a single client sub-account
 async function runClientDailySeoBlog(locationId, config) {
-  const { name, domain, lang = 'en', industry = 'local business', voice = '', audience = '', topics = [], keywords = [], cta = `visit ${domain}`, author = null } = config;
+  const { name, domain, lang = 'en', industry = 'local business', voice = '', audience = '', topics = [], keywords = [], cta = `visit ${domain}`, ctaUrl, locationPages, author = null } = config;
+  const primaryCtaUrl = ctaUrl || `https://${domain}/contact`;
   const todaysCity = getTodaysCity();
   console.log(`[Client SEO] ${name}: finding keyword for ${domain}...`);
 
@@ -202,7 +203,9 @@ SEO REQUIREMENTS:
 - Make someone in ${todaysCity} feel like this business is THEIR local expert
 - Include 2-4 natural internal links:
   * One to https://${domain} using the business name or a service as anchor text
-  * One to https://${domain}/contact (or /reservations or /book) using "${cta.split(' ').slice(0, 3).join(' ')}" style anchor
+  * One to ${primaryCtaUrl} — use action-oriented anchor text like "order direct", "skip the app fees", or "pick your location" — this is the PRIMARY conversion link, include it at least once${locationPages ? `
+  * Location-specific links: if this post mentions a specific location by name, link to it directly:
+${Object.entries(locationPages).map(([loc, url]) => `    - "${loc}" → ${url}`).join('\n')}` : ''}
   * Link naturally to 1-2 existing posts listed above (if any) where the topic is relevant
 - End with this CTA naturally woven into the last paragraph: "${cta}"
 
