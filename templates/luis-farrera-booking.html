@@ -843,6 +843,14 @@ async function submitForm() {
     console.error('[LF Booking] Submit error:', e.message);
   }
 
+  // Fire Meta Pixel Lead event before redirect
+  if (typeof fbq === 'function') {
+    fbq('track', 'Lead', {
+      content_name: 'Tattoo Booking Request',
+      content_category: 'Booking Form'
+    });
+  }
+
   window.location.href = 'https://luisfarreratattoo.com/thank-you';
 }
 

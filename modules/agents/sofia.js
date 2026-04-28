@@ -376,6 +376,10 @@ async function runAllClientsDailyBlog() {
   const results = [];
   for (const [locationId, config] of entries) {
     if (config.blogEnabled === false) { results.push({ name: config.name, skipped: true, reason: 'blogEnabled: false' }); continue; }
+    if (config.weekdayOnly) {
+      const dow = new Date().getDay(); // 0=Sun, 6=Sat
+      if (dow === 0 || dow === 6) { results.push({ name: config.name, skipped: true, reason: 'weekdayOnly: weekend' }); continue; }
+    }
     try {
       const result = await runClientDailySeoBlog(locationId, config);
       results.push(result);

@@ -3213,7 +3213,7 @@ const LF_API_KEY        = 'pit-23df4abd-73d1-4fd4-895d-4d4d7c48c8c8';
 const LF_LOCATION_ID    = 'Q6FIvQ5WitCeq9wyXZ3L';
 const LF_PIPELINE_ID       = 'vQ5x2R2Yoq4wHkrJMSTQ';   // Book Now pipeline
 const LF_STAGE_NEW_INQUIRY = '46c5d35a-bd61-456a-bca6-056884aeab21'; // 🔵 New Inquiry
-const LF_BOOKING_MANAGER   = 'Mx0nS4g8fx9NKleC9wV1';   // Gustavo Leon — booking manager
+const LF_BOOKING_MANAGER   = 'Mx0nS4g8fx9NKleC9wV1';   // Alex — booking manager (GHL user ID — update if Alex has a different ID)
 const LF_GHL_HEADERS = {
   'Authorization': `Bearer ${LF_API_KEY}`,
   'Version': '2021-07-28',

@@ -82,8 +82,9 @@ const SEO_CLIENTS = {
     domain: 'theescobarkitchen.com',
     lang: 'en',
     industry: 'Latin Asian fusion restaurant',
-    blogEnabled: false,
-    gbpEnabled: false,
+    blogEnabled: true,
+    gbpEnabled: true,
+    weekdayOnly: true, // Mon–Fri blogs only
     competitors: ['thepressorlando.com', 'christners.com', 'orlandofoodcritic.com'],
     author: {
       name: 'Chef Andres Escobar',
@@ -92,29 +93,67 @@ const SEO_CLIENTS = {
       bio: 'Chef Andres built The Escobar Kitchen around one idea: what happens when Latin soul meets Asian precision. Every dish on the menu started in his home kitchen — tested, tasted, and refined until it was something genuinely worth driving across town for.',
     },
     voice: 'Bold, passionate, and proud of every single dish. Writes like someone who is genuinely obsessed with food — the flavors, the craft, the experience. Warm but confident. Makes you feel like you are missing out if you are not there tonight.',
-    audience: 'Food lovers in Kissimmee, Narcoossee, Lake Nona, and greater Orlando searching for something beyond the ordinary — a restaurant where Latin soul meets Asian precision. Date nights, celebrations, foodies, and anyone who searches "best sushi near me" or "latin restaurant near me".',
+    audience: 'Food lovers in Hunters Creek, Lake Nona, Downtown Orlando, and greater Central Florida searching for something beyond the ordinary — a restaurant where Latin soul meets Asian precision. Date nights, celebrations, foodies, and anyone who searches "best sushi near me" or "latin restaurant near me".',
     keywords: [
-      'latin restaurant near me', 'sushi near me', 'asian fusion near me', 'latin asian fusion',
-      'best sushi Orlando', 'best latin restaurant Orlando', 'asian fusion Kissimmee',
-      'latin restaurant Kissimmee', 'sushi Narcoossee', 'unique restaurants near Disney',
-      'best spicy tuna crispy rice Orlando', 'fusion restaurant Central Florida',
-      'date night restaurants Kissimmee', 'upscale restaurant Lake Nona',
+      // Brand + location
+      'escobar kitchen orlando', 'escobar kitchen hunters creek', 'escobar kitchen lake nona', 'escobar kitchen downtown orlando',
+      // Sushi + fusion
+      'best sushi orlando', 'sushi hunters creek orlando', 'sushi lake nona orlando', 'sushi downtown orlando',
+      'latin asian fusion orlando', 'latin asian fusion near me', 'asian fusion orlando',
+      // Restaurant type
+      'latin restaurant orlando', 'latin restaurant near me', 'latin restaurant hunters creek', 'latin restaurant lake nona',
+      'fusion restaurant central florida', 'unique restaurants orlando',
+      // Dishes
+      'crispy rice orlando', 'spicy tuna crispy rice orlando', 'empanadas orlando', 'latin bowls orlando', 'fusion tacos orlando',
+      // Occasion
+      'date night restaurants orlando', 'date night downtown orlando', 'wine bar downtown orlando',
+      'best romantic restaurants orlando', 'birthday dinner orlando',
+      // Catering
+      'latin catering orlando', 'catering orlando latin food', 'corporate catering orlando',
+      // Order intent
+      'order sushi online orlando', 'order latin food orlando', 'best latin food orlando',
     ],
     topics: [
-      'why The Escobar Kitchen is the best latin asian fusion in Central Florida',
-      'best sushi near Disney World Orlando',
-      'what is latin asian fusion food and why Orlando is obsessed with it',
-      'best date night restaurants in Kissimmee FL',
-      'spicy tuna crispy rice the dish everyone is talking about in Orlando',
-      'best asian fusion restaurants near Lake Nona',
-      'what to order at The Escobar Kitchen — a locals guide',
-      'latin restaurant Narcoossee FL hidden gem',
-      'best seafood restaurants Kissimmee 2026',
-      'asian fusion vs traditional sushi what is the difference',
+      // Brand authority
+      'why The Escobar Kitchen is the best latin asian fusion restaurant in Central Florida',
+      'what to order at The Escobar Kitchen — a locals complete guide',
+      'the story behind The Escobar Kitchen and how it became an Orlando favorite',
+      // Location-specific
+      'best restaurants in hunters creek orlando — why escobar kitchen tops the list',
+      'lake nona restaurant guide — the hidden gem inside The Bravo Market',
+      'best sushi in downtown orlando — escobar kitchen on church street',
+      'hunters creek food scene — why escobar kitchen is the neighborhood favorite',
+      'lake nona dining — what makes escobar kitchen different from every other restaurant',
+      'wine bar and sushi downtown orlando — escobar kitchen date night guide',
+      // Dish-specific
+      'what is crispy rice tuna and why its the most talked-about dish in orlando',
+      'shrimp empanadas orlando — why escobar kitchens are in a category of their own',
+      'latin bowls orlando — the healthy bold fusion dish you need to try',
+      'fusion tacos at escobar kitchen — east meets west on one plate',
+      'best empanadas near me orlando — a locals honest guide',
+      // Catering
+      'catering for corporate events in orlando — why escobar kitchen fusion food wins every time',
+      'birthday party catering ideas orlando — latin asian fusion platters that wow',
+      'wedding catering orlando latin food options your guests will never forget',
+      // Occasion + seasonal
+      'best date night restaurants orlando 2026 — top picks for a memorable night out',
+      'valentines day dinner orlando 2026 — romantic restaurant ideas',
+      'mothers day brunch ideas orlando — latin food that makes it special',
+      'best restaurants for a celebration orlando — from birthdays to anniversaries',
+      // Order intent + value
+      'why you should order direct instead of doordash or uber eats in orlando',
+      'how to save money ordering food in orlando — skip the app fees',
+      'best latin food delivery orlando — order direct from escobar kitchen',
+      // SEO wide net
+      'best sushi near disney world orlando',
+      'asian fusion vs traditional sushi — what makes escobar kitchen unique',
+      'latin restaurant narcoossee fl — hidden gem worth the drive',
+      'upscale casual dining lake nona orlando 2026',
+      'top orlando restaurants locals actually love in 2026',
     ],
-    cta: 'Reserve your table or order online at theescobarkitchen.com',
+    cta: 'Order direct at theescobarkitchen.com/locations — no app fees, pickup in 15 minutes',
     ga4PropertyId: '529262280',
-    apiKey: 'pit-64018b7f-6192-47b1-b134-62109b155fc9',
+    apiKey: 'pit-5d229b3d-b6ad-4c81-9935-69076152ea1a',
     brand: {
       plainHtml: true,
       logoUrl: 'https://assets.cdn.filesafe.space/rJKRuyayc6Z6twr9X20v/media/69a7ac1bb701fe6a3e793b91.png',
