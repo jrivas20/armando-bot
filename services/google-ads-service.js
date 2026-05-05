@@ -597,6 +597,216 @@ async function buildSearchCampaign(customerId, config) {
   return { campaignRN, adGroupRN, adRN, status: 'PAUSED — review before enabling' };
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// OPTIMIZE: KEYWORD MANAGEMENT + NEGATIVE KEYWORDS + SEARCH TERMS
+// ══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Get keywords with resource names — required for pause/enable mutations
+ */
+async function getKeywordsWithResourceNames(customerId, days = 14) {
+  const query = `
+    SELECT
+      ad_group_criterion.resource_name,
+      ad_group_criterion.keyword.text,
+      ad_group_criterion.keyword.match_type,
+      ad_group_criterion.status,
+      ad_group.name,
+      campaign.name,
+      campaign.resource_name,
+      metrics.clicks,
+      metrics.impressions,
+      metrics.cost_micros,
+      metrics.conversions
+    FROM keyword_view
+    WHERE segments.date DURING LAST_${days}_DAYS
+      AND ad_group_criterion.status != 'REMOVED'
+    ORDER BY metrics.clicks DESC
+    LIMIT 50
+  `;
+
+  const results = await gaqlSearch(customerId, query);
+
+  return results.map(r => ({
+    resourceName: r.adGroupCriterion?.resourceName,
+    keyword:      r.adGroupCriterion?.keyword?.text,
+    matchType:    r.adGroupCriterion?.keyword?.matchType,
+    status:       r.adGroupCriterion?.status,
+    adGroup:      r.adGroup?.name,
+    campaign:     r.campaign?.name,
+    campaignRN:   r.campaign?.resourceName,
+    clicks:       r.metrics?.clicks || 0,
+    impressions:  r.metrics?.impressions || 0,
+    spend:        r.metrics?.costMicros ? '$' + (r.metrics.costMicros / 1e6).toFixed(2) : '$0',
+    conversions:  r.metrics?.conversions || 0,
+  }));
+}
+
+/**
+ * Get search terms report — what people actually typed to trigger your ads
+ */
+async function getSearchTermsReport(customerId, days = 14) {
+  const query = `
+    SELECT
+      search_term_view.search_term,
+      search_term_view.status,
+      campaign.name,
+      campaign.resource_name,
+      ad_group.name,
+      metrics.clicks,
+      metrics.impressions,
+      metrics.ctr,
+      metrics.cost_micros,
+      metrics.conversions
+    FROM search_term_view
+    WHERE segments.date DURING LAST_${days}_DAYS
+      AND metrics.impressions > 0
+    ORDER BY metrics.clicks DESC
+    LIMIT 100
+  `;
+
+  const results = await gaqlSearch(customerId, query);
+
+  return results.map(r => ({
+    searchTerm:  r.searchTermView?.searchTerm,
+    status:      r.searchTermView?.status,
+    campaign:    r.campaign?.name,
+    campaignRN:  r.campaign?.resourceName,
+    adGroup:     r.adGroup?.name,
+    clicks:      r.metrics?.clicks || 0,
+    impressions: r.metrics?.impressions || 0,
+    ctr:         r.metrics?.ctr ? (r.metrics.ctr * 100).toFixed(2) + '%' : '0%',
+    spend:       r.metrics?.costMicros ? '$' + (r.metrics.costMicros / 1e6).toFixed(2) : '$0',
+    conversions: r.metrics?.conversions || 0,
+  }));
+}
+
+/**
+ * Add negative keywords to a campaign — blocks wasteful searches at source
+ * matchType: BROAD | PHRASE | EXACT
+ */
+async function addCampaignNegatives(customerId, campaignResourceName, keywords = [], matchType = 'BROAD') {
+  const cid = customerId.replace(/-/g, '');
+
+  const operations = keywords.map(text => ({
+    create: {
+      campaign: campaignResourceName,
+      negative: true,
+      keyword: { text, match_type: matchType },
+    }
+  }));
+
+  const result = await adsMutate(cid, 'campaignCriteria', operations);
+  console.log(`[Google Ads] Added ${keywords.length} negatives to ${campaignResourceName}`);
+  return result.results.map(r => r.resourceName);
+}
+
+/**
+ * Pause or enable a specific keyword by criterion resource name
+ */
+async function setKeywordStatus(customerId, criterionResourceName, status = 'PAUSED') {
+  const cid = customerId.replace(/-/g, '');
+
+  await adsMutate(cid, 'adGroupCriteria', [{
+    update: { resource_name: criterionResourceName, status },
+    update_mask: { paths: ['status'] },
+  }]);
+
+  console.log(`[Google Ads] Keyword ${criterionResourceName} → ${status}`);
+}
+
+/**
+ * Full optimization pass — pause dead keywords, add negatives, surface search terms
+ * Returns a complete audit report of every action taken
+ */
+async function optimizeAccount(customerId, options = {}) {
+  const {
+    niche                = 'barbershop',
+    minClicksToEvaluate  = 10,   // min clicks before evaluating for pause
+    maxSpendNoConversion = 20,   // max $ with 0 conversions before pause
+    extraNegatives       = [],   // caller can inject extra negatives
+  } = options;
+
+  // Niche-specific negative keyword library
+  const NICHE_NEGATIVES = {
+    barbershop: [
+      'how to cut hair', 'barber school', 'barber college', 'barber license',
+      'barber training', 'barber course', 'become a barber', 'barber kit',
+      'barber supplies', 'barber clippers', 'barber tools', 'hair clipper',
+      'free haircut', 'diy haircut', 'barber certification', 'barber program',
+      'barber chair for sale', 'buy barber chair', 'barber equipment',
+    ],
+  };
+
+  const report = {
+    customerId,
+    niche,
+    timestamp:       new Date().toISOString(),
+    keywordsPaused:  [],
+    negativesAdded:  [],
+    searchTerms:     [],
+    irrelevantTerms: [],
+    actions:         [],
+    errors:          [],
+  };
+
+  // Step 1 — Pull keywords with resource names
+  let keywords = [];
+  try {
+    keywords = await getKeywordsWithResourceNames(customerId, 14);
+    report.totalKeywords = keywords.length;
+  } catch (err) {
+    report.errors.push(`Keywords fetch failed: ${err.message}`);
+  }
+
+  // Step 2 — Pause keywords that are bleeding spend with 0 conversions
+  for (const kw of keywords) {
+    const spend = parseFloat((kw.spend || '$0').replace('$', ''));
+    const shouldPause =
+      (kw.conversions === 0 && kw.clicks >= minClicksToEvaluate) ||
+      (kw.conversions === 0 && spend >= maxSpendNoConversion);
+
+    if (shouldPause && kw.status === 'ENABLED' && kw.resourceName) {
+      try {
+        await setKeywordStatus(customerId, kw.resourceName, 'PAUSED');
+        report.keywordsPaused.push({ keyword: kw.keyword, matchType: kw.matchType, clicks: kw.clicks, spend: kw.spend });
+        report.actions.push(`⏸️ Paused: "${kw.keyword}" [${kw.matchType}] — ${kw.clicks} clicks, ${kw.spend}, 0 conversions`);
+      } catch (err) {
+        report.errors.push(`Pause failed for "${kw.keyword}": ${err.message}`);
+      }
+    }
+  }
+
+  // Step 3 — Search terms report (what people actually typed)
+  try {
+    const terms = await getSearchTermsReport(customerId, 14);
+    report.searchTerms = terms.slice(0, 25);
+    // Flag terms with clicks but 0 conversions — candidates for negatives
+    report.irrelevantTerms = terms.filter(st => st.conversions === 0 && st.clicks >= 3).slice(0, 10);
+  } catch (err) {
+    report.errors.push(`Search terms fetch failed: ${err.message}`);
+  }
+
+  // Step 4 — Add niche negatives to every campaign in the account
+  const nicheNegs = NICHE_NEGATIVES[niche] || [];
+  const allNegatives = [...new Set([...nicheNegs, ...extraNegatives])];
+  const campaignRNs = [...new Set(keywords.map(k => k.campaignRN).filter(Boolean))];
+
+  for (const campaignRN of campaignRNs) {
+    try {
+      await addCampaignNegatives(customerId, campaignRN, allNegatives, 'BROAD');
+      const campaignName = keywords.find(k => k.campaignRN === campaignRN)?.campaign || campaignRN;
+      report.negativesAdded.push({ campaign: campaignName, count: allNegatives.length });
+      report.actions.push(`🚫 Added ${allNegatives.length} negatives → "${campaignName}"`);
+    } catch (err) {
+      // Duplicates throw — log but don't fail the whole pass
+      report.errors.push(`Negatives (may already exist) for ${campaignRN}: ${err.message}`);
+    }
+  }
+
+  return report;
+}
+
 // ─── List All Accessible Customer Accounts ───────────────────────────────────
 // Hits the MCC and returns every sub-account linked under it.
 // Use this to discover customer IDs for all your clients.
@@ -725,9 +935,11 @@ module.exports = {
   gaqlSearch,
   getCampaignPerformance,
   getKeywordPerformance,
+  getKeywordsWithResourceNames,
   getAdPerformance,
   getAccountSummary,
   getWeeklyReport,
+  getSearchTermsReport,
 
   // Write
   createBudget,
@@ -737,9 +949,12 @@ module.exports = {
   addKeywords,
   createResponsiveSearchAd,
   setCampaignStatus,
+  setKeywordStatus,
+  addCampaignNegatives,
 
   // Bulk
   buildSearchCampaign,
+  optimizeAccount,
 
   // Constants
   MANAGER_ID,

@@ -48,7 +48,7 @@ const GHL_FORM_ID = process.env.GHL_FORM_ID || '5XhL0vWCuJ59HWHQoHGG'; // univer
 
 // ── Meta Ads — LiftMo campaign monitor ────────────────────
 // Long-lived token — expires June 17, 2026
-const META_ACCESS_TOKEN = 'EAAYoO6CtmWIBRCIaAkifvEXjdS5ZBQcglwIAhCnFwWm0EUZBO9KNGgiLjnPKEQJJ19YAjkwePAZBQ9zkENrAiqil0WqyyXZB9WF6A1uQkjcDRJT7F7bMZByZCsGFLZAOPZBriGjecrW7qrFFQEcW47kGPU18NAFUy5wJzSRBvlfKXIsVM78aR4SJGiSWB0RYagqkHwizPr9nI6iIASD7';
+const META_ACCESS_TOKEN = 'EAAYoO6CtmWIBRcM6kzros5N1TAsFEk33ScEEftheh0ujD4EQAfwiTrueZAOMI6VyxTs5CqZBngaWzBeCiO5G5YkgU6cvN2UZB99fZCNpdizL9SsOkY5sAsd73klROfDjZA2tRZAoGMgFKSIR2MkJoyxQPsjMDK7hqWAKvZAzesyqyb9EuTrLCz9tEoIccFgrhwcW8fY0Of3IJwU0ACU1fLJRUx96lc5pxZAxXtR1bIv8SJvDYrmQSVfKsZAn1KbE3qeaWZB1ZCRsjaSIFQtGFU5FPCs'; // refreshed Apr 29 2026
 const META_AD_ACCOUNT = 'act_2569067933237980';
 const META_CAMPAIGNS = {
   c2_cart_abandoners: { id: '120243790415910078', adset_id: '120243790455760078', name: 'Cart Abandoners', budget: 1000 },
@@ -16819,6 +16819,144 @@ app.post('/google-ads/query', async (req, res) => {
     res.json({ ok: true, customerId: cid, rowCount: rows.length, rows });
   } catch (err) {
     console.error('[GoogleAds] query error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// ── GitHub Autopilot — commit files directly from Render → triggers auto-deploy ──────────────────
+// POST /github/commit  — push any file to jrivas20/armando-bot main
+// Body: { path: "server.js", content: "<base64 encoded>", message: "feat: ..." }
+// After commit Render auto-deploys (autoDeploy: true in render.yaml)
+app.post('/github/commit', async (req, res) => {
+  try {
+    const { path: filePath, content, message = 'chore: autopilot update' } = req.body;
+    if (!filePath || !content) {
+      return res.status(400).json({ ok: false, error: 'Required: path (file path in repo), content (base64 string)' });
+    }
+
+    const GITHUB_PAT  = process.env.GITHUB_PAT;
+    const GITHUB_REPO = 'jrivas20/armando-bot';
+    const BRANCH      = 'main';
+
+    if (!GITHUB_PAT) return res.status(500).json({ ok: false, error: 'GITHUB_PAT env var not set on Render dashboard' });
+
+    // Step 1 — get current file SHA (required for update)
+    const shaRes = await axios.get(
+      `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?ref=${BRANCH}`,
+      { headers: { Authorization: `Bearer ${GITHUB_PAT}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' } }
+    ).catch(() => null); // null = new file
+
+    const sha = shaRes?.data?.sha || undefined;
+
+    // Step 2 — commit the file
+    const commitRes = await axios.put(
+      `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`,
+      { message, content, branch: BRANCH, ...(sha ? { sha } : {}) },
+      { headers: { Authorization: `Bearer ${GITHUB_PAT}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json' } }
+    );
+
+    res.json({
+      ok: true,
+      committed: filePath,
+      commitSha: commitRes.data.commit?.sha,
+      message: commitRes.data.commit?.message,
+      url: commitRes.data.content?.html_url,
+      note: 'Render will auto-deploy in ~60 seconds',
+    });
+  } catch (err) {
+    console.error('[GitHub] commit error:', err.response?.data || err.message);
+    res.status(500).json({ ok: false, error: err.response?.data?.message || err.message });
+  }
+});
+
+// GET /google-ads/search-terms?cid=&days= — what people actually typed to trigger your ads
+app.get('/google-ads/search-terms', async (req, res) => {
+  try {
+    const customerId = req.query.cid || DEFAULT_ADS_CUSTOMER;
+    const days = parseInt(req.query.days) || 14;
+    const terms = await googleAds.getSearchTermsReport(customerId, days);
+    res.json({ ok: true, customerId, days, count: terms.length, terms });
+  } catch (err) {
+    console.error('[GoogleAds] search-terms error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// GET /google-ads/keywords?cid=&days= — keywords with resource names (for mutation operations)
+app.get('/google-ads/keywords', async (req, res) => {
+  try {
+    const customerId = req.query.cid || DEFAULT_ADS_CUSTOMER;
+    const days = parseInt(req.query.days) || 14;
+    const keywords = await googleAds.getKeywordsWithResourceNames(customerId, days);
+    res.json({ ok: true, customerId, days, count: keywords.length, keywords });
+  } catch (err) {
+    console.error('[GoogleAds] keywords error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /google-ads/pause-keyword — pause a specific keyword by criterion resource name
+// Body: { cid, criterionResourceName }
+app.post('/google-ads/pause-keyword', async (req, res) => {
+  try {
+    const { cid = DEFAULT_ADS_CUSTOMER, criterionResourceName } = req.body;
+    if (!criterionResourceName) {
+      return res.status(400).json({ ok: false, error: 'Required: criterionResourceName' });
+    }
+    await googleAds.setKeywordStatus(cid, criterionResourceName, 'PAUSED');
+    res.json({ ok: true, customerId: cid, criterionResourceName, status: 'PAUSED' });
+  } catch (err) {
+    console.error('[GoogleAds] pause-keyword error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /google-ads/add-negatives — add campaign-level negative keywords
+// Body: { cid, campaignResourceName, keywords[], matchType }
+app.post('/google-ads/add-negatives', async (req, res) => {
+  try {
+    const {
+      cid = DEFAULT_ADS_CUSTOMER,
+      campaignResourceName,
+      keywords = [],
+      matchType = 'BROAD',
+    } = req.body;
+
+    if (!campaignResourceName || !keywords.length) {
+      return res.status(400).json({ ok: false, error: 'Required: campaignResourceName, keywords[]' });
+    }
+
+    const result = await googleAds.addCampaignNegatives(cid, campaignResourceName, keywords, matchType);
+    res.json({ ok: true, customerId: cid, added: keywords.length, result });
+  } catch (err) {
+    console.error('[GoogleAds] add-negatives error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /google-ads/optimize — full optimization pass
+// Pauses dead keywords, adds niche negatives, surfaces search term waste
+// Body: { cid, niche, minClicks, maxSpend, extraNegatives[] }
+app.post('/google-ads/optimize', async (req, res) => {
+  try {
+    const {
+      cid             = DEFAULT_ADS_CUSTOMER,
+      niche           = 'barbershop',
+      minClicks       = 10,
+      maxSpend        = 20,
+      extraNegatives  = [],
+    } = req.body;
+
+    const report = await googleAds.optimizeAccount(cid, {
+      niche,
+      minClicksToEvaluate:  minClicks,
+      maxSpendNoConversion: maxSpend,
+      extraNegatives,
+    });
+
+    res.json({ ok: true, report });
+  } catch (err) {
+    console.error('[GoogleAds] optimize error:', err.message);
     res.status(500).json({ ok: false, error: err.message });
   }
 });

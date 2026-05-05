@@ -51,3 +51,5 @@ services:
         sync: false
       - key: HF_API_KEY
         sync: false
+      - key: GITHUB_PAT
+        sync: false
