@@ -16869,6 +16869,85 @@ app.post('/github/commit', async (req, res) => {
   }
 });
 
+// GET /google-ads/optimize?cid=&niche=&minClicks=&maxSpend=&negatives=
+// WebFetch-callable GET wrapper — same logic as POST /google-ads/optimize
+app.get('/google-ads/optimize', async (req, res) => {
+  try {
+    const cid            = req.query.cid || DEFAULT_ADS_CUSTOMER;
+    const niche          = req.query.niche || 'barbershop';
+    const minClicks      = parseInt(req.query.minClicks) || 10;
+    const maxSpend       = parseInt(req.query.maxSpend) || 20;
+    const extraNegatives = req.query.negatives ? req.query.negatives.split(',') : [];
+
+    const report = await googleAds.optimizeAccount(cid, {
+      niche,
+      minClicksToEvaluate:  minClicks,
+      maxSpendNoConversion: maxSpend,
+      extraNegatives,
+    });
+
+    res.json({ ok: true, report });
+  } catch (err) {
+    console.error('[GoogleAds] optimize error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// GET /github/patch?file=&code=BASE64&marker=&message=
+// Insert a base64-encoded code snippet into any repo file — no terminal ever needed again
+// marker (optional): insert BEFORE this string. If omitted, appends to end of file.
+app.get('/github/patch', async (req, res) => {
+  try {
+    const { file, code, marker, message = 'chore: autopilot patch' } = req.query;
+    if (!file || !code) {
+      return res.status(400).json({ ok: false, error: 'Required: file (path in repo), code (base64 snippet)' });
+    }
+
+    const GITHUB_PAT  = process.env.GITHUB_PAT;
+    const GITHUB_REPO = 'jrivas20/armando-bot';
+    const BRANCH      = 'main';
+
+    if (!GITHUB_PAT) return res.status(500).json({ ok: false, error: 'GITHUB_PAT not set in Render dashboard' });
+
+    // Step 1 — pull current file from GitHub
+    const fileRes = await axios.get(
+      `https://api.github.com/repos/${GITHUB_REPO}/contents/${file}?ref=${BRANCH}`,
+      { headers: { Authorization: `Bearer ${GITHUB_PAT}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' } }
+    );
+
+    const currentContent = Buffer.from(fileRes.data.content, 'base64').toString('utf8');
+    const sha             = fileRes.data.sha;
+    const newCode         = Buffer.from(code, 'base64').toString('utf8');
+
+    // Step 2 — insert before marker, or append
+    let updated;
+    if (marker && currentContent.includes(marker)) {
+      updated = currentContent.replace(marker, `${newCode}\n\n${marker}`);
+    } else {
+      updated = currentContent + '\n\n' + newCode;
+    }
+
+    // Step 3 — commit back to GitHub → triggers Render auto-deploy
+    const commitRes = await axios.put(
+      `https://api.github.com/repos/${GITHUB_REPO}/contents/${file}`,
+      { message, content: Buffer.from(updated).toString('base64'), branch: BRANCH, sha },
+      { headers: { Authorization: `Bearer ${GITHUB_PAT}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json' } }
+    );
+
+    res.json({
+      ok:        true,
+      file,
+      linesAdded: newCode.split('\n').length,
+      commitSha: commitRes.data.commit?.sha,
+      message:   commitRes.data.commit?.message,
+      note:      'Render auto-deploys in ~60s',
+    });
+  } catch (err) {
+    console.error('[GitHub] patch error:', err.response?.data || err.message);
+    res.status(500).json({ ok: false, error: err.response?.data?.message || err.message });
+  }
+});
+
 // GET /google-ads/search-terms?cid=&days= — what people actually typed to trigger your ads
 app.get('/google-ads/search-terms', async (req, res) => {
   try {
