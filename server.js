@@ -15355,6 +15355,8 @@ await sendWeeklySummaryEmail(weekPosts);
 
 // 
 
+/*
+
 Meta Ads weekly monitor
     if (hour === 8 && minute === 5 && dayOfWeek === 1) { runMetaAdsMonitor(); }
 
