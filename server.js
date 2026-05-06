@@ -17156,6 +17156,8 @@ async function generateGMBPost(name,type,day){const cl=GMB_CLIENTS.find(c=>name.
 
 */
 
+async function runGMBDailyPosts(){try{const now=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));const day=now.getDay();if(day===0||day===6){console.log('[GMB] Weekend skip');return;}const accounts=await getGMBAccounts();let ok=0,err=0;for(const acct of accounts){const locs=await getGMBLocations(acct.name);for(const loc of locs){try{const cl=GMB_CLIENTS.find(c=>loc.title&&loc.title.toLowerCase().includes(c.name.toLowerCase().split(' ')[0]));const summary=await generateGMBPost(loc.title,cl?cl.type:'local business',day);await postToGMBLocation(loc.name,summary,cl?cl.cta:'LEARN_MORE',cl?cl.website:'');ok++;console.log('[GMB] Posted: '+loc.title);await new Promise(r=>setTimeout(r,1200));}catch(e){err++;console.error('[GMB] Error: '+loc.title,e.message);}}}await sendEmail(OWNER_CONTACT_ID,'GMB Daily Posts Complete','<p>Posted: '+ok+' | Errors: '+err+'</p>');console.log('[GMB] Done: '+ok+' ok, '+err+' errors');}catch(e){console.error('[GMB] Fatal:',e.message);}}
+
 const PORT = process.env.PORT || 3000;
 app.get('/b64',(q,r)=>r.send(Buffer.from(q.query.t||'').toString('base64')));
 
