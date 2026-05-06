@@ -17116,6 +17116,10 @@ async function getGMBAccounts(){const t=await getGoogleAccessToken();const r=awa
 async function getGMBLocations(a){const t=await getGoogleAccessToken();const r=await axios.get('https://mybusinessbusinessinformation.googleapis.com/v1/'+a+'/locations?readMask=name,title,websiteUri',{headers:{Authorization:'Bearer '+t}});return r.data.locations||[];}
 
 
+async function generateGMBPost(name,type,day){const themes=['New week energy','Service spotlight','Mid-week tip','Almost the weekend','Friday special'];const msg=await anthropic.messages.create({model:'claude-haiku-4-5-20251001',max_tokens:250,messages:[{role:'user',content:'Write a Google My Business post for '+name+' ('+type+'). Theme: '+themes[day-1]+'. Max 180 chars. Engaging call to action. Professional. No hashtags.'}]});return msg.content.shift().text.trim();}
+async function postToGMBLocation(loc,summary,cta,url){const t=await getGoogleAccessToken();const body={languageCode:'en-US',summary,topicType:'STANDARD'};if(url)body.callToAction={actionType:cta,url};await axios.post('https://mybusiness.googleapis.com/v4/'+loc+'/localPosts',body,{headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'}});}
+
+
 const PORT = process.env.PORT || 3000;
 app.get('/b64',(q,r)=>r.send(Buffer.from(q.query.t||'').toString('base64')));
 
