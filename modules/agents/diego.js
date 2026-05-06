@@ -529,6 +529,10 @@ app.post('/diego/scorecard', async (_req, res) => {
 });
 
 
+app.get('/diego/weekly-report',async(_q,r)=>{try{runDiegoWeeklyReport();r.json({status:'ok',message:'Diego weekly report started'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
+app.get('/diego/standup',async(_q,r)=>{try{runDiegoStandup();r.json({status:'ok',message:'Diego standup started'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
+app.get('/diego/scorecard',async(_q,r)=>{try{runDiegoScorecard();r.json({status:'ok',message:'Diego scorecard started'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
+
 
   return {
     runDiegoWeeklyReport,
