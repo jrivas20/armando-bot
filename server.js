@@ -17101,6 +17101,9 @@ app.get('/sofia/ams-glazing', (req, res) => {
   res.sendFile(path.join(__dirname, 'templates', 'ams-glazing-home.html'));
 });
 
+const OWNER_CONTECT_ID = OWNER_CONTACT_ID;
+
+
 async function runWeeklyBuildReport(){try{const since=new Date(Date.now()-6.048e8).toISOString();const r=await axios.get('https://api.github.com/repos/jrivas20/armando-bot/commits',{params:{since,per_page:30},headers:{Authorization:'Bearer '+process.env.GITHUB_PAT,'User-Agent':'armando-bot'}});const commits=r.data.map(x=>x.commit.message).join('\n');const msg=await anthropic.messages.create({model:'claude-opus-4-6',max_tokens:800,messages:[{role:'user',content:'JRZ weekly build report. Group commits by category: Infrastructure, Ads, Sites, Content. Bullets. Total shipped on last line.\n\nCommits:\n'+commits}]});const body=msg.content.shift().text.replace(/\n/g,'<br>');await sendEmail(OWNER_CONTECT_ID,'JRZ Marketing - What We Built Last Week','<div>'+body+'</div>');console.log('[WeeklyBuild] ok');}catch(e){console.error('[WeeklyBuild]',e.message);}}
 app.get('/armando/weekly-build-report',async(_q,r)=>{try{runWeeklyBuildReport();r.json({status:'ok',message:'Weekly build report started'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
 
