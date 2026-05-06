@@ -967,6 +967,8 @@ app.get('/elena/health-check',async(_q,r)=>{try{elenaHealthCheck();r.json({statu
 
 app.get('/elena/mid-month-checkin',async(_q,r)=>{try{elenaMidMonthCheckIn();r.json({status:'ok'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
 
+app.get('/elena/quarterly-report',async(_q,r)=>{try{elenaQuarterlyReport();r.json({status:'ok'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
+
   return {
     getElenaClients,
     elenaHealthCheck,
