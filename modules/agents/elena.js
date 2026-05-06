@@ -961,6 +961,8 @@ async function getSubaccountOpportunities(locationId) {
 
 
 
+app.get('/elena/monthly-reports',async(_q,r)=>{try{elenaMonthlyReports();r.json({status:'ok'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
+
   return {
     getElenaClients,
     elenaHealthCheck,
