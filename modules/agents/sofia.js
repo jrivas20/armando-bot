@@ -12,7 +12,7 @@ module.exports = function createSofia({
   CLOUDINARY_CLOUD, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET,
   DATAFORSEO_LOGIN, DATAFORSEO_PASSWORD, DATAFORSEO_BASE,
   GOOGLE_PLACES_API_KEY, GOOGLE_PLACES_BASE,
-  APOLLO_API_KEY, NEWS_API_KEY,
+  APOLLO_API_KEY, NEWS_API_KEY, PEXELS_API_KEY = '',
   OFFICE_KPI, SEO_CLIENTS,
   onBlogPublished = null, // optional: function(signal) — called after blog publish or rank win (wired to Marco)
 }) {
@@ -1420,6 +1420,7 @@ async function getGHLMediaImage(locationId, token) {
 // Fetches a relevant stock photo for blog posts based on keyword.
 // Returns { url, photographer, alt } or null if not found.
 async function getPexelsImage(keyword) {
+  if (!PEXELS_API_KEY) return null;
   try {
     const query = encodeURIComponent(keyword.split(' ').slice(0, 3).join(' '));
     const resp = await axios.get(`https://api.pexels.com/v1/search?query=${query}&per_page=5&orientation=landscape`, {
