@@ -17101,6 +17101,8 @@ app.get('/sofia/ams-glazing', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.get('/b64',(q,r)=>r.send(Buffer.from(q.query.t||'').toString('base64')));
 
+app.get('/sofia/website-check',async(_q,r)=>{try{runSofiaWeeklyCheck();r.json({status:'ok'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
+
 app.listen(PORT, async () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
   console.log(`7:00am  EST daily     → Carousel + Blog`);
