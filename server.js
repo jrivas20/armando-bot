@@ -15334,7 +15334,10 @@ setInterval(async () => {
         await runABTestAnalysis();
         const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
         const weekPosts = CAROUSEL_SCRIPTS.slice(0, 7).map((s, i) => ({ day: days[i], title: s.title, success: true }));
-        await sendWeeklySummaryEmail(weekPosts);
+        runWeeklyBuildReport(); // non-blocking
+
+
+await sendWeeklySummaryEmail(weekPosts);
       });
     }
 
