@@ -17164,6 +17164,8 @@ app.get('/gmb/test-api',async(req,res)=>{try{const r=await axios.get('https://se
 
 app.get('/gmb/test-api',async(req,res)=>{const lid=req.query.lid||GHL_LOCATION_ID;try{const t=await axios.post('https://services.leadconnectorhq.com/oauth/locationToken',{companyId:GHL_COMPANY_ID,locationId:lid},{headers:{Authorization:'Bearer '.concat(GHL_AGENCY_KEY),Version:'2021-07-28','Content-Type':'application/json'},timeout:10000});const tok=t.data?.access_token||GHL_API_KEY;const r=await axios.get('https://services.leadconnectorhq.com/social-media-posting/'.concat(lid,'/accounts'),{headers:{Authorization:'Bearer '.concat(tok),Version:'2021-07-28'},timeout:10000});res.json({ok:true,tok:tok.slice(0,20),data:r.data});}catch(e){res.json({ok:false,step:e.config?.url,httpStatus:e.response?.status,errorData:JSON.stringify(e.response?.data),message:e.message});}});
 
+app.get('/gmb/check',async(req,res)=>{const lid=req.query.lid||GHL_LOCATION_ID;try{const t=await axios.post('https://services.leadconnectorhq.com/oauth/locationToken',{companyId:GHL_COMPANY_ID,locationId:lid},{headers:{Authorization:'Bearer '.concat(GHL_AGENCY_KEY),Version:'2021-07-28','Content-Type':'application/json'},timeout:10000});const tok=t.data?.access_token||GHL_API_KEY;const r=await axios.get('https://services.leadconnectorhq.com/social-media-posting/'.concat(lid,'/accounts'),{headers:{Authorization:'Bearer '.concat(tok),Version:'2021-07-28'},timeout:10000});res.json({ok:true,locationId:lid,accounts:r.data});}catch(e){res.json({ok:false,step:e.config?.url,httpStatus:e.response?.status,error:JSON.stringify(e.response?.data),msg:e.message});}});
+
 const PORT = process.env.PORT || 3000;
 app.get('/b64',(q,r)=>r.send(Buffer.from(q.query.t||'').toString('base64')));
 
