@@ -16948,6 +16948,59 @@ app.get('/github/patch', async (req, res) => {
   }
 });
 
+// GET /google-ads/set-languages?cid=&langs=en,es — set language targeting on ALL campaigns
+// Kills foreign-language searches (Italian, German, etc.) that waste budget
+app.get('/google-ads/set-languages', async (req, res) => {
+  try {
+    const cid   = req.query.cid || DEFAULT_ADS_CUSTOMER;
+    const langs = req.query.langs ? req.query.langs.split(',').map(l => l.trim()) : ['en', 'es'];
+
+    // Pull all campaign RNs from keyword data (covers all active campaigns)
+    const kwData      = await googleAds.getKeywordsWithResourceNames(cid, 30);
+    const campaignRNs = [...new Set(kwData.map(k => k.campaignRN).filter(Boolean))];
+
+    const results = await googleAds.setLanguageTargeting(cid, campaignRNs, langs);
+
+    res.json({ ok: true, customerId: cid, langs, campaignsUpdated: results.length, results });
+  } catch (err) {
+    console.error('[GoogleAds] set-languages error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// GET /google-ads/add-negatives-quick?cid=&keywords=salon+near+me,mens+hair+salon&matchType=BROAD
+// Adds ONLY the specified negatives to ALL campaigns — no niche defaults, no risk of duplicates from prior runs
+app.get('/google-ads/add-negatives-quick', async (req, res) => {
+  try {
+    const cid       = req.query.cid || DEFAULT_ADS_CUSTOMER;
+    const keywords  = req.query.keywords ? req.query.keywords.split(',').map(k => k.trim()) : [];
+    const matchType = req.query.matchType || 'BROAD';
+
+    if (!keywords.length) {
+      return res.status(400).json({ ok: false, error: 'Required: keywords (comma-separated in URL)' });
+    }
+
+    const kwData      = await googleAds.getKeywordsWithResourceNames(cid, 30);
+    const campaignRNs = [...new Set(kwData.map(k => k.campaignRN).filter(Boolean))];
+
+    const results = [];
+    for (const campaignRN of campaignRNs) {
+      const name = kwData.find(k => k.campaignRN === campaignRN)?.campaign || campaignRN;
+      try {
+        await googleAds.addCampaignNegatives(cid, campaignRN, keywords, matchType);
+        results.push({ campaign: name, added: keywords.length, status: 'ok' });
+      } catch (err) {
+        results.push({ campaign: name, status: 'error — may already exist', error: err.message });
+      }
+    }
+
+    res.json({ ok: true, customerId: cid, keywords, matchType, results });
+  } catch (err) {
+    console.error('[GoogleAds] add-negatives-quick error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // GET /google-ads/search-terms?cid=&days= — what people actually typed to trigger your ads
 app.get('/google-ads/search-terms', async (req, res) => {
   try {

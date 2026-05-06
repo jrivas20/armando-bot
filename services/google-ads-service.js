@@ -807,6 +807,45 @@ async function optimizeAccount(customerId, options = {}) {
   return report;
 }
 
+/**
+ * Set language targeting on a list of campaigns
+ * langs: array of codes — 'en' (1000), 'es' (1003), 'fr' (1002), 'pt' (1014)
+ */
+async function setLanguageTargeting(customerId, campaignResourceNames = [], langs = ['en', 'es']) {
+  const cid = customerId.replace(/-/g, '');
+
+  const LANG_MAP = {
+    en: 'languageConstants/1000',
+    es: 'languageConstants/1003',
+    fr: 'languageConstants/1002',
+    pt: 'languageConstants/1014',
+  };
+
+  const results = [];
+
+  for (const campaignRN of campaignResourceNames) {
+    const operations = langs
+      .map(l => LANG_MAP[l])
+      .filter(Boolean)
+      .map(lc => ({
+        create: {
+          campaign: campaignRN,
+          language: { language_constant: lc },
+        }
+      }));
+
+    try {
+      await adsMutate(cid, 'campaignCriteria', operations);
+      results.push({ campaign: campaignRN, langs, status: 'ok' });
+      console.log(`[Google Ads] Language targeting set: ${campaignRN} → ${langs.join('+')}`);
+    } catch (err) {
+      results.push({ campaign: campaignRN, status: 'error', error: err.message });
+    }
+  }
+
+  return results;
+}
+
 // ─── List All Accessible Customer Accounts ───────────────────────────────────
 // Hits the MCC and returns every sub-account linked under it.
 // Use this to discover customer IDs for all your clients.
@@ -955,6 +994,7 @@ module.exports = {
   // Bulk
   buildSearchCampaign,
   optimizeAccount,
+  setLanguageTargeting,
 
   // Constants
   MANAGER_ID,
