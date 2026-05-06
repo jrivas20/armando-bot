@@ -17103,6 +17103,8 @@ app.get('/b64',(q,r)=>r.send(Buffer.from(q.query.t||'').toString('base64')));
 
 app.get('/sofia/website-check',async(_q,r)=>{try{runSofiaWeeklyCheck();r.json({status:'ok'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
 
+app.get('/sofia/full-audit',async(q,r)=>{try{if(!q.query.url)return r.status(400).json({status:'error',message:'url required'});const a=await runSofiaFullAudit(q.query.url,q.query.clientName|'"Client",q.query.industry|''business');r.json({status:'ok',audit:a});}catch(e){r.status(500).json({status:'error',message:e.message});}});
+
 app.listen(PORT, async () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
   console.log(`7:00am  EST daily     → Carousel + Blog`);
