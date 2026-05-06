@@ -459,6 +459,9 @@ app.post('/marco/repurpose-brief', async (req, res) => {
   }
 });
 
+app.get('/marco/content-brief',async(_q,r)=>{try{runMarcoContentBrief();r.json({status:'ok',message:'Marco content brief started'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
+app.get('/marco/trend-alert',async(_q,r)=>{try{runMarcoTrendAlert();r.json({status:'ok',message:'Marco trend alert started'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
+
 
   return {
     runMarcoContentBrief,
