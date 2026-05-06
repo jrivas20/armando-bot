@@ -17148,6 +17148,8 @@ app.get('/gmb/locations',async(_q,r)=>{try{const accts=await getGMBAccounts();co
 
 async function generateGMBPost(name,type,day){const cl=GMB_CLIENTS.find(c=>name.toLowerCase().includes(c.name.toLowerCase().split(' ')[0]));let ctx='';if(cl&&cl.website){try{const wr=await axios.get(cl.website,{timeout:5000,headers:{'User-Agent':'Mozilla/5.0 (compatible)'}});ctx=wr.data.replace(/<[^>]>>/g,' ').replace(/\s+/g,' ').slice(0,500);}catch(e){}}const themes=['New week energy','Service spotlight','Mid-week tip','Almost the weekend','Friday special'];const prompt='Write a Google Business post for "'+name+'" ('+type+'). Location: '+name+'.'+(ctx?' Business context: '+ctx.slice(0,300)+'. ':'')+'Theme: '+themes[day-1]+'. Max 180 chars. Engaging, professional, specific to this business. No hashtags.';const msg=await anthropic.messages.create({model:'claude-haiku-4-5-20251001',max_tokens:250,messages:[{role:'user',content:prompt}]});return msg.content.shift().text.trim();}
 
+*/
+
 const PORT = process.env.PORT || 3000;
 app.get('/b64',(q,r)=>r.send(Buffer.from(q.query.t||'').toString('base64')));
 
