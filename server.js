@@ -17143,6 +17143,9 @@ JN�X�]�
 �ӑT���ӕP��Q	��P�Z[H�����\]I�	����Y�	������\��ܜΈ	��\�������N��ۜ��K���	���P�HۙN�	��������	��\����\��ܜ��N�X�]�
 J^��ۜ��K�\��܊	���P�H�][��K�Y\��Y�JN�_B
 
+*/
+
+
 app.get('/gmb/post-now',async(_q,r)=>{try{runGMBDailyPosts();r.json({status:'ok',message:'GMB posts started'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
 app.get('/gmb/locations',async(_q,r)=>{try{const accts=await getGMBAccounts();const out=[];for(const a of accts){const locs=await getGMBLocations(a.name);out.push({account:a.name,locations:locs.map(x=>({id:x.name,title:x.title}))});}r.json({status:'ok',data:out});}catch(e){r.status(500).json({status:'error',message:e.message});}});
 
