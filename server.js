@@ -15358,7 +15358,9 @@ await sendWeeklySummaryEmail(weekPosts);
 /*
 
 Meta Ads weekly monitor
-    if (hour === 8 && minute === 5 && dayOfWeek === 1) { runMetaAdsMonitor(); }
+    */
+
+if (hour === 8 && minute === 5 && dayOfWeek === 1) { runMetaAdsMonitor(); }
 
     // 8:00am Monday — competitor monitoring
     if (hour === 8 && minute < 5 && dayOfWeek === 1 && lastCompetitorDate !== today) {
