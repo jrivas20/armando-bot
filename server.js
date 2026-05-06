@@ -3514,12 +3514,15 @@ app.post('/webhook', async (req, res) => {
 // Parses FULL lead data from Angi new-lead emails:
 //   name, phone, email, address, service type, comments
 // ═══════════════════════════════════════════════════════════
-app.post('/webhook/angi-lead', async (req, res) => {
-  res.json({ ok: true });
+app.post('/webhook/angi-lead', async (req, res, next) => {
   try {
     const payload = req.body;
     const msgBody    = payload?.message?.body || payload?.messageBody || payload?.body || payload?.email?.body || '';
     const msgSubject = payload?.message?.subject || payload?.subject || payload?.email?.subject || '';
+    const fromEmail  = payload?.message?.from || payload?.from || payload?.email?.from || payload?.contact?.email || '';
+    const isAngiWebhook = /angi/i.test(`${fromEmail} ${msgSubject} ${msgBody}`);
+    if (!isAngiWebhook) return next();
+    res.json({ ok: true, handler: 'angi' });
 
     const KEY      = 'pit-fbb00e26-bee4-43b5-9108-512f61ea71bf';
     const LOC      = 'Gc4sUcLiRI2edddJ5Lfl';
@@ -6204,7 +6207,7 @@ const {
   CLOUDINARY_CLOUD, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET,
   DATAFORSEO_LOGIN, DATAFORSEO_PASSWORD, DATAFORSEO_BASE,
   GOOGLE_PLACES_API_KEY, GOOGLE_PLACES_BASE,
-  APOLLO_API_KEY, NEWS_API_KEY,
+  APOLLO_API_KEY, NEWS_API_KEY, PEXELS_API_KEY,
   OFFICE_KPI, SEO_CLIENTS,
   onBlogPublished: runMarcoRepurposeBrief,
 });
@@ -17113,10 +17116,32 @@ app.get('/sofia/ams-glazing', (req, res) => {
   res.sendFile(path.join(__dirname, 'templates', 'ams-glazing-home.html'));
 });
 
-const OWNER_CONTECT_ID = OWNER_CONTACT_ID;
+async function runWeeklyBuildReport() {
+  try {
+    const since = new Date(Date.now() - 6.048e8).toISOString();
+    const headers = { 'User-Agent': 'armando-bot' };
+    if (process.env.GITHUB_PAT) headers.Authorization = 'Bearer ' + process.env.GITHUB_PAT;
 
-
-async function runWeeklyBuildReport(){try{const since=new Date(Date.now()-6.048e8).toISOString();const r=await axios.get('https://api.github.com/repos/jrivas20/armando-bot/commits',{params:{since,per_page:30},headers:{Authorization:'Bearer '+process.env.GITHUB_PAT,'User-Agent':'armando-bot'}});const commits=r.data.map(x=>x.commit.message).join('\n');const msg=await anthropic.messages.create({model:'claude-opus-4-6',max_tokens:800,messages:[{role:'user',content:'JRZ weekly build report. Group commits by category: Infrastructure, Ads, Sites, Content. Bullets. Total shipped on last line.\n\nCommits:\n'+commits}]});const body=msg.content.shift().text.replace(/\n/g,'<br>');await sendEmail(OWNER_CONTECT_ID,'JRZ Marketing - What We Built Last Week','<div>'+body+'</div>');console.log('[WeeklyBuild] ok');}catch(e){console.error('[WeeklyBuild]',e.message);}}
+    const r = await axios.get('https://api.github.com/repos/jrivas20/armando-bot/commits', {
+      params: { since, per_page: 30 },
+      headers,
+    });
+    const commits = r.data.map(x => x.commit.message).join('\n') || 'No commits found in the last 7 days.';
+    const msg = await anthropic.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 800,
+      messages: [{
+        role: 'user',
+        content: 'JRZ weekly build report. Group commits by category: Infrastructure, Ads, Sites, Content. Bullets. Total shipped on last line.\n\nCommits:\n' + commits,
+      }],
+    });
+    const body = (msg.content?.[0]?.text || 'No report generated.').replace(/\n/g, '<br>');
+    await sendEmail(OWNER_CONTACT_ID, 'JRZ Marketing - What We Built Last Week', '<div>' + body + '</div>');
+    console.log('[WeeklyBuild] ok');
+  } catch (e) {
+    console.error('[WeeklyBuild]', e.message);
+  }
+}
 app.get('/armando/weekly-build-report',async(_q,r)=>{try{runWeeklyBuildReport();r.json({status:'ok',message:'Weekly build report started'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
 
 
@@ -17125,7 +17150,27 @@ async function getGMBAccounts(){const t=await getGoogleAccessToken();const r=awa
 async function getGMBLocations(a){const t=await getGoogleAccessToken();const r=await axios.get('https://mybusinessbusinessinformation.googleapis.com/v1/'+a+'/locations?readMask=name,title,websiteUri',{headers:{Authorization:'Bearer '+t}});return r.data.locations||[];}
 
 
-async function generateGMBPost(name,type,day){const themes=['New week energy','Service spotlight','Mid-week tip','Almost the weekend','Friday special'];const msg=await anthropic.messages.create({model:'claude-haiku-4-5-20251001',max_tokens:250,messages:[{role:'user',content:'Write a Google My Business post for '+name+' ('+type+'). Theme: '+themes[day-1]+'. Max 180 chars. Engaging call to action. Professional. No hashtags.'}]});return msg.content.shift().text.trim();}
+async function generateGMBPost(name, type, day) {
+  const cl = GMB_CLIENTS.find(c => name.toLowerCase().includes(c.name.toLowerCase().split(' ')[0]));
+  let ctx = '';
+  if (cl && cl.website) {
+    try {
+      const wr = await axios.get(cl.website, { timeout: 5000, headers: { 'User-Agent': 'Mozilla/5.0 (compatible)' } });
+      ctx = String(wr.data).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').slice(0, 500);
+    } catch (e) {}
+  }
+
+  const themes = ['New week energy', 'Service spotlight', 'Mid-week tip', 'Almost the weekend', 'Friday special'];
+  const prompt = 'Write a Google Business post for "' + name + '" (' + type + '). Location: ' + name + '. '
+    + (ctx ? 'Business context: ' + ctx.slice(0, 300) + '. ' : '')
+    + 'Theme: ' + (themes[day - 1] || themes[0]) + '. Max 180 chars. Engaging, professional, specific to this business. No hashtags.';
+  const msg = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 250,
+    messages: [{ role: 'user', content: prompt }],
+  });
+  return (msg.content?.[0]?.text || '').trim();
+}
 async function postToGMBLocation(loc,summary,cta,url){const t=await getGoogleAccessToken();const body={languageCode:'en-US',summary,topicType:'STANDARD'};if(url)body.callToAction={actionType:cta,url};await axios.post('https://mybusiness.googleapis.com/v4/'+loc+'/localPosts',body,{headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'}});}
 
 
@@ -17133,7 +17178,6 @@ async function postToGMBLocation(loc,summary,cta,url){const t=await getGoogleAcc
 
 
 async function runGMBDailyPosts(){try{const now=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));const day=now.getDay();if(day===0||day===6){console.log('[GMB] Weekend skip');return;}const accounts=await getGMBAccounts();let ok=0,err=0;for(const acct of accounts){const locs=await getGMBLocations(acct.name);for(const loc of locs){try{const cl=GMB_CLIENTS.find(c=�˝]I���˝]K����\��\�J
-K�[��Y\�˛�[YK����\��\�J
 K��]
 	�	�V�JJN��ۜ��[[X\�OX]�Z]�[�\�]Q�P���
 �˝]K����\N����[�\�[�\���^JN�]�Z]����P���][ۊ�˛�[YK�[[X\�K�����N��PT���SԑI������X��]N���N�������ۜ��K���	���P�H��Y�	���˝]JN�]�Z]�]���Z\�J�O��][Y[�]
