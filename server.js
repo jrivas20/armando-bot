@@ -14896,6 +14896,9 @@ let lastSubCheckInDate      = null;
 let lastLearningDate        = null;
 let lastElenaHealthDate     = null;
 let lastDiegoReportDate     = null;
+let lastGMBPostDate=null;
+
+
 let lastDiegoStandupDate    = null;
 let lastMarcoContentDate    = null;
 let lastMarcoTrendDate      = null;
