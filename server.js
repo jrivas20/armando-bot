@@ -15350,7 +15350,10 @@ await sendWeeklySummaryEmail(weekPosts);
       runCron('diego-standup', runDiegoStandup, true);
     }
 
-    // 8:05am Monday — Meta Ads weekly monitor
+    // 8:05am Monday — if(hour===8&&minute<5&&isWeekday&&lastGMBPostDate!==today){lastGMBPostDate=today;runGMBDailyPosts();}
+
+
+Meta Ads weekly monitor
     if (hour === 8 && minute === 5 && dayOfWeek === 1) { runMetaAdsMonitor(); }
 
     // 8:00am Monday — competitor monitoring
