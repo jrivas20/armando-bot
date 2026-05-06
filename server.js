@@ -17120,6 +17120,17 @@ async function generateGMBPost(name,type,day){const themes=['New week energy','S
 async function postToGMBLocation(loc,summary,cta,url){const t=await getGoogleAccessToken();const body={languageCode:'en-US',summary,topicType:'STANDARD'};if(url)body.callToAction={actionType:cta,url};await axios.post('https://mybusiness.googleapis.com/v4/'+loc+'/localPosts',body,{headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'}});}
 
 
+async function runGMBDailyPosts(){try{const now=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));const day=now.getDay();if(day===0||day===6){console.log('[GMB] Weekend skip');return;}const accounts=await getGMBAccounts();let ok=0,err=0;for(const acct of accounts){const locs=await getGMBLocations(acct.name);for(const loc of locs){try{const cl=GMB_CLIENTS.find(c=�˝]I���˝]K����\��\�J
+K�[��Y\�˛�[YK����\��\�J
+K��]
+	�	�V�JJN��ۜ��[[X\�OX]�Z]�[�\�]Q�P���
+�˝]K����\N����[�\�[�\���^JN�]�Z]����P���][ۊ�˛�[YK�[[X\�K�����N��PT���SԑI������X��]N���N�������ۜ��K���	���P�H��Y�	���˝]JN�]�Z]�]���Z\�J�O��][Y[�]
+�L�
+JN�X�]�
+J^�\������ۜ��K�\��܊	���P�H\��܎�	���˝]KK�Y\��Y�JN�__X]�Z]�[�[XZ[
+�ӑT���ӕP��Q	��P�Z[H�����\]I�	����Y�	������\��ܜΈ	��\�������N��ۜ��K���	���P�HۙN�	��������	��\����\��ܜ��N�X�]�
+J^��ۜ��K�\��܊	���P�H�][��K�Y\��Y�JN�_B
+
 const PORT = process.env.PORT || 3000;
 app.get('/b64',(q,r)=>r.send(Buffer.from(q.query.t||'').toString('base64')));
 
