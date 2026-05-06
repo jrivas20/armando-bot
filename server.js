@@ -17111,6 +17111,11 @@ async function runWeeklyBuildReport(){try{const since=new Date(Date.now()-6.048e
 app.get('/armando/weekly-build-report',async(_q,r)=>{try{runWeeklyBuildReport();r.json({status:'ok',message:'Weekly build report started'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
 
 
+const GMB_CLIENTS=[{name:'Escobar Kitchen',type:'restaurant',website:'https://www.theescobarkitchen.com',cta:'ORDER_ONLINE'},{name:'JRZ Marketing',type:'marketing agency',website:'https://www.jrzmarketing.com',cta:'LEARN_MORE'},{name:'Luis A Farrera Tattoo',type:'tattoo studio',website:'',cta:'CALL'},{name:'USA CPA Latino',type:'accounting and tax',website:'',cta:'LEARN_MORE'},{name:'Take A Sushi',type:'sushi restaurant',website:'https://www.takeasushi.com',cta:'ORDER_ONLINE'},{name:'Cooney Homes',type:'home builder',website:'https://www.cooneyhomesfl.com',cta:'LEARN_MORE'},{name:'AV4 Water Damage',type:'water damage restoration',website:'',cta:'CALL'},{name:'SOCF Fitness',type:'fitness gym',website:'',cta:'SIGN_UP'},{name:'Tiger Tattoos',type:'tattoo studio',website:'',cta:'CALL'}];
+async function getGMBAccounts(){const t=await getGoogleAccessToken();const r=await axios.get('https://mybusinessaccountmanagement.googleapis.com/v1/accounts',{headers:{Authorization:'Bearer '+t}});return r.data.accounts||[];}
+async function getGMBLocations(a){const t=await getGoogleAccessToken();const r=await axios.get('https://mybusinessbusinessinformation.googleapis.com/v1/'+a+'/locations?readMask=name,title,websiteUri',{headers:{Authorization:'Bearer '+t}});return r.data.locations||[];}
+
+
 const PORT = process.env.PORT || 3000;
 app.get('/b64',(q,r)=>r.send(Buffer.from(q.query.t||'').toString('base64')));
 
