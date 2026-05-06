@@ -17115,6 +17115,8 @@ app.get('/sofia/full-audit',async(q,r)=>{try{if(!q.query.url)return r.status(400
 
 app.get('/sofia/cro-report',async(_q,r)=>{try{runSofiaCROReport();r.json({status:'ok'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
 
+app.get('/sofia/onboarding-check',async(_q,r)=>{try{runSofiaOnboardingCheck();r.json({status:'ok'});}catch(e){r.status(500).json({status:'error',message:e.message});}});
+
 app.listen(PORT, async () => {
   console.log(`Armando Rivas is online — JRZ Marketing 🇻🇪`);
   console.log(`7:00am  EST daily     → Carousel + Blog`);
