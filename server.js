@@ -16253,10 +16253,28 @@ setInterval(async () => {
 
     // 4:00am EST every 2 days — AIFC Albania International Fire Conference (= 10am Spain CEST)
     // 24 images × every 2 days = 48 days of automated content
-    if (hour === 4 && minute < 5 && lastAIFCPostDate !== today) {
+    // Cloudinary-persisted state survives Render restarts — bulletproof no-duplicate guard
+    if (hour === 4 && minute < 5) {
+      // On first tick after restart, reload last-post date from Cloudinary
+      if (lastAIFCPostDate === null) {
+        try {
+          const stateRes = await axios.get(
+            `https://res.cloudinary.com/dbsuw1mfm/raw/upload/jrz/aifc_post_state.json?t=${Date.now()}`,
+            { timeout: 5000 }
+          );
+          const s = typeof stateRes.data === 'string' ? JSON.parse(stateRes.data) : stateRes.data;
+          lastAIFCPostDate = s.lastPostDate || '';
+          console.log(`[AIFC] State restored: lastPostDate=${lastAIFCPostDate}`);
+        } catch {
+          lastAIFCPostDate = '';
+          console.log('[AIFC] No saved state — fresh start');
+        }
+      }
       const dayNum = Math.floor(Date.now() / 86400000);
-      if (dayNum % 2 === 0) {
+      if (dayNum % 2 === 0 && lastAIFCPostDate !== today) {
         lastAIFCPostDate = today;
+        // Persist immediately so a mid-post restart won't re-fire
+        saveCloudinaryJSON('jrz/aifc_post_state', { lastPostDate: today, savedAt: new Date().toISOString() });
         runCron('aifc-post', () => runAIFCDailyPost(), true);
       }
     }
