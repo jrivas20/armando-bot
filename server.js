@@ -15772,6 +15772,187 @@ app.get('/aifc/story', (req, res) => {
   })();
 });
 
+// ─── GHL Blog — DataForSEO + Claude Opus → publish directly to GHL ───────────
+// GET /blog/post?keyword=KEYWORD&category=marketing&status=PUBLISHED&lid=LOCATION_ID
+// Workflow: DataForSEO SERP research → Claude writes SEO post → GHL Blog API
+//
+// category options: ai | automation | marketing | business | ghl (default: marketing)
+// status options:   PUBLISHED | DRAFT (default: PUBLISHED)
+// lid: GHL location ID (defaults to JRZ Marketing)
+
+async function runGHLBlogPost({ keyword, categoryKey = 'marketing', status = 'PUBLISHED', locationId = GHL_LOCATION_ID, apiKey = GHL_API_KEY, blogId = BLOG_ID, authorId = BLOG_AUTHOR_ID }) {
+  const label = `[Blog:${keyword.slice(0, 30)}]`;
+  console.log(`${label} Starting — DataForSEO research...`);
+
+  // ── Step 1: DataForSEO SERP data for the keyword ──────────────────────────
+  let serpData = { topTitles: [], paaQuestions: [], relatedKeywords: [], volume: 0 };
+  try {
+    const [serpRes, volRes] = await Promise.all([
+      // Top 10 organic results + People Also Ask
+      axios.post('https://api.dataforseo.com/v3/serp/google/organic/live/regular', [{
+        keyword,
+        language_code: 'en',
+        location_code: 2840, // USA
+        depth: 10,
+        se_domain: 'google.com',
+      }], { headers: { Authorization: `Basic ${DATASEO_AUTH}`, 'Content-Type': 'application/json' }, timeout: 20000 }),
+      // Keyword volume
+      axios.post('https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live', [{
+        keywords: [keyword],
+        language_code: 'en',
+        location_code: 2840,
+      }], { headers: { Authorization: `Basic ${DATASEO_AUTH}`, 'Content-Type': 'application/json' }, timeout: 15000 }),
+    ]);
+
+    const serpItems = serpRes.data?.tasks?.[0]?.result?.[0]?.items || [];
+    serpData.topTitles     = serpItems.filter(i => i.type === 'organic').slice(0, 8).map(i => ({ title: i.title, description: i.description }));
+    serpData.paaQuestions  = serpItems.filter(i => i.type === 'people_also_ask').map(i => i.title).slice(0, 6);
+    serpData.volume        = volRes.data?.tasks?.[0]?.result?.[0]?.items?.[0]?.search_volume || 0;
+    console.log(`${label} SERP: ${serpData.topTitles.length} results, ${serpData.paaQuestions.length} PAA, vol=${serpData.volume}`);
+  } catch (e) {
+    console.error(`${label} DataForSEO error: ${e.message} — continuing with Claude only`);
+  }
+
+  // ── Step 2: Claude Opus writes the full SEO blog post ────────────────────
+  const categoryId = BLOG_CATEGORIES[categoryKey] || BLOG_CATEGORIES.marketing;
+  const topTitlesText    = serpData.topTitles.map((t, i) => `${i+1}. "${t.title}" — ${t.description || ''}`).join('\n');
+  const paaText          = serpData.paaQuestions.join('\n') || 'No PAA data available';
+
+  const claudeRes = await anthropic.messages.create({
+    model: 'claude-opus-4-6',
+    max_tokens: 4000,
+    messages: [{ role: 'user', content: `You are an expert SEO content writer for JRZ Marketing — a digital marketing agency in Orlando, Florida.
+
+Write a complete, publish-ready SEO blog post for the keyword: "${keyword}"
+Monthly search volume: ${serpData.volume || 'unknown'}
+
+━━━ SERP CONTEXT (what's currently ranking) ━━━
+${topTitlesText || 'No SERP data — write from scratch'}
+
+━━━ PEOPLE ALSO ASK (questions to answer in the post) ━━━
+${paaText}
+
+━━━ PURPOSE ━━━
+This blog exists ONLY to drive organic traffic to the website. It is an educational resource.
+It is NOT a sales page. It is NOT an ad. It will never mislead the reader.
+
+━━━ CONTENT RULES ━━━
+✅ Write about the industry topic — educate, inform, explain
+✅ Ground the post in the local city/region context (Orlando, Central Florida, or relevant market)
+✅ Use the target keyword and related terms naturally throughout
+✅ Answer real questions people search for (use the PAA list above)
+✅ Brief mention of JRZ Marketing at the END only — as the local expert, 1 sentence max
+✅ Link to https://jrzmarketing.com/contact-us in the closing paragraph only
+
+❌ NO promotions, offers, discounts, or deals — ever
+❌ NO pricing or packages
+❌ NO "limited time", "act now", "don't miss out" language
+❌ NO misleading claims or exaggerations
+❌ NO fake statistics — only reference general industry knowledge
+❌ NO salesy language anywhere in the body
+❌ NO keyword stuffing
+❌ NO filler opening lines like "In today's digital landscape" or "Have you ever wondered"
+
+━━━ STRUCTURE ━━━
+- Length: 1,100–1,400 words
+- Format: Clean HTML only — <h2>, <h3>, <p>, <ul><li>, <strong> tags
+- Introduction: Define the topic clearly, state what the reader will learn
+- Body: 4–5 H2 sections covering the topic thoroughly
+- PAA section: Answer at least 3 PAA questions in dedicated H3s
+- Conclusion: Summarize key points → 1 sentence about JRZ Marketing as a local resource → link
+- Tone: Helpful, clear, authoritative. Written for business owners seeking information.
+
+━━━ OUTPUT FORMAT (JSON — required) ━━━
+Respond with ONLY this JSON, no other text:
+{
+  "title": "SEO title (55–65 characters, includes keyword)",
+  "slug": "url-friendly-slug-from-title",
+  "description": "Meta description 145–160 chars with keyword — informational, not promotional",
+  "readingTime": estimated minutes as integer,
+  "content": "FULL HTML body here"
+}` }],
+  });
+
+  let post;
+  try {
+    const raw = claudeRes.content[0].text.trim();
+    const jsonStr = raw.startsWith('{') ? raw : raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1);
+    post = JSON.parse(jsonStr);
+  } catch (e) {
+    throw new Error(`Claude JSON parse failed: ${e.message}`);
+  }
+  console.log(`${label} Claude wrote: "${post.title}" (~${post.readingTime}min read)`);
+
+  // ── Step 3: Generate featured image via Pollinations ────────────────────
+  let imageUrl = '';
+  try {
+    const imgPrompt = encodeURIComponent(`professional blog header for "${keyword}", digital marketing, clean modern design, Orlando Florida, no text`);
+    imageUrl = `https://image.pollinations.ai/prompt/${imgPrompt}?width=1200&height=630&nologo=true&seed=${Date.now()}`;
+    console.log(`${label} Image: Pollinations generated`);
+  } catch (e) {
+    console.error(`${label} Image error: ${e.message}`);
+  }
+
+  // ── Step 4: Publish to GHL Blog API ──────────────────────────────────────
+  const ghlPayload = {
+    locationId,
+    title:       post.title,
+    blogId,
+    authorId,
+    categories:  [categoryId],
+    content:     post.content,
+    description: post.description,
+    imageUrl,
+    status,
+    urlSlug:     post.slug,
+    readingTime: post.readingTime || 5,
+  };
+
+  const ghlRes = await axios.post(
+    'https://services.leadconnectorhq.com/blogs/posts',
+    ghlPayload,
+    { headers: { Authorization: `Bearer ${apiKey}`, Version: '2021-07-28', 'Content-Type': 'application/json' }, timeout: 30000 }
+  );
+
+  const postId  = ghlRes.data?.data?.id || ghlRes.data?.id || 'unknown';
+  const postUrl = ghlRes.data?.data?.url || '';
+  console.log(`${label} ✅ Published to GHL — id=${postId} slug=${post.slug}`);
+
+  return { ok: true, title: post.title, slug: post.slug, postId, postUrl, keyword, volume: serpData.volume, paaAnswered: serpData.paaQuestions.length, status };
+}
+
+// ── Manual trigger: generate + publish one blog post right now ────────────────
+// GET /blog/post?keyword=social+media+marketing+orlando&category=marketing&status=PUBLISHED
+app.get('/blog/post', (req, res) => {
+  const keyword     = (req.query.keyword || '').trim();
+  const categoryKey = (req.query.category || 'marketing').trim();
+  const status      = (req.query.status  || 'PUBLISHED').toUpperCase();
+  const locationId  = req.query.lid || GHL_LOCATION_ID;
+  const apiKey      = req.query.key || GHL_API_KEY;
+
+  if (!keyword) return res.status(400).json({
+    error: 'Pass ?keyword=your+topic',
+    example: '/blog/post?keyword=social+media+marketing+orlando&category=marketing',
+    categories: 'ai | automation | marketing | business | ghl',
+  });
+
+  res.json({ status: 'started', keyword, category: categoryKey, postStatus: status, message: 'Blog generating — check /status in ~45s' });
+  runCron('blog-post', () => runGHLBlogPost({ keyword, categoryKey, status, locationId, apiKey }), true);
+});
+
+// ── Preview only — returns the JSON (title, description, content) without posting ─
+// GET /blog/preview?keyword=KEYWORD
+app.get('/blog/preview', async (req, res) => {
+  const keyword = (req.query.keyword || '').trim();
+  if (!keyword) return res.status(400).json({ error: 'Pass ?keyword=your+topic' });
+  try {
+    const result = await runGHLBlogPost({ keyword, categoryKey: req.query.category || 'marketing', status: 'DRAFT', locationId: GHL_LOCATION_ID, apiKey: GHL_API_KEY });
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 // Manual trigger + status check
 app.get('/cron/gbp-posts', (req, res) => {
   res.json({ status: 'started', message: 'GBP posts running in background — check GET /status in ~30s' });
