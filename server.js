@@ -15642,6 +15642,79 @@ app.get('/aifc/post', (req, res) => {
   runCron('aifc-post', () => runAIFCDailyPost(imageUrl), true);
 });
 
+// ── AIFC Story post — Facebook Page Story + Instagram Story ──────────────────
+// GET /aifc/story?image=URL
+app.get('/aifc/story', (req, res) => {
+  const imageUrl = (req.query.image || '').trim() || null;
+  if (!imageUrl) return res.status(400).json({ error: 'Pass ?image=URL' });
+  res.json({ status: 'started', imageUrl, message: 'AIFC story posting to FB + IG — check /status in ~20s' });
+
+  (async () => {
+    const token = process.env.AIFC_PAGE_TOKEN || '';
+    const igId  = process.env.AIFC_IG_ID      || '';
+    if (!token) { console.log('[AIFC-STORY] No AIFC_PAGE_TOKEN'); return; }
+
+    const storyResults = { facebook: null, instagram: null };
+
+    // ── Facebook Story: upload photo unpublished → post as story ─────────────
+    try {
+      // Step 1: upload photo as unpublished to get a photo_id
+      const uploadRes = await axios.post(
+        `https://graph.facebook.com/v19.0/${AIFC_FB_PAGE_ID}/photos`,
+        { url: imageUrl, published: false, access_token: token },
+        { timeout: 30000 }
+      );
+      const photoId = uploadRes.data.id;
+      console.log(`[AIFC-STORY] FB photo uploaded: ${photoId}`);
+
+      // Step 2: publish as a Page Story
+      const storyRes = await axios.post(
+        `https://graph.facebook.com/v19.0/${AIFC_FB_PAGE_ID}/stories`,
+        { photo_ids: [photoId], access_token: token },
+        { timeout: 30000 }
+      );
+      storyResults.facebook = { ok: true, storyId: storyRes.data.post_id || storyRes.data.id };
+      console.log(`[AIFC-STORY] ✅ FB story posted: ${storyResults.facebook.storyId}`);
+    } catch (e) {
+      const errMsg = e.response?.data?.error?.message || e.message;
+      storyResults.facebook = { ok: false, error: errMsg };
+      console.error(`[AIFC-STORY] ❌ FB story error: ${errMsg}`);
+    }
+
+    // ── Instagram Story: media_type=STORIES container → publish ──────────────
+    if (igId) {
+      try {
+        // Step 1: create STORIES container (no caption on IG stories)
+        const containerRes = await axios.post(
+          `https://graph.facebook.com/v19.0/${igId}/media`,
+          { image_url: imageUrl, media_type: 'STORIES', access_token: token },
+          { timeout: 30000 }
+        );
+        const creationId = containerRes.data.id;
+        console.log(`[AIFC-STORY] IG story container: ${creationId}`);
+
+        // Step 2: wait then publish
+        await new Promise(r => setTimeout(r, 4000));
+        const publishRes = await axios.post(
+          `https://graph.facebook.com/v19.0/${igId}/media_publish`,
+          { creation_id: creationId, access_token: token },
+          { timeout: 30000 }
+        );
+        storyResults.instagram = { ok: true, mediaId: publishRes.data.id };
+        console.log(`[AIFC-STORY] ✅ IG story posted: ${storyResults.instagram.mediaId}`);
+      } catch (e) {
+        const errMsg = e.response?.data?.error?.message || e.message;
+        storyResults.instagram = { ok: false, error: errMsg };
+        console.error(`[AIFC-STORY] ❌ IG story error: ${errMsg}`);
+      }
+    } else {
+      storyResults.instagram = { ok: false, skipped: true, reason: 'AIFC_IG_ID not set' };
+    }
+
+    console.log('[AIFC-STORY] Done:', JSON.stringify(storyResults));
+  })();
+});
+
 // Manual trigger + status check
 app.get('/cron/gbp-posts', (req, res) => {
   res.json({ status: 'started', message: 'GBP posts running in background — check GET /status in ~30s' });
