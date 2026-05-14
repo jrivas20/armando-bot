@@ -15784,6 +15784,23 @@ async function runGHLBlogPost({ keyword, categoryKey = 'marketing', status = 'PU
   const label = `[Blog:${keyword.slice(0, 30)}]`;
   console.log(`${label} Starting — DataForSEO research...`);
 
+  // ── Step 0: Fetch existing blog posts for internal linking ───────────────
+  let existingPostsText = '';
+  try {
+    const postsRes = await axios.get(
+      `https://services.leadconnectorhq.com/blogs/posts?locationId=${locationId}&blogId=${blogId}&limit=20`,
+      { headers: { Authorization: `Bearer ${apiKey}`, Version: '2021-07-28' }, timeout: 10000 }
+    );
+    const posts = postsRes.data?.data?.posts || postsRes.data?.posts || [];
+    const published = posts.filter(p => p.status === 'PUBLISHED' && p.urlSlug && p.title).slice(0, 15);
+    if (published.length > 0) {
+      existingPostsText = published.map(p => `- "${p.title}" → /blog/${p.urlSlug}`).join('\n');
+      console.log(`${label} Found ${published.length} existing posts for internal linking`);
+    }
+  } catch (e) {
+    console.error(`${label} Could not fetch existing posts: ${e.message} — skipping internal links`);
+  }
+
   // ── Step 1: DataForSEO SERP data for the keyword ──────────────────────────
   let serpData = { topTitles: [], paaQuestions: [], relatedKeywords: [], volume: 0 };
   try {
@@ -15831,6 +15848,13 @@ ${topTitlesText || 'No SERP data — write from scratch'}
 
 ━━━ PEOPLE ALSO ASK (questions to answer in the post) ━━━
 ${paaText}
+
+━━━ INTERNAL LINKS (use 1–2 if topically relevant) ━━━
+${existingPostsText || 'No existing posts yet — skip internal linking for now'}
+
+If any existing post above is topically related to this keyword, link to it naturally in a body paragraph.
+Format: <a href="/blog/[slug]">[natural anchor text describing the linked post topic]</a>
+Max 2 internal links. Only include them where they genuinely help the reader — never force a link.
 
 ━━━ PURPOSE ━━━
 This blog exists ONLY to drive organic traffic to the website. It is an educational resource.
@@ -15917,6 +15941,17 @@ Respond with ONLY this JSON, no other text:
   const postId  = ghlRes.data?.data?.id || ghlRes.data?.id || 'unknown';
   const postUrl = ghlRes.data?.data?.url || '';
   console.log(`${label} ✅ Published to GHL — id=${postId} slug=${post.slug}`);
+
+  // ── Step 5: Submit to Google Indexing API (non-blocking) ──────────────────
+  if (status === 'PUBLISHED' && postUrl) {
+    submitToGoogleIndexing(postUrl); // non-blocking — logs success/fail independently
+  } else if (status === 'PUBLISHED' && post.slug) {
+    // Fallback: construct URL from slug if GHL didn't return full URL
+    const baseUrl = locationId === GHL_LOCATION_ID
+      ? 'https://jrzmarketing.com'
+      : `https://app.leadconnectorhq.com/blogs/${blogId}`;
+    submitToGoogleIndexing(`${baseUrl}/blog/${post.slug}`); // non-blocking
+  }
 
   return { ok: true, title: post.title, slug: post.slug, postId, postUrl, keyword, volume: serpData.volume, paaAnswered: serpData.paaQuestions.length, status };
 }
