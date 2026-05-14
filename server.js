@@ -15384,8 +15384,7 @@ Return ONLY the post text. Nothing else.` }]
 //   5. GET /aifc/post?image=URL to test immediately
 
 const AIFC_FB_PAGE_ID = '61589673482733';
-const META_APP_ID     = process.env.META_APP_ID     || '';
-const META_APP_SECRET = process.env.META_APP_SECRET || '';
+// META_APP_ID + META_APP_SECRET already declared earlier in this file — reused below
 
 // Comma-separated Cloudinary image URLs stored in env — e.g. https://res.cloudinary.com/.../aifc1.jpg,https://...
 const AIFC_IMAGE_POOL = (process.env.AIFC_IMAGES || '').split(',').map(s => s.trim()).filter(Boolean);
