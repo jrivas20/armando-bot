@@ -15413,37 +15413,73 @@ async function runAIFCDailyPost(overrideImageUrl = null) {
   const today = new Date().toLocaleDateString('en-US', { timeZone: 'Europe/Madrid', weekday: 'long', month: 'long', day: 'numeric' });
   let caption = '';
   try {
+    const dayOfWeek = new Date().getDay(); // 0=Sun,1=Mon,...,6=Sat
+    const contentType = ['ABOUT','WHY','WHAT','WHY','BENEFITS','ABOUT','WHY'][dayOfWeek];
     const captionRes = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 400,
-      messages: [{ role: 'user', content: `You are the official social media voice of the Albania International Fire Conference (AIFC) — an elite international firefighter summit in Albania that brings together fire professionals, rescue specialists, and safety experts from across the globe.
+      model: 'claude-opus-4-6',
+      max_tokens: 500,
+      messages: [{ role: 'user', content: `You are writing a single social media caption for the Albania International Fire Conference (AIFC). Post date: ${today}.
 
-Write ONE caption for today's (${today}) social media photo post. The tone is professional, inspiring, and community-focused — celebrating the global brotherhood and sisterhood of firefighters and the mission of fire safety excellence.
+━━━ WHAT AIFC IS ━━━
+The first international firefighter hands-on training conference held in Albania. A partnership between the Albanian Fire Protection and Rescue Association (AFPRA) and Fire Rescue Group (USA).
+Mission: Elevate firefighter survival, rescue, and operational readiness in Albania and the Balkans by bringing internationally proven training, instructors, and methodology directly to Albanian firefighters and decision-makers.
+This is the 1st Edition — the foundation of a long-term movement, not a one-time event.
 
-CONTENT MIX — rotate naturally day by day:
-- Conference highlights and announcements
-- Firefighter culture, brotherhood/sisterhood, and dedication
-- Fire safety education and prevention awareness
-- Behind-the-scenes of conference preparation
-- Tribute to fire professionals serving worldwide
-- International fire community connections and partnerships
-- Training, innovation, and professional development
+Event: September 12–13, 2026 | Albania | 80+ firefighters from across the Balkans
+Format: Two-day hands-on training, four rotating stations, six training hours/day
+Instructors: USA (Fire Rescue Group — Armando Rivas, lead), Croatia (Dino — RIT), Spain (Ivan — vehicle extrication)
+Training disciplines: Firefighter Survival (MAYDAY/SCBA) · Rapid Intervention Team (RIT) · Forcible Entry · Vehicle Extrication
+Who attends: Active-duty firefighters, fire chiefs, government officials, ministry-level representatives, training academy leaders, international observers, media
 
-STRICT RULES:
-- 150–220 characters total (punchy and memorable)
-- End with 4–5 hashtags: always include #AIFC and at least 2 of: #AlbaniaFireConference #Firefighters #FireSafety #FierjaZjarrëve #InternationalFireFighters
-- Use emojis sparingly — max 2, never at the start
-- Professional tone — not salesy or generic
-- Write in English (international audience)
-- Feel authentic to fire service culture
+━━━ TONE ━━━
+Premium, editorial, emotional, professional. Like a magazine — not a brochure.
+✅ Emotional without being sentimental. Real stakes, real brotherhood.
+✅ Confident without being aggressive. The work speaks for itself.
+✅ International — AIFC is a global-standard event held in Albania.
+✅ Decisive — urgency comes from value, not pressure.
 
-Output ONLY the caption. No explanation, no quotes around it.` }],
+✅ Write like this: "The first international firefighter hands-on training conference held in Albania."
+✅ Write like this: "Because every firefighter deserves to come home."
+✅ Write like this: "Train like your life depends on it."
+❌ Never write: "Get ready for an INCREDIBLE event!"
+❌ Never write: "Don't miss out!" or "Sign up today!"
+❌ Never write: "Learn cool firefighter techniques!"
+
+━━━ THREE PILLARS — ladder back to at least one ━━━
+1. WHO WILL BE IN THE ROOM: Fire chiefs, government officials, training leaders, international observers. The people reshaping Albanian firefighting will be there in person.
+2. MASSIVE MEDIA COVERAGE: Documented at a professional level — video, photography, press, government publicity. This will be seen and remembered.
+3. THIS IS JUST THE BEGINNING: 1st Edition is the foundation. This is the beginning of the premier annual firefighter conference in the Balkans.
+
+━━━ SLOGANS (use naturally, not every post) ━━━
+"This is just the beginning." · "Train like your life depends on it." · "Because every firefighter deserves to come home." · "The future of firefighting in Albania is being built right now." · "1st Edition. Year one. Foundation."
+
+━━━ TODAY'S CONTENT TYPE: ${contentType} ━━━
+WHY = mission, brotherhood, survival, emotional anchor
+WHAT = training content, disciplines, instructor spotlights, station previews
+ABOUT = event identity, dates, location, who's coming, the program
+BENEFITS = why attend, what participants take home, professional growth
+CTA = registration/awareness push, value-driven urgency (no sales pressure)
+
+━━━ HASHTAGS ━━━
+Always include: #AIFC2026 #AlbaniaFireConference
+Rotate 2–3 from: #FirefighterTraining #FireRescueGroup #AFPRA #FirefighterSurvival #RIT #MAYDAY #FireSafety #Balkans #FirstResponders
+
+━━━ HARD RULES ━━━
+- English only
+- 180–260 characters total including hashtags
+- Emojis: max 2, never at the start of the caption
+- No politics, no religious references, no named incidents or victims
+- No pricing, no discounts, no "amazing opportunity" language
+- No speculation about Year 2 specifics
+- No comparisons to other events or organizations
+
+Output ONLY the caption text. No explanation. No quotation marks around it.` }],
     });
     caption = captionRes.content[0].text.trim();
-    console.log(`[AIFC] Caption: ${caption.slice(0, 100)}...`);
+    console.log(`[AIFC] Caption (${contentType}): ${caption.slice(0, 100)}...`);
   } catch (e) {
     console.error('[AIFC] Caption generation failed:', e.message);
-    caption = 'The fire service never stops. Every day is a mission. 🔥 #AIFC #Firefighters #FireSafety #AlbaniaFireConference';
+    caption = 'Train like your life depends on it. September 12–13, 2026 — Albania. 🔥 #AIFC2026 #AlbaniaFireConference #FirefighterTraining #FirstResponders';
   }
 
   const results = { imageUrl, caption, facebook: null, instagram: null };
