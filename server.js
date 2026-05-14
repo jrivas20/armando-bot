@@ -15386,38 +15386,67 @@ Return ONLY the post text. Nothing else.` }]
 const AIFC_FB_PAGE_ID = '1132471399950761'; // Albania International Fire Conference
 // META_APP_ID + META_APP_SECRET already declared earlier in this file — reused below
 
-// Comma-separated Cloudinary image URLs stored in env — e.g. https://res.cloudinary.com/.../aifc1.jpg,https://...
-const AIFC_IMAGE_POOL = (process.env.AIFC_IMAGES || '').split(',').map(s => s.trim()).filter(Boolean);
+// ── 24-image sequence — posts every 2 days in order, then cycles ─────────────
+const AIFC_SEQUENCE = [
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9dcf7891b0faa6b9c8.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9d62d9983719e79b81.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9da97d962a35cb029b.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9dcf7891b0faa6b9cf.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9d0dcff1878dfa9c3b.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9e138c806d2d03059a.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9d4253bece0d291ded.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9d0da521d66fe63584.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9dea36308bcf6c4706.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9d4253bece0d291df7.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9e138c806d2d030593.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9dcf7891b0faa6b9cd.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9d62d9983719e79b83.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9d0da521d66fe63582.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9da97d962a35cb0296.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9dfde8a86ce6c3ca27.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9e138c806d2d03059b.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9da97d962a35cb029a.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9e138c806d2d030594.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9dfde8a86ce6c3ca2f.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9d1fbeb7077a6442b3.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9d0da521d66fe63588.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9da97d962a35cb0299.png',
+  'https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6a05db9e138c806d2d03058b.png',
+];
+
+// CTA link — set AIFC_CTA_URL in Render env vars once confirmed
+const AIFC_CTA_URL = process.env.AIFC_CTA_URL || 'https://www.afpra.al';
 
 async function runAIFCDailyPost(overrideImageUrl = null) {
-  const token  = process.env.AIFC_PAGE_TOKEN || '';
-  const igId   = process.env.AIFC_IG_ID      || '';
+  const token = process.env.AIFC_PAGE_TOKEN || '';
+  const igId  = process.env.AIFC_IG_ID      || '';
 
   if (!token) {
     console.log('[AIFC] ⚠️  No AIFC_PAGE_TOKEN set — run GET /meta/exchange-token to get one');
     return { skipped: true, reason: 'no AIFC_PAGE_TOKEN' };
   }
 
-  // Pick image: override → pool rotation → skip
+  // Pick image: override → sequence (every 2 days)
   let imageUrl = overrideImageUrl;
-  if (!imageUrl && AIFC_IMAGE_POOL.length) {
-    const dayIndex = Math.floor(Date.now() / 86400000);
-    imageUrl = AIFC_IMAGE_POOL[dayIndex % AIFC_IMAGE_POOL.length];
-  }
   if (!imageUrl) {
-    console.log('[AIFC] ⚠️  No image URL — pass ?image= to /aifc/post or set AIFC_IMAGES env var');
-    return { skipped: true, reason: 'no image' };
+    const dayNum   = Math.floor(Date.now() / 86400000);
+    const seqIndex = Math.floor(dayNum / 2) % AIFC_SEQUENCE.length;
+    imageUrl = AIFC_SEQUENCE[seqIndex];
+    console.log(`[AIFC] Sequence index ${seqIndex}/${AIFC_SEQUENCE.length - 1}`);
   }
 
-  // Generate professional caption with Claude
+  // Generate professional caption with Claude Opus
   const today = new Date().toLocaleDateString('en-US', { timeZone: 'Europe/Madrid', weekday: 'long', month: 'long', day: 'numeric' });
+  // Content type rotates across the 24-image sequence
+  const seqNum      = Math.floor(Math.floor(Date.now() / 86400000) / 2) % AIFC_SEQUENCE.length;
+  const contentTypes = ['WHY','WHAT','ABOUT','WHY','BENEFITS','WHAT','ABOUT','WHY','BENEFITS','WHAT','WHY','ABOUT','CTA','WHY','WHAT','ABOUT','WHY','BENEFITS','WHAT','WHY','ABOUT','BENEFITS','WHY','CTA'];
+  const contentType  = overrideImageUrl ? 'WHY' : (contentTypes[seqNum] || 'WHY');
+
   let caption = '';
   try {
-    const dayOfWeek = new Date().getDay(); // 0=Sun,1=Mon,...,6=Sat
-    const contentType = ['ABOUT','WHY','WHAT','WHY','BENEFITS','ABOUT','WHY'][dayOfWeek];
     const captionRes = await anthropic.messages.create({
       model: 'claude-opus-4-6',
-      max_tokens: 500,
+      max_tokens: 600,
       messages: [{ role: 'user', content: `You are writing a single social media caption for the Albania International Fire Conference (AIFC). Post date: ${today}.
 
 ━━━ WHAT AIFC IS ━━━
@@ -15438,53 +15467,56 @@ Premium, editorial, emotional, professional. Like a magazine — not a brochure.
 ✅ International — AIFC is a global-standard event held in Albania.
 ✅ Decisive — urgency comes from value, not pressure.
 
-✅ Write like this: "The first international firefighter hands-on training conference held in Albania."
-✅ Write like this: "Because every firefighter deserves to come home."
-✅ Write like this: "Train like your life depends on it."
-❌ Never write: "Get ready for an INCREDIBLE event!"
-❌ Never write: "Don't miss out!" or "Sign up today!"
-❌ Never write: "Learn cool firefighter techniques!"
+✅ "The first international firefighter hands-on training conference held in Albania."
+✅ "Because every firefighter deserves to come home."
+✅ "Train like your life depends on it."
+❌ Never: "Get ready for an INCREDIBLE event!" / "Don't miss out!" / "Sign up today!"
 
 ━━━ THREE PILLARS — ladder back to at least one ━━━
-1. WHO WILL BE IN THE ROOM: Fire chiefs, government officials, training leaders, international observers. The people reshaping Albanian firefighting will be there in person.
-2. MASSIVE MEDIA COVERAGE: Documented at a professional level — video, photography, press, government publicity. This will be seen and remembered.
-3. THIS IS JUST THE BEGINNING: 1st Edition is the foundation. This is the beginning of the premier annual firefighter conference in the Balkans.
+1. WHO WILL BE IN THE ROOM: Fire chiefs, government officials, training leaders, international observers reshaping Albanian firefighting.
+2. MASSIVE MEDIA COVERAGE: Documented professionally — video, photography, press, government publicity.
+3. THIS IS JUST THE BEGINNING: 1st Edition is the foundation of the premier annual firefighter conference in the Balkans.
 
 ━━━ SLOGANS (use naturally, not every post) ━━━
 "This is just the beginning." · "Train like your life depends on it." · "Because every firefighter deserves to come home." · "The future of firefighting in Albania is being built right now." · "1st Edition. Year one. Foundation."
 
 ━━━ TODAY'S CONTENT TYPE: ${contentType} ━━━
 WHY = mission, brotherhood, survival, emotional anchor
-WHAT = training content, disciplines, instructor spotlights, station previews
-ABOUT = event identity, dates, location, who's coming, the program
-BENEFITS = why attend, what participants take home, professional growth
-CTA = registration/awareness push, value-driven urgency (no sales pressure)
+WHAT = training disciplines, instructor spotlights, station previews
+ABOUT = event identity, dates, location, who's coming
+BENEFITS = why attend, professional growth, what participants take home
+CTA = value-driven awareness, link to learn more (no sales pressure, no urgency tricks)
 
 ━━━ HASHTAGS ━━━
 Always include: #AIFC2026 #AlbaniaFireConference
 Rotate 2–3 from: #FirefighterTraining #FireRescueGroup #AFPRA #FirefighterSurvival #RIT #MAYDAY #FireSafety #Balkans #FirstResponders
 
+━━━ FORMAT ━━━
+Line 1: The caption (150–220 characters, punchy and editorial)
+Line 2: blank
+Line 3: hashtags (always #AIFC2026 #AlbaniaFireConference + 2–3 rotating)
+Line 4: blank
+Line 5: 🔗 ${AIFC_CTA_URL}
+
 ━━━ HARD RULES ━━━
-- English only
-- 180–260 characters total including hashtags
-- Emojis: max 2, never at the start of the caption
+- English only — no emojis at the start, max 2 total
 - No politics, no religious references, no named incidents or victims
 - No pricing, no discounts, no "amazing opportunity" language
 - No speculation about Year 2 specifics
 - No comparisons to other events or organizations
 
-Output ONLY the caption text. No explanation. No quotation marks around it.` }],
+Output ONLY the 5-line caption block above. No explanation. No quotation marks.` }],
     });
     caption = captionRes.content[0].text.trim();
     console.log(`[AIFC] Caption (${contentType}): ${caption.slice(0, 100)}...`);
   } catch (e) {
     console.error('[AIFC] Caption generation failed:', e.message);
-    caption = 'Train like your life depends on it. September 12–13, 2026 — Albania. 🔥 #AIFC2026 #AlbaniaFireConference #FirefighterTraining #FirstResponders';
+    caption = `Train like your life depends on it. September 12–13, 2026 — Albania.\n\n#AIFC2026 #AlbaniaFireConference #FirefighterTraining #FirstResponders\n\n🔗 ${AIFC_CTA_URL}`;
   }
 
-  const results = { imageUrl, caption, facebook: null, instagram: null };
+  const results = { imageUrl, caption, facebook: null, instagram: null, fbStory: null, igStory: null };
 
-  // ── Facebook: POST /{page-id}/photos ─────────────────────────────────────
+  // ── Facebook feed post ────────────────────────────────────────────────────
   try {
     const fbRes = await axios.post(
       `https://graph.facebook.com/v19.0/${AIFC_FB_PAGE_ID}/photos`,
@@ -15492,44 +15524,79 @@ Output ONLY the caption text. No explanation. No quotation marks around it.` }],
       { timeout: 30000 }
     );
     results.facebook = { ok: true, postId: fbRes.data.post_id || fbRes.data.id };
-    console.log(`[AIFC] ✅ Facebook posted: ${results.facebook.postId}`);
+    console.log(`[AIFC] ✅ Facebook feed: ${results.facebook.postId}`);
   } catch (e) {
     const errMsg = e.response?.data?.error?.message || e.message;
     results.facebook = { ok: false, error: errMsg };
-    console.error(`[AIFC] ❌ Facebook error: ${errMsg}`);
+    console.error(`[AIFC] ❌ Facebook feed error: ${errMsg}`);
   }
 
-  // ── Instagram: 2-step container → publish ────────────────────────────────
+  // ── Instagram feed post ───────────────────────────────────────────────────
   if (igId) {
     try {
-      // Step 1: create media container
       const containerRes = await axios.post(
         `https://graph.facebook.com/v19.0/${igId}/media`,
         { image_url: imageUrl, caption, access_token: token },
         { timeout: 30000 }
       );
-      const creationId = containerRes.data.id;
-      console.log(`[AIFC] IG container: ${creationId}`);
-
-      // Step 2: wait for container to process, then publish
       await new Promise(r => setTimeout(r, 4000));
       const publishRes = await axios.post(
         `https://graph.facebook.com/v19.0/${igId}/media_publish`,
-        { creation_id: creationId, access_token: token },
+        { creation_id: containerRes.data.id, access_token: token },
         { timeout: 30000 }
       );
       results.instagram = { ok: true, mediaId: publishRes.data.id };
-      console.log(`[AIFC] ✅ Instagram posted: ${results.instagram.mediaId}`);
+      console.log(`[AIFC] ✅ Instagram feed: ${results.instagram.mediaId}`);
     } catch (e) {
       const errMsg = e.response?.data?.error?.message || e.message;
       results.instagram = { ok: false, error: errMsg };
-      console.error(`[AIFC] ❌ Instagram error: ${errMsg}`);
+      console.error(`[AIFC] ❌ Instagram feed error: ${errMsg}`);
     }
   } else {
-    results.instagram = { ok: false, skipped: true, reason: 'AIFC_IG_ID not set — run GET /aifc/ig-id to get it' };
-    console.log('[AIFC] IG skipped — AIFC_IG_ID not configured');
+    results.instagram = { ok: false, skipped: true, reason: 'AIFC_IG_ID not set' };
   }
 
+  // ── Facebook Story ────────────────────────────────────────────────────────
+  try {
+    const fbStoryRes = await axios.post(
+      `https://graph.facebook.com/v19.0/${AIFC_FB_PAGE_ID}/photo_stories`,
+      { url: imageUrl, access_token: token },
+      { timeout: 30000 }
+    );
+    results.fbStory = { ok: true, storyId: fbStoryRes.data.post_id || fbStoryRes.data.id };
+    console.log(`[AIFC] ✅ Facebook story: ${results.fbStory.storyId}`);
+  } catch (e) {
+    const errMsg = e.response?.data?.error?.message || e.message;
+    results.fbStory = { ok: false, error: errMsg };
+    console.error(`[AIFC] ❌ Facebook story error: ${errMsg}`);
+  }
+
+  // ── Instagram Story ───────────────────────────────────────────────────────
+  if (igId) {
+    try {
+      const igStoryContainer = await axios.post(
+        `https://graph.facebook.com/v19.0/${igId}/media`,
+        { image_url: imageUrl, media_type: 'STORIES', access_token: token },
+        { timeout: 30000 }
+      );
+      await new Promise(r => setTimeout(r, 4000));
+      const igStoryPublish = await axios.post(
+        `https://graph.facebook.com/v19.0/${igId}/media_publish`,
+        { creation_id: igStoryContainer.data.id, access_token: token },
+        { timeout: 30000 }
+      );
+      results.igStory = { ok: true, mediaId: igStoryPublish.data.id };
+      console.log(`[AIFC] ✅ Instagram story: ${results.igStory.mediaId}`);
+    } catch (e) {
+      const errMsg = e.response?.data?.error?.message || e.message;
+      results.igStory = { ok: false, error: errMsg };
+      console.error(`[AIFC] ❌ Instagram story error: ${errMsg}`);
+    }
+  } else {
+    results.igStory = { ok: false, skipped: true, reason: 'AIFC_IG_ID not set' };
+  }
+
+  console.log(`[AIFC] Complete — FB:${results.facebook?.ok} IG:${results.instagram?.ok} FBStory:${results.fbStory?.ok} IGStory:${results.igStory?.ok}`);
   return results;
 }
 
@@ -15656,21 +15723,11 @@ app.get('/aifc/story', (req, res) => {
 
     const storyResults = { facebook: null, instagram: null };
 
-    // ── Facebook Story: upload photo unpublished → post as story ─────────────
+    // ── Facebook Story: POST /{page-id}/photo_stories directly ──────────────
     try {
-      // Step 1: upload photo as unpublished to get a photo_id
-      const uploadRes = await axios.post(
-        `https://graph.facebook.com/v19.0/${AIFC_FB_PAGE_ID}/photos`,
-        { url: imageUrl, published: false, access_token: token },
-        { timeout: 30000 }
-      );
-      const photoId = uploadRes.data.id;
-      console.log(`[AIFC-STORY] FB photo uploaded: ${photoId}`);
-
-      // Step 2: publish as a Page Story
       const storyRes = await axios.post(
-        `https://graph.facebook.com/v19.0/${AIFC_FB_PAGE_ID}/stories`,
-        { photo_ids: [photoId], access_token: token },
+        `https://graph.facebook.com/v19.0/${AIFC_FB_PAGE_ID}/photo_stories`,
+        { url: imageUrl, access_token: token },
         { timeout: 30000 }
       );
       storyResults.facebook = { ok: true, storyId: storyRes.data.post_id || storyRes.data.id };
@@ -16194,10 +16251,14 @@ setInterval(async () => {
       runCron('gbp-posts', runDailyGBPPosts, true);
     }
 
-    // 4:00am EST daily — AIFC Albania International Fire Conference (= 10am Spain CEST)
+    // 4:00am EST every 2 days — AIFC Albania International Fire Conference (= 10am Spain CEST)
+    // 24 images × every 2 days = 48 days of automated content
     if (hour === 4 && minute < 5 && lastAIFCPostDate !== today) {
-      lastAIFCPostDate = today;
-      runCron('aifc-post', () => runAIFCDailyPost(), true);
+      const dayNum = Math.floor(Date.now() / 86400000);
+      if (dayNum % 2 === 0) {
+        lastAIFCPostDate = today;
+        runCron('aifc-post', () => runAIFCDailyPost(), true);
+      }
     }
 
     // 6:50am daily — AI team standup
