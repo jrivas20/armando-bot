@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JRZ Sports | Athlete Agency — Orlando, FL</title>
+<meta name="description" content="JRZ Sports is Orlando's athlete agency for middle and high school students. College recruitment, brand deals, and digital portfolios — all in one hub.">
+<meta name="keywords" content="youth athlete agency Orlando, college recruitment Florida, high school athlete promotion, NIL brand deals youth athletes, athlete portfolio Orlando FL, sports agency middle school">
+<meta property="og:title" content="JRZ Sports | Athlete Agency — Orlando, FL">
+<meta property="og:description" content="We turn athletes into brands. College recruitment · Brand deals · Digital portfolios for middle & high school athletes.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.jrzsports.com">
+<link rel="canonical" href="https://www.jrzsports.com">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SportsOrganization","name":"JRZ Sports","description":"Athlete agency for middle and high school students — college recruitment, brand partnerships, and digital portfolios in Orlando, FL.","url":"https://www.jrzsports.com","telephone":"(407) 550-5898","address":{"@type":"PostalAddress","addressLocality":"Orlando","addressRegion":"FL","addressCountry":"US"},"sameAs":["https://www.jrzmarketing.com"]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,800;0,900;1,800;1,900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
+
+<style>
+/* ── GHL OVERRIDE ───────────────────────────────────────── */
+html,body,.c-section,.c-wrapper,.row-container,.c-row,.c-column,.vertical,.full,
+.hl-builder,.hl_page-preview,#full-width-row,.section,.inner,.container,
+.container-fluid,.row,section.c-section,div[data-default-columns],
+[class*="container"],[class*="section"],[class*="wrapper"],[class*="inner"],
+[class*="full-width"],[class*="hl_"],[id*="section"],[id*="row"]{
+  max-width:100%!important;width:100%!important;
+  margin-left:0!important;margin-right:0!important;
+  padding-left:0!important;padding-right:0!important;
+  box-sizing:border-box!important;overflow-x:hidden!important;}
+html,body{overflow-x:hidden!important;}
+
+/* ── VARS ───────────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --black:#060608;--dark:#0c0d12;--card:#111319;--card2:#16181f;
+  --blue:#1E54F0;--blue2:#3B6FF5;--gold:#F5A623;
+  --white:#fff;--gray:#55586a;--gray2:#8a8d9f;
+  --fd:'Barlow Condensed',Impact,sans-serif;
+  --fb:'Inter',system-ui,sans-serif;
+  --g:clamp(20px,4vw,72px);
+  --sp:clamp(80px,10vw,140px);
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+}
+html{scroll-behavior:auto;}/* Lenis handles scroll */
+body{font-family:var(--fb);background:var(--black);color:var(--white);
+  -webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden;cursor:none;}
+a{color:inherit;text-decoration:none;}
+img{display:block;width:100%;height:100%;object-fit:cover;}
+
+/* ── CURSOR ─────────────────────────────────────────────── */
+#cursor-ball{position:fixed;width:10px;height:10px;border-radius:50%;
+  background:var(--blue);pointer-events:none;z-index:99999;
+  mix-blend-mode:difference;transform:translate(-50%,-50%);}
+#cursor-ring{position:fixed;width:36px;height:36px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.35);pointer-events:none;z-index:99998;
+  transform:translate(-50%,-50%);}
+
+/* ── FILM GRAIN ─────────────────────────────────────────── */
+#grain{position:fixed;inset:0;z-index:99990;pointer-events:none;opacity:.028;animation:grainAnim .4s steps(1) infinite;}
+@keyframes grainAnim{0%{transform:translate(0,0)}20%{transform:translate(-2px,2px)}40%{transform:translate(2px,-2px)}60%{transform:translate(-1px,1px)}80%{transform:translate(1px,-1px)}100%{transform:translate(0,0)}}
+
+/* ── LOADER ─────────────────────────────────────────────── */
+#loader{position:fixed;inset:0;z-index:9998;background:var(--black);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.loader-count{font-family:var(--fd);font-size:clamp(80px,18vw,200px);
+  font-style:italic;font-weight:900;line-height:.85;color:var(--white);letter-spacing:-.02em;}
+.loader-bar-wrap{width:clamp(180px,24vw,320px);height:1px;background:rgba(255,255,255,.1);
+  margin-top:28px;overflow:hidden;}
+.loader-bar-fill{height:100%;width:0%;background:var(--blue);}
+.loader-sub{margin-top:14px;font-size:9px;font-weight:700;letter-spacing:.3em;
+  text-transform:uppercase;color:rgba(255,255,255,.28);}
+
+/* ── MARQUEE ─────────────────────────────────────────────── */
+.marquee-wrap{background:var(--blue);overflow:hidden;padding:13px 0;position:relative;z-index:2;}
+.marquee-track{display:flex;width:max-content;animation:marq 24s linear infinite;}
+.marquee-track span{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(13px,1.4vw,17px);letter-spacing:.06em;text-transform:uppercase;
+  color:#fff;padding:0 clamp(16px,2.5vw,28px);white-space:nowrap;}
+.marquee-track span.dot{color:rgba(255,255,255,.45);padding:0;}
+@keyframes marq{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* ── HERO ─────────────────────────────────────────────────── */
+.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;z-index:1;overflow:hidden;}
+.hero-bg-img{width:100%;height:110%;object-fit:cover;object-position:center 20%;transform-origin:center;will-change:transform;}
+.hero-overlay{position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(6,6,8,.25) 0%,rgba(6,6,8,.5) 45%,rgba(6,6,8,.97) 100%);z-index:2;}
+.hero-inner{position:relative;z-index:3;
+  padding:0 var(--g) clamp(64px,9vh,110px);width:100%;max-width:1600px;}
+.hero-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:24px;
+  font-size:9px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--gold);opacity:0;transform:translateY(12px);}
+.hero-eyebrow::before{content:'';width:28px;height:1.5px;background:var(--gold);}
+.hero-headline{overflow:hidden;margin-bottom:28px;}
+.hero-h1{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(64px,11vw,172px);line-height:.86;
+  text-transform:uppercase;letter-spacing:-.01em;}
+.hero-h1 .char{display:inline-block;transform:translateY(110%) rotate(4deg);opacity:0;}
+.hero-h1 .hi{color:var(--blue);}
+.hero-sub{font-size:clamp(14px,1.35vw,17px);line-height:1.78;
+  color:rgba(255,255,255,.5);max-width:480px;margin-bottom:36px;
+  opacity:0;transform:translateY(20px);}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;opacity:0;transform:translateY(20px);}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;
+  background:var(--blue);color:#fff;font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(14px,1.15vw,17px);letter-spacing:.06em;text-transform:uppercase;
+  padding:16px 32px;border:none;cursor:none;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 100%,0 100%);
+  transition:background .25s,transform .25s;}
+.btn-primary:hover{background:var(--blue2);transform:translateY(-2px);}
+.btn-ghost{display:inline-flex;align-items:center;gap:10px;
+  background:transparent;color:#fff;font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(14px,1.15vw,17px);letter-spacing:.06em;text-transform:uppercase;
+  padding:15px 32px;border:1px solid rgba(255,255,255,.28);cursor:none;
+  transition:border-color .25s,color .25s;}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue);}
+.hero-pills{display:flex;gap:20px;margin-top:44px;flex-wrap:wrap;opacity:0;}
+.h-pill{display:flex;align-items:center;gap:8px;font-size:9px;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.4);}
+.h-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--blue);
+  animation:pulse 2.2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+.hero-scroll{position:absolute;bottom:36px;right:var(--g);z-index:3;
+  display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;}
+.hero-scroll span{font-size:8px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:rgba(255,255,255,.35);writing-mode:vertical-rl;}
+.hero-scroll-line{width:1px;height:48px;background:rgba(255,255,255,.12);overflow:hidden;position:relative;}
+.hero-scroll-line::after{content:'';position:absolute;top:-100%;left:0;width:100%;height:100%;
+  background:var(--blue);animation:scrollLine 2s ease-in-out infinite;}
+@keyframes scrollLine{0%{top:-100%;}100%{top:100%;}}
+
+/* ── SERVICES ─────────────────────────────────────────────── */
+.services{padding:var(--sp) var(--g);background:var(--black);}
+.sect-pre{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--blue);display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.sect-pre::before{content:'';width:24px;height:1px;background:var(--blue);}
+.services-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(40px,6vw,84px);line-height:.88;text-transform:uppercase;
+  margin-bottom:clamp(48px,6vw,80px);}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
+.svc-card{background:var(--card);padding:clamp(32px,4vw,56px);position:relative;overflow:hidden;}
+.svc-card::after{content:'';position:absolute;bottom:0;left:0;width:0;height:3px;
+  background:var(--blue);transition:width .45s var(--ease-out);}
+.svc-card:hover{background:var(--card2);}
+.svc-card:hover::after{width:100%;}
+.svc-card-inner{position:relative;z-index:1;}
+.svc-num{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(52px,6vw,80px);color:rgba(255,255,255,.05);
+  line-height:1;display:block;margin-bottom:20px;}
+.svc-icon{width:38px;height:38px;margin-bottom:18px;}
+.svc-icon svg{width:100%;height:100%;stroke:var(--blue);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.svc-title{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(22px,2.4vw,34px);text-transform:uppercase;margin-bottom:14px;}
+.svc-desc{font-size:14px;font-weight:400;color:var(--gray2);line-height:1.72;}
+.svc-cta{display:flex;align-items:center;gap:8px;margin-top:28px;
+  font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);}
+
+/* ── PROCESS ──────────────────────────────────────────────── */
+.process{padding:var(--sp) var(--g);background:var(--dark);}
+.process-top{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,100px);
+  align-items:end;margin-bottom:clamp(56px,7vw,100px);}
+.process-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(40px,6vw,84px);line-height:.88;text-transform:uppercase;}
+.process-sub{font-size:15px;color:var(--gray2);line-height:1.72;max-width:420px;}
+.process-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
+.step-card{background:var(--card);padding:clamp(28px,3vw,44px);position:relative;overflow:hidden;}
+.step-card::before{content:attr(data-step);position:absolute;top:16px;right:20px;
+  font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(60px,6vw,88px);color:rgba(255,255,255,.04);line-height:1;pointer-events:none;}
+.step-num-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);margin-bottom:28px;}
+.step-title{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(20px,2vw,28px);text-transform:uppercase;margin-bottom:12px;}
+.step-desc{font-size:13px;color:var(--gray2);line-height:1.65;}
+
+/* ── ATHLETE GALLERY ──────────────────────────────────────── */
+.h-gallery{background:var(--black);}
+.h-gallery-head{padding:var(--sp) var(--g) clamp(32px,4vw,56px);}
+.h-gallery-head-inner{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;}
+.h-gallery-pin{overflow:hidden;}
+.h-gallery-track{display:flex;gap:3px;padding:0 var(--g) clamp(48px,6vw,80px);width:max-content;}
+.h-gal-item{position:relative;flex-shrink:0;
+  width:clamp(220px,20vw,320px);height:clamp(300px,34vw,440px);overflow:hidden;cursor:none;}
+.h-gal-item.tall{height:clamp(380px,44vw,560px);}
+.h-gal-img{width:100%;height:100%;object-fit:cover;transition:transform .65s var(--ease-out);}
+.h-gal-item:hover .h-gal-img{transform:scale(1.06);}
+.h-gal-overlay{position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(6,6,8,.96) 0%,rgba(6,6,8,0) 55%);
+  display:flex;flex-direction:column;justify-content:flex-end;padding:22px;}
+.h-gal-sport{font-size:8px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--blue);margin-bottom:6px;}
+.h-gal-name{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(18px,2vw,26px);text-transform:uppercase;margin-bottom:4px;}
+.h-gal-detail{font-size:11px;color:rgba(255,255,255,.42);}
+.h-gal-btn{display:inline-flex;align-items:center;gap:6px;margin-top:14px;
+  font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--blue);transition:gap .25s;}
+.h-gal-item:hover .h-gal-btn{gap:10px;}
+
+/* ── WHY SECTION ──────────────────────────────────────────── */
+.why{padding:var(--sp) var(--g);background:var(--dark);}
+.why-split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(48px,7vw,100px);align-items:center;}
+.why-tag{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--gold);display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.why-tag::before{content:'';width:24px;height:1px;background:var(--gold);}
+.why-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(36px,5vw,76px);line-height:.88;text-transform:uppercase;margin-bottom:24px;}
+.why-body{font-size:15px;color:var(--gray2);line-height:1.75;margin-bottom:36px;max-width:440px;}
+.why-stats{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:40px;}
+.why-stat{padding:24px;background:var(--card);}
+.why-stat-num{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(34px,4vw,52px);color:var(--white);line-height:1;}
+.why-stat-num span{color:var(--blue);}
+.why-stat-label{font-size:11px;color:var(--gray2);margin-top:6px;font-weight:500;line-height:1.4;}
+.why-img-wrap{position:relative;}
+.why-img-main{width:100%;aspect-ratio:4/5;object-fit:cover;}
+.why-img-accent{position:absolute;bottom:-28px;left:-24px;width:46%;aspect-ratio:1;
+  object-fit:cover;border:4px solid var(--dark);}
+.why-label{position:absolute;top:24px;right:-16px;
+  background:var(--blue);padding:16px 20px;text-align:center;min-width:80px;}
+.why-label-big{font-family:var(--fd);font-style:italic;font-weight:900;font-size:28px;line-height:1;color:#fff;}
+.why-label-sm{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(255,255,255,.65);margin-top:3px;}
+
+/* ── APPLY SECTION ───────────────────────────────────────── */
+.apply-sect{padding:var(--sp) var(--g);background:var(--black);}
+.apply-split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(48px,7vw,100px);align-items:start;}
+.apply-pre{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--blue);display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.apply-pre::before{content:'';width:24px;height:1px;background:var(--blue);}
+.apply-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(40px,5.5vw,76px);line-height:.88;text-transform:uppercase;margin-bottom:22px;}
+.apply-body{font-size:15px;color:var(--gray2);line-height:1.75;margin-bottom:32px;}
+.apply-checklist{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+.apply-check{display:flex;align-items:flex-start;gap:14px;font-size:14px;color:var(--gray2);line-height:1.5;}
+.apply-check-dot{width:18px;height:18px;border-radius:50%;
+  background:rgba(30,84,240,.15);border:1.5px solid var(--blue);flex-shrink:0;
+  margin-top:2px;display:flex;align-items:center;justify-content:center;}
+.apply-check-dot::after{content:'';width:7px;height:7px;border-radius:50%;background:var(--blue);}
+.apply-form-wrap iframe{width:100%;min-height:660px;border:none;display:block;}
+
+/* ── CTA STRIP ───────────────────────────────────────────── */
+.cta-strip{background:var(--blue);padding:clamp(48px,6vw,80px) var(--g);
+  display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;}
+.cta-strip-text{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(32px,5vw,72px);line-height:.9;text-transform:uppercase;color:#fff;}
+.cta-strip-right{display:flex;flex-direction:column;align-items:flex-end;gap:18px;}
+.btn-dark{display:inline-flex;align-items:center;gap:10px;
+  background:#000;color:#fff;font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(14px,1.2vw,17px);letter-spacing:.06em;text-transform:uppercase;
+  padding:18px 36px;border:none;cursor:none;transition:opacity .25s;}
+.btn-dark:hover{opacity:.75;}
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.footer{background:var(--dark);padding:clamp(48px,6vw,80px) var(--g);
+  display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:32px;
+  border-top:1px solid rgba(255,255,255,.06);}
+.foot-logo{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(24px,3vw,40px);text-transform:uppercase;letter-spacing:-.01em;}
+.foot-logo em{color:var(--blue);}
+.foot-links{display:flex;gap:clamp(16px,3vw,40px);flex-wrap:wrap;margin-top:14px;}
+.foot-links a{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);transition:color .2s;}
+.foot-links a:hover{color:var(--blue);}
+.foot-info{font-size:11px;color:rgba(255,255,255,.22);line-height:1.75;text-align:right;}
+.foot-info a{color:var(--blue);}
+
+/* ── SHARED ──────────────────────────────────────────────── */
+.fade-up{opacity:0;transform:translateY(32px);}
+
+/* ── MOBILE RESPONSIVE ───────────────────────────────────── */
+@media(max-width:768px){
+  .hero{align-items:flex-start!important;min-height:100svh;}
+  .hero-inner{padding-top:clamp(88px,22svh,140px)!important;padding-bottom:clamp(32px,5svh,56px)!important;text-align:center;}
+  .hero-eyebrow{justify-content:center;}
+  .hero-actions{justify-content:center;}
+  .hero-pills{justify-content:center;}
+  .hero-sub{margin-left:auto;margin-right:auto;}
+  .hero-scroll{display:none;}
+  .services-grid{grid-template-columns:1fr;}
+  .process-top{grid-template-columns:1fr;}
+  .process-steps{grid-template-columns:1fr 1fr;}
+  .h-gallery-pin{overflow-x:auto!important;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;}
+  .h-gal-item{scroll-snap-align:start;}
+  .why-split{grid-template-columns:1fr;}
+  .why-img-accent,.why-label{display:none;}
+  .why-stats{grid-template-columns:1fr 1fr;}
+  .apply-split{grid-template-columns:1fr;}
+  .cta-strip{flex-direction:column;text-align:center;}
+  .cta-strip-right{align-items:center;}
+  .footer{flex-direction:column;text-align:center;}
+  .foot-info{text-align:center;}
+  .h-gallery-head-inner{flex-direction:column;align-items:flex-start;}
+}
+@media(max-width:480px){
+  .process-steps{grid-template-columns:1fr;}
+  .why-stats{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- FILM GRAIN -->
+<svg id="grain" xmlns="http://www.w3.org/2000/svg" style="position:fixed;inset:0;z-index:99990;pointer-events:none;width:100%;height:100%;opacity:.028;">
+  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency=".65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  <rect width="100%" height="100%" filter="url(#noise)" opacity="1"/>
+</svg>
+
+<!-- CURSOR -->
+<div id="cursor-ball"></div>
+<div id="cursor-ring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-count" id="loaderCount">0</div>
+  <div class="loader-bar-wrap"><div class="loader-bar-fill" id="loaderBar"></div></div>
+  <div class="loader-sub">JRZ Sports · Orlando · Building Futures</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- HERO                                                    -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <img class="hero-bg-img" id="heroBg"
+      src="https://images.pexels.com/photos/3621104/pexels-photo-3621104.jpeg?auto=compress&cs=tinysrgb&w=1920"
+      alt="Young athlete in action" loading="eager">
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow" id="heroEyebrow">JRZ Sports — Orlando, FL</div>
+    <div class="hero-headline">
+      <h1 class="hero-h1" id="heroHead">
+        WE BUILD<br>
+        <span class="hi">ATHLETES</span><br>
+        INTO BRANDS
+      </h1>
+    </div>
+    <p class="hero-sub" id="heroSub">
+      College recruitment · Brand deals · Digital portfolios<br>
+      for middle &amp; high school athletes in Orlando, FL.
+    </p>
+    <div class="hero-actions" id="heroActions">
+      <a href="#apply" class="btn-primary">Apply Now →</a>
+      <a href="#athletes" class="btn-ghost">See Athletes</a>
+    </div>
+    <div class="hero-pills" id="heroPills">
+      <div class="h-pill">College Recruitment</div>
+      <div class="h-pill">Brand Deals</div>
+      <div class="h-pill">Digital Portfolio</div>
+      <div class="h-pill">All Sports</div>
+    </div>
+  </div>
+  <div class="hero-scroll" id="heroScroll">
+    <span>Scroll</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MARQUEE                                                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>College Recruitment</span><span class="dot"> · </span>
+    <span>Brand Deals</span><span class="dot"> · </span>
+    <span>Digital Portfolio</span><span class="dot"> · </span>
+    <span>Orlando, FL</span><span class="dot"> · </span>
+    <span>Middle &amp; High School</span><span class="dot"> · </span>
+    <span>JRZ Sports</span><span class="dot"> · </span>
+    <span>Athlete Agency</span><span class="dot"> · </span>
+    <span>All Sports</span><span class="dot"> · </span>
+    <span>College Recruitment</span><span class="dot"> · </span>
+    <span>Brand Deals</span><span class="dot"> · </span>
+    <span>Digital Portfolio</span><span class="dot"> · </span>
+    <span>Orlando, FL</span><span class="dot"> · </span>
+    <span>Middle &amp; High School</span><span class="dot"> · </span>
+    <span>JRZ Sports</span><span class="dot"> · </span>
+    <span>Athlete Agency</span><span class="dot"> · </span>
+    <span>All Sports</span><span class="dot"> · </span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SERVICES                                               -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="services" id="services">
+  <div class="sect-pre">What We Do</div>
+  <h2 class="services-h2" data-split>Three Pillars.<br><span style="color:var(--blue)">One Mission.</span></h2>
+  <div class="services-grid">
+
+    <div class="svc-card fade-up">
+      <div class="svc-card-inner">
+        <span class="svc-num">01</span>
+        <div class="svc-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="svc-title">College Recruitment</div>
+        <p class="svc-desc">We connect your athlete directly with college coaches and programs. Recruiting profiles, outreach campaigns, film distribution — we manage it all so your kid gets seen by the right people.</p>
+        <div class="svc-cta">Learn More →</div>
+      </div>
+    </div>
+
+    <div class="svc-card fade-up" style="transition-delay:.1s">
+      <div class="svc-card-inner">
+        <span class="svc-num">02</span>
+        <div class="svc-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="svc-title">Brand Partnerships</div>
+        <p class="svc-desc">We identify and secure brand deals that align with your athlete's personal story — turning their platform, sport, and audience into real, monetizable opportunities before college.</p>
+        <div class="svc-cta">Learn More →</div>
+      </div>
+    </div>
+
+    <div class="svc-card fade-up" style="transition-delay:.2s">
+      <div class="svc-card-inner">
+        <span class="svc-num">03</span>
+        <div class="svc-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div class="svc-title">Digital Portfolio</div>
+        <p class="svc-desc">Every athlete gets a complete digital profile — highlight videos, stats, photos, bio, social links — all updated continuously and shareable with one link to any coach or brand.</p>
+        <div class="svc-cta">Learn More →</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROCESS                                                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="process" id="process">
+  <div class="process-top">
+    <div>
+      <div class="sect-pre">How It Works</div>
+      <h2 class="process-h2" data-split>Four Steps.<br><span style="color:var(--blue)">One Future.</span></h2>
+    </div>
+    <div>
+      <p class="process-sub">From first application to college commit or brand deal — every athlete goes through a proven, repeatable system built around their sport, goals, and timeline.</p>
+    </div>
+  </div>
+  <div class="process-steps">
+    <div class="step-card fade-up" data-step="01">
+      <div class="step-num-dot"></div>
+      <div class="step-title">Apply</div>
+      <p class="step-desc">Submit your athlete's application. We review sport, stats, goals, and grad year — then map the exact roadmap to get them placed.</p>
+    </div>
+    <div class="step-card fade-up" data-step="02" style="transition-delay:.08s">
+      <div class="step-num-dot"></div>
+      <div class="step-title">Build Your Profile</div>
+      <p class="step-desc">We build a complete digital portfolio — photos, highlight reel, stats, bio — and set up your athlete's hub inside GoHighLevel so every conversation is tracked.</p>
+    </div>
+    <div class="step-card fade-up" data-step="03" style="transition-delay:.16s">
+      <div class="step-num-dot"></div>
+      <div class="step-title">Launch &amp; Promote</div>
+      <p class="step-desc">We run targeted outreach to college coaches, post recruiting content across social, and connect your athlete with brands that match their story.</p>
+    </div>
+    <div class="step-card fade-up" data-step="04" style="transition-delay:.24s">
+      <div class="step-num-dot"></div>
+      <div class="step-title">Get Placed</div>
+      <p class="step-desc">College commit, scholarship, or brand deal — we stay in your corner every step of the way until your athlete reaches their goal.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ATHLETE GALLERY                                         -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="h-gallery" id="athletes">
+  <div class="h-gallery-head">
+    <div class="h-gallery-head-inner">
+      <div>
+        <div class="sect-pre">The Roster</div>
+        <h2 style="font-family:var(--fd);font-style:italic;font-weight:900;font-size:clamp(40px,6vw,84px);line-height:.88;text-transform:uppercase;" data-split>
+          Meet The<br><span style="color:var(--blue)">Athletes.</span>
+        </h2>
+      </div>
+      <a href="#apply" class="btn-primary" style="align-self:flex-end">Join The Roster →</a>
+    </div>
+  </div>
+  <div class="h-gallery-pin" id="hGalleryPin">
+    <div class="h-gallery-track" id="hGalleryTrack">
+
+      <!-- Each card = one athlete. Swap photo URL, name, sport, school, grad year -->
+      <div class="h-gal-item tall">
+        <img class="h-gal-img" src="https://images.pexels.com/photos/2526878/pexels-photo-2526878.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Athlete">
+        <div class="h-gal-overlay">
+          <div class="h-gal-sport">Football · WR</div>
+          <div class="h-gal-name">Marcus T.</div>
+          <div class="h-gal-detail">Evans High School · Class of '26</div>
+          <a href="#" class="h-gal-btn">View Profile →</a>
+        </div>
+      </div>
+
+      <div class="h-gal-item">
+        <img class="h-gal-img" src="https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Athlete">
+        <div class="h-gal-overlay">
+          <div class="h-gal-sport">Basketball · PG</div>
+          <div class="h-gal-name">Jordan R.</div>
+          <div class="h-gal-detail">Boone High School · Class of '27</div>
+          <a href="#" class="h-gal-btn">View Profile →</a>
+        </div>
+      </div>
+
+      <div class="h-gal-item tall">
+        <img class="h-gal-img" src="https://images.pexels.com/photos/3621104/pexels-photo-3621104.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Athlete">
+        <div class="h-gal-overlay">
+          <div class="h-gal-sport">Track · Sprints</div>
+          <div class="h-gal-name">Destiny C.</div>
+          <div class="h-gal-detail">Dr. Phillips HS · Class of '26</div>
+          <a href="#" class="h-gal-btn">View Profile →</a>
+        </div>
+      </div>
+
+      <div class="h-gal-item">
+        <img class="h-gal-img" src="https://images.pexels.com/photos/863988/pexels-photo-863988.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Athlete">
+        <div class="h-gal-overlay">
+          <div class="h-gal-sport">Soccer · MF</div>
+          <div class="h-gal-name">Diego V.</div>
+          <div class="h-gal-detail">Lake Nona HS · Class of '28</div>
+          <a href="#" class="h-gal-btn">View Profile →</a>
+        </div>
+      </div>
+
+      <div class="h-gal-item tall">
+        <img class="h-gal-img" src="https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Athlete">
+        <div class="h-gal-overlay">
+          <div class="h-gal-sport">Baseball · SS</div>
+          <div class="h-gal-name">Carlos M.</div>
+          <div class="h-gal-detail">Timber Creek HS · Class of '27</div>
+          <a href="#" class="h-gal-btn">View Profile →</a>
+        </div>
+      </div>
+
+      <div class="h-gal-item">
+        <img class="h-gal-img" src="https://images.pexels.com/photos/3076509/pexels-photo-3076509.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Athlete">
+        <div class="h-gal-overlay">
+          <div class="h-gal-sport">Volleyball · OH</div>
+          <div class="h-gal-name">Aaliyah W.</div>
+          <div class="h-gal-detail">Freedom High School · Class of '26</div>
+          <a href="#" class="h-gal-btn">View Profile →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- WHY JRZ SPORTS                                         -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="why" id="why">
+  <div class="why-split">
+    <div class="why-left fade-up">
+      <div class="why-tag">Why JRZ Sports</div>
+      <h2 class="why-h2" data-split>
+        One Hub.<br>Every Conversation.<br>
+        <span style="color:var(--blue)">All In GHL.</span>
+      </h2>
+      <p class="why-body">Every parent message, every coach email, every brand inquiry — all tracked inside GoHighLevel so nothing falls through the cracks. You always know exactly where your athlete stands and what's next.</p>
+      <div class="why-stats">
+        <div class="why-stat">
+          <div class="why-stat-num">100<span>%</span></div>
+          <div class="why-stat-label">Digital — no paperwork, no guesswork</div>
+        </div>
+        <div class="why-stat">
+          <div class="why-stat-num">24<span>/7</span></div>
+          <div class="why-stat-label">Profile live and visible online</div>
+        </div>
+        <div class="why-stat">
+          <div class="why-stat-num">1<span> hub</span></div>
+          <div class="why-stat-label">All conversations in GHL</div>
+        </div>
+        <div class="why-stat">
+          <div class="why-stat-num">∞</div>
+          <div class="why-stat-label">Gallery updates always included</div>
+        </div>
+      </div>
+      <a href="#apply" class="btn-primary">Build Your Athlete's Profile →</a>
+    </div>
+    <div class="why-img-wrap fade-up" style="transition-delay:.12s">
+      <img class="why-img-main" src="https://images.pexels.com/photos/3621104/pexels-photo-3621104.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Athlete portfolio">
+      <img class="why-img-accent" src="https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Athlete">
+      <div class="why-label">
+        <div class="why-label-big">JRZ</div>
+        <div class="why-label-sm">Sports</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- APPLY                                                   -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="apply-sect" id="apply">
+  <div class="apply-split">
+    <div class="apply-left fade-up">
+      <div class="apply-pre">Get Started</div>
+      <h2 class="apply-h2" data-split>Apply<br><span style="color:var(--blue)">Today.</span></h2>
+      <p class="apply-body">Fill out the form. We review every application and reach out within 48 hours to talk through your athlete's sport, goals, and exactly how JRZ Sports can help.</p>
+      <div class="apply-checklist">
+        <div class="apply-check"><div class="apply-check-dot"></div><span>College recruitment outreach to coaches nationwide</span></div>
+        <div class="apply-check"><div class="apply-check-dot"></div><span>Complete digital portfolio built for your athlete</span></div>
+        <div class="apply-check"><div class="apply-check-dot"></div><span>Brand deal scouting and negotiation</span></div>
+        <div class="apply-check"><div class="apply-check-dot"></div><span>Unlimited gallery updates — photos &amp; videos anytime</span></div>
+        <div class="apply-check"><div class="apply-check-dot"></div><span>All communications tracked inside GoHighLevel</span></div>
+        <div class="apply-check"><div class="apply-check-dot"></div><span>Dedicated JRZ Sports manager for your athlete</span></div>
+      </div>
+    </div>
+    <div class="apply-right fade-up" style="transition-delay:.12s">
+      <!-- SWAP FORM ID: replace 5XhL0vWCuJ59HWHQoHGG with JRZ Sports-specific GHL form ID -->
+      <div class="apply-form-wrap">
+        <iframe src="https://links.jrzmarketing.com/widget/form/5XhL0vWCuJ59HWHQoHGG"
+          title="JRZ Sports Athlete Application" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<div class="cta-strip">
+  <div class="cta-strip-text">Ready to build<br>your athlete's future?</div>
+  <div class="cta-strip-right">
+    <a href="#apply" class="btn-dark">Apply Now →</a>
+    <p style="font-size:11px;color:rgba(255,255,255,.55);text-align:right;">Orlando, FL · Middle &amp; High School Athletes · All Sports</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>
+    <div class="foot-logo">JRZ <em>Sports</em></div>
+    <div class="foot-links">
+      <a href="#services">Services</a>
+      <a href="#process">How It Works</a>
+      <a href="#athletes">Athletes</a>
+      <a href="#apply">Apply</a>
+    </div>
+  </div>
+  <div class="foot-info">
+    © 2026 JRZ Sports · Orlando, FL<br>
+    A <a href="https://jrzmarketing.com">JRZ Marketing</a> company<br>
+    <a href="tel:4075505898">(407) 550-5898</a>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SCRIPTS                                                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<script>
+/* ── LENIS ──────────────────────────────────────────────── */
+const lenis=new Lenis({duration:1.15,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t))});
+function raf(time){lenis.raf(time);requestAnimationFrame(raf);}
+requestAnimationFrame(raf);
+lenis.on('scroll',ScrollTrigger.update);
+gsap.ticker.add(time=>lenis.raf(time*1000));
+gsap.ticker.lagSmoothing(0);
+
+/* ── CURSOR ─────────────────────────────────────────────── */
+const ball=document.getElementById('cursor-ball');
+const ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+window.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  gsap.to(ball,{x:mx,y:my,duration:.1,ease:'none'});
+});
+(function animRing(){
+  rx+=(mx-rx)*.1;ry+=(my-ry)*.1;
+  gsap.set(ring,{x:rx,y:ry});
+  requestAnimationFrame(animRing);
+})();
+
+/* ── LOADER ─────────────────────────────────────────────── */
+const countEl=document.getElementById('loaderCount');
+const barEl=document.getElementById('loaderBar');
+let n=0;
+const iv=setInterval(()=>{
+  n+=Math.floor(Math.random()*4)+1;
+  if(n>=100){
+    n=100;clearInterval(iv);
+    setTimeout(()=>{
+      gsap.to('#loader',{yPercent:-100,duration:.9,ease:'expo.inOut',
+        onComplete:()=>{document.getElementById('loader').style.display='none';initPage();}});
+    },200);
+  }
+  countEl.textContent=n;barEl.style.width=n+'%';
+},28);
+
+/* ── PAGE INIT ──────────────────────────────────────────── */
+function initPage(){
+  /* hero parallax */
+  gsap.to('#heroBg',{yPercent:18,ease:'none',
+    scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+
+  /* hero text entrance */
+  gsap.to('#heroEyebrow',{opacity:1,y:0,duration:.8,ease:'expo.out',delay:.1});
+  const heroSplit=new SplitType('#heroHead',{types:'chars'});
+  gsap.to(heroSplit.chars,{opacity:1,yPercent:0,rotate:0,stagger:.025,duration:.9,ease:'expo.out',delay:.2});
+  gsap.to('#heroSub',{opacity:1,y:0,duration:.8,ease:'expo.out',delay:.5});
+  gsap.to('#heroActions',{opacity:1,y:0,duration:.8,ease:'expo.out',delay:.65});
+  gsap.to('#heroPills',{opacity:1,duration:.8,delay:.8});
+  gsap.to('#heroScroll',{opacity:1,duration:.8,delay:1});
+
+  /* scroll-triggered headline splits */
+  document.querySelectorAll('[data-split]').forEach(el=>{
+    const st=new SplitType(el,{types:'chars'});
+    gsap.from(st.chars,{yPercent:110,opacity:0,stagger:.022,duration:.8,ease:'expo.out',
+      scrollTrigger:{trigger:el,start:'top 82%',once:true}});
+  });
+
+  /* fade-ups */
+  document.querySelectorAll('.fade-up').forEach(el=>{
+    gsap.to(el,{opacity:1,y:0,duration:.75,ease:'expo.out',
+      scrollTrigger:{trigger:el,start:'top 86%',once:true}});
+  });
+
+  /* horizontal gallery */
+  const track=document.getElementById('hGalleryTrack');
+  const pin=document.getElementById('hGalleryPin');
+  if(window.innerWidth>768){
+    gsap.to(track,{
+      x:()=>-(track.scrollWidth-window.innerWidth+80),
+      ease:'none',
+      scrollTrigger:{
+        trigger:pin,start:'top top',
+        end:()=>'+='+(track.scrollWidth-window.innerWidth+80),
+        pin:true,scrub:1,anticipatePin:1
+      }
+    });
+  }else{
+    pin.style.overflowX='auto';
+    pin.style.webkitOverflowScrolling='touch';
+    pin.style.scrollSnapType='x mandatory';
+    track.style.padding='clamp(24px,5vw,40px) var(--g, 20px)';
+  }
+
+  /* magnetic buttons */
+  document.querySelectorAll('.btn-primary,.btn-ghost,.btn-dark').forEach(btn=>{
+    btn.addEventListener('mousemove',e=>{
+      const r=btn.getBoundingClientRect();
+      gsap.to(btn,{x:(e.clientX-r.left-r.width/2)*.28,y:(e.clientY-r.top-r.height/2)*.28,duration:.3,ease:'power2.out'});
+    });
+    btn.addEventListener('mouseleave',()=>{
+      gsap.to(btn,{x:0,y:0,duration:.7,ease:'elastic.out(1,0.5)'});
+    });
+  });
+}
+
+/* ── SMOOTH ANCHOR ──────────────────────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();lenis.scrollTo(t,{offset:-72});}
+  });
+});
+</script>
+</body>
+</html>

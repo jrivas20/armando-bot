@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Take a Sushi — Japanese-Latin Fusion · Orlando, FL</title>
+<meta name="description" content="Happiness is simple — all it takes is sushi. Orlando's home for Japanese-Latin fusion. 4.6 ⭐ 1,200+ reviews.">
+<meta property="og:title" content="Take a Sushi — Orlando's Sushi Fusion">
+<meta property="og:image" content="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1c5a3dd25aa2a93b5f3.jpg">
+<meta property="og:type" content="website">
+
+<!-- FONTS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Anton — entrance hero font (heavy condensed, like Pizarro) -->
+<!-- Nunito — body fallback -->
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Restaurant","name":"Take a Sushi","servesCuisine":["Japanese","Latin","Sushi"],"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.6","reviewCount":"1200"},"address":{"@type":"PostalAddress","streetAddress":"4725 W Sand Lake Rd #101","addressLocality":"Orlando","addressRegion":"FL","postalCode":"32819"},"telephone":"+14074125476"}</script>
+
+<style>
+/* ── AVIGEA FONT ── */
+@import url('https://fonts.cdnfonts.com/css/avigea');
+
+/* ── HELVETICA ROUNDED — body font ── */
+@import url('https://fonts.cdnfonts.com/css/helvetica-rounded');
+
+/* ── GHL FULL BLEED ── */
+html,body,[class*="container"],[class*="section"],[class*="wrapper"],[class*="inner"],[class*="hl_"],[class*="row"],[class*="col"]{width:100%!important;max-width:100%!important;margin:0!important;padding-left:0!important;padding-right:0!important;box-sizing:border-box!important;}
+html,body{overflow-x:hidden!important;}
+
+/* ── ROOT ── */
+:root{
+  --peach:#FCEDE6;
+  --red:#E65B4C;
+  --green:#006646;
+  --blue:#2777C5;
+  --dark:#100A00;
+  --cream:#fff9f5;
+  /* Avigea for ALL headings */
+  --avigea:'Avigea','Playfair Display','DM Serif Display',Georgia,serif;
+  --hero:'Avigea','Playfair Display','DM Serif Display',Georgia,serif;
+  /* Helvetica Rounded for all body/paragraph text */
+  --body:'Helvetica Rounded','Helvetica Neue',Helvetica,'Nunito',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--body);background:var(--peach);color:var(--dark);overflow-x:hidden;}
+a{text-decoration:none;color:inherit;}
+
+/* ── PARALLAX SYSTEM ─────────────────────────────
+   Images declare their speed via data-px="0.2"
+   JS reads scroll and writes --pxY custom prop.
+   Hover states extend the same transform so they
+   never override each other.
+─────────────────────────────────────────────────── */
+[data-px]{
+  will-change:transform;
+  transform:translateY(var(--pxY,0px));
+}
+/* All parallax images get a little extra height to
+   allow travel room without showing gaps at edges */
+.pcard-inner img[data-px],
+.about-ph img[data-px],
+.mcard-img img[data-px]{
+  height:115%;
+  margin-top:-7.5%;
+  object-fit:cover;
+  width:100%;
+  display:block;
+}
+/* hero & catering parallax layers */
+.hero-slide img[data-px]{
+  height:115%;
+  margin-top:-7.5%;
+  object-fit:cover;
+  width:100%;
+}
+.catering-bg img[data-px]{
+  height:125%;
+  margin-top:-12.5%;
+  object-fit:cover;
+  width:100%;
+  position:absolute;
+  top:0;left:0;
+}
+
+/* ── WATERMARK ── */
+.watermark-bg{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='200'%3E%3Ctext x='20' y='65' font-family='Georgia,serif' font-size='28' fill='rgba(230%2C91%2C76%2C0.08)' transform='rotate(-18,230,100)'%3ETAKE A SUSHI ORLANDO%3C/text%3E%3Ctext x='0' y='140' font-family='Georgia,serif' font-size='20' fill='rgba(230%2C91%2C76%2C0.06)' transform='rotate(-18,230,100)'%3EJAPANESE LATIN FUSION%3C/text%3E%3C/svg%3E");
+  background-size:480px 220px;
+}
+
+/* ══════════════════════════════════════
+   ENTRANCE — hidden, replaced by hero-cover
+══════════════════════════════════════ */
+.entrance{display:none!important;}
+/* ── HERO COVER — Pizarro entrance: red overlay fades revealing photo ── */
+#heroCover{
+  position:absolute;inset:0;z-index:2;
+  background:var(--red);
+  transition:opacity 1.4s cubic-bezier(0.4,0,0.2,1);
+  pointer-events:none;
+}
+#heroCover::before{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle,rgba(255,255,255,0.12) 28%,transparent 28%);
+  background-size:20px 20px;
+}
+.cover-badge{
+  position:absolute;
+  bottom:clamp(88px,11vw,130px);
+  left:clamp(20px,3vw,36px);z-index:3;
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.22);
+  border-radius:100px;padding:10px 22px;
+  font-family:var(--body);font-size:clamp(11px,1.2vw,15px);font-weight:700;color:#fff;
+  letter-spacing:0.5px;opacity:0;animation:eFadeUp .5s ease 0.7s forwards;
+  white-space:nowrap;
+}
+.cover-badge .stars{color:#FFD700;letter-spacing:2px;}
+.cover-tagline{
+  position:absolute;
+  bottom:clamp(130px,15vw,180px);
+  left:clamp(20px,3vw,36px);z-index:3;
+  font-family:var(--body);font-size:clamp(9px,0.9vw,13px);font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.42);
+  opacity:0;animation:eFadeUp .5s ease 0.9s forwards;
+}
+.cover-progress{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,0.15);z-index:3;}
+.cover-progress-fill{height:100%;background:#fff;width:0%;animation:eProg 3s linear 0.2s forwards;}
+
+@keyframes eSlamD{0%{opacity:0;transform:translateY(-60px) scaleY(0.5);}55%{opacity:1;transform:translateY(5px) scaleY(1.04);}75%{transform:translateY(-2px) scaleY(0.98);}100%{opacity:1;transform:none;}}
+@keyframes eSlamU{0%{opacity:0;transform:translateY(60px) scaleY(0.5);}55%{opacity:1;transform:translateY(-5px) scaleY(1.04);}75%{transform:translateY(2px) scaleY(0.98);}100%{opacity:1;transform:none;}}
+@keyframes eFadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+@keyframes eProg{from{width:0%;}to{width:100%;}}
+
+/* ══════════════════════════════════════
+   HERO — Avigea + full-bleed parallax
+══════════════════════════════════════ */
+.hero{
+  position:relative;width:100vw;height:100svh;min-height:600px;
+  overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;
+  background:#0a0600;
+}
+.hero-slides{position:absolute;inset:0;z-index:0;overflow:hidden;}
+.hero-slide{position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease;overflow:hidden;}
+.hero-slide.active{opacity:1;}
+/* Video background */
+.hero-vid-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
+.hero-vid-bg video{width:100%;height:100%;object-fit:cover;display:block;}
+/* Gradient — darker at bottom for text, subtle vignette at top */
+.hero-grad{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(to top, rgba(10,6,0,0.82) 0%, rgba(10,6,0,0.35) 40%, transparent 70%),
+    linear-gradient(to bottom, rgba(10,6,0,0.25) 0%, transparent 30%);
+}
+/* Dots removed — they covered the food photo */
+.hero-dots{ display:none; }
+.hero-reg{position:absolute;top:28px;right:32px;z-index:5;font-size:28px;color:rgba(255,255,255,0.85);font-family:serif;}
+
+/* Giant hero name — SEO h1 + Avigea, fills viewport width */
+h1.hero-name{
+  all:unset;
+  display:block;
+  position:relative;z-index:3;
+  padding:0 0 8px;margin-top:auto;
+  line-height:0.84;overflow:hidden;user-select:none;
+}
+.hero-name{
+  position:relative;z-index:3;
+  padding:0 0 8px;margin-top:auto;
+  line-height:0.84;overflow:hidden;user-select:none;
+}
+.hero-line{
+  display:block !important;
+  font-family:'Avigea','Playfair Display',Georgia,serif !important;
+  font-weight:900 !important;
+  color:#fff !important;
+  text-transform:uppercase !important;
+  letter-spacing:-0.03em !important;
+  white-space:nowrap !important;
+  padding:0 16px !important;
+  font-size:clamp(48px,11vw,200px) !important;
+  filter:url(#roughen-soft);-webkit-filter:url(#roughen-soft);
+  opacity:0; /* slams in via animation — stays visible throughout entrance */
+}
+#heroLine2{
+  font-size:clamp(48px,11vw,200px) !important;
+}
+/* Mobile — hero text much bigger, fills the screen with impact */
+@media(max-width:768px){
+  .hero-line{
+    font-size:clamp(56px,18vw,200px) !important;
+    padding:0 8px !important;
+  }
+  #heroLine2{
+    font-size:clamp(56px,18vw,200px) !important;
+  }
+  .hero{min-height:100svh;}
+  .hero-bottom{padding:0 20px 40px;}
+  .hero-btns{gap:10px;}
+  .hbtn{
+    height:clamp(48px,12vw,64px) !important;
+    font-size:clamp(15px,4vw,22px) !important;
+    padding:0 clamp(18px,5vw,28px) !important;
+  }
+  .hero-badge{font-size:11px;}
+  .hero-caption{font-size:10px;letter-spacing:1px;}
+}
+/* Hero lines slam in at page load — same as Pizarro, text stays above red cover */
+#heroLine1{animation:eSlamD .55s cubic-bezier(0.22,1,0.36,1) 0.08s forwards;}
+#heroLine2{animation:eSlamU .55s cubic-bezier(0.22,1,0.36,1) 0.30s forwards;}
+
+/* Bottom of hero — hidden during entrance, revealed after cover fades */
+.hero-bottom{position:relative;z-index:5;padding:0 28px 90px;opacity:0;transition:opacity .9s ease;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);
+  letter-spacing:0.5px;margin-bottom:12px;
+  font-family:var(--body);
+}
+.hero-badge .stars{color:#FFD700;font-size:14px;letter-spacing:2px;}
+.hero-caption{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--body);font-size:11px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,0.65);margin-bottom:18px;
+}
+/* ── HERO BUTTONS — Avigea, Pizarro scale ── */
+.hero-btns{display:flex;align-items:stretch;gap:14px;flex-wrap:wrap;}
+.hbtn{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:clamp(52px,5.5vw,72px);
+  padding:0 clamp(22px,2.8vw,38px);
+  font-family:'Avigea','Playfair Display',Georgia,serif !important;
+  font-size:clamp(17px,2vw,28px) !important;
+  font-weight:900 !important;
+  letter-spacing:-0.3px !important;
+  text-transform:uppercase !important;
+  border:none;
+  border-radius:clamp(12px,1.4vw,18px);
+  cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
+  white-space:nowrap;
+  line-height:1;
+  filter:url(#roughen-soft);-webkit-filter:url(#roughen-soft);
+}
+.hbtn:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,0,0,0.25);}
+.hbtn:active{transform:translateY(0);}
+.hbtn-red{background:var(--red);color:#fff;}
+.hbtn-red:hover{background:#d94535;}
+.hbtn-white{background:#fff;color:var(--red);}
+.hbtn-white:hover{background:#f5f5f5;}
+/* Small icon button — no roughen, stays compact */
+.hbtn-icon{
+  width:clamp(48px,5vw,60px);padding:0;flex-shrink:0;
+  background:transparent;border:2px solid rgba(255,255,255,0.45);
+  color:#fff;border-radius:clamp(10px,1.2vw,14px);
+  font-family:var(--body)!important;font-size:16px!important;
+  filter:none;-webkit-filter:none;
+}
+.hbtn-icon:hover{background:rgba(255,255,255,0.15);border-color:#fff;}
+
+/* ── SCROLL DOWN indicator ── */
+.hero-scroll-cue{
+  position:absolute;bottom:100px;right:32px;z-index:6;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  opacity:0;animation:eFadeUp .6s ease 5s forwards;
+}
+.hero-scroll-cue span{
+  font-family:var(--body);font-size:9px;font-weight:800;letter-spacing:3px;
+  text-transform:uppercase;color:rgba(255,255,255,0.4);
+  writing-mode:vertical-rl;text-orientation:mixed;
+}
+.scroll-arrow{
+  width:1px;height:56px;background:rgba(255,255,255,0.2);
+  position:relative;overflow:hidden;
+}
+.scroll-arrow::after{
+  content:'';position:absolute;top:-100%;left:0;
+  width:1px;height:100%;
+  background:linear-gradient(to bottom,transparent,rgba(255,255,255,0.8));
+  animation:scrollLine 1.8s ease-in-out infinite;
+}
+@keyframes scrollLine{0%{top:-100%;}100%{top:200%;}}
+
+/* ══════════════════════════════════════
+   TORN-EDGE TICKER STRIP
+══════════════════════════════════════ */
+/* Ticker — diagonal band punches through hero + collage.
+   Torn edges are inline SVG with Q-bezier curves (organic paper tear).
+   scaleX(1.08) covers left/right gaps caused by rotation. */
+.ticker-sec{
+  position:relative;
+  z-index:10;
+  margin-top:-70px;
+  margin-bottom:-70px;
+  transform:rotate(-1.8deg) scaleX(1.08);
+  transform-origin:center;
+}
+/* SVG torn edges — no clip-path needed, shape comes from path d= */
+.torn-top,.torn-bot{
+  display:block;
+  width:100%;
+  height:76px;
+  overflow:visible;
+  /* Subtle drop-shadow gives paper-thickness depth like Pizarro */
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,0.18));
+}
+.ticker-body{background:#E65B4C;overflow:hidden;padding:24px 0;}
+.ticker-track{display:flex;white-space:nowrap;animation:tickerScroll 26s linear infinite;width:max-content;}
+.ticker-track:hover{animation-play-state:paused;}
+.ticker-item{
+  display:inline-flex;align-items:center;gap:28px;
+  font-family:var(--avigea);font-size:clamp(22px,3.2vw,42px);
+  color:#fff;letter-spacing:0.5px;text-transform:uppercase;
+  padding:0 28px;flex-shrink:0;
+}
+.tdot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.5);flex-shrink:0;}
+@keyframes tickerScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* ══════════════════════════════════════
+   STICKER TEXT — Avigea, Pizarro scale
+   Bigger clamps = billboard feel
+══════════════════════════════════════ */
+.sticker-text{
+  font-family:var(--avigea);
+  color:var(--red);
+  -webkit-text-stroke:8px #fff;
+  text-stroke:8px #fff;
+  paint-order:stroke fill;
+  text-transform:uppercase;
+  letter-spacing:-2px;
+  line-height:0.88;
+  display:inline-block;
+}
+.sticker-text.dark{
+  color:var(--dark);
+  -webkit-text-stroke:6px var(--peach);
+  text-stroke:6px var(--peach);
+}
+.sticker-text.white{
+  color:#fff;
+  -webkit-text-stroke:6px var(--red);
+  text-stroke:6px var(--red);
+}
+
+/* ══════════════════════════════════════
+   COLLAGE SHARED STYLES
+══════════════════════════════════════ */
+.collage-sec{
+  position:relative;overflow:hidden;
+  z-index:1;
+  background-color:var(--cream);
+  background-image:radial-gradient(circle, rgba(230,91,76,0.16) 38%, transparent 38%);
+  background-size:22px 22px;
+  min-height:700px;
+  padding:50px 0 60px;
+}
+/* Photo card scroll-in animation.
+   Each card sets --pcard-rot so the keyframe
+   knows what final rotation to land on. */
+@keyframes cardReveal{
+  from{opacity:0;transform:var(--pcard-rot,rotate(0deg)) scale(0.82) translateY(40px);filter:blur(3px);}
+  to  {opacity:1;transform:var(--pcard-rot,rotate(0deg)) scale(1)    translateY(0);   filter:blur(0);}
+}
+.pcard{
+  opacity:0;
+  transform:var(--pcard-rot,rotate(0deg));
+  --pcard-rot:rotate(0deg);
+}
+.pcard.pcard-in{
+  animation:cardReveal .7s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+/* Photo card — polaroid style */
+.pcard{
+  position:absolute;
+  background:#fff;
+  padding:7px; /* thin equal photo print — no polaroid thick bottom */
+  box-shadow:0 10px 48px rgba(0,0,0,0.22),0 2px 10px rgba(0,0,0,0.1);
+  transition:box-shadow .35s ease,transform .35s ease;
+  cursor:pointer;z-index:2;
+}
+.pcard:hover{
+  z-index:10;
+  box-shadow:0 20px 70px rgba(0,0,0,0.26);
+}
+/* Hover lift — separate from parallax transform on img */
+.pcard:hover .pcard-inner img[data-px]{
+  transform:translateY(var(--pxY,0px)) scale(1.05);
+}
+/* Pcard rotate stays on the element, parallax on inner img */
+.pcard-inner{overflow:hidden;position:relative;width:100%;height:100%;}
+.pcard-inner img{display:block;width:100%;height:115%;margin-top:-7.5%;object-fit:cover;transition:transform .5s ease;}
+/* Red overlay on hover */
+.pcard-inner::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(230,91,76,0);transition:background .35s ease;
+}
+.pcard:hover .pcard-inner::after{background:rgba(230,91,76,0.22);}
+
+/* ══════════════════════════════════════
+   COLLAGE 1 — "ROLL WITH US"
+   Left/right scatter — text floats center
+══════════════════════════════════════ */
+.c1{min-height:820px;}
+.c1-stage{
+  position:relative;z-index:1;
+  width:100%;
+  height:clamp(700px,100vw,1140px);
+}
+/* LEFT cluster */
+.c1 .pc1{width:33vw;height:21vw;--pcard-rot:rotate(-9deg); top:0;       left:-2%;}
+.c1 .pc2{width:23vw;height:31vw;--pcard-rot:rotate(8deg);  top:3%;      left:16%;}
+.c1 .pc6{width:32vw;height:20vw;--pcard-rot:rotate(-12deg);bottom:4%;   left:1%;}
+/* CENTER fill */
+.c1 .pc3{width:27vw;height:17vw;--pcard-rot:rotate(-4deg); top:24%;     left:34%;}
+.c1 .pc8{width:21vw;height:28vw;--pcard-rot:rotate(5deg);  bottom:1%;   left:33%;}
+/* RIGHT cluster */
+.c1 .pc4{width:23vw;height:30vw;--pcard-rot:rotate(13deg); top:2%;      right:12%;}
+.c1 .pc5{width:33vw;height:21vw;--pcard-rot:rotate(-10deg);top:0;       right:-2%;}
+.c1 .pc7{width:23vw;height:30vw;--pcard-rot:rotate(9deg);  bottom:4%;   right:2%;}
+.c1 .pc9{width:22vw;height:15vw;--pcard-rot:rotate(-6deg); top:46%;     right:-2%;}
+
+/* "ROLL WITH US" — locked center of stage, font clamped to never overflow */
+.c1-sticker{
+  position:absolute;z-index:8;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%) rotate(-2.5deg);
+  white-space:nowrap;
+  max-width:88vw;
+  font-family:var(--avigea) !important;
+  /* 8.5vw × ~13 chars × ~0.68 ratio ≈ 75vw — safely inside viewport */
+  font-size:clamp(32px,8.5vw,130px);
+  color:#fff !important;
+  -webkit-text-stroke:clamp(4px,0.7vw,10px) var(--red) !important;
+  text-stroke:clamp(4px,0.7vw,10px) var(--red) !important;
+  paint-order:stroke fill;
+  text-transform:uppercase;
+  letter-spacing:-1px;
+  line-height:0.9;
+}
+
+/* sticker-dot removed — elite design, no circular badges */
+
+/* ══════════════════════════════════════
+   COLLAGE 2 — "OR ORDER NOW"
+   Same scatter logic, different layout
+══════════════════════════════════════ */
+.c2{min-height:820px;}
+.c2-stage{
+  position:relative;z-index:1;
+  width:100%;
+  height:clamp(700px,100vw,1140px);
+}
+/* LEFT cluster */
+.c2 .pc1{width:32vw;height:20vw;--pcard-rot:rotate(-7deg); top:0;       left:-2%;}
+.c2 .pc2{width:22vw;height:29vw;--pcard-rot:rotate(6deg);  top:4%;      left:16%;}
+.c2 .pc6{width:31vw;height:19vw;--pcard-rot:rotate(-11deg);bottom:4%;   left:2%;}
+/* CENTER fill */
+.c2 .pc3{width:26vw;height:17vw;--pcard-rot:rotate(-4deg); top:26%;     left:35%;}
+.c2 .pc8{width:20vw;height:27vw;--pcard-rot:rotate(-6deg); bottom:1%;   left:34%;}
+/* RIGHT cluster */
+.c2 .pc4{width:22vw;height:29vw;--pcard-rot:rotate(11deg); top:2%;      right:13%;}
+.c2 .pc5{width:32vw;height:20vw;--pcard-rot:rotate(-8deg); top:0;       right:-2%;}
+.c2 .pc7{width:22vw;height:29vw;--pcard-rot:rotate(8deg);  bottom:4%;   right:3%;}
+.c2 .pc9{width:21vw;height:14vw;--pcard-rot:rotate(5deg);  top:48%;     right:-2%;}
+
+/* "OR ORDER NOW" — same centered sticker treatment */
+.c2-sticker{
+  position:absolute;z-index:8;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%) rotate(-2deg);
+  white-space:nowrap;
+  max-width:88vw;
+  font-family:var(--avigea) !important;
+  font-size:clamp(32px,8vw,124px);
+  color:#fff !important;
+  -webkit-text-stroke:clamp(4px,0.7vw,10px) var(--red) !important;
+  text-stroke:clamp(4px,0.7vw,10px) var(--red) !important;
+  paint-order:stroke fill;
+  text-transform:uppercase;
+  letter-spacing:-1px;
+  line-height:0.9;
+  text-align:center;
+}
+.c2-bottom{display:none;}
+
+/* ── MOBILE — flow into responsive grid ── */
+@media(max-width:768px){
+  .c1,.c2{min-height:auto;}
+  .c1-stage,.c2-stage{
+    height:auto;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:auto auto auto;
+    gap:10px;
+    padding:12px 12px 80px;
+  }
+  .pcard{
+    position:relative!important;top:auto!important;left:auto!important;
+    right:auto!important;bottom:auto!important;
+    width:100%!important;height:28vw!important;
+    transform:var(--pcard-rot)!important;
+  }
+  .c1 .pc1,.c1 .pc2,.c1 .pc3,.c1 .pc4,.c1 .pc5,.c1 .pc6,.c1 .pc7,.c1 .pc8{display:block;}
+  .c1 .pc9{display:none;}
+  .c2 .pc1,.c2 .pc2,.c2 .pc3,.c2 .pc4,.c2 .pc5,.c2 .pc6,.c2 .pc7,.c2 .pc8{display:block;}
+  .c2 .pc9{display:none;}
+  .c1-sticker,.c2-sticker{
+    position:relative;grid-column:1/-1;
+    left:auto;top:auto;transform:rotate(-2deg);
+    font-size:clamp(38px,10vw,80px);
+    text-align:center;margin:8px auto 0;
+    max-width:96vw;
+  }
+  .hero-scroll-cue{display:none;}
+}
+
+/* ══════════════════════════════════════
+   ABOUT STRIP — dark, billboard h2
+══════════════════════════════════════ */
+.about{background:#2777C5;padding:96px 0;overflow:hidden;}
+.about-inner{
+  width:min(1260px,calc(100% - 48px));margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;
+}
+.about-label{
+  font-family:var(--body);font-size:11px;font-weight:800;letter-spacing:3px;
+  text-transform:uppercase;color:var(--red);margin-bottom:20px;display:block;
+}
+/* Avigea heading — Pizarro scale */
+.about-h2{
+  font-family:var(--avigea);
+  font-size:clamp(56px,8vw,128px);
+  color:#fff;letter-spacing:-2px;line-height:0.95;
+  margin-bottom:28px;
+}
+.about-h2 em{color:var(--red);font-style:normal;}
+/* Helvetica Rounded paragraphs */
+.about-p{
+  font-family:var(--body);font-size:16px;line-height:1.8;
+  color:rgba(255,255,255,0.58);margin-bottom:16px;max-width:460px;
+}
+.about-photos{
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:240px 200px;gap:10px;
+}
+.about-ph{border-radius:16px;overflow:hidden;position:relative;}
+.about-ph img{width:100%;height:115%;margin-top:-7.5%;object-fit:cover;transition:transform .5s;}
+/* Parallax hover state — combine transforms */
+.about-ph:hover img[data-px]{transform:translateY(var(--pxY,0px)) scale(1.06);}
+.about-ph.big{grid-row:span 2;}
+.about-ph::after{content:'';position:absolute;inset:0;background:rgba(230,91,76,0);transition:background .4s;}
+.about-ph:hover::after{background:rgba(230,91,76,0.2);}
+@media(max-width:900px){.about-inner{grid-template-columns:1fr;gap:48px;}.about-photos{grid-template-rows:200px 160px;}}
+
+/* ══════════════════════════════════════
+   MENU PREVIEW — editorial collage
+══════════════════════════════════════ */
+.menu-sec{
+  background:var(--cream);
+  background-image:radial-gradient(circle,rgba(230,91,76,0.13) 38%,transparent 38%);
+  background-size:22px 22px;
+  padding:100px 0 120px;
+  overflow:hidden;
+}
+.menu-w{width:min(1400px,calc(100% - 48px));margin:0 auto;}
+.menu-top{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:24px;margin-bottom:64px;}
+.menu-h2{
+  font-family:var(--avigea);
+  font-size:clamp(60px,9.5vw,152px);
+  color:var(--dark);letter-spacing:-3px;line-height:0.90;
+}
+.menu-h2 span{color:var(--red);}
+.menu-cta{
+  display:inline-flex;align-items:center;height:52px;padding:0 28px;
+  background:var(--dark);color:#fff;border:2px solid var(--dark);
+  font-family:'Avigea','Playfair Display',Georgia,serif;font-size:16px;font-weight:900;letter-spacing:0;text-transform:uppercase;
+  border-radius:clamp(10px,1.2vw,16px);transition:.2s;white-space:nowrap;
+}
+.menu-cta:hover{background:transparent;color:var(--dark);}
+
+/* ── Editorial menu stage — same scatter logic as collage ── */
+.menu-stage{
+  position:relative;
+  width:100%;
+  height:clamp(520px,68vw,860px);
+}
+/* Each card uses --pcard-rot + cardReveal (reuses collage system) */
+.mcard-ed{
+  position:absolute;
+  background:#fff;
+  padding:7px;
+  box-shadow:0 12px 52px rgba(0,0,0,0.20),0 2px 10px rgba(0,0,0,0.10);
+  cursor:pointer;
+  opacity:0;
+  transform:var(--pcard-rot,rotate(0deg));
+  --pcard-rot:rotate(0deg);
+  transition:box-shadow .35s ease;
+}
+.mcard-ed.pcard-in{animation:cardReveal .7s cubic-bezier(0.22,1,0.36,1) forwards;}
+.mcard-ed:hover{z-index:10;box-shadow:0 24px 80px rgba(0,0,0,0.28);}
+.mcard-ed-inner{overflow:hidden;position:relative;width:100%;height:100%;}
+.mcard-ed-inner img{display:block;width:100%;height:115%;margin-top:-7.5%;object-fit:cover;transition:transform .5s ease;}
+.mcard-ed:hover .mcard-ed-inner img{transform:scale(1.06);}
+
+/* Dark gradient so overlay text reads on any photo */
+.mcard-ed-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(to top,rgba(0,0,0,0.88) 0%,rgba(0,0,0,0.42) 55%,transparent 100%);
+  padding:clamp(14px,2vw,24px) clamp(14px,2vw,22px) clamp(14px,2vw,20px);
+  z-index:2;
+}
+.mcard-ed-tag{
+  display:inline-block;
+  background:var(--red);color:#fff;
+  font-family:var(--body);font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  padding:4px 10px;border-radius:100px;margin-bottom:8px;
+}
+.mcard-ed-name{
+  font-family:var(--avigea);
+  font-size:clamp(20px,3.2vw,54px);
+  color:#fff;letter-spacing:-0.5px;line-height:0.92;
+  margin-bottom:6px;
+}
+.mcard-ed-desc{
+  font-family:var(--body);font-size:clamp(10px,0.9vw,13px);font-weight:600;
+  color:rgba(255,255,255,0.68);line-height:1.5;
+  margin-bottom:10px;
+}
+.mcard-ed-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'Avigea','Playfair Display',Georgia,serif;
+  font-size:clamp(12px,1vw,15px);font-weight:900;
+  color:#fff;text-transform:uppercase;letter-spacing:0;
+  border-bottom:1.5px solid rgba(255,255,255,0.35);
+  padding-bottom:2px;
+  transition:border-color .2s,color .2s;
+}
+.mcard-ed:hover .mcard-ed-btn{color:var(--red);border-color:var(--red);}
+
+/* Card positions — editorial scatter */
+.menu-stage .mc1{
+  width:46vw;height:30vw;
+  --pcard-rot:rotate(-7deg);
+  top:5%;left:-2%;z-index:2;
+}
+.menu-stage .mc2{
+  width:29vw;height:40vw;
+  --pcard-rot:rotate(5deg);
+  top:0;left:38%;z-index:3;
+}
+.menu-stage .mc3{
+  width:42vw;height:27vw;
+  --pcard-rot:rotate(-4deg);
+  bottom:3%;right:-2%;z-index:2;
+}
+
+/* Mobile — stack vertically */
+@media(max-width:768px){
+  .menu-stage{
+    height:auto;
+    display:flex;flex-direction:column;gap:16px;
+    padding:0 8px 20px;
+  }
+  .mcard-ed{
+    position:relative!important;top:auto!important;left:auto!important;
+    right:auto!important;bottom:auto!important;
+    width:100%!important;height:60vw!important;
+    transform:var(--pcard-rot)!important;
+  }
+  .menu-top{flex-direction:column;align-items:flex-start;}
+}
+
+/* ══════════════════════════════════════
+   REVIEWS
+══════════════════════════════════════ */
+.reviews{background:#fff;padding:80px 0;}
+.reviews-inner{
+  width:min(1260px,calc(100% - 48px));margin:0 auto;
+  display:grid;grid-template-columns:auto 1fr;gap:80px;align-items:center;
+}
+.reviews-left{text-align:center;}
+.score-num{font-family:var(--avigea);font-size:clamp(80px,12vw,140px);color:var(--dark);line-height:1;letter-spacing:-2px;}
+.score-stars{font-size:28px;color:#FFD700;letter-spacing:4px;margin:4px 0;}
+.score-count{font-family:var(--body);font-size:13px;font-weight:700;color:rgba(16,10,0,0.45);letter-spacing:0.5px;}
+.score-src{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--peach);border-radius:100px;padding:8px 18px;
+  font-family:var(--body);font-size:12px;font-weight:800;color:var(--dark);margin-top:16px;
+}
+.rv-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.rcard{
+  background:var(--peach);border-radius:16px;padding:22px;
+  border:1.5px solid rgba(0,0,0,0.05);transition:transform .3s;cursor:default;
+}
+.rcard:hover{transform:translateY(-4px);}
+.rcard-stars{font-size:13px;color:#FFD700;margin-bottom:10px;letter-spacing:2px;}
+.rcard-text{font-family:var(--body);font-size:14px;line-height:1.7;color:var(--dark);font-style:italic;margin-bottom:12px;font-weight:600;}
+.rcard-author{font-family:var(--body);font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(16,10,0,0.4);}
+@media(max-width:900px){.reviews-inner{grid-template-columns:1fr;gap:40px;}.reviews-left{text-align:left;}}
+@media(max-width:580px){.rv-grid{grid-template-columns:1fr;}}
+
+/* ══════════════════════════════════════
+   REWARDS PROGRAM — interactive polaroid cards
+══════════════════════════════════════ */
+.loyalty{
+  background:var(--peach);
+  padding:100px 0 110px;
+  overflow:hidden;position:relative;
+}
+/* Giant watermark */
+.loyalty::before{
+  content:'REWARDS';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-family:var(--avigea);font-size:28vw;font-weight:900;
+  color:rgba(230,91,76,0.06);white-space:nowrap;pointer-events:none;
+  line-height:1;letter-spacing:-4px;
+}
+.loyalty-inner{
+  width:min(1260px,calc(100% - 48px));margin:0 auto;
+  position:relative;z-index:1;
+}
+.loyalty-header{text-align:center;margin-bottom:72px;}
+.loyalty-label-sm{
+  font-family:var(--body);font-size:10px;font-weight:800;letter-spacing:3px;
+  text-transform:uppercase;color:var(--red);display:block;margin-bottom:16px;
+}
+.loyalty-h2{
+  font-family:var(--avigea);
+  font-size:clamp(52px,8vw,128px);
+  color:var(--dark);letter-spacing:-2.5px;line-height:0.92;
+}
+.loyalty-h2 em{color:var(--red);font-style:normal;}
+.loyalty-sub{
+  font-family:var(--body);font-size:16px;font-weight:600;
+  color:rgba(16,10,0,0.48);margin-top:20px;
+}
+/* Reward cards */
+.rp-stage{
+  display:flex;align-items:center;justify-content:center;
+  gap:clamp(16px,2.8vw,44px);flex-wrap:wrap;
+  padding:16px 0;
+}
+.rp-card{
+  background:#fff;
+  padding:7px 7px 20px;
+  box-shadow:0 14px 56px rgba(0,0,0,0.45),0 2px 8px rgba(0,0,0,0.2);
+  cursor:pointer;
+  width:clamp(190px,19vw,270px);
+  opacity:0;
+  transform:var(--pcard-rot,rotate(0deg));
+  --pcard-rot:rotate(0deg);
+  transition:box-shadow .35s ease;
+}
+.rp-card.pcard-in{animation:cardReveal .7s cubic-bezier(0.22,1,0.36,1) forwards;}
+.rp-card.rc1{--pcard-rot:rotate(-6deg);}
+.rp-card.rc2{--pcard-rot:rotate(3deg);}
+.rp-card.rc3{--pcard-rot:rotate(-5deg);}
+.rp-card-img{width:100%;aspect-ratio:1/1;overflow:hidden;position:relative;}
+.rp-card-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease;}
+.rp-card-img::after{content:'';position:absolute;inset:0;background:rgba(230,91,76,0);transition:background .35s;}
+.rp-card-info{padding:14px 8px 0;text-align:center;}
+.rp-pts{
+  font-family:var(--avigea);
+  font-size:clamp(26px,3.5vw,48px);
+  color:var(--red);letter-spacing:-1px;line-height:1;
+}
+.rp-pts-label{
+  display:block;font-family:var(--body);font-size:8px;font-weight:800;
+  letter-spacing:2.5px;text-transform:uppercase;
+  color:rgba(16,10,0,0.32);margin-top:-2px;margin-bottom:6px;
+}
+.rp-reward{
+  font-family:var(--avigea);
+  font-size:clamp(13px,1.5vw,19px);
+  color:var(--dark);letter-spacing:-0.2px;text-transform:uppercase;
+}
+/* CTA */
+.loyalty-cta{
+  text-align:center;margin-top:68px;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+}
+.loyalty-bonus-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(16,10,0,0.05);border:1px solid rgba(16,10,0,0.10);
+  border-radius:100px;padding:9px 22px;
+  font-family:var(--body);font-size:12px;font-weight:700;
+  color:rgba(16,10,0,0.52);
+}
+.loyalty-bonus-pill strong{color:var(--dark);}
+.loyalty-members{
+  font-family:var(--body);font-size:11px;font-weight:700;
+  color:rgba(16,10,0,0.32);letter-spacing:1.5px;text-transform:uppercase;
+}
+/* Rewards — tablet */
+@media(max-width:860px){
+  .rp-stage{gap:20px;}
+  .rp-card{width:clamp(160px,28vw,230px);}
+}
+/* Rewards — phone */
+@media(max-width:560px){
+  .rp-stage{
+    flex-direction:column;align-items:center;gap:20px;
+    padding:0 16px;
+  }
+  .rp-card{
+    width:100%;max-width:300px;
+    /* flatten rotation on small screens so text fits */
+    --pcard-rot:rotate(0deg) !important;
+  }
+  .loyalty-header{margin-bottom:48px;}
+}
+
+/* ══════════════════════════════════════
+   CATERING — parallax bg, big Avigea h2
+══════════════════════════════════════ */
+.catering{position:relative;min-height:600px;display:flex;align-items:center;overflow:hidden;}
+.catering-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
+/* catering-bg img uses data-px, styled above */
+.catering-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,102,70,0.92) 0%,rgba(0,82,47,0.75) 55%,rgba(0,50,28,0.4) 100%);
+  z-index:1;
+}
+.catering-bg::before{
+  content:'';position:absolute;inset:0;z-index:2;
+  background-image:radial-gradient(circle,rgba(0,102,70,0.45) 25%,transparent 25%);
+  background-size:18px 18px;
+}
+.catering-content{
+  position:relative;z-index:3;
+  width:min(1260px,calc(100% - 48px));margin:0 auto;padding:80px 0;
+}
+.cat-label{font-family:var(--body);font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:16px;display:block;}
+/* Billboard Avigea */
+.cat-h2{
+  font-family:var(--avigea);
+  font-size:clamp(64px,10.5vw,168px);
+  color:#fff;letter-spacing:-3px;line-height:0.92;margin-bottom:24px;
+}
+.cat-h2 span{color:rgba(255,255,255,0.28);}
+.cat-desc{font-family:var(--body);font-size:17px;color:rgba(255,255,255,0.78);font-weight:600;line-height:1.7;max-width:500px;margin-bottom:36px;}
+.cat-pills{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px;}
+.cat-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.18);border-radius:100px;padding:10px 20px;font-family:var(--body);font-size:13px;font-weight:700;color:#fff;}
+.cat-btns{display:flex;gap:12px;flex-wrap:wrap;}
+.cbtn{display:inline-flex;align-items:center;height:52px;padding:0 28px;font-family:'Avigea','Playfair Display',Georgia,serif;font-size:16px;font-weight:900;letter-spacing:0;text-transform:uppercase;border-radius:clamp(10px,1.2vw,16px);transition:.2s;border:2px solid transparent;}
+.cbtn-w{background:#fff;color:var(--green);border-color:#fff;}
+.cbtn-w:hover{background:var(--peach);}
+.cbtn-o{background:transparent;color:#fff;border-color:rgba(255,255,255,0.4);}
+.cbtn-o:hover{background:rgba(255,255,255,0.1);}
+
+/* ══════════════════════════════════════
+   ORDER CTA — maximum billboard scale
+══════════════════════════════════════ */
+.order-cta{background:var(--red);padding:100px 0;text-align:center;position:relative;overflow:hidden;}
+.order-cta::before{
+  content:'SUSHI';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:var(--avigea);font-size:42vw;font-weight:900;
+  color:rgba(255,255,255,0.04);white-space:nowrap;pointer-events:none;line-height:1;letter-spacing:-8px;
+}
+.order-wrap{position:relative;z-index:1;width:min(1260px,calc(100% - 48px));margin:0 auto;}
+.order-label{font-family:var(--body);font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:16px;display:block;}
+/* Maximum scale Avigea */
+.order-h2{
+  font-family:var(--avigea);
+  font-size:clamp(72px,13vw,200px);
+  color:#fff;letter-spacing:-4px;line-height:0.88;margin-bottom:32px;
+}
+.order-h2 em{color:rgba(255,255,255,0.28);font-style:normal;}
+.order-sub{font-family:var(--body);font-size:17px;color:rgba(255,255,255,0.72);font-weight:700;margin-bottom:44px;}
+.order-btns{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;}
+.obtn{display:inline-flex;align-items:center;height:58px;padding:0 36px;font-family:'Avigea','Playfair Display',Georgia,serif;font-size:18px;font-weight:900;letter-spacing:0;text-transform:uppercase;border-radius:clamp(10px,1.2vw,16px);transition:.2s;border:2.5px solid transparent;}
+.obtn-w{background:#fff;color:var(--red);border-color:#fff;}
+.obtn-w:hover{background:var(--dark);color:#fff;border-color:var(--dark);}
+.obtn-o{background:transparent;color:#fff;border-color:rgba(255,255,255,0.45);}
+.obtn-o:hover{background:#fff;color:var(--red);}
+
+/* ══════════════════════════════════════
+   HOURS — big Avigea h2
+══════════════════════════════════════ */
+.hours{background:var(--peach);padding:100px 0;}
+.hours-w{width:min(1260px,calc(100% - 48px));margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;}
+.hours-h2{font-family:var(--avigea);font-size:clamp(52px,7.5vw,120px);color:var(--dark);letter-spacing:-2px;line-height:0.93;margin-bottom:36px;}
+table.htable{width:100%;border-collapse:collapse;}
+.htable tr{border-bottom:1.5px solid rgba(0,0,0,0.07);}
+.htable td{padding:16px 0;font-family:var(--body);font-size:15px;font-weight:700;color:var(--dark);}
+.htable td:last-child{text-align:right;color:rgba(16,10,0,0.5);}
+.htable tr.today td{color:var(--red);font-weight:900;}
+.addr-card{background:#fff;border-radius:20px;padding:36px;box-shadow:0 8px 32px rgba(0,0,0,0.06);}
+.addr-h3{font-family:var(--avigea);font-size:40px;color:var(--dark);letter-spacing:-.3px;margin-bottom:24px;}
+.addr-row{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;}
+.addr-icon{width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.icon-r{background:rgba(230,91,76,0.1);}
+.icon-g{background:rgba(0,102,70,0.1);}
+.icon-b{background:rgba(39,119,197,0.1);}
+.addr-text{font-family:var(--body);font-size:15px;font-weight:600;color:var(--dark);line-height:1.5;}
+.addr-text small{display:block;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(16,10,0,0.4);margin-bottom:3px;}
+.addr-map{display:flex;align-items:center;justify-content:center;height:50px;border-radius:clamp(10px,1.2vw,16px);background:var(--dark);color:#fff;font-family:'Avigea','Playfair Display',Georgia,serif;font-size:16px;font-weight:900;letter-spacing:0;text-transform:uppercase;transition:.2s;margin-top:8px;width:100%;}
+.addr-map:hover{background:rgba(16,10,0,0.8);}
+.social-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+.social-chip{display:inline-flex;align-items:center;gap:6px;background:var(--peach);border:1.5px solid rgba(0,0,0,0.08);border-radius:100px;padding:9px 18px;font-family:var(--body);font-size:12px;font-weight:800;color:var(--dark);transition:.2s;cursor:pointer;}
+.social-chip:hover{background:var(--red);color:#fff;border-color:var(--red);}
+@media(max-width:900px){.hours-w{grid-template-columns:1fr;gap:48px;}}
+
+/* ══════════════════════════════════════
+   FOOTER
+══════════════════════════════════════ */
+.footer{background:var(--peach);padding:56px 0 100px;}
+.footer-w{width:min(1260px,calc(100% - 48px));margin:0 auto;}
+.footer-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:28px;padding-bottom:40px;border-bottom:1px solid rgba(16,10,0,0.10);margin-bottom:32px;}
+.footer-logo{height:38px;}
+.footer-logo img{height:100%;width:auto;object-fit:contain;}
+.footer-links{display:flex;flex-wrap:wrap;gap:24px;font-family:var(--body);font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:rgba(16,10,0,0.42);}
+.footer-links a:hover{color:var(--dark);}
+.footer-order{display:inline-flex;align-items:center;height:46px;padding:0 24px;background:var(--red);color:#fff;border-radius:clamp(10px,1.2vw,16px);font-family:'Avigea','Playfair Display',Georgia,serif;font-size:15px;font-weight:900;letter-spacing:0;text-transform:uppercase;transition:.2s;}
+.footer-order:hover{background:#c94030;}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--body);font-size:11px;color:rgba(16,10,0,0.32);font-weight:600;}
+.footer-bot a{color:rgba(16,10,0,0.32);}
+.footer-bot a:hover{color:var(--dark);}
+
+/* ══════════════════════════════════════
+   SCROLL REVEAL
+══════════════════════════════════════ */
+.rev{opacity:0;transform:translateY(40px);transition:opacity .75s ease,transform .75s ease;}
+.rev.on{opacity:1;transform:none;}
+.rev-l{opacity:0;transform:translateX(-40px);transition:opacity .75s ease,transform .75s ease;}
+.rev-l.on{opacity:1;transform:none;}
+.rev-r{opacity:0;transform:translateX(40px);transition:opacity .75s ease,transform .75s ease;}
+.rev-r.on{opacity:1;transform:none;}
+.d1{transition-delay:.1s;}.d2{transition-delay:.2s;}.d3{transition-delay:.3s;}.d4{transition-delay:.4s;}
+
+/* ══════════════════════════════════════
+   MOBILE MASTER OVERRIDES
+   All phone-specific fixes in one place
+══════════════════════════════════════ */
+@media(max-width:640px){
+
+  /* ── HERO COVER ── */
+  #heroCover .cover-tagline{font-size:clamp(13px,3.8vw,18px);padding:0 20px;text-align:center;}
+  #heroCover .cover-badge{font-size:clamp(11px,3.2vw,14px);}
+
+  /* ── ABOUT ── */
+  .about{padding:64px 0;}
+  .about-inner{width:calc(100% - 32px);gap:36px;}
+  .about-h2{font-size:clamp(52px,13vw,100px);letter-spacing:-1px;}
+  .about-p{font-size:15px;}
+  .about-photos{grid-template-columns:1fr 1fr;grid-template-rows:180px 140px;gap:8px;}
+  .about-ph.big{grid-row:span 2;}
+
+  /* ── TICKER ── */
+  .ticker-inner{gap:clamp(16px,5vw,32px);}
+  .ticker-item{font-size:clamp(20px,6vw,36px);}
+
+  /* ── MENU SECTION ── */
+  .menu-sec{padding:64px 0 80px;}
+  .menu-top{padding:0 16px 36px;}
+  .menu-h2{font-size:clamp(52px,13vw,100px);letter-spacing:-1px;}
+  .menu-stage{padding:0 4px 16px;}
+  .mcard-ed{width:100%!important;height:56vw!important;}
+  .menu-cta{padding:0 16px 16px;flex-direction:column;align-items:flex-start;gap:12px;}
+
+  /* ── REVIEWS ── */
+  .reviews{padding:64px 0;}
+  .reviews-inner{width:calc(100% - 32px);gap:32px;}
+  .score-num{font-size:clamp(72px,18vw,120px);}
+  .rv-grid{grid-template-columns:1fr;}
+  .rcard{padding:18px;}
+
+  /* ── REWARDS ── */
+  .loyalty{padding:64px 0 72px;}
+  .loyalty-inner{width:calc(100% - 32px);}
+  .loyalty-h2{font-size:clamp(52px,13vw,100px);}
+  .rp-stage{flex-direction:column;align-items:center;gap:16px;padding:0 12px;}
+  .rp-card{width:100%;max-width:340px;--pcard-rot:rotate(0deg)!important;}
+  .rp-img-wrap{height:200px;}
+
+  /* ── CATERING ── */
+  .catering{min-height:500px;}
+  .catering-content{padding:60px 0;}
+  .cat-h2{font-size:clamp(52px,13vw,100px);letter-spacing:-1px;}
+  .cat-desc{font-size:15px;}
+  .cat-pills{gap:8px;}
+  .cat-pill{font-size:12px;padding:8px 14px;}
+  .cat-btns{flex-direction:column;gap:10px;}
+  .cbtn{width:100%;justify-content:center;height:54px;}
+
+  /* ── ORDER CTA ── */
+  .order-cta{padding:72px 0;}
+  .order-h2{font-size:clamp(64px,15vw,140px);letter-spacing:-2px;}
+  .order-sub{font-size:15px;}
+  .order-btns{flex-direction:column;align-items:stretch;gap:10px;max-width:340px;margin:0 auto;}
+  .obtn{height:54px;font-size:16px;justify-content:center;}
+
+  /* ── HOURS ── */
+  .hours{padding:64px 0;}
+  .hours-w{width:calc(100% - 32px);gap:40px;}
+  .hours-h2{font-size:clamp(48px,12vw,96px);}
+  .htable td{padding:13px 0;font-size:14px;}
+  .addr-card{padding:24px;}
+  .addr-h3{font-size:32px;}
+
+  /* ── FOOTER ── */
+  .footer{padding:48px 0 56px;}
+  .footer-top{flex-direction:column;align-items:flex-start;gap:20px;}
+  .footer-links{gap:16px;font-size:11px;}
+  .footer-bot{flex-direction:column;align-items:flex-start;gap:8px;}
+
+  /* ── GENERAL SPACING ── */
+  .about-inner,.menu-inner,.loyalty-inner,.order-wrap,.hours-w,.footer-w{
+    width:calc(100% - 32px);
+  }
+}
+
+/* ── TABLET tweaks (641-1024) ── */
+@media(min-width:641px) and (max-width:1024px){
+  .about-h2{font-size:clamp(56px,9vw,110px);}
+  .cat-h2{font-size:clamp(56px,9vw,120px);}
+  .order-h2{font-size:clamp(64px,10vw,150px);}
+  .menu-stage{height:clamp(380px,56vw,680px);}
+  .reviews-inner{grid-template-columns:1fr;gap:40px;}
+  .hours-w{grid-template-columns:1fr;gap:40px;}
+  .about-inner{grid-template-columns:1fr;gap:40px;}
+}
+</style>
+</head>
+<body>
+
+<!-- SVG Roughen Filter -->
+<svg width="0" height="0" style="position:absolute;top:0;left:0;pointer-events:none;" aria-hidden="true">
+  <defs>
+    <!-- entrance roughen — strong distress like Pizarro -->
+    <filter id="roughen" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="5" result="noise" seed="8"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- hero/page roughen — subtle, just for texture -->
+    <filter id="roughen-soft" x="-3%" y="-3%" width="106%" height="106%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="4" result="noise" seed="5"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+
+
+<!-- ══════ HERO — Avigea full-bleed ══════ -->
+<section class="hero" aria-label="Hero">
+
+  <!-- COVER — Pizarro entrance: red fades revealing photo, text stays in place -->
+  <div id="heroCover" aria-hidden="true">
+    <div class="cover-tagline">Japanese · Latin Fusion · Orlando, FL</div>
+    <div class="cover-badge"><span class="stars">★★★★★</span>&nbsp; 4.6 · 1,200+ Reviews on Google</div>
+    <div class="cover-progress"><div class="cover-progress-fill"></div></div>
+  </div>
+
+  <div class="hero-vid-bg">
+    <video autoplay muted loop playsinline preload="auto">
+      <source src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fe17e8a3dd25aa2aa2ee94.mp4" type="video/mp4">
+      <!-- Fallback image if video fails -->
+      <img src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1c5a3dd25aa2a93b5f3.jpg" alt="Take a Sushi">
+    </video>
+  </div>
+  <div class="hero-grad" aria-hidden="true"></div>
+  <div class="hero-dots" aria-hidden="true"></div>
+  <div class="hero-reg" aria-hidden="true">®</div>
+
+  <!-- Giant Avigea name — SEO h1 fills viewport width via fitHeroText() -->
+  <h1 class="hero-name">
+    <span class="hero-line" id="heroLine1">BEST SUSHI</span>
+    <span class="hero-line" id="heroLine2">IN ORLANDO</span>
+  </h1>
+
+  <!-- Scroll down cue -->
+  <div class="hero-scroll-cue" aria-hidden="true">
+    <div class="scroll-arrow"></div>
+    <span>Scroll</span>
+  </div>
+
+  <div class="hero-bottom">
+    <div class="hero-badge">
+      <span class="stars">★★★★★</span>&nbsp; 4.6 on Google · 1,200+ Reviews
+    </div>
+    <div class="hero-caption">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      FOR PRIVATE OR PROFESSIONAL EVENTS, CALL OR CONTACT US
+    </div>
+    <div class="hero-btns">
+      <a href="#menu" class="hbtn hbtn-red">OUR MENU</a>
+      <a href="https://order.toasttab.com/online/takeasushirestaurant?diningOption=takeout" target="_blank" class="hbtn hbtn-white">ORDER NOW</a>
+      <a href="https://maps.google.com/?q=4725+W+Sand+Lake+Rd+%23101+Orlando+FL" target="_blank" class="hbtn hbtn-icon" aria-label="Directions">↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ TORN TICKER ══════ -->
+<div class="ticker-sec">
+
+  <!-- TORN TOP — organic Q-bezier paper rip, teeth point UP into hero -->
+  <svg class="torn-top" viewBox="0 0 1440 76" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="
+      M0,76 L0,46
+      Q20,4   42,44
+      Q68,70  90,14
+      Q116,52 140,8
+      Q164,60 190,34
+      Q212,4  236,50
+      Q262,70 286,14
+      Q312,52 336,24
+      Q360,4  386,52
+      Q412,70 438,14
+      Q464,52 488,28
+      Q512,4  538,52
+      Q564,70 590,14
+      Q616,50 640,28
+      Q664,4  690,50
+      Q716,70 742,14
+      Q768,50 792,28
+      Q818,4  844,52
+      Q870,70 898,14
+      Q924,50 950,26
+      Q976,4  1004,50
+      Q1030,70 1058,14
+      Q1084,50 1108,28
+      Q1132,4  1160,52
+      Q1186,70 1212,14
+      Q1238,50 1262,28
+      Q1286,4  1312,50
+      Q1338,70 1366,18
+      Q1394,50 1418,38
+      L1440,40 L1440,76 Z
+    " fill="#E65B4C"/>
+  </svg>
+
+  <div class="ticker-body">
+    <div class="ticker-track">
+      <span class="ticker-item">HAPPINESS IS SIMPLE<span class="tdot"></span></span>
+      <span class="ticker-item">JAPANESE LATIN FUSION<span class="tdot"></span></span>
+      <span class="ticker-item">ALL YOU NEED IS SUSHI<span class="tdot"></span></span>
+      <span class="ticker-item">ORLANDO'S FAVORITE<span class="tdot"></span></span>
+      <span class="ticker-item">FRESH EVERY SINGLE DAY<span class="tdot"></span></span>
+      <span class="ticker-item">ROLL WITH US<span class="tdot"></span></span>
+      <span class="ticker-item">HAPPINESS IS SIMPLE<span class="tdot"></span></span>
+      <span class="ticker-item">JAPANESE LATIN FUSION<span class="tdot"></span></span>
+      <span class="ticker-item">ALL YOU NEED IS SUSHI<span class="tdot"></span></span>
+      <span class="ticker-item">ORLANDO'S FAVORITE<span class="tdot"></span></span>
+      <span class="ticker-item">FRESH EVERY SINGLE DAY<span class="tdot"></span></span>
+      <span class="ticker-item">ROLL WITH US<span class="tdot"></span></span>
+    </div>
+  </div>
+
+  <!-- TORN BOT — same path, Y-flipped so teeth point DOWN into collage -->
+  <svg class="torn-bot" viewBox="0 0 1440 76" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g transform="scale(1,-1) translate(0,-76)">
+      <path d="
+        M0,76 L0,46
+        Q20,4   42,44
+        Q68,70  90,14
+        Q116,52 140,8
+        Q164,60 190,34
+        Q212,4  236,50
+        Q262,70 286,14
+        Q312,52 336,24
+        Q360,4  386,52
+        Q412,70 438,14
+        Q464,52 488,28
+        Q512,4  538,52
+        Q564,70 590,14
+        Q616,50 640,28
+        Q664,4  690,50
+        Q716,70 742,14
+        Q768,50 792,28
+        Q818,4  844,52
+        Q870,70 898,14
+        Q924,50 950,26
+        Q976,4  1004,50
+        Q1030,70 1058,14
+        Q1084,50 1108,28
+        Q1132,4  1160,52
+        Q1186,70 1212,14
+        Q1238,50 1262,28
+        Q1286,4  1312,50
+        Q1338,70 1366,18
+        Q1394,50 1418,38
+        L1440,40 L1440,76 Z
+      " fill="#E65B4C"/>
+    </g>
+  </svg>
+
+</div>
+
+<!-- ══════ COLLAGE 1 — "ROLL WITH US" ══════ -->
+<section class="collage-sec c1" id="gallery">
+  <div class="c1-stage" id="c1Stage">
+
+    <div class="pcard pc1">
+      <div class="pcard-inner">
+        <img data-px="0.18" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1c525c3d6001a98fbec.jpg" alt="Sushi chef" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc2">
+      <div class="pcard-inner">
+        <img data-px="0.22" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1bc6982746982f46765.jpg" alt="Sushi platter" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc3">
+      <div class="pcard-inner">
+        <img data-px="0.15" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1bca3dd25aa2a93b447.jpg" alt="Signature roll" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc4">
+      <div class="pcard-inner">
+        <img data-px="0.20" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1b43f4447300c29ff9e.jpg" alt="Sushi bowl" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc5">
+      <div class="pcard-inner">
+        <img data-px="0.25" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1a86ca44fd3348977be.jpg" alt="Staff" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc6">
+      <div class="pcard-inner">
+        <img data-px="0.17" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1c56ca44fd334897b64.jpg" alt="Artisan sushi" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc7">
+      <div class="pcard-inner">
+        <img data-px="0.20" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1bce4086e455f625097.jpg" alt="Fresh rolls" loading="lazy">
+      </div>
+    </div>
+
+    <div class="pcard pc8">
+      <div class="pcard-inner">
+        <img data-px="0.19" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1c5a3dd25aa2a93b5f3.jpg" alt="Take a Sushi" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc9">
+      <div class="pcard-inner">
+        <img data-px="0.16" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1a8e4086e455f624dd1.jpg" alt="Sushi detail" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Sticker — white fill / red stroke, sits over photos -->
+    <div class="c1-sticker">ROLL WITH US</div>
+  </div>
+</section>
+
+<!-- ══════ ABOUT STRIP ══════ -->
+<section class="about" id="about">
+  <div class="about-inner">
+    <div class="rev-l">
+      <span class="about-label">Our Story</span>
+      <h2 class="about-h2">EAST MEETS<br><em>WEST</em> IN<br>EVERY ROLL.</h2>
+      <p class="about-p">We took everything that makes Japanese sushi extraordinary — the precision, the freshness, the ritual — and fused it with the bold, vibrant soul of Latin cuisine. Something Orlando had never tasted before.</p>
+      <p class="about-p">Every roll, every bowl, every bite crafted with love. Family, wellness, and flavor — for every generation. No shortcuts. No compromises.</p>
+    </div>
+    <div class="about-photos rev-r">
+      <div class="about-ph big">
+        <img data-px="0.20" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1bce4086e455f625097.jpg" alt="Sushi craft" loading="lazy">
+      </div>
+      <div class="about-ph">
+        <img data-px="0.28" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1a8e4086e455f624dd1.jpg" alt="Detail" loading="lazy">
+      </div>
+      <div class="about-ph">
+        <img data-px="0.15" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1bc25c3d6001a98fa9c.jpg" alt="Fusion" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ MENU PREVIEW ══════ -->
+<section class="menu-sec" id="menu">
+  <div class="menu-w">
+    <div class="menu-top rev">
+      <h2 class="menu-h2">THE ROLLS<br>THAT <span>STARTED</span><br>IT ALL.</h2>
+      <a href="https://order.toasttab.com/online/takeasushirestaurant?diningOption=takeout" target="_blank" class="menu-cta">Full Menu →</a>
+    </div>
+    <div class="menu-stage" id="menuStage">
+
+      <!-- Card 1 — Fusion Rolls — left landscape -->
+      <div class="mcard-ed mc1">
+        <div class="mcard-ed-inner">
+          <img data-px="0.18" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1bc6982746982f46765.jpg" alt="Fusion Rolls" loading="lazy">
+          <div class="mcard-ed-overlay">
+            <div class="mcard-ed-tag">Fan Favorite</div>
+            <div class="mcard-ed-name">Fusion Rolls</div>
+            <p class="mcard-ed-desc">Where Japan meets Latin heat — bold fillings, crispy textures, sauces that keep you coming back.</p>
+            <a href="https://order.toasttab.com/online/takeasushirestaurant?diningOption=takeout" target="_blank" class="mcard-ed-btn">Order Now →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 — Sushi Bowls — center portrait -->
+      <div class="mcard-ed mc2">
+        <div class="mcard-ed-inner">
+          <img data-px="0.22" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1bca3dd25aa2a93b447.jpg" alt="Sushi Bowls" loading="lazy">
+          <div class="mcard-ed-overlay">
+            <div class="mcard-ed-tag">Best Seller</div>
+            <div class="mcard-ed-name">Sushi Bowls</div>
+            <p class="mcard-ed-desc">Deconstructed perfection. All the flavors you love, built for real hunger.</p>
+            <a href="https://order.toasttab.com/online/takeasushirestaurant?diningOption=takeout" target="_blank" class="mcard-ed-btn">Order Now →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 — Specialty Rolls — bottom right landscape -->
+      <div class="mcard-ed mc3">
+        <div class="mcard-ed-inner">
+          <img data-px="0.15" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1c56ca44fd334897b64.jpg" alt="Specialty Rolls" loading="lazy">
+          <div class="mcard-ed-overlay">
+            <div class="mcard-ed-tag">Chef's Pick</div>
+            <div class="mcard-ed-name">Specialty Rolls</div>
+            <p class="mcard-ed-desc">Chef-crafted masterpieces. Premium ingredients. Presentation that stops you before you eat.</p>
+            <a href="https://order.toasttab.com/online/takeasushirestaurant?diningOption=takeout" target="_blank" class="mcard-ed-btn">Order Now →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════ REVIEWS ══════ -->
+<section class="reviews" id="reviews">
+  <div class="reviews-inner">
+    <div class="reviews-left rev">
+      <div class="score-num">4.6</div>
+      <div class="score-stars">★★★★★</div>
+      <div class="score-count">Based on 1,200+ reviews</div>
+      <div class="score-src">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google Reviews
+      </div>
+    </div>
+    <div class="rv-grid">
+      <div class="rcard rev d1"><div class="rcard-stars">★★★★★</div><p class="rcard-text">"Best sushi in Orlando, hands down. The Japanese-Latin fusion is unlike anything I've had. Every single bite is perfect."</p><div class="rcard-author">Maria G. · Sand Lake Regular</div></div>
+      <div class="rcard rev d2"><div class="rcard-stars">★★★★★</div><p class="rcard-text">"We ordered catering for our office and everyone was obsessed. The trays are incredible. Will definitely order again!"</p><div class="rcard-author">Carlos R. · Corporate Catering</div></div>
+      <div class="rcard rev d3"><div class="rcard-stars">★★★★★</div><p class="rcard-text">"Love that they have vegan options that actually taste amazing. This is our family's Friday night tradition now."</p><div class="rcard-author">Ashley T. · Orlando Local</div></div>
+      <div class="rcard rev d4"><div class="rcard-stars">★★★★★</div><p class="rcard-text">"Drove past 6 other sushi places to get here and zero regrets. The loyalty points add up fast. That's a vibe."</p><div class="rcard-author">Devon M. · Loyalty Member</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ REWARDS PROGRAM ══════ -->
+<section class="loyalty" id="rewards">
+  <div class="loyalty-inner">
+
+    <div class="loyalty-header rev">
+      <span class="loyalty-label-sm">Loyalty Program</span>
+      <h2 class="loyalty-h2">EARN ON<br>EVERY <em>BITE</em></h2>
+      <p class="loyalty-sub">1 point per $1 spent · 500 bonus on signup</p>
+    </div>
+
+    <div class="rp-stage" id="rpStage">
+
+      <div class="rp-card rc1">
+        <div class="rp-card-img">
+          <img src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fe18b23f4447300c396357.png" alt="Free Entree" loading="lazy">
+        </div>
+        <div class="rp-card-info">
+          <div class="rp-pts">1,500</div>
+          <span class="rp-pts-label">Points</span>
+          <div class="rp-reward">Free Entree</div>
+        </div>
+      </div>
+
+      <div class="rp-card rc2">
+        <div class="rp-card-img">
+          <img src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fe18b225c3d6001aa84850.png" alt="Free Basic Roll" loading="lazy">
+        </div>
+        <div class="rp-card-info">
+          <div class="rp-pts">2,000</div>
+          <span class="rp-pts-label">Points</span>
+          <div class="rp-reward">Free Basic Roll</div>
+        </div>
+      </div>
+
+      <div class="rp-card rc3">
+        <div class="rp-card-img">
+          <img src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fe18b225c3d6001aa84845.png" alt="Free Roll" loading="lazy">
+        </div>
+        <div class="rp-card-info">
+          <div class="rp-pts">3,000</div>
+          <span class="rp-pts-label">Points</span>
+          <div class="rp-reward">Free Roll</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="loyalty-cta rev d2">
+      <div class="loyalty-bonus-pill">
+        <strong>★ 500 bonus points</strong>&nbsp; on signup — free to join
+      </div>
+      <a href="https://order.toasttab.com/online/takeasushirestaurant?diningOption=takeout" target="_blank" class="hbtn hbtn-red">Join Free — Start Earning</a>
+      <p class="loyalty-members">2,400+ members already earning</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════ COLLAGE 2 — "OR ORDER NOW" ══════ -->
+<section class="collage-sec watermark c2" id="order-collage">
+  <div class="c2-stage" id="c2Stage">
+    <div class="pcard pc1">
+      <div class="pcard-inner">
+        <img data-px="0.20" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1a83f4447300c29fe46.jpg" alt="Sushi art" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc2">
+      <div class="pcard-inner">
+        <img data-px="0.15" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1b46ca44fd3348978ec.jpg" alt="Fresh rolls" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc3">
+      <div class="pcard-inner">
+        <img data-px="0.25" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1a8e4086e455f624dd1.jpg" alt="Premium sushi" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc4">
+      <div class="pcard-inner">
+        <img data-px="0.18" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1c525c3d6001a98fbec.jpg" alt="Signature dish" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc5">
+      <div class="pcard-inner">
+        <img data-px="0.22" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd18f3449086cc1acf880.jpg" alt="Catering" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc6">
+      <div class="pcard-inner">
+        <img data-px="0.17" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1bc25c3d6001a98fa9c.jpg" alt="Food detail" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc7">
+      <div class="pcard-inner">
+        <img data-px="0.20" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1bce4086e455f625097.jpg" alt="Artisan roll" loading="lazy">
+      </div>
+    </div>
+
+    <div class="pcard pc8">
+      <div class="pcard-inner">
+        <img data-px="0.21" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1b43f4447300c29ff9e.jpg" alt="Sushi bowl" loading="lazy">
+      </div>
+    </div>
+    <div class="pcard pc9">
+      <div class="pcard-inner">
+        <img data-px="0.18" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1a86ca44fd3348977be.jpg" alt="Staff" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Sticker — white fill / red stroke, centered over photos -->
+    <div class="c2-sticker">OR ORDER NOW</div>
+  </div>
+</section>
+
+<!-- ══════ CATERING — parallax bg ══════ -->
+<section class="catering" id="catering">
+  <div class="catering-bg">
+    <img data-px="0.38" src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd18f3449086cc1acf880.jpg" alt="Catering" loading="lazy">
+  </div>
+  <div class="catering-content rev">
+    <span class="cat-label">Catering & Events</span>
+    <h2 class="cat-h2">WE BRING<br>THE <span>PARTY</span><br>TO YOU.</h2>
+    <p class="cat-desc">Custom sushi trays, oversized fusion rolls, and corporate spreads that make your guests talk about the food for weeks.</p>
+    <div class="cat-pills">
+      <div class="cat-pill">Party Trays</div>
+      <div class="cat-pill">Corporate Lunches</div>
+      <div class="cat-pill">Private Events</div>
+      <div class="cat-pill">Vegan Options</div>
+    </div>
+    <div class="cat-btns">
+      <a href="tel:+14074125476" class="cbtn cbtn-w">Call to Book</a>
+      <a href="https://order.toasttab.com/online/takeasushirestaurant" target="_blank" class="cbtn cbtn-o">Order Online</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ ORDER CTA ══════ -->
+<section class="order-cta">
+  <div class="order-wrap">
+    <span class="order-label">Ready to Eat?</span>
+    <h2 class="order-h2">JUST ORDER<br>THE <em>DAMN</em><br>SUSHI.</h2>
+    <p class="order-sub">Fresh. Fast. Made with joy. Delivered to you.</p>
+    <div class="order-btns">
+      <a href="https://order.toasttab.com/online/takeasushirestaurant?diningOption=takeout" target="_blank" class="obtn obtn-w">Order Takeout →</a>
+      <a href="https://order.toasttab.com/online/takeasushirestaurant" target="_blank" class="obtn obtn-o">Order Delivery</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ HOURS ══════ -->
+<section class="hours" id="hours">
+  <div class="hours-w">
+    <div class="rev-l">
+      <h2 class="hours-h2">WE'RE OPEN<br>WHEN YOU'RE<br>HUNGRY.</h2>
+      <table class="htable">
+        <tr><td>Monday – Thursday</td><td>12:00 PM – 10:00 PM</td></tr>
+        <tr><td>Friday</td><td>12:00 PM – 11:00 PM</td></tr>
+        <tr><td>Saturday</td><td>12:00 PM – 11:00 PM</td></tr>
+        <tr><td>Sunday</td><td>12:00 PM – 11:00 PM</td></tr>
+      </table>
+    </div>
+    <div class="rev-r">
+      <div class="addr-card">
+        <h3 class="addr-h3">Find Us</h3>
+        <div class="addr-row"><div class="addr-icon icon-r" style="font-size:16px;font-weight:900;">↗</div><div class="addr-text"><small>Address</small>4725 W Sand Lake Rd #101<br>Orlando, FL 32819</div></div>
+        <div class="addr-row"><div class="addr-icon icon-g" style="font-size:15px;font-weight:900;">→</div><div class="addr-text"><small>Phone</small><a href="tel:+14074125476" style="color:inherit;">(407) 412-5476</a></div></div>
+        <div class="addr-row"><div class="addr-icon icon-b" style="font-size:14px;font-weight:900;">○</div><div class="addr-text"><small>Ordering</small>Takeout & Delivery · 7 Days a Week</div></div>
+        <a href="https://maps.google.com/?q=4725+W+Sand+Lake+Rd+%23101+Orlando+FL" target="_blank" class="addr-map">Get Directions →</a>
+        <div class="social-row">
+          <a href="https://www.instagram.com/takeasushi" target="_blank" class="social-chip">Instagram</a>
+          <a href="https://www.tiktok.com/@takeasushi" target="_blank" class="social-chip">TikTok</a>
+          <a href="https://order.toasttab.com/online/takeasushirestaurant?diningOption=takeout" target="_blank" class="social-chip">Order Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ FOOTER ══════ -->
+<footer class="footer">
+  <div class="footer-w">
+    <div class="footer-top">
+      <div class="footer-logo"><img src="https://assets.cdn.filesafe.space/S8XzcEfRd6IMx4mvfnSf/media/69fdd1cbbc1f77cc35f46572.jpg" alt="Take a Sushi"></div>
+      <div class="footer-links">
+        <a href="#menu">Menu</a><a href="#gallery">Gallery</a>
+        <a href="#catering">Catering</a><a href="#hours">Hours</a>
+        <a href="https://www.instagram.com/takeasushi" target="_blank">Instagram</a>
+        <a href="https://www.tiktok.com/@takeasushi" target="_blank">TikTok</a>
+      </div>
+      <a href="https://order.toasttab.com/online/takeasushirestaurant?diningOption=takeout" target="_blank" class="footer-order">Order Now →</a>
+    </div>
+    <div class="footer-bot">
+      <span>© 2025 Take a Sushi · 4725 W Sand Lake Rd #101, Orlando, FL 32819 · <a href="tel:+14074125476">(407) 412-5476</a></span>
+      <span>Japanese-Latin Fusion · Orlando, Florida</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════ JS ══════ -->
+<script>
+/* ─────────────────────────────────────────────────────
+   ENTRANCE — Pizarro style: red cover fades, hero text stays
+   heroCover (z:2) fades out revealing the food photo.
+   Hero name (z:3) is visible above cover throughout.
+───────────────────────────────────────────────────── */
+(function(){
+  const cover  = document.getElementById('heroCover');
+  const bottom = document.querySelector('.hero-bottom');
+  if(!cover) return;
+
+  // Lock scroll during entrance
+  document.body.style.overflow = 'hidden';
+
+  // After 3.2s, fade the red cover out
+  setTimeout(()=>{
+    cover.style.opacity = '0';
+    document.body.style.overflow = '';
+
+    // Reveal hero bottom buttons as cover fades
+    if(bottom){
+      setTimeout(()=>{ bottom.style.opacity = '1'; }, 500);
+    }
+
+    // Remove cover from DOM after transition completes
+    setTimeout(()=>{
+      cover.remove();
+      fitHeroText();
+    }, 1500);
+  }, 3200);
+})();
+
+/* ─────────────────────────────────────────────────────
+   HERO FIT TEXT
+   Avigea is proportional — 0.97 fills edge to edge
+───────────────────────────────────────────────────── */
+function fitHeroText(){
+  [['heroLine1',.97],['heroLine2',.97]].forEach(([id,s])=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.style.fontSize='10px';
+    const w=el.parentElement.offsetWidth;
+    el.style.fontSize=((w/el.scrollWidth)*10*s)+'px';
+  });
+}
+fitHeroText();
+// Re-fit hero after Avigea loads so it fills the correct width
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(fitHeroText);
+}
+window.addEventListener('resize',fitHeroText);
+
+
+/* ─────────────────────────────────────────────────────
+   PARALLAX SCROLL
+   Reads data-px speed (0 = no movement, 0.4 = dramatic)
+   Uses CSS custom property --pxY so hover transforms
+   can safely extend: translateY(var(--pxY)) scale(1.05)
+───────────────────────────────────────────────────── */
+(function(){
+  const pxEls = Array.from(document.querySelectorAll('[data-px]'));
+  const vh = window.innerHeight;
+
+  function runParallax(){
+    const scrollY = window.pageYOffset;
+    const currentVh = window.innerHeight;
+
+    pxEls.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      // Skip if completely off screen
+      if(rect.bottom < -200 || rect.top > currentVh + 200) return;
+      const speed = parseFloat(el.dataset.px) || 0.2;
+      // Offset = distance from element center to viewport center × speed
+      const centerOffset = (rect.top + rect.height / 2) - currentVh / 2;
+      const offset = centerOffset * speed * -0.5;
+      el.style.setProperty('--pxY', offset.toFixed(2) + 'px');
+    });
+  }
+
+  // Throttle with rAF for 60fps
+  let ticking = false;
+  window.addEventListener('scroll', ()=>{
+    if(!ticking){
+      requestAnimationFrame(()=>{ runParallax(); ticking=false; });
+      ticking=true;
+    }
+  }, { passive:true });
+  window.addEventListener('resize', runParallax);
+  runParallax();
+})();
+
+/* ─────────────────────────────────────────────────────
+   SCROLL REVEAL
+───────────────────────────────────────────────────── */
+(function(){
+  const els=document.querySelectorAll('.rev,.rev-l,.rev-r');
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}});
+  },{threshold:.08,rootMargin:'0px 0px -30px 0px'});
+  els.forEach(el=>io.observe(el));
+})();
+
+/* ─────────────────────────────────────────────────────
+   SMOOTH ANCHORS
+───────────────────────────────────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();window.scrollTo({top:t.getBoundingClientRect().top+window.pageYOffset-20,behavior:'smooth'});}
+  });
+});
+
+/* ─────────────────────────────────────────────────────
+   HIGHLIGHT TODAY'S HOURS
+───────────────────────────────────────────────────── */
+(function(){
+  const d=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const today=d[new Date().getDay()];
+  document.querySelectorAll('.htable tr').forEach(row=>{
+    if(row.cells[0]&&row.cells[0].textContent.includes(today))row.classList.add('today');
+  });
+})();
+
+/* ─────────────────────────────────────────────────────
+   PHOTO CARD 3D TILT
+   Note: tilt is on .pcard but parallax is on inner img
+   — no transform conflict
+───────────────────────────────────────────────────── */
+document.querySelectorAll('.pcard').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=((e.clientX-r.left)/r.width-.5)*12;
+    const y=((e.clientY-r.top)/r.height-.5)*12;
+    // Apply tilt on pcard but preserve the card's original CSS rotate
+    card.style.setProperty('--tiltX', -y + 'deg');
+    card.style.setProperty('--tiltY', x + 'deg');
+    card.style.transform=`perspective(700px) rotateY(${x}deg) rotateX(${-y}deg) scale(1.03) translateZ(12px)`;
+  });
+  card.addEventListener('mouseleave',()=>{ card.style.transform=''; });
+});
+
+/* ─────────────────────────────────────────────────────
+   REWARDS CARDS — scroll-in + hover lift
+───────────────────────────────────────────────────── */
+(function(){
+  // Scroll-in
+  const stage = document.getElementById('rpStage');
+  if(stage){
+    const cards = Array.from(stage.querySelectorAll('.rp-card'));
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if(!entry.isIntersecting) return;
+        cards.forEach((card, i) => {
+          setTimeout(() => card.classList.add('pcard-in'), i * 150);
+        });
+        io.unobserve(entry.target);
+      });
+    }, { threshold: 0.12 });
+    io.observe(stage);
+  }
+  // Hover lift — inline style overrides animation fill
+  document.querySelectorAll('.rp-card').forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      const rot = getComputedStyle(card).getPropertyValue('--pcard-rot').trim() || 'rotate(0deg)';
+      card.style.transform = `${rot} translateY(-18px) scale(1.05)`;
+      card.style.boxShadow = '0 32px 90px rgba(0,0,0,0.55)';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+      card.style.boxShadow = '';
+    });
+  });
+})();
+
+/* ─────────────────────────────────────────────────────
+   MENU EDITORIAL SCROLL-IN
+   Same cardReveal system as collage — staggered scatter
+───────────────────────────────────────────────────── */
+(function(){
+  const stage = document.getElementById('menuStage');
+  if(!stage) return;
+  const cards = Array.from(stage.querySelectorAll('.mcard-ed'));
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(!entry.isIntersecting) return;
+      cards.forEach((card, i) => {
+        setTimeout(() => card.classList.add('pcard-in'), i * 140);
+      });
+      io.unobserve(entry.target);
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+  io.observe(stage);
+})();
+
+/* ─────────────────────────────────────────────────────
+   COLLAGE STAGGERED SCROLL-IN
+   Each photo card flies in from slightly below with its
+   own rotation — staggered 90ms per card for the
+   "photos landing on a table" collage effect.
+───────────────────────────────────────────────────── */
+(function(){
+  const STAGES = ['c1Stage','c2Stage'];
+  STAGES.forEach(id => {
+    const stage = document.getElementById(id);
+    if(!stage) return;
+    const cards = Array.from(stage.querySelectorAll('.pcard'));
+    // Shuffle order so cards fly in scattered (not left→right)
+    const order = [0,2,4,6,8,1,3,5,7].filter(i => i < cards.length);
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if(!entry.isIntersecting) return;
+        order.forEach((cardIdx, i) => {
+          const card = cards[cardIdx];
+          if(!card) return;
+          setTimeout(() => card.classList.add('pcard-in'), i * 90);
+        });
+        io.unobserve(entry.target);
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    io.observe(stage);
+  });
+})();
+</script>
+</body>
+</html>

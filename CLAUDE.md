@@ -126,36 +126,52 @@ const sigStr = `overwrite=true&public_id=${AB_PUB_ID}&resource_type=raw&timestam
 
 ## All Endpoints
 
+**Rule: All agent-callable endpoints are GET. POST = webhooks and GHL only.**
+
 ```
 POST /webhook, /webhook/engage, /webhook/new-client, /webhook/hot-lead, /webhook/bland
 GET  /
 GET  /social/status
 GET  /ab-test/results
+GET  /b64?t=TEXT              (encode any text to base64 — used by /github/patch workflow)
 GET  /elena/clients
-POST /elena/monthly-reports
-POST /elena/health-check
-POST /elena/mid-month-checkin
-POST /elena/quarterly-report
+GET  /elena/monthly-reports   (also POST)
+GET  /elena/health-check      (also POST)
+GET  /elena/mid-month-checkin (also POST)
+GET  /elena/quarterly-report  (also POST)
 GET  /elena/grades
-POST /diego/weekly-report, /diego/standup, /diego/scorecard
-POST /marco/content-brief, /marco/trend-alert
-POST /sofia/website-check, /sofia/build-page, /sofia/cro-report
-POST /sofia/onboarding-check, /sofia/full-audit
-POST /sofia/competitor-report, /sofia/uptime-check
+GET  /diego/weekly-report     (also POST)
+GET  /diego/standup           (also POST)
+GET  /diego/scorecard         (also POST)
+GET  /marco/content-brief     (also POST)
+GET  /marco/trend-alert       (also POST)
+GET  /sofia/website-check     (also POST)
+GET  /sofia/cro-report        (also POST)
+GET  /sofia/onboarding-check  (also POST)
+GET  /sofia/uptime-check      (also POST)
+GET  /sofia/full-audit?url=&clientName=&industry=  (also POST with body)
+POST /sofia/build-page, /sofia/competitor-report   (body required)
 GET  /sofia/preview-page?industry=&city=&name=&phone=
 GET  /sofia/pagespeed?url=
 GET  /sofia/search-console?url=
-POST /cron/*  (manual triggers for all cron functions)
+POST /cron/*  (manual triggers for cron functions — GET preferred going forward)
 GET  /generate-image        (Pollinations.ai — body: { prompt, style, width, height })
 GET  /hero-video?niche=     (Pexels 4K cinematic video by niche shortcut)
 GET  /hero-video/niches     (list all niche shortcuts)
-GET  /google-ads/accounts    (list ALL accounts under MCC — use to find client customer IDs)
-GET  /google-ads/test?cid=  (verify API connection, returns account summary)
-GET  /google-ads/performance?cid=&days=  (campaign + keyword + ad performance)
-GET  /google-ads/report?cid=&name=       (full weekly report with pacing alerts)
-POST /google-ads/build-campaign          (create full search campaign stack, starts PAUSED)
-POST /google-ads/campaign/status         (pause or enable a campaign)
-POST /google-ads/query                   (run raw GAQL query)
+GET  /google-ads/accounts                (list ALL accounts under MCC)
+GET  /google-ads/test?cid=              (verify API connection)
+GET  /google-ads/performance?cid=&days= (campaign + keyword + ad performance)
+GET  /google-ads/report?cid=&name=      (full weekly report with pacing alerts)
+GET  /google-ads/optimize?cid=&niche=&minClicks=&maxSpend=&negatives=  (full optimization pass)
+GET  /google-ads/set-languages?cid=&langs=en,es  (set language targeting on all campaigns)
+GET  /google-ads/add-negatives-quick?cid=&negatives=word1,word2  (add negatives to all campaigns)
+GET  /google-ads/keywords?cid=&days=    (keywords with resource names)
+GET  /google-ads/search-terms?cid=&days= (search terms report)
+POST /google-ads/build-campaign         (create full search campaign stack, starts PAUSED)
+POST /google-ads/campaign/status        (pause or enable a campaign)
+POST /google-ads/query                  (run raw GAQL query)
+GET  /github/patch?file=&code=BASE64&marker=&message=  (insert code snippet into any repo file)
+POST /github/commit                     (commit full file replacement)
 ```
 
 ---

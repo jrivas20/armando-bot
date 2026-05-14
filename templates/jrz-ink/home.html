@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JRZ Ink Systems | Full Booking Service for Tattoo Artists & Studios</title>
+<meta name="description" content="We build and run the entire booking system behind tattoo artists and studios. Ads, website, CRM, follow-up — all connected. You tattoo. We fill the calendar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,800;0,900;1,900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+html,body,.c-section,.c-wrapper,.row-container,.c-row,.c-column,
+.vertical,.full,.hl-builder,.hl_page-preview,#full-width-row,
+.section,.inner,.container,.container-fluid,.row,section.c-section,
+div[data-default-columns],[class*="container"],[class*="section"],
+[class*="wrapper"],[class*="inner"],[class*="full-width"],[class*="hl_"],
+[id*="section"],[id*="row"]{max-width:100%!important;width:100%!important;margin-left:0!important;margin-right:0!important;padding-left:0!important;padding-right:0!important;box-sizing:border-box!important;overflow-x:hidden!important;}
+html,body{overflow-x:hidden!important;}
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--cream:#f8f8f6;--black:#000;--red:#d97757;--dark:#080808;--font-d:'Barlow Condensed','Arial Narrow',Impact,sans-serif;--font-b:'Inter',system-ui,sans-serif;--g:clamp(20px,4vw,64px);--sp:clamp(64px,9vw,110px);}
+body{font-family:var(--font-b);background:var(--cream);color:#000;line-height:1.5;-webkit-font-smoothing:antialiased;cursor:none;text-rendering:optimizeLegibility;}
+img,video{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+.wrap{width:100%;max-width:100vw;overflow-x:hidden;position:relative;}
+
+/* GRAIN */
+.grain{position:fixed;inset:0;z-index:9990;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px 256px;animation:grainAnim 0.5s steps(1) infinite;}
+@keyframes grainAnim{0%{transform:translate(0,0);}10%{transform:translate(-3%,-4%);}20%{transform:translate(-6%,3%);}30%{transform:translate(2%,-6%);}40%{transform:translate(-3%,8%);}50%{transform:translate(-7%,2%);}60%{transform:translate(4%,-5%);}70%{transform:translate(6%,4%);}80%{transform:translate(-4%,6%);}90%{transform:translate(3%,-3%);}100%{transform:translate(0,0);}}
+
+/* PRELOADER */
+#preloader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;}
+.pre-logo{font-family:var(--font-d);font-weight:900;font-size:clamp(48px,8vw,100px);color:#fff;letter-spacing:.05em;text-transform:uppercase;clip-path:inset(0 100% 0 0);}
+.pre-line{width:0;height:2px;background:#fff;max-width:200px;}
+.pre-sub{font-size:10px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.35);opacity:0;}
+
+/* CURSOR */
+#cur{position:fixed;width:14px;height:14px;background:#fff;border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);mix-blend-mode:difference;transition:width .2s,height .2s;will-change:transform;}
+#cur.big{width:52px;height:52px;}
+#cur-dot{position:fixed;width:4px;height:4px;background:#fff;border-radius:50%;pointer-events:none;z-index:9997;transform:translate(-50%,-50%);mix-blend-mode:difference;}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:18px var(--g);display:flex;align-items:center;justify-content:space-between;transition:background .4s,backdrop-filter .4s;}
+.nav.scrolled{background:rgba(0,0,0,.85);backdrop-filter:blur(20px);}
+.nav-brand img{width:auto;height:32px;object-fit:contain;}
+.nav-links{display:flex;gap:22px;list-style:none;}
+.nav-links a{font-size:10px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.14em;text-transform:uppercase;transition:color .2s;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{color:#fff;}
+.nav-cta{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:11px 20px;border:1.5px solid rgba(255,255,255,.4);color:#fff;transition:all .25s;flex-shrink:0;}
+.nav-cta:hover{background:#fff;color:#000;border-color:#fff;}
+.nav-ham{display:none;flex-direction:column;gap:5px;cursor:none;padding:4px;}
+.nav-ham span{width:24px;height:2px;background:#fff;transition:all .3s;}
+@media(max-width:1100px){.nav-links,.nav-cta{display:none;}.nav-ham{display:flex;}}
+
+/* MOBILE MENU */
+.mobile-menu{position:fixed;inset:0;z-index:999;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:28px;clip-path:inset(0 0 100% 0);transition:clip-path .6s cubic-bezier(.77,0,.18,1);}
+.mobile-menu.open{clip-path:inset(0 0 0% 0);}
+.mobile-menu a{font-family:var(--font-d);font-weight:900;font-size:clamp(36px,8vw,64px);color:#fff;letter-spacing:.05em;text-transform:uppercase;transition:color .2s;}
+.mobile-menu a:hover{color:var(--red);}
+.mobile-close{position:absolute;top:28px;right:var(--g);font-size:28px;color:rgba(255,255,255,.4);cursor:none;background:none;border:none;font-weight:300;transition:color .2s;}
+
+/* HERO */
+.hero{position:relative;background:#000;color:#fff;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
+.hero-overlay{position:absolute;inset:0;z-index:2;background:linear-gradient(to bottom,rgba(0,0,0,.3) 0%,rgba(0,0,0,.5) 40%,rgba(0,0,0,.92) 100%);}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;opacity:.6;}
+.hero-inner{position:relative;z-index:4;padding:0 var(--g) clamp(48px,8vh,80px);display:grid;grid-template-columns:1fr auto;align-items:flex-end;gap:clamp(20px,3vw,48px);}
+.hero-headline{font-family:var(--font-d);font-weight:900;font-size:clamp(48px,9vw,130px);line-height:.88;letter-spacing:-.01em;text-transform:uppercase;}
+.hero-headline .line{display:block;overflow:hidden;}
+.hero-headline .line-inner{display:block;transform:translateY(110%);}
+.hero-headline .dim{color:rgba(255,255,255,.28);}
+.hero-headline .red{color:var(--red);}
+.hero-right{display:flex;flex-direction:column;align-items:flex-end;gap:16px;padding-bottom:8px;min-width:220px;max-width:300px;}
+.hero-sub{font-size:13px;line-height:1.75;color:rgba(255,255,255,.6);text-align:right;opacity:0;transform:translateY(20px);}
+.hero-sub strong{color:#fff;}
+.hero-actions{display:flex;flex-direction:column;gap:10px;width:100%;opacity:0;transform:translateY(20px);}
+.hero-meta{position:absolute;top:100px;left:var(--g);z-index:4;display:flex;gap:28px;flex-wrap:wrap;font-size:9px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.4);opacity:0;}
+.hero-meta-item{display:flex;align-items:center;gap:7px;}
+.hero-dot{width:5px;height:5px;border-radius:50%;background:var(--red);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.2;}}
+.hero-scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;}
+.hero-scroll-hint span{font-size:8px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3);}
+.scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.4));animation:scrollPulse 2s ease-in-out infinite;}
+@keyframes scrollPulse{0%,100%{opacity:.4;}50%{opacity:1;}}
+@media(max-width:900px){.hero{min-height:100svh;}.hero-inner{grid-template-columns:1fr;}.hero-right{align-items:flex-start;min-width:unset;max-width:100%;}.hero-sub{text-align:left;}.hero-headline{font-size:clamp(44px,12vw,100px);}}
+
+/* MARQUEE */
+.marquee-wrap{background:#000;overflow:hidden;padding:20px 0;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);}
+.marquee-track{display:flex;white-space:nowrap;animation:marquee 20s linear infinite;}
+.marquee-track:hover{animation-play-state:paused;}
+.marquee-item{font-family:var(--font-d);font-weight:900;font-size:clamp(16px,2vw,22px);text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.25);padding:0 32px;flex-shrink:0;}
+.marquee-item.accent{color:var(--red);}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* PAIN SECTION */
+.pain{background:var(--dark);color:#fff;padding:var(--sp) var(--g);}
+.pain-label{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:clamp(32px,5vw,56px);display:block;}
+.pain-headline{font-family:var(--font-d);font-weight:900;font-size:clamp(48px,8vw,120px);line-height:.86;text-transform:uppercase;letter-spacing:-.015em;margin-bottom:clamp(48px,7vw,80px);}
+.pain-headline em{font-style:italic;color:var(--red);}
+.pain-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:clamp(48px,7vw,80px);}
+.pain-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);padding:clamp(28px,4vw,48px);}
+.pain-card-num{font-family:var(--font-d);font-weight:900;font-size:18px;color:var(--red);letter-spacing:.04em;margin-bottom:16px;display:block;}
+.pain-card-text{font-size:clamp(22px,3vw,34px);font-weight:600;line-height:1.15;letter-spacing:-.015em;margin-bottom:12px;}
+.pain-card-sub{font-size:13px;line-height:1.65;color:rgba(255,255,255,.45);}
+.pain-resolve{border-top:1px solid rgba(255,255,255,.07);padding-top:clamp(32px,5vw,52px);}
+.pain-resolve p{font-size:clamp(20px,3vw,32px);font-weight:500;line-height:1.35;color:rgba(255,255,255,.7);max-width:72ch;}
+.pain-resolve p strong{color:#fff;font-weight:700;}
+@media(max-width:700px){.pain-grid{grid-template-columns:1fr;}}
+
+/* SOLUTION SPLIT */
+.solution{display:grid;grid-template-columns:1fr 1fr;min-height:85vh;}
+.solution__video{position:relative;overflow:hidden;}
+.solution__video video{width:100%;height:100%;object-fit:cover;transition:transform .8s;}
+.solution__video:hover video{transform:scale(1.04);}
+.solution__overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.5),rgba(0,0,0,.2));}
+.solution__content{background:#000;color:#fff;padding:var(--sp) var(--g);display:flex;flex-direction:column;justify-content:center;}
+.solution__eyebrow{font-size:10px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:20px;display:block;}
+.solution__content h2{font-family:var(--font-d);font-weight:900;font-size:clamp(52px,7vw,110px);line-height:.86;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:32px;}
+.solution__content h2 em{font-style:italic;color:var(--red);}
+.solution__content p{font-size:16px;line-height:1.75;color:rgba(255,255,255,.6);max-width:48ch;margin-bottom:16px;}
+.solution__content p strong{color:#fff;}
+@media(max-width:900px){.solution{grid-template-columns:1fr;}.solution__video{min-height:60vw;}}
+
+/* DATA SECTION */
+.data-wrap{display:grid;grid-template-columns:1fr 1fr;min-height:90vh;}
+.data-left{background:var(--cream);padding:var(--sp) var(--g);display:flex;flex-direction:column;justify-content:center;}
+.data-left h2{font-family:var(--font-d);font-weight:900;font-size:clamp(52px,7vw,100px);line-height:.88;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:32px;color:#000;}
+.data-left h2 span{display:block;}
+.data-left p{font-size:15px;line-height:1.8;color:rgba(0,0,0,.7);max-width:48ch;margin-bottom:14px;}
+.data-left p strong{color:#000;font-weight:700;}
+.data-right{background:var(--red);color:#fff;padding:var(--sp) var(--g);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;gap:32px;}
+.data-right::before{content:'';position:absolute;width:700px;height:700px;border-radius:50%;background:rgba(0,0,0,.07);top:-200px;right:-300px;pointer-events:none;}
+.data-stat{font-family:var(--font-d);font-weight:900;font-size:clamp(100px,18vw,260px);line-height:.82;letter-spacing:-.02em;position:relative;z-index:1;}
+.data-divider{width:50px;height:3px;background:#fff;margin:16px 0;}
+.data-headline{font-family:var(--font-d);font-weight:900;font-size:clamp(34px,5vw,64px);line-height:.92;text-transform:uppercase;letter-spacing:-.005em;position:relative;z-index:1;}
+.data-headline span{display:block;margin-bottom:10px;}
+.data-bottom{font-family:var(--font-d);font-weight:900;font-size:clamp(22px,2.8vw,38px);line-height:1.1;text-transform:uppercase;position:relative;z-index:1;}
+.data-bottom .muted{color:rgba(255,255,255,.45);font-size:.7em;display:block;margin-top:4px;}
+@media(max-width:900px){.data-wrap{grid-template-columns:1fr;}.data-left,.data-right{padding:64px var(--g);}.data-stat{font-size:clamp(80px,20vw,180px);}}
+
+/* SERVICES PREVIEW */
+.svc-preview{background:var(--cream);padding:var(--sp) var(--g);}
+.svc-preview-header{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:48px;border-bottom:1px solid rgba(0,0,0,.1);margin-bottom:0;gap:40px;flex-wrap:wrap;}
+.svc-preview-header h2{font-family:var(--font-d);font-weight:900;font-size:clamp(48px,7vw,110px);line-height:.88;text-transform:uppercase;letter-spacing:-.01em;color:#000;}
+.svc-preview-header p{font-size:17px;line-height:1.6;max-width:380px;color:rgba(0,0,0,.6);}
+.svc-list{display:grid;}
+.svc{display:grid;grid-template-columns:80px 1fr auto;gap:32px;align-items:center;padding:36px 0;border-bottom:1px solid rgba(0,0,0,.08);transition:padding-left .35s cubic-bezier(.25,.46,.45,.94);position:relative;overflow:hidden;}
+.svc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:#000;transition:width .4s cubic-bezier(.25,.46,.45,.94);}
+.svc:hover{padding-left:24px;}
+.svc:hover::before{width:4px;}
+.svc-num{font-family:var(--font-d);font-weight:900;font-size:52px;color:rgba(0,0,0,.08);line-height:1;letter-spacing:-.02em;transition:color .3s;}
+.svc:hover .svc-num{color:rgba(0,0,0,.2);}
+.svc-body h3{font-size:20px;font-weight:700;margin-bottom:8px;color:#000;}
+.svc-body p{font-size:14px;line-height:1.65;color:rgba(0,0,0,.65);max-width:56ch;}
+.svc-arrow{font-size:28px;color:rgba(0,0,0,.15);transition:transform .3s,color .3s;font-weight:300;}
+.svc:hover .svc-arrow{transform:translate(6px,-6px);color:#000;}
+@media(max-width:700px){.svc{grid-template-columns:40px 1fr;}.svc-arrow{display:none;}.svc-num{font-size:36px;}.svc-preview-header{flex-direction:column;align-items:flex-start;gap:20px;}}
+
+/* WHO */
+.who{background:#0a0a0a;color:#fff;padding:var(--sp) var(--g);}
+.who-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.who-stack{font-family:var(--font-d);font-weight:900;font-size:clamp(64px,10vw,160px);line-height:.85;text-transform:uppercase;letter-spacing:-.02em;}
+.who-stack span{display:block;}
+.who-stack .red{color:var(--red);}
+.who-stack .dim{color:rgba(255,255,255,.2);}
+.who h2{font-size:clamp(24px,3vw,38px);font-weight:500;line-height:1.2;letter-spacing:-.015em;margin-bottom:28px;font-style:italic;color:#fff;}
+.who h2 strong{font-weight:700;}
+.who ul{list-style:none;display:grid;gap:12px;}
+.who li{font-size:16px;line-height:1.5;padding-left:26px;position:relative;color:rgba(255,255,255,.75);}
+.who li::before{content:'';position:absolute;left:0;top:12px;width:14px;height:2px;background:rgba(255,255,255,.4);}
+@media(max-width:900px){.who-grid{grid-template-columns:1fr;gap:48px;}.who-stack{font-size:clamp(56px,12vw,120px);}}
+
+/* WHY */
+.why{background:var(--cream);padding:var(--sp) var(--g);}
+.why-stack{font-family:var(--font-d);font-weight:900;font-size:clamp(60px,11vw,160px);line-height:.85;text-transform:uppercase;letter-spacing:-.015em;margin-bottom:56px;}
+.why-stack span{display:block;}
+.why-stack .dim{color:rgba(0,0,0,.12);}
+.why-stack .red{color:var(--red);}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;padding-top:40px;border-top:1px solid rgba(0,0,0,.1);}
+.why-col h4{font-size:9px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:rgba(0,0,0,.35);margin-bottom:16px;}
+.why-col p{font-size:16px;line-height:1.75;color:rgba(0,0,0,.65);margin-bottom:16px;max-width:50ch;}
+.why-col p strong{color:#000;font-weight:700;}
+@media(max-width:900px){.why-grid{grid-template-columns:1fr;gap:36px;}.why-stack{font-size:clamp(52px,11vw,120px);}}
+
+/* CTA BAND */
+.cta-band{background:#000;color:#fff;padding:var(--sp) var(--g);text-align:center;}
+.cta-band-eyebrow{font-size:9px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:24px;display:block;}
+.cta-band h2{font-family:var(--font-d);font-weight:900;font-size:clamp(52px,9vw,140px);line-height:.86;text-transform:uppercase;letter-spacing:-.015em;margin-bottom:24px;}
+.cta-band h2 em{font-style:italic;color:var(--red);}
+.cta-band-sub{font-size:17px;line-height:1.65;color:rgba(255,255,255,.55);max-width:520px;margin:0 auto 40px;}
+.cta-band-note{margin-top:20px;font-size:9px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.22);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-b);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;padding:17px 32px;border:1.5px solid transparent;transition:all .3s;cursor:none;min-height:50px;}
+.btn-wh{background:#fff;color:#000;border-color:#fff;}.btn-wh:hover{background:transparent;color:#fff;}
+.btn-go{background:transparent;color:#fff;border-color:rgba(255,255,255,.3);}.btn-go:hover{border-color:#fff;}
+.btn-dk{background:#000;color:#fff;border-color:#000;}.btn-dk:hover{background:transparent;color:#000;}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red);}.btn-red:hover{background:transparent;color:var(--red);}
+@media(max-width:640px){.btn{width:100%;}}
+
+/* FOOTER */
+.footer{background:#000;color:#fff;padding:56px var(--g) 28px;}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;padding-bottom:36px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:24px;}
+.footer-brand img{height:44px;width:auto;object-fit:contain;}
+.footer-col h5{font-size:9px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:12px;}
+.footer-col ul{list-style:none;}
+.footer-col li{margin-bottom:8px;font-size:12px;color:rgba(255,255,255,.45);}
+.footer-col a:hover{color:#fff;}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.22);gap:20px;flex-wrap:wrap;}
+@media(max-width:900px){.footer-top{grid-template-columns:1fr;gap:28px;}.footer-bottom{flex-direction:column;align-items:flex-start;}}
+
+/* SCROLL */
+.r{opacity:0;transform:translateY(52px);}
+.rl{opacity:0;transform:translateX(-52px);}
+.rr{opacity:0;transform:translateX(52px);}
+.rs{opacity:0;transform:scale(.93);}
+.stg>*{opacity:0;transform:translateY(36px);}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<div id="preloader"><div class="pre-logo">JRZ INK</div><div class="pre-line"></div><div class="pre-sub">Systems · Est. 2026</div></div>
+<div id="cur"></div><div id="cur-dot"></div>
+
+
+<div class="wrap">
+
+<!-- HERO -->
+<section class="hero">
+  <video class="hero-video" autoplay muted loop playsinline preload="auto" src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/69e5a70a50b9a3263a3ab57a.mp4"></video>
+  <div class="hero-overlay"></div>
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-meta" id="heroMeta">
+    <div class="hero-meta-item"><span class="hero-dot"></span>System Active</div>
+    <div class="hero-meta-item">Tattoo Only</div>
+    <div class="hero-meta-item">Human + AI</div>
+  </div>
+  <div class="hero-inner">
+    <h1 class="hero-headline">
+      <span class="line"><span class="line-inner">We Build</span></span>
+      <span class="line"><span class="line-inner">the System.</span></span>
+      <span class="line"><span class="line-inner dim">You Fill</span></span>
+      <span class="line"><span class="line-inner red">the Chair.</span></span>
+    </h1>
+    <div class="hero-right">
+      <p class="hero-sub"><strong>Full booking system for tattoo artists and studios.</strong> We build and run the entire backend — ads, website, CRM, follow-up, booking manager — so you can focus on the art.</p>
+      <div class="hero-actions">
+        <a href="/contact-us" class="btn btn-wh">Apply to Work With Us</a>
+        <a href="services.html" class="btn btn-go">See What We Build →</a>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll-hint" id="heroScroll"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">Fully Booked</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">CPL $14.83</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">CTR 5.06%</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">Artists & Studios</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">Human + AI System</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">CPC $0.36</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">10+ Years</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">JRZ Marketing</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">Fully Booked</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">CPL $14.83</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">CTR 5.06%</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">Artists & Studios</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">Human + AI System</span><span class="marquee-item accent">·</span>
+    <span class="marquee-item">CPC $0.36</span><span class="marquee-item accent">·</span>
+  </div>
+</div>
+
+<!-- PAIN SECTION -->
+<section class="pain">
+  <span class="pain-label r">Sound Familiar?</span>
+  <h2 class="pain-headline rl">Your Art<br>Is <em>Undeniable.</em><br>Your Calendar<br>Isn't Full.</h2>
+  <div class="pain-grid stg">
+    <div class="pain-card">
+      <span class="pain-card-num">01</span>
+      <p class="pain-card-text">"My Instagram is full. My schedule isn't."</p>
+      <p class="pain-card-sub">Followers don't pay. Booked sessions do. There's a gap between an audience and a full calendar — and most artists never close it.</p>
+    </div>
+    <div class="pain-card">
+      <span class="pain-card-num">02</span>
+      <p class="pain-card-text">"I spent $500 on ads. Got 3 messages. Zero booked."</p>
+      <p class="pain-card-sub">Ads without a booking system are just donations to Meta. The follow-up, the form, the CRM — those are what convert clicks into sessions.</p>
+    </div>
+    <div class="pain-card">
+      <span class="pain-card-num">03</span>
+      <p class="pain-card-text">"I'm answering DMs at midnight."</p>
+      <p class="pain-card-sub">Booking is not your job. Tattooing is your job. Every hour managing inquiries is an hour not creating — and a client experience that feels amateur.</p>
+    </div>
+    <div class="pain-card">
+      <span class="pain-card-num">04</span>
+      <p class="pain-card-text">"I lose deposits because I forgot to follow up."</p>
+      <p class="pain-card-sub">Manual follow-up fails every time. A no-show costs you real money. An automated system never forgets — and it works while you're in a session.</p>
+    </div>
+  </div>
+  <div class="pain-resolve r">
+    <p>That's not a talent problem. <strong>It's a systems problem.</strong> And systems are exactly what we build.</p>
+  </div>
+</section>
+
+<!-- SOLUTION SPLIT -->
+<div class="solution">
+  <div class="solution__video">
+    <video autoplay muted loop playsinline preload="auto" src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/69e5a70a38381eafa8b67b15.mp4"></video>
+    <div class="solution__overlay"></div>
+  </div>
+  <div class="solution__content">
+    <span class="solution__eyebrow r">The JRZ Ink System</span>
+    <h2 class="r">You Tattoo.<br><em>We Handle</em><br>The Rest.</h2>
+    <p class="r">JRZ is the initials of our founder. INK is for tattoo. SYSTEM is everything it takes to keep your calendar full — AI, automation, paid ads, CRM, follow-up sequences, and a dedicated booking manager who fits your studio or solo practice.</p>
+    <p class="r">We build the complete backend, pair you with a booking manager built for how you operate, and run it 24/7. Solo artist or multi-chair studio — the system adapts to you.</p>
+    <p class="r"><strong>You get one notification when someone books. That's your only job.</strong></p>
+    <a href="services.html" class="btn btn-wh r" style="margin-top:8px;align-self:flex-start;">See What's Included →</a>
+  </div>
+</div>
+
+<!-- DATA -->
+<div class="data-wrap">
+  <div class="data-left">
+    <h2 class="rl"><span>Numbers</span><span>Don't Lie.</span><span>Get Booked,</span><span>Get Paid.</span></h2>
+    <p class="r">Forget feast or famine. Artists on our system stay booked weeks in advance because we build momentum into the backend and never let it stop.</p>
+    <p class="r">Meta campaigns running 24/7. Pixel data getting smarter with every lead. Follow-ups going out automatically.</p>
+    <p class="r"><strong>The system works while you work. That's the point.</strong></p>
+  </div>
+  <div class="data-right">
+    <div class="data-stat rr" data-counter="84">84</div>
+    <div>
+      <h3 class="data-headline rr"><span>Leads in 30 Days.</span><span>$14.83 Per Lead.</span></h3>
+      <div class="data-divider"></div>
+      <h3 class="data-headline rr"><span>Industry Avg:</span><span>$25–$60/Lead.</span></h3>
+    </div>
+    <div class="data-bottom rr">We Run 3× Below That.<span class="muted">CTR 5.06% · CPC $0.36 · CPM $18.12</span></div>
+  </div>
+</div>
+
+<!-- SERVICES PREVIEW -->
+<section class="svc-preview">
+  <div class="svc-preview-header">
+    <h2 class="r">Six Systems.<br>One Rate.</h2>
+    <p class="r">Everything connected into one engine. Built for solo artists and multi-chair studios. Nothing left out. Nothing you don't need.</p>
+    <p class="r" style="margin-top:12px;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--red);">$1,000 setup · $500/mo management · 10–12% booking performance — <a href="financing.html" style="color:var(--red);text-decoration:underline;">See full pricing →</a></p>
+  </div>
+  <div class="svc-list stg">
+    <a href="services.html" class="svc" style="display:grid;">
+      <div class="svc-num">01</div>
+      <div class="svc-body"><h3>Seamless Booking System</h3><p>Multi-step intake that qualifies leads before they hit your calendar. Auto CRM entry, SMS confirmation, real-time alert to you.</p></div>
+      <div class="svc-arrow">↗</div>
+    </a>
+    <a href="services.html" class="svc" style="display:grid;">
+      <div class="svc-num">02</div>
+      <div class="svc-body"><h3>Paid Ads That Actually Convert</h3><p>Meta campaigns built for your style and city. $14.83 CPL. 5.06% CTR. 3× below industry average. Fully managed.</p></div>
+      <div class="svc-arrow">↗</div>
+    </a>
+    <a href="services.html" class="svc" style="display:grid;">
+      <div class="svc-num">03</div>
+      <div class="svc-body"><h3>Website Built to Rank + Convert</h3><p>SEO-optimized, portfolio-first design. Built to show on Google and convert every visitor into a booking inquiry.</p></div>
+      <div class="svc-arrow">↗</div>
+    </a>
+    <a href="services.html" class="svc" style="display:grid;">
+      <div class="svc-num">04</div>
+      <div class="svc-body"><h3>Full Funnel Tracking</h3><p>Meta Pixel + GA4 wired correctly. Every lead tracked from first ad click to completed session and Google review.</p></div>
+      <div class="svc-arrow">↗</div>
+    </a>
+    <a href="services.html" class="svc" style="display:grid;">
+      <div class="svc-num">05</div>
+      <div class="svc-body"><h3>Automated Follow-Up + CRM</h3><p>7-stage pipeline. SMS + email sequences that follow up automatically. Deposit reminders, confirmations, no-show recovery.</p></div>
+      <div class="svc-arrow">↗</div>
+    </a>
+    <a href="services.html" class="svc" style="display:grid;">
+      <div class="svc-num">06</div>
+      <div class="svc-body"><h3>Google Reviews on Autopilot</h3><p>Automated review request after every session. AI responds within minutes. Reputation builds while you sleep.</p></div>
+      <div class="svc-arrow">↗</div>
+    </a>
+  </div>
+</section>
+
+<!-- WHO -->
+<section class="who">
+  <div class="who-grid">
+    <div class="who-stack rl"><span>Not</span><span class="red">For</span><span class="dim">Every</span><span>Artist.</span></div>
+    <div>
+      <h2 class="r">Built for <strong>solo artists</strong> who want to stay fully booked, and <strong>studios</strong> that need a real system behind every chair.</h2>
+      <ul class="stg">
+        <li>Solo tattoo artist or multi-chair studio</li>
+        <li>Studios managing multiple artists who each need their own pipeline</li>
+        <li>Clear style with a portfolio worth showing</li>
+        <li>Want structure and automation over inbox chaos</li>
+        <li>Want to be booked out — not constantly chasing leads or managing DMs</li>
+        <li>Ready to invest in a full booking system, not just ads</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="why">
+  <h2 class="why-stack r">
+    <span>10+ Years.</span>
+    <span class="dim">Artists &amp;</span>
+    <span class="red">Studios.</span>
+  </h2>
+  <div class="why-grid">
+    <div class="why-col rl">
+      <h4>Where We Come From</h4>
+      <p>For over a decade, JRZ Marketing has built booking systems, run paid ads, and scaled service businesses across the country. JRZ Ink Systems is that same engine — locked into one niche: tattoo artists and studios.</p>
+      <p><strong>Whether you're a solo artist out of a private studio or a multi-chair shop with multiple artists to fill</strong> — the system adapts to your volume and your workflow. Same infrastructure, built for how you actually operate.</p>
+    </div>
+    <div class="why-col rr">
+      <h4>How We're Different</h4>
+      <p>Most agencies charge $2K–$4K a month, hand over a dashboard, and disappear. We build the full system, pair you with a dedicated booking manager, and tie our performance directly to your bookings.</p>
+      <p><strong>We only win when you win.</strong> Our booking manager's performance share scales with the sessions we drive. If your calendar isn't full, neither are we — and that changes everything about how we work.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-band">
+  <span class="cta-band-eyebrow r">Limited Spots · Not Every Artist or Studio Accepted</span>
+  <h2 class="r">Know in<br><em>30 Minutes.</em></h2>
+  <p class="cta-band-sub r">We audit your current setup and tell you honestly whether we can fill your calendar. No pitch. Just facts.</p>
+  <a href="/contact-us" class="btn btn-red rs">Apply to Work With Us</a>
+  <div class="cta-band-note">We respond within 48 hours · or not at all</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/69dc72b1b30bc5237146bf95.png" alt="JRZ Ink Systems"></div>
+    <div class="footer-col"><h5>Navigate</h5><ul>
+      <li><a href="home.html">Home</a></li>
+    <li><a href="about.html">About</a></li><li><a href="services.html">Services</a></li>
+      <li><a href="financing.html">Financing</a></li><li><a href="faq.html">FAQ</a></li><li><a href="/contact-us">Contact Us</a></li>
+    </ul></div>
+    <div class="footer-col"><h5>Contact</h5><ul><li>jrzinksystems@gmail.com</li><li>Central Florida</li><li>Remote — Nationwide</li><li>By Application Only</li></ul></div>
+    <div class="footer-col"><h5>Legal</h5><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><div>© 2026 JRZ Ink Systems — A JRZ Marketing Company</div><div>Full booking service for tattoo artists and studios</div></div>
+</footer>
+</div>
+
+<script>
+window.addEventListener('load',function(){
+  var tl=gsap.timeline();
+  tl.to('.pre-logo',{clipPath:'inset(0 0% 0 0)',duration:.9,ease:'power3.inOut'})
+    .to('.pre-line',{width:'100%',duration:.6,ease:'power2.inOut'},'-=.3')
+    .to('.pre-sub',{opacity:1,duration:.4},'-=.1')
+    .to('#preloader',{opacity:0,duration:.7,delay:.4,ease:'power2.inOut',onComplete(){document.getElementById('preloader').style.display='none';}})
+    .call(startHero);
+});
+function startHero(){
+  gsap.to('#heroMeta',{opacity:1,duration:.6,delay:.1});
+  gsap.to('#heroScroll',{opacity:1,duration:.6,delay:.8});
+  gsap.to('.hero-sub',{opacity:1,y:0,duration:.7,delay:.3});
+  gsap.to('.hero-actions',{opacity:1,y:0,duration:.7,delay:.45});
+  gsap.utils.toArray('.line-inner').forEach(function(el,i){gsap.to(el,{y:'0%',duration:.9,delay:.15+i*.12,ease:'power3.out'});});
+}
+// Canvas sparkle
+(function(){
+  var c=document.getElementById('heroCanvas'),ctx=c.getContext('2d'),W,H,particles=[];
+  function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;}resize();window.addEventListener('resize',resize);
+  function P(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*1.5+.3;this.a=Math.random()*.5;this.vy=-(Math.random()*.4+.1);this.vx=(Math.random()-.5)*.2;this.life=Math.random()*200+100;this.age=0;}
+  P.prototype.update=function(){this.x+=this.vx;this.y+=this.vy;this.age++;if(this.age>this.life){this.x=Math.random()*W;this.y=H;this.age=0;}};
+  P.prototype.draw=function(){var fade=Math.min(this.age/30,1)*Math.max(1-this.age/this.life,0);ctx.save();ctx.globalAlpha=this.a*fade;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();ctx.restore();};
+  for(var i=0;i<120;i++)particles.push(new P());
+  var mx=-999,my=-999;document.addEventListener('mousemove',function(e){var r=c.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;});
+  function loop(){ctx.clearRect(0,0,W,H);if(mx>0&&my>0&&my<H){var g=ctx.createRadialGradient(mx,my,0,mx,my,80);g.addColorStop(0,'rgba(255,255,255,.04)');g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(mx,my,80,0,Math.PI*2);ctx.fill();}particles.forEach(function(p){p.update();p.draw();});requestAnimationFrame(loop);}loop();
+})();
+// Cursor
+(function(){
+  var cur=document.getElementById('cur'),dot=document.getElementById('cur-dot'),cx=0,cy=0,dx=0,dy=0;
+  document.addEventListener('mousemove',function(e){cx=e.clientX;cy=e.clientY;cur.style.left=cx+'px';cur.style.top=cy+'px';});
+  function animDot(){dx+=(cx-dx)*.15;dy+=(cy-dy)*.15;dot.style.left=dx+'px';dot.style.top=dy+'px';requestAnimationFrame(animDot);}animDot();
+  document.querySelectorAll('a,button,.btn,.svc,.pain-card').forEach(function(el){el.addEventListener('mouseenter',function(){cur.classList.add('big');});el.addEventListener('mouseleave',function(){cur.classList.remove('big');});});
+})();
+// Nav + mobile
+// GSAP
+gsap.registerPlugin(ScrollTrigger);
+function rev(sel){gsap.utils.toArray(sel).forEach(function(el){gsap.to(el,{scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'},opacity:1,y:0,x:0,scale:1,duration:.85,ease:'power3.out'});});}
+rev('.r');rev('.rl');rev('.rr');rev('.rs');
+gsap.utils.toArray('.stg').forEach(function(p){gsap.to(Array.from(p.children),{scrollTrigger:{trigger:p,start:'top 85%',toggleActions:'play none none none'},opacity:1,y:0,duration:.7,stagger:.1,ease:'power2.out'});});
+gsap.to('.hero-headline',{scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:2},y:-100,ease:'none'});
+gsap.utils.toArray('[data-counter]').forEach(function(el){var t=parseInt(el.dataset.counter);ScrollTrigger.create({trigger:el,start:'top 80%',once:true,onEnter:function(){var o={v:0};gsap.to(o,{v:t,duration:2.5,ease:'power2.out',onUpdate:function(){el.textContent=Math.round(o.v);}});}});});
+// GHL override
+(function(){var s=['.c-section','.c-wrapper','.row-container','.c-row','.c-column','.inner','section.c-section','div[data-default-columns]','.hl_page-preview'];function n(){s.forEach(function(sel){document.querySelectorAll(sel).forEach(function(el){el.style.maxWidth='100%';el.style.width='100%';el.style.paddingLeft='0';el.style.paddingRight='0';el.style.marginLeft='0';el.style.marginRight='0';});});}n();new MutationObserver(n).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});window.addEventListener('load',n);[500,1500,3000].forEach(function(t){setTimeout(n,t);});})();
+</script>
+</body>
+</html>

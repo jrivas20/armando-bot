@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact SOCF Fitness | Orlando's #1 Functional Fitness Gym</title>
+<meta name="description" content="Contact SOCF Fitness in Orlando, FL. Schedule your free class, ask about memberships, or drop in. Call (407) 550-5898 or fill out our form. We respond fast.">
+<meta name="keywords" content="contact SOCF Fitness, gym Orlando FL, SOCF Fitness phone number, functional fitness gym near me Orlando, free class Orlando gym, HYROX gym contact Orlando">
+<meta property="og:title" content="Contact SOCF Fitness | Orlando's #1 Functional Fitness Gym">
+<meta property="og:description" content="Schedule your free class or contact us about memberships. (407) 550-5898 · Orlando, FL.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.socffitness.com/contact">
+<link rel="canonical" href="https://www.socffitness.com/contact">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SportsActivityLocation","name":"SOCF Fitness","url":"https://www.socffitness.com","telephone":"(407) 550-5898","address":{"@type":"PostalAddress","streetAddress":"Orlando","addressLocality":"Orlando","addressRegion":"FL","addressCountry":"US"},"openingHours":["Mo-Fr 06:00-19:30","Sa 10:00-11:30"],"aggregateRating":{"@type":"AggregateRating","ratingValue":"5","reviewCount":"111"}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,800;0,900;1,800;1,900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
+
+<style>
+/* ── GHL OVERRIDE ───────────────────────────────────────── */
+html,body,.c-section,.c-wrapper,.row-container,.c-row,.c-column,.vertical,.full,
+.hl-builder,.hl_page-preview,#full-width-row,.section,.inner,.container,
+.container-fluid,.row,section.c-section,div[data-default-columns],
+[class*="container"],[class*="section"],[class*="wrapper"],[class*="inner"],
+[class*="full-width"],[class*="hl_"],[id*="section"],[id*="row"]{
+  max-width:100%!important;width:100%!important;
+  margin-left:0!important;margin-right:0!important;
+  padding-left:0!important;padding-right:0!important;
+  box-sizing:border-box!important;overflow-x:hidden!important;}
+html,body{overflow-x:hidden!important;}
+
+/* ── VARS ───────────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --black:#060606;--dark:#0e0e0e;--card:#131313;--card2:#181818;
+  --lime:#C8FF00;--white:#fff;--gray:#555;--gray2:#888;
+  --fd:'Barlow Condensed',Impact,sans-serif;
+  --fb:'Inter',system-ui,sans-serif;
+  --g:clamp(20px,4vw,72px);
+  --sp:clamp(80px,10vw,140px);
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+}
+html{scroll-behavior:auto;}
+body{font-family:var(--fb);background:var(--black);color:var(--white);
+  -webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden;cursor:none;}
+a{color:inherit;text-decoration:none;}
+img,video{max-width:100%;display:block;}
+
+/* ── CURSOR ─────────────────────────────────────────────── */
+.cur{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;mix-blend-mode:difference;}
+.cur-ball{width:40px;height:40px;border-radius:50%;background:var(--lime);
+  transform:translate(-50%,-50%) scale(0.35);transition:transform 0.25s var(--ease-out);}
+.cur.active .cur-ball{transform:translate(-50%,-50%) scale(1);}
+
+/* ── GRAIN ──────────────────────────────────────────────── */
+.grain{position:fixed;inset:0;z-index:9990;pointer-events:none;opacity:.028;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px;animation:grain 0.4s steps(1) infinite;}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-4%,3%)}50%{transform:translate(3%,-5%)}75%{transform:translate(-2%,6%)}100%{transform:translate(0,0)}}
+
+/* ── PRELOADER ───────────────────────────────────────────── */
+#loader{position:fixed;inset:0;z-index:9998;background:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.loader-count{font-family:var(--fd);font-size:clamp(80px,18vw,200px);
+  font-style:italic;font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1;}
+.loader-bar-wrap{width:clamp(120px,20vw,220px);height:1px;background:rgba(255,255,255,.1);margin-top:24px;}
+.loader-bar{height:1px;background:var(--lime);width:0;}
+.loader-label{font-size:9px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;
+  color:rgba(255,255,255,.25);margin-top:14px;}
+
+/* ── STICKY BAR ─────────────────────────────────────────── */
+.bar{position:fixed;top:0;left:0;right:0;z-index:1000;padding:18px var(--g);
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background .5s,backdrop-filter .5s;}
+.bar.bg{background:rgba(6,6,6,.88);backdrop-filter:blur(24px);}
+.bar-logo{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(18px,2.2vw,24px);letter-spacing:.06em;text-transform:uppercase;}
+.bar-logo em{color:var(--lime);font-style:normal;}
+.bar-right{display:flex;align-items:center;gap:24px;}
+.bar-tag{font-size:9px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;
+  color:rgba(255,255,255,.28);display:none;}
+@media(min-width:860px){.bar-tag{display:block;}}
+
+/* ── MAGNETIC BTN ────────────────────────────────────────── */
+.mag-wrap{display:inline-block;position:relative;}
+.mag-btn{display:inline-block;padding:13px 28px;font-size:10px;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;transition:background .2s,color .2s;
+  position:relative;will-change:transform;}
+.mag-btn.lime{background:var(--lime);color:#000;}
+.mag-btn.lime:hover{background:#d8ff20;}
+.mag-btn.ghost{border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.8);}
+.mag-btn.ghost:hover{border-color:var(--lime);color:var(--lime);}
+
+/* ── BADGE ───────────────────────────────────────────────── */
+.badge-fixed{position:fixed;bottom:28px;right:28px;z-index:1001;
+  width:72px;height:72px;border-radius:50%;overflow:hidden;
+  animation:badgePulse 3.5s ease-in-out infinite;}
+.badge-fixed img{width:100%;height:100%;object-fit:cover;}
+@keyframes badgePulse{
+  0%,100%{box-shadow:0 0 0 2px var(--lime),0 8px 32px rgba(0,0,0,.6)}
+  50%{box-shadow:0 0 0 5px var(--lime),0 0 48px rgba(200,255,0,.22),0 8px 32px rgba(0,0,0,.6)}
+}
+
+/* ── HERO ────────────────────────────────────────────────── */
+.hero{position:relative;height:72svh;min-height:460px;display:flex;align-items:flex-end;overflow:hidden;}
+.hero-img{position:absolute;inset:0;z-index:1;}
+.hero-img img{width:100%;height:100%;object-fit:cover;will-change:transform;}
+.hero-overlay{position:absolute;inset:0;z-index:2;
+  background:linear-gradient(to bottom,rgba(6,6,6,.2) 0%,rgba(6,6,6,.6) 50%,rgba(6,6,6,.98) 100%);}
+.hero-inner{position:relative;z-index:3;padding:0 var(--g) clamp(56px,8vh,100px);width:100%;}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--lime);display:flex;align-items:center;gap:14px;margin-bottom:20px;opacity:0;}
+.hero-eyebrow::before{content:'';width:28px;height:1px;background:var(--lime);}
+.hero-h1{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(64px,10vw,148px);line-height:.86;letter-spacing:-.01em;text-transform:uppercase;}
+.hero-h1 .char{display:inline-block;transform:translateY(110%) rotate(5deg);opacity:0;}
+.hero-h1 .hi{color:var(--lime);}
+.hero-sub{font-size:clamp(14px,1.3vw,17px);line-height:1.78;
+  color:rgba(255,255,255,.45);max-width:500px;margin-top:20px;opacity:0;transform:translateY(20px);}
+
+/* ── MARQUEE ─────────────────────────────────────────────── */
+.marquee-wrap{background:var(--lime);overflow:hidden;padding:18px 0;}
+.marquee-track{display:flex;white-space:nowrap;animation:marquee 30s linear infinite;}
+.marquee-item{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(17px,2.2vw,24px);text-transform:uppercase;letter-spacing:.06em;
+  color:#000;padding:0 32px;flex-shrink:0;}
+.marquee-sep{opacity:.3;}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── CONTACT SPLIT ───────────────────────────────────────── */
+.contact-split{display:grid;grid-template-columns:1fr 1fr;min-height:100svh;}
+@media(max-width:860px){.contact-split{grid-template-columns:1fr;min-height:auto;}}
+
+/* Form side */
+.contact-form-side{background:var(--card);padding:clamp(48px,6vw,96px) var(--g);
+  display:flex;flex-direction:column;justify-content:center;}
+.cf-pre{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--lime);display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.cf-pre::before{content:'';width:24px;height:1px;background:var(--lime);}
+.cf-title{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(36px,4.5vw,64px);line-height:.88;text-transform:uppercase;margin-bottom:28px;}
+.cf-sub{font-size:13px;line-height:1.85;color:rgba(255,255,255,.35);margin-bottom:40px;max-width:420px;}
+/* GHL Form embed */
+.ghl-form-wrap{width:100%;}
+.ghl-form-wrap iframe{width:100%;min-height:680px;border:none;background:transparent;}
+
+/* Info side */
+.contact-info-side{background:var(--dark);padding:clamp(48px,6vw,96px) var(--g);
+  display:flex;flex-direction:column;justify-content:center;gap:clamp(32px,4vw,56px);}
+.ci-block{}
+.ci-label{font-size:9px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--lime);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.ci-label::before{content:'';width:16px;height:1px;background:var(--lime);}
+.ci-value{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(22px,2.8vw,38px);text-transform:uppercase;line-height:.96;}
+.ci-sub{font-size:12px;color:rgba(255,255,255,.3);margin-top:8px;line-height:1.6;}
+.ci-divider{height:1px;background:rgba(255,255,255,.06);}
+
+/* Hours grid */
+.hours-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 20px;}
+.hours-day{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,255,255,.25);}
+.hours-time{font-size:11px;color:rgba(255,255,255,.45);}
+.hours-day.today,.hours-time.today{color:var(--lime);}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--black);}
+.stat-mini{padding:clamp(28px,3.5vw,48px) clamp(16px,2vw,28px);background:var(--card);
+  border-top:2px solid transparent;transition:border-color .35s;text-align:center;}
+.stat-mini:hover{border-top-color:var(--lime);}
+.stat-mini-num{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(36px,5vw,64px);line-height:1;letter-spacing:-.02em;}
+.stat-mini-num .acc{color:var(--lime);}
+.stat-mini-label{font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(255,255,255,.28);margin-top:8px;}
+
+/* Map */
+.map-section{background:var(--dark);}
+.map-header{padding:var(--sp) var(--g) 0;}
+.map-title{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(40px,6vw,80px);line-height:.88;text-transform:uppercase;margin-bottom:24px;}
+.map-sub{font-size:13px;color:rgba(255,255,255,.35);margin-bottom:40px;}
+.map-wrap{position:relative;width:100%;height:clamp(300px,40vw,540px);overflow:hidden;}
+.map-wrap iframe{width:100%;height:100%;border:none;filter:grayscale(1) invert(1) contrast(0.9);}
+.map-cta{padding:clamp(28px,4vw,52px) var(--g);display:flex;gap:14px;flex-wrap:wrap;align-items:center;background:var(--dark);}
+.map-cta-text{font-size:12px;color:rgba(255,255,255,.3);letter-spacing:.06em;}
+
+/* Gallery strip */
+.gallery-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:var(--black);}
+@media(max-width:680px){.gallery-strip{grid-template-columns:1fr 1fr;}}
+.gs-item{aspect-ratio:1;overflow:hidden;position:relative;}
+.gs-item img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease-out);}
+.gs-item:hover img{transform:scale(1.08);}
+.gs-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);
+  opacity:0;transition:opacity .3s;}
+.gs-item:hover .gs-overlay{opacity:1;}
+
+/* CTA strip */
+.cta-strip{background:var(--lime);padding:clamp(48px,6vw,80px) var(--g);
+  display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;}
+.cta-strip-text{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(36px,6vw,76px);text-transform:uppercase;letter-spacing:-.01em;
+  color:#000;line-height:.9;}
+.cta-strip-right{display:flex;flex-direction:column;align-items:flex-end;gap:14px;}
+.cta-strip-sub{font-size:11px;color:rgba(0,0,0,.45);letter-spacing:.1em;text-align:right;}
+
+/* Footer */
+.footer{background:var(--dark);border-top:1px solid rgba(255,255,255,.06);
+  padding:clamp(28px,4vw,52px) var(--g);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.foot-logo{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:22px;letter-spacing:.06em;text-transform:uppercase;}
+.foot-logo em{color:var(--lime);font-style:normal;}
+.foot-info{font-size:11px;color:rgba(255,255,255,.22);line-height:1.7;text-align:right;}
+.foot-info a{color:var(--lime);}
+.fade-up{opacity:0;transform:translateY(32px);}
+
+/* ── MOBILE RESPONSIVE ───────────────────────────────────── */
+@media(max-width:768px){
+  .hero{align-items:flex-start!important;min-height:100svh;}
+  .hero-inner{padding-top:clamp(88px,22svh,140px)!important;padding-bottom:clamp(32px,5svh,56px)!important;text-align:center;}
+  .hero-eyebrow{justify-content:center;}
+  .hero-actions{justify-content:center;}
+  .hero-sub{margin-left:auto;margin-right:auto;}
+  .hero-scroll{display:none;}
+  .contact-split{flex-direction:column;}
+  .contact-left,.contact-right{width:100%;}
+  .contact-info-grid{grid-template-columns:1fr;}
+  .stats-row{flex-direction:column;gap:32px;text-align:center;}
+  .stat-divider{display:none;}
+  .gallery-strip{gap:4px;}
+  .gs-item{height:40vw;}
+  .cta-strip{flex-direction:column;text-align:center;}
+  .cta-strip-right{align-items:center;}
+  .footer{flex-direction:column;text-align:center;}
+  .foot-info{text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="cur" id="cur"><div class="cur-ball"></div></div>
+
+
+<!-- PRELOADER -->
+<div id="loader">
+  <div class="loader-count" id="loaderCount">0</div>
+  <div class="loader-bar-wrap"><div class="loader-bar" id="loaderBar"></div></div>
+  <div class="loader-label">Get In Touch · Orlando, FL</div>
+</div>
+
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-img">
+    <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26b2e79a3ff7cddc40.png" alt="SOCF Fitness Orlando">
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow" id="heroEyebrow">Contact Us · Orlando, Florida</div>
+    <div class="hero-h1" id="heroH1">LET'S<br><span class="hi">TALK.</span></div>
+    <p class="hero-sub" id="heroSub">Ready to start, have questions, or just want to see the gym? We're here. Drop a message, call us, or just show up.</p>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">Free First Class</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">(407) 550-5898</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Orlando, FL</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Mon–Fri 6am–7:30pm</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Sat 10–11:30am</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">111 Five-Star Reviews</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Free First Class</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">(407) 550-5898</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Orlando, FL</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Mon–Fri 6am–7:30pm</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Sat 10–11:30am</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">111 Five-Star Reviews</span><span class="marquee-item marquee-sep">·</span>
+  </div>
+</div>
+
+<!-- STATS ROW -->
+<div class="stats-row">
+  <div class="stat-mini fade-up">
+    <div class="stat-mini-num"><span data-count="111" class="acc">111</span></div>
+    <div class="stat-mini-label">Five-Star Reviews</div>
+  </div>
+  <div class="stat-mini fade-up">
+    <div class="stat-mini-num"><span data-count="400" class="acc">400</span><span style="font-size:.6em;color:var(--lime)">+</span></div>
+    <div class="stat-mini-label">Active Members</div>
+  </div>
+  <div class="stat-mini fade-up">
+    <div class="stat-mini-num" style="color:var(--lime)">#1</div>
+    <div class="stat-mini-label">Gym in Orlando · Google</div>
+  </div>
+</div>
+
+<!-- CONTACT SPLIT -->
+<div class="contact-split" id="form">
+  <!-- Form Side -->
+  <div class="contact-form-side fade-up">
+    <div class="cf-pre">Book Your Free Class</div>
+    <h2 class="cf-title" data-split>Start<br>Here.</h2>
+    <p class="cf-sub">Fill out the form below and we'll reach out within a few hours to schedule your free class or answer any questions. No pressure — just come in and train.</p>
+    <div class="ghl-form-wrap">
+      <iframe
+        src="https://links.jrzmarketing.com/widget/form/E9Xo8XSj5uf3gb66xxGP"
+        style="width:100%;min-height:680px;border:none;background:transparent;"
+        scrolling="no"
+        id="contactForm"
+        title="SOCF Fitness Contact Form">
+      </iframe>
+      <script src="https://links.jrzmarketing.com/js/form_embed.js"></script>
+    </div>
+  </div>
+
+  <!-- Info Side -->
+  <div class="contact-info-side">
+    <div class="ci-block fade-up">
+      <div class="ci-label">Phone</div>
+      <a href="tel:+14075505898" class="ci-value">(407) 550-5898</a>
+      <div class="ci-sub">Call or text. We respond fast.</div>
+    </div>
+    <div class="ci-divider"></div>
+    <div class="ci-block fade-up">
+      <div class="ci-label">Location</div>
+      <div class="ci-value">Orlando,<br>Florida</div>
+      <div class="ci-sub">Central Florida's #1 functional fitness gym.<br>Exact address shared after booking.</div>
+    </div>
+    <div class="ci-divider"></div>
+    <div class="ci-block fade-up">
+      <div class="ci-label">Hours</div>
+      <div class="hours-grid" id="hoursGrid">
+        <span class="hours-day" data-day="1">Monday</span><span class="hours-time" data-day="1">6:00am – 7:30pm</span>
+        <span class="hours-day" data-day="2">Tuesday</span><span class="hours-time" data-day="2">6:00am – 7:30pm</span>
+        <span class="hours-day" data-day="3">Wednesday</span><span class="hours-time" data-day="3">6:00am – 7:30pm</span>
+        <span class="hours-day" data-day="4">Thursday</span><span class="hours-time" data-day="4">6:00am – 7:30pm</span>
+        <span class="hours-day" data-day="5">Friday</span><span class="hours-time" data-day="5">6:00am – 7:30pm</span>
+        <span class="hours-day" data-day="6">Saturday</span><span class="hours-time" data-day="6">10:00am – 11:30am</span>
+        <span class="hours-day" data-day="0">Sunday</span><span class="hours-time" data-day="0">Closed</span>
+      </div>
+    </div>
+    <div class="ci-divider"></div>
+    <div class="ci-block fade-up">
+      <div class="ci-label">Free First Class</div>
+      <div class="ci-value" style="font-size:clamp(18px,2vw,28px);color:var(--lime);">Your first class is on us.</div>
+      <div class="ci-sub">Every new member gets a complimentary first class — no strings, no commitment.</div>
+      <div class="mag-wrap" style="margin-top:20px;">
+        <a href="#form" class="mag-btn lime">Book Free Class</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAP -->
+<div class="map-section">
+  <div class="map-header">
+    <h2 class="map-title fade-up">Find<br><span style="color:var(--lime)">Us.</span></h2>
+    <p class="map-sub fade-up">Located in the heart of Orlando, FL. Easy parking, clean facility, elite community waiting for you.</p>
+  </div>
+  <div class="map-wrap">
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d224537.69073799316!2d-81.37681!3d28.538336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88e773d8fecdbc77%3A0xac3b2063ca5bf9e!2sOrlando%2C%20FL!5e0!3m2!1sen!2sus!4v1699000000000!5m2!1sen!2sus"
+      allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+      title="SOCF Fitness Orlando Location">
+    </iframe>
+  </div>
+  <div class="map-cta">
+    <div class="map-cta-text">Orlando, FL · Exact address provided after booking</div>
+    <div class="mag-wrap">
+      <a href="tel:+14075505898" class="mag-btn lime">Call (407) 550-5898</a>
+    </div>
+    <div class="mag-wrap">
+      <a href="#form" class="mag-btn ghost">Book Free Class</a>
+    </div>
+  </div>
+</div>
+
+<!-- GALLERY STRIP -->
+<div class="gallery-strip">
+  <div class="gs-item">
+    <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26eabb609d0a038963.png" alt="SOCF Orlando" loading="lazy">
+    <div class="gs-overlay"></div>
+  </div>
+  <div class="gs-item">
+    <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26c256592f58ba6747.png" alt="HYROX training" loading="lazy">
+    <div class="gs-overlay"></div>
+  </div>
+  <div class="gs-item">
+    <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26c5a9e6ea8255bf56.png" alt="Community" loading="lazy">
+    <div class="gs-overlay"></div>
+  </div>
+  <div class="gs-item">
+    <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26dbd0b5bc24781f2e.png" alt="Training" loading="lazy">
+    <div class="gs-overlay"></div>
+  </div>
+</div>
+
+<!-- CTA STRIP -->
+<section class="cta-strip">
+  <div class="cta-strip-text" data-split>Orlando's<br>#1 Gym<br>Is Ready.</div>
+  <div class="cta-strip-right">
+    <p class="cta-strip-sub">111 five-star reviews. First class free.</p>
+    <div class="mag-wrap">
+      <a href="#form" class="mag-btn" style="background:#000;color:var(--lime);">Book Free Class →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="foot-logo">SOCF<em>.</em>FITNESS</div>
+  <div class="foot-info">
+    <div>Orlando, FL · <a href="tel:+14075505898">(407) 550-5898</a></div>
+    <div>Mon–Fri 6am–7:30pm · Sat 10–11:30am</div>
+    <div style="margin-top:4px;color:rgba(255,255,255,.1);">© 2026 SOCF Fitness. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const lenis=new Lenis({duration:1.3,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t))});
+function raf(t){lenis.raf(t);ScrollTrigger.update();requestAnimationFrame(raf);}
+requestAnimationFrame(raf);
+
+/* ── CURSOR ──────────────────────────────────────────────── */
+const curEl=document.getElementById('cur');
+let mx=window.innerWidth/2,my=window.innerHeight/2,cx=mx,cy=my;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function loop(){cx+=(mx-cx)*.14;cy+=(my-cy)*.14;curEl.style.transform=`translate(${cx}px,${cy}px)`;requestAnimationFrame(loop);})();
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>curEl.classList.add('active'));
+  el.addEventListener('mouseleave',()=>curEl.classList.remove('active'));
+});
+
+/* ── MAGNETIC ────────────────────────────────────────────── */
+document.querySelectorAll('.mag-wrap').forEach(wrap=>{
+  const btn=wrap.querySelector('.mag-btn');
+  wrap.addEventListener('mousemove',e=>{const r=btn.getBoundingClientRect();gsap.to(btn,{x:(e.clientX-r.left-r.width/2)*.28,y:(e.clientY-r.top-r.height/2)*.28,duration:.35,ease:'power2.out'});});
+  wrap.addEventListener('mouseleave',()=>gsap.to(btn,{x:0,y:0,duration:.6,ease:'elastic.out(1,0.5)'}));
+});
+
+/* ── PRELOADER ───────────────────────────────────────────── */
+(function(){
+  const count=document.getElementById('loaderCount'),bar=document.getElementById('loaderBar');
+  let n=0;const iv=setInterval(()=>{
+    n=Math.min(n+Math.floor(Math.random()*4)+2,100);
+    count.textContent=n;bar.style.width=n+'%';
+    if(n>=100){clearInterval(iv);setTimeout(()=>{
+      gsap.to('#loader',{yPercent:-100,duration:.9,ease:'power3.inOut',onComplete:()=>document.getElementById('loader').remove()});
+      gsap.to('#heroEyebrow',{opacity:1,duration:.7,ease:'power3.out',delay:.1});
+      setTimeout(()=>{
+        const s=new SplitType('#heroH1',{types:'chars'});
+        gsap.fromTo(s.chars,{opacity:0,y:'100%',rotate:6},{opacity:1,y:'0%',rotate:0,duration:.7,stagger:.025,ease:'back.out(1.4)'});
+        gsap.to('#heroSub',{opacity:1,y:0,duration:.8,ease:'power3.out',delay:.25});
+      },200);
+    },300);}
+  },30);
+})();
+
+
+/* ── HERO IMG PARALLAX ───────────────────────────────────── */
+gsap.to('.hero-img img',{yPercent:12,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+
+/* ── TODAY HOURS HIGHLIGHT ───────────────────────────────── */
+const today=new Date().getDay();
+document.querySelectorAll('[data-day]').forEach(el=>{
+  if(+el.dataset.day===today)el.classList.add('today');
+});
+
+/* ── SPLIT TEXT ──────────────────────────────────────────── */
+document.querySelectorAll('[data-split]').forEach(el=>{
+  const s=new SplitType(el,{types:'chars,words'});
+  gsap.fromTo(s.chars,{opacity:0,y:'60%',rotate:4},{opacity:1,y:'0%',rotate:0,duration:.65,stagger:.018,ease:'back.out(1.2)',scrollTrigger:{trigger:el,start:'top 85%',once:true}});
+});
+
+/* ── FADE UP ─────────────────────────────────────────────── */
+document.querySelectorAll('.fade-up').forEach((el,i)=>{
+  gsap.fromTo(el,{opacity:0,y:36},{opacity:1,y:0,duration:.8,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 86%',once:true},delay:(i%4)*.08});
+});
+
+/* ── COUNTER ─────────────────────────────────────────────── */
+document.querySelectorAll('[data-count]').forEach(el=>{
+  const t=+el.dataset.count;
+  ScrollTrigger.create({trigger:el,start:'top 82%',once:true,onEnter:()=>gsap.fromTo(el,{textContent:0},{textContent:t,duration:1.8,ease:'power2.out',snap:{textContent:1},onUpdate(){el.textContent=Math.round(+el.textContent);}})});
+});
+
+/* ── SMOOTH ANCHOR ───────────────────────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();lenis.scrollTo(t,{offset:-72});}
+  });
+});
+</script>
+</body>
+</html>

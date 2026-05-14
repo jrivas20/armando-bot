@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apply — GLJ Luxury Booking Management</title>
+<meta name="description" content="Apply for membership in GLJ's private network of elite tattoo artists. By application only. Limited spots.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Apply — GLJ Luxury Booking Management">
+<meta property="og:description" content="Not everyone qualifies. The application takes 3 minutes. We review every submission personally.">
+<meta property="og:image" content="https://glj-management.com/og-image.jpg">
+<meta property="og:url" content="https://glj-management.com/apply">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="robots" content="noindex">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800;900&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+<!-- GSAP -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/SplitText.min.js"></script>
+
+<!-- Lenis -->
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.0.42/dist/lenis.min.js"></script>
+
+<style>
+/* ─── GHL NUCLEAR OVERRIDE ─────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;max-width:100%;overflow-x:hidden;background:#0A0A0A}
+body>div,body>section,.container,.wrapper,.row,.col,
+[class*="c-section"],[class*="c-row"],[class*="c-column"],[class*="c-wrapper"],
+[class*="hl-page"],[class*="page-section"]{
+  max-width:100%!important;padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important
+}
+
+/* ─── TOKENS ───────────────────────────────────────────────────────────────── */
+:root{
+  --black:#0A0A0A;--deep-black:#000000;
+  --gold:#D4AF37;--gold-light:#E6C757;--gold-dark:#A8862B;
+  --white:#FFFFFF;--cream:#F5F1E8;
+  --gray-100:#E5E5E5;--gray-400:#888888;--gray-600:#555555;--gray-700:#3A3A3A;--gray-900:#1A1A1A;
+  --success:#4ADE80;--error:#EF4444;
+  --bebas:'Bebas Neue',sans-serif;
+  --mont:'Montserrat',sans-serif;
+  --ral:'Raleway',sans-serif;
+  --serif:'DM Serif Display',serif;
+  --ease-luxury:cubic-bezier(0.16,1,0.3,1);
+  --ease-micro:cubic-bezier(0.4,0,0.2,1);
+  --max:760px;
+}
+
+/* ─── GLOBAL ───────────────────────────────────────────────────────────────── */
+html{scroll-behavior:auto}
+body{font-family:var(--ral);color:var(--white);background:var(--black);cursor:none;-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font-family:var(--ral);cursor:none;border:none;background:none}
+::selection{background:var(--gold);color:var(--black)}
+@media(hover:none){body{cursor:auto}button{cursor:pointer}a{cursor:pointer}}
+
+/* ─── CURSOR ───────────────────────────────────────────────────────────────── */
+.glj-cursor-dot{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s var(--ease-micro);mix-blend-mode:difference}
+.glj-cursor-ring{position:fixed;width:40px;height:40px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;opacity:.4;transform:translate(-50%,-50%);transition:width .3s var(--ease-micro),height .3s var(--ease-micro),opacity .3s var(--ease-micro)}
+.glj-cursor-ring.grow{width:72px;height:72px;opacity:.8}
+@media(hover:none){.glj-cursor-dot,.glj-cursor-ring{display:none}}
+
+/* ─── NAV ──────────────────────────────────────────────────────────────────── */
+#glj-nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1.5rem 0;background:rgba(10,10,10,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.glj-nav-inner{display:flex;align-items:center;justify-content:space-between;width:min(1280px,calc(100% - 4rem));margin:0 auto}
+.glj-nav-logo{display:flex;align-items:center;gap:.75rem;text-decoration:none}
+.glj-nav-back{font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);transition:color .3s;display:flex;align-items:center;gap:.5rem}
+.glj-nav-back:hover{color:var(--white)}
+.glj-nav-back svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* ─── PAGE SHELL ───────────────────────────────────────────────────────────── */
+.ap-shell{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:10rem 2rem 6rem;position:relative}
+.ap-shell::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(212,175,55,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+.ap-inner{width:100%;max-width:var(--max);position:relative;z-index:1}
+
+/* ─── HEADER ───────────────────────────────────────────────────────────────── */
+.ap-header{text-align:center;margin-bottom:4rem}
+.ap-label{font-size:11px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:1rem}
+.ap-title{font-family:var(--mont);font-weight:800;font-size:clamp(40px,5vw,64px);line-height:1;letter-spacing:-.02em;margin-bottom:1.25rem}
+.ap-sub{font-size:16px;line-height:1.65;color:var(--gray-400);max-width:480px;margin:0 auto}
+
+/* ─── PROGRESS ─────────────────────────────────────────────────────────────── */
+.ap-progress{margin-bottom:3rem}
+.ap-progress-track{display:flex;align-items:center;justify-content:center;gap:0}
+.ap-step-dot{display:flex;flex-direction:column;align-items:center;gap:.5rem;position:relative}
+.ap-step-dot-inner{width:36px;height:36px;border-radius:50%;border:1px solid var(--gray-700);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--gray-400);transition:all .5s var(--ease-luxury);position:relative;z-index:1;background:var(--black)}
+.ap-step-dot.active .ap-step-dot-inner{border-color:var(--gold);color:var(--gold);box-shadow:0 0 20px rgba(212,175,55,.25)}
+.ap-step-dot.done .ap-step-dot-inner{border-color:var(--gold);background:var(--gold);color:var(--black)}
+.ap-step-dot-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-600);white-space:nowrap;transition:color .5s}
+.ap-step-dot.active .ap-step-dot-label{color:var(--gold)}
+.ap-step-dot.done .ap-step-dot-label{color:var(--gray-400)}
+.ap-step-line{flex:1;max-width:80px;height:1px;background:var(--gray-700);position:relative;transition:background .5s var(--ease-luxury)}
+.ap-step-line.done{background:var(--gold)}
+
+/* ─── FORM CARD ────────────────────────────────────────────────────────────── */
+.ap-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);padding:3rem;position:relative;overflow:hidden}
+.ap-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent)}
+@media(max-width:600px){.ap-card{padding:2rem 1.5rem}}
+
+/* ─── STEP PANELS ──────────────────────────────────────────────────────────── */
+.ap-panel{display:none;animation:panelIn .5s var(--ease-luxury) both}
+.ap-panel.active{display:block}
+@keyframes panelIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes panelOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-24px)}}
+.ap-panel.exit{animation:panelOut .3s var(--ease-micro) both}
+
+.ap-panel-label{font-size:10px;font-weight:500;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem;display:block}
+.ap-panel-title{font-family:var(--mont);font-weight:700;font-size:clamp(22px,3vw,30px);line-height:1.1;margin-bottom:.5rem}
+.ap-panel-sub{font-size:14px;color:var(--gray-400);margin-bottom:2.5rem;line-height:1.6}
+
+/* ─── FIELDS ───────────────────────────────────────────────────────────────── */
+.ap-field{margin-bottom:1.5rem}
+.ap-field-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+@media(max-width:600px){.ap-field-row{grid-template-columns:1fr}}
+
+.ap-label{display:block;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:.6rem}
+.ap-label span{color:var(--gold);margin-left:.2rem}
+
+.ap-input,.ap-select,.ap-textarea{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  color:var(--white);
+  font-family:var(--ral);font-size:15px;
+  padding:.85rem 1.1rem;
+  outline:none;
+  transition:border-color .3s var(--ease-micro),background .3s var(--ease-micro),box-shadow .3s var(--ease-micro);
+  appearance:none;-webkit-appearance:none;
+}
+.ap-input::placeholder,.ap-textarea::placeholder{color:rgba(255,255,255,.25)}
+.ap-input:focus,.ap-select:focus,.ap-textarea:focus{
+  border-color:var(--gold);
+  background:rgba(212,175,55,.04);
+  box-shadow:0 0 0 1px rgba(212,175,55,.15);
+}
+.ap-input.error,.ap-select.error,.ap-textarea.error{border-color:var(--error);box-shadow:0 0 0 1px rgba(239,68,68,.15)}
+.ap-textarea{resize:vertical;min-height:110px;line-height:1.6}
+
+.ap-select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 1rem center;
+  padding-right:2.5rem;
+  cursor:none;
+}
+@media(hover:none){.ap-select{cursor:pointer}}
+
+.ap-field-hint{font-size:12px;color:var(--gray-400);margin-top:.4rem;line-height:1.5}
+.ap-field-error{font-size:12px;color:var(--error);margin-top:.4rem;display:none}
+.ap-field.has-error .ap-field-error{display:block}
+
+/* ─── RADIO / CHECKBOX TILES ───────────────────────────────────────────────── */
+.ap-tiles{display:grid;gap:.75rem}
+.ap-tiles.cols-2{grid-template-columns:1fr 1fr}
+.ap-tiles.cols-3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:600px){.ap-tiles.cols-2,.ap-tiles.cols-3{grid-template-columns:1fr 1fr}}
+@media(max-width:380px){.ap-tiles.cols-3{grid-template-columns:1fr}}
+
+.ap-tile{position:relative}
+.ap-tile input{position:absolute;opacity:0;pointer-events:none}
+.ap-tile label{
+  display:block;padding:.85rem 1rem;
+  border:1px solid rgba(255,255,255,.1);
+  font-size:13px;font-weight:500;color:rgba(255,255,255,.6);
+  text-align:center;line-height:1.4;
+  transition:all .3s var(--ease-micro);
+  cursor:none;
+}
+@media(hover:none){.ap-tile label{cursor:pointer}}
+.ap-tile label small{display:block;font-size:11px;font-weight:400;color:rgba(255,255,255,.35);margin-top:.15rem}
+.ap-tile input:checked + label{
+  border-color:var(--gold);
+  background:rgba(212,175,55,.08);
+  color:var(--gold);
+}
+.ap-tile label:hover{border-color:rgba(212,175,55,.4);color:rgba(255,255,255,.9)}
+
+/* ─── NAV BUTTONS ──────────────────────────────────────────────────────────── */
+.ap-nav{display:flex;align-items:center;justify-content:space-between;margin-top:2.5rem;gap:1rem}
+.ap-btn-next{display:inline-flex;align-items:center;gap:.75rem;font-family:var(--ral);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.9rem 2.25rem;border:1px solid var(--gold);color:var(--gold);background:transparent;transition:all .3s var(--ease-micro);position:relative;overflow:hidden}
+.ap-btn-next::before{content:'';position:absolute;inset:0;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease-micro)}
+.ap-btn-next:hover::before{transform:scaleX(1)}
+.ap-btn-next span,.ap-btn-next svg{position:relative;z-index:1;transition:color .3s var(--ease-micro)}
+.ap-btn-next:hover span,.ap-btn-next:hover svg{color:var(--black);stroke:var(--black)}
+.ap-btn-next svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke .3s var(--ease-micro)}
+.ap-btn-next:disabled{opacity:.4;pointer-events:none}
+
+.ap-btn-back{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--ral);font-size:13px;font-weight:500;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase;transition:color .3s}
+.ap-btn-back:hover{color:var(--white)}
+.ap-btn-back svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+.ap-btn-submit{display:inline-flex;align-items:center;gap:.75rem;font-family:var(--ral);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.9rem 2.25rem;border:1px solid var(--gold);color:var(--black);background:var(--gold);transition:all .3s var(--ease-micro);position:relative;overflow:hidden}
+.ap-btn-submit:hover{background:var(--gold-light);border-color:var(--gold-light)}
+.ap-btn-submit:disabled{opacity:.5;pointer-events:none}
+
+/* ─── TRUST STRIP ──────────────────────────────────────────────────────────── */
+.ap-trust{display:flex;align-items:center;justify-content:center;gap:2rem;margin-top:2rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,.06);flex-wrap:wrap}
+.ap-trust-item{display:flex;align-items:center;gap:.5rem;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.ap-trust-item svg{width:14px;height:14px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* ─── CONFIRMATION SCREEN ──────────────────────────────────────────────────── */
+#ap-confirm{display:none;text-align:center}
+#ap-confirm.visible{display:block;animation:panelIn .7s var(--ease-luxury) both}
+
+.ap-pyramid{width:120px;height:120px;margin:0 auto 2.5rem;position:relative}
+.ap-pyramid svg{width:100%;height:100%;overflow:visible}
+.ap-pyramid-path{fill:none;stroke:var(--gold);stroke-width:1;opacity:0;stroke-dasharray:400;stroke-dashoffset:400}
+.ap-pyramid-fill{fill:rgba(212,175,55,.08);opacity:0}
+.ap-pyramid-center{fill:var(--gold);opacity:0}
+
+.ap-confirm-label{font-size:11px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:1rem}
+.ap-confirm-title{font-family:var(--mont);font-weight:800;font-size:clamp(32px,4vw,52px);line-height:1;letter-spacing:-.02em;margin-bottom:1rem}
+.ap-confirm-sub{font-size:16px;color:var(--gray-400);line-height:1.65;max-width:400px;margin:0 auto 2.5rem}
+
+.ap-confirm-details{display:flex;flex-direction:column;gap:.75rem;margin:0 auto 2.5rem;max-width:380px;text-align:left;padding:1.75rem;border:1px solid rgba(212,175,55,.15);background:rgba(212,175,55,.04)}
+.ap-confirm-row{display:flex;align-items:flex-start;gap:.75rem;font-size:14px;line-height:1.5}
+.ap-confirm-row svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.5;flex-shrink:0;margin-top:.1rem}
+.ap-confirm-row span{color:var(--gray-400)}
+
+.ap-confirm-home{display:inline-flex;align-items:center;gap:.5rem;font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);transition:color .3s}
+.ap-confirm-home:hover{color:var(--white)}
+
+/* ─── LOADING OVERLAY ──────────────────────────────────────────────────────── */
+.ap-loading{position:fixed;inset:0;background:rgba(10,10,10,.9);z-index:9000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem}
+.ap-loading.active{display:flex}
+.ap-loading-ring{width:48px;height:48px;border:1px solid rgba(212,175,55,.3);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ap-loading-text{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray-400)}
+
+/* ─── FOOTER ───────────────────────────────────────────────────────────────── */
+.ap-footer{text-align:center;margin-top:3rem;font-size:12px;color:rgba(255,255,255,.2);line-height:1.6}
+.ap-footer a{color:rgba(212,175,55,.4);transition:color .3s}
+.ap-footer a:hover{color:var(--gold)}
+
+/* ─── STEP COUNTER (mobile) ────────────────────────────────────────────────── */
+.ap-mobile-step{display:none;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--gray-400);text-align:center;margin-bottom:1.5rem}
+@media(max-width:480px){
+  .ap-mobile-step{display:block}
+  .ap-step-dot-label{display:none}
+  .ap-step-line{max-width:40px}
+}
+</style>
+</head>
+<body>
+
+<!-- ─── CURSOR ─────────────────────────────────────────────────────────────── -->
+<div class="glj-cursor-dot" id="cursorDot"></div>
+<div class="glj-cursor-ring" id="cursorRing"></div>
+
+<!-- ─── LOADING OVERLAY ────────────────────────────────────────────────────── -->
+<div class="ap-loading" id="apLoading">
+  <div class="ap-loading-ring"></div>
+  <p class="ap-loading-text">Submitting your application…</p>
+</div>
+
+<!-- ─── NAV ───────────────────────────────────────────────────────────────── -->
+<nav id="glj-nav">
+  <div class="glj-nav-inner">
+    <a class="glj-nav-logo" href="/" style="display:flex;align-items:center;gap:.75rem">
+      <img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/69f2d4d9fc17decc45134d1a.png"
+           alt="GLJ" width="36" height="36" style="object-fit:contain;mix-blend-mode:screen;-webkit-mix-blend-mode:screen;display:block">
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.16em;color:var(--white)">GLJ <span style="color:var(--gold)">MANAGEMENT</span></span>
+    </a>
+    <a class="glj-nav-back" href="/">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Home
+    </a>
+  </div>
+</nav>
+
+<!-- ─── PAGE ───────────────────────────────────────────────────────────────── -->
+<div class="ap-shell">
+  <div class="ap-inner">
+
+    <!-- HEADER -->
+    <div class="ap-header" id="apHeader">
+      <span class="ap-label">By Application Only</span>
+      <h1 class="ap-title">Apply for <span style="color:var(--gold)">Membership</span></h1>
+      <p class="ap-sub">Not everyone qualifies. The application takes 3 minutes. We review every submission personally — you'll hear from us within 48 hours.</p>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="ap-progress" id="apProgress">
+      <p class="ap-mobile-step" id="mobileStep">Step 1 of 4</p>
+      <div class="ap-progress-track">
+        <div class="ap-step-dot active" data-step="1" id="dot1">
+          <div class="ap-step-dot-inner">1</div>
+          <span class="ap-step-dot-label">About</span>
+        </div>
+        <div class="ap-step-line" id="line1"></div>
+        <div class="ap-step-dot" data-step="2" id="dot2">
+          <div class="ap-step-dot-inner">2</div>
+          <span class="ap-step-dot-label">Practice</span>
+        </div>
+        <div class="ap-step-line" id="line2"></div>
+        <div class="ap-step-dot" data-step="3" id="dot3">
+          <div class="ap-step-dot-inner">3</div>
+          <span class="ap-step-dot-label">Pain</span>
+        </div>
+        <div class="ap-step-line" id="line3"></div>
+        <div class="ap-step-dot" data-step="4" id="dot4">
+          <div class="ap-step-dot-inner">4</div>
+          <span class="ap-step-dot-label">Fit</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM CARD -->
+    <div class="ap-card" id="apCard">
+
+      <!-- ── STEP 1: ABOUT YOU ─────────────────────────────────────────────── -->
+      <div class="ap-panel active" id="panel1">
+        <span class="ap-panel-label">Step 1 of 4</span>
+        <h2 class="ap-panel-title">About You</h2>
+        <p class="ap-panel-sub">How we'll reach you — and where we'll find your work.</p>
+
+        <div class="ap-field-row">
+          <div class="ap-field" id="f-firstName">
+            <label class="ap-label" for="firstName">First Name<span>*</span></label>
+            <input class="ap-input" type="text" id="firstName" name="firstName" placeholder="Marcus" autocomplete="given-name">
+            <p class="ap-field-error">First name is required.</p>
+          </div>
+          <div class="ap-field" id="f-lastName">
+            <label class="ap-label" for="lastName">Last Name<span>*</span></label>
+            <input class="ap-input" type="text" id="lastName" name="lastName" placeholder="Rivera" autocomplete="family-name">
+            <p class="ap-field-error">Last name is required.</p>
+          </div>
+        </div>
+
+        <div class="ap-field" id="f-instagram">
+          <label class="ap-label" for="instagram">Instagram Handle<span>*</span></label>
+          <input class="ap-input" type="text" id="instagram" name="instagram" placeholder="@your_handle">
+          <p class="ap-field-hint">This is how we verify your work.</p>
+          <p class="ap-field-error">Instagram handle is required.</p>
+        </div>
+
+        <div class="ap-field-row">
+          <div class="ap-field" id="f-email">
+            <label class="ap-label" for="email">Email<span>*</span></label>
+            <input class="ap-input" type="email" id="email" name="email" placeholder="you@studio.com" autocomplete="email">
+            <p class="ap-field-error">A valid email is required.</p>
+          </div>
+          <div class="ap-field" id="f-phone">
+            <label class="ap-label" for="phone">Phone<span>*</span></label>
+            <input class="ap-input" type="tel" id="phone" name="phone" placeholder="(555) 000-0000" autocomplete="tel">
+            <p class="ap-field-error">A valid phone number is required.</p>
+          </div>
+        </div>
+
+        <div class="ap-field" id="f-city">
+          <label class="ap-label" for="city">City<span>*</span></label>
+          <select class="ap-select" id="city" name="city">
+            <option value="" disabled selected>Select your city…</option>
+            <option value="new-york">New York, NY</option>
+            <option value="los-angeles">Los Angeles, CA</option>
+            <option value="miami">Miami, FL</option>
+            <option value="las-vegas">Las Vegas, NV</option>
+            <option value="chicago">Chicago, IL</option>
+            <option value="houston">Houston, TX</option>
+            <option value="dallas">Dallas, TX</option>
+            <option value="phoenix">Phoenix, AZ</option>
+            <option value="atlanta">Atlanta, GA</option>
+            <option value="other">Other</option>
+          </select>
+          <p class="ap-field-error">Please select your city.</p>
+        </div>
+
+        <div class="ap-nav">
+          <div></div>
+          <button class="ap-btn-next" id="next1" type="button">
+            <span>Continue</span>
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: PRACTICE ──────────────────────────────────────────────── -->
+      <div class="ap-panel" id="panel2">
+        <span class="ap-panel-label">Step 2 of 4</span>
+        <h2 class="ap-panel-title">Your Practice</h2>
+        <p class="ap-panel-sub">Help us understand where you're at so we can place you correctly.</p>
+
+        <div class="ap-field" id="f-experience">
+          <label class="ap-label">Years of Experience<span>*</span></label>
+          <div class="ap-tiles cols-2">
+            <div class="ap-tile">
+              <input type="radio" name="experience" id="exp1" value="1-3 years">
+              <label for="exp1">1–3 Years<small>Building foundation</small></label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="experience" id="exp2" value="3-5 years">
+              <label for="exp2">3–5 Years<small>Established artist</small></label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="experience" id="exp3" value="5-10 years">
+              <label for="exp3">5–10 Years<small>Senior level</small></label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="experience" id="exp4" value="10+ years">
+              <label for="exp4">10+ Years<small>Master level</small></label>
+            </div>
+          </div>
+          <p class="ap-field-error">Please select your experience level.</p>
+        </div>
+
+        <div class="ap-field" id="f-style">
+          <label class="ap-label" for="style">Primary Style Focus<span>*</span></label>
+          <select class="ap-select" id="style" name="style">
+            <option value="" disabled selected>Select your specialty…</option>
+            <option value="fine-line">Fine Line / Micro Realism</option>
+            <option value="black-grey">Black &amp; Grey Realism</option>
+            <option value="color-realism">Color Realism / Portraits</option>
+            <option value="traditional">Traditional / Neo-Traditional</option>
+            <option value="japanese">Japanese / Irezumi</option>
+            <option value="geometric">Geometric / Dotwork / Mandala</option>
+            <option value="illustrative">Illustrative / Sketch Style</option>
+            <option value="watercolor">Watercolor / Abstract</option>
+            <option value="blackwork">Blackwork / Tribal</option>
+            <option value="other">Other / Mixed Styles</option>
+          </select>
+          <p class="ap-field-error">Please select your style.</p>
+        </div>
+
+        <div class="ap-field" id="f-setting">
+          <label class="ap-label">Studio Setup<span>*</span></label>
+          <div class="ap-tiles cols-3">
+            <div class="ap-tile">
+              <input type="radio" name="setting" id="set1" value="Solo / private studio">
+              <label for="set1">Solo<small>Private studio</small></label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="setting" id="set2" value="Shared studio / booth rent">
+              <label for="set2">Booth Rent<small>Shared space</small></label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="setting" id="set3" value="Shop employee">
+              <label for="set3">Shop<small>Employed</small></label>
+            </div>
+          </div>
+          <p class="ap-field-error">Please select your studio setup.</p>
+        </div>
+
+        <div class="ap-field" id="f-ticket">
+          <label class="ap-label">Average Ticket per Session<span>*</span></label>
+          <div class="ap-tiles cols-2">
+            <div class="ap-tile">
+              <input type="radio" name="ticket" id="tix1" value="Under $300">
+              <label for="tix1">Under $300</label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="ticket" id="tix2" value="$300–$500">
+              <label for="tix2">$300–$500</label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="ticket" id="tix3" value="$500–$800">
+              <label for="tix3">$500–$800</label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="ticket" id="tix4" value="$800+">
+              <label for="tix4">$800+</label>
+            </div>
+          </div>
+          <p class="ap-field-error">Please select your average ticket.</p>
+        </div>
+
+        <div class="ap-nav">
+          <button class="ap-btn-back" id="back2" type="button">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+          <button class="ap-btn-next" id="next2" type="button">
+            <span>Continue</span>
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: PAIN ──────────────────────────────────────────────────── -->
+      <div class="ap-panel" id="panel3">
+        <span class="ap-panel-label">Step 3 of 4</span>
+        <h2 class="ap-panel-title">Where You're Stuck</h2>
+        <p class="ap-panel-sub">We fix these problems daily. Being honest here gets you the most accurate recommendation.</p>
+
+        <div class="ap-field" id="f-bottleneck">
+          <label class="ap-label">Biggest Bottleneck Right Now<span>*</span></label>
+          <div class="ap-tiles cols-2">
+            <div class="ap-tile">
+              <input type="radio" name="bottleneck" id="bn1" value="Not enough inquiries coming in">
+              <label for="bn1">Not Enough Inquiries<small>Need more leads</small></label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="bottleneck" id="bn2" value="Too many ghost / low-quality inquiries">
+              <label for="bn2">Too Many Ghosts<small>Low-quality leads</small></label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="bottleneck" id="bn3" value="Calendar management is chaos">
+              <label for="bn3">Calendar Chaos<small>Hard to manage bookings</small></label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="bottleneck" id="bn4" value="No system — handling everything manually">
+              <label for="bn4">No System<small>Everything is manual</small></label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="bottleneck" id="bn5" value="Not charging enough / undervalued">
+              <label for="bn5">Undercharging<small>Below market value</small></label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="bottleneck" id="bn6" value="Not visible enough online">
+              <label for="bn6">Invisible Online<small>Low social / search presence</small></label>
+            </div>
+          </div>
+          <p class="ap-field-error">Please select your biggest bottleneck.</p>
+        </div>
+
+        <div class="ap-field" id="f-inquiries">
+          <label class="ap-label" for="inquiries">How You Currently Handle Inquiries<span>*</span></label>
+          <select class="ap-select" id="inquiries" name="inquiries">
+            <option value="" disabled selected>Select your current method…</option>
+            <option value="DMs on Instagram manually">DMs on Instagram — manually</option>
+            <option value="Email — no template or system">Email — no real system</option>
+            <option value="Linktree / booking link — they figure it out">Linktree or booking link</option>
+            <option value="Third-party platform (StyleSeat, Square, etc.)">Third-party platform (StyleSeat, Square, etc.)</option>
+            <option value="Custom booking form on my website">Custom booking form on my website</option>
+            <option value="Word of mouth — no digital process">Word of mouth — no digital process</option>
+            <option value="No consistent process">No consistent process</option>
+          </select>
+          <p class="ap-field-error">Please select how you handle inquiries.</p>
+        </div>
+
+        <div class="ap-field" id="f-agency">
+          <label class="ap-label">Prior Marketing or Agency Experience<span>*</span></label>
+          <div class="ap-tiles cols-2">
+            <div class="ap-tile">
+              <input type="radio" name="agency" id="ag1" value="Never worked with an agency">
+              <label for="ag1">Never Worked With an Agency</label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="agency" id="ag2" value="Tried it, didn't work out">
+              <label for="ag2">Tried It — Didn't Work</label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="agency" id="ag3" value="Currently working with someone">
+              <label for="ag3">Currently Working With Someone</label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="agency" id="ag4" value="Ran my own ads / social">
+              <label for="ag4">Ran My Own Ads / Social</label>
+            </div>
+          </div>
+          <p class="ap-field-error">Please select your prior experience.</p>
+        </div>
+
+        <div class="ap-nav">
+          <button class="ap-btn-back" id="back3" type="button">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+          <button class="ap-btn-next" id="next3" type="button">
+            <span>Continue</span>
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 4: FIT ────────────────────────────────────────────────────── -->
+      <div class="ap-panel" id="panel4">
+        <span class="ap-panel-label">Step 4 of 4</span>
+        <h2 class="ap-panel-title">The Right Fit</h2>
+        <p class="ap-panel-sub">Last step. This helps us match you to the right tier and prepare before we speak.</p>
+
+        <div class="ap-field" id="f-tier">
+          <label class="ap-label">Tier You're Interested In<span>*</span></label>
+          <div class="ap-tiles">
+            <div class="ap-tile">
+              <input type="radio" name="tier" id="tier1" value="Signature — Core systems + booking automation">
+              <label for="tier1" style="text-align:left;display:flex;align-items:flex-start;gap:1rem">
+                <div>
+                  <strong style="font-family:var(--mont);font-size:15px;display:block;margin-bottom:.2rem;color:inherit">Signature</strong>
+                  <small style="text-align:left">Core systems + booking automation — for artists ready to get structured</small>
+                </div>
+              </label>
+            </div>
+            <div class="ap-tile" style="position:relative">
+              <div style="position:absolute;top:.75rem;right:.75rem;font-size:9px;letter-spacing:.18em;text-transform:uppercase;background:var(--gold);color:var(--black);padding:.2rem .55rem;font-weight:700;pointer-events:none;z-index:2">MOST POPULAR</div>
+              <input type="radio" name="tier" id="tier2" value="Elite — Full growth stack + concierge booking + campaigns">
+              <label for="tier2" style="text-align:left;display:flex;align-items:flex-start;gap:1rem">
+                <div>
+                  <strong style="font-family:var(--mont);font-size:15px;display:block;margin-bottom:.2rem;color:inherit">Elite</strong>
+                  <small style="text-align:left">Full growth stack + concierge booking + campaigns — for artists scaling past 6 figures</small>
+                </div>
+              </label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="tier" id="tier3" value="Prestige — White-glove concierge + full marketing team — done for you">
+              <label for="tier3" style="text-align:left;display:flex;align-items:flex-start;gap:1rem">
+                <div>
+                  <strong style="font-family:var(--mont);font-size:15px;display:block;margin-bottom:.2rem;color:inherit">Prestige</strong>
+                  <small style="text-align:left">White-glove concierge + full marketing team — completely hands-off for you</small>
+                </div>
+              </label>
+            </div>
+            <div class="ap-tile">
+              <input type="radio" name="tier" id="tier4" value="Not sure — need a recommendation">
+              <label for="tier4" style="text-align:left">
+                <strong style="font-family:var(--mont);font-size:15px;display:block;margin-bottom:.2rem;color:inherit">Not Sure</strong>
+                <small style="text-align:left">Recommend the right tier for me based on my answers</small>
+              </label>
+            </div>
+          </div>
+          <p class="ap-field-error">Please select a tier.</p>
+        </div>
+
+        <div class="ap-field" id="f-startDate">
+          <label class="ap-label" for="startDate">Ideal Start Date<span>*</span></label>
+          <select class="ap-select" id="startDate" name="startDate">
+            <option value="" disabled selected>Select a timeframe…</option>
+            <option value="ASAP — within 1 week">ASAP — within 1 week</option>
+            <option value="This month — within 2-4 weeks">This month — within 2–4 weeks</option>
+            <option value="Next month">Next month</option>
+            <option value="1-3 months from now">1–3 months from now</option>
+            <option value="Just exploring for now">Just exploring for now</option>
+          </select>
+          <p class="ap-field-error">Please select a start timeframe.</p>
+        </div>
+
+        <div class="ap-field">
+          <label class="ap-label" for="extra">Anything Else We Should Know?</label>
+          <textarea class="ap-textarea" id="extra" name="extra" placeholder="Tell us about your goals, concerns, or anything that'll help us prepare for our call…"></textarea>
+          <p class="ap-field-hint">Optional — but specifics always help.</p>
+        </div>
+
+        <div class="ap-nav">
+          <button class="ap-btn-back" id="back4" type="button">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+          <button class="ap-btn-submit" id="submitBtn" type="button">
+            <span>Submit Application</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--black)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /ap-card -->
+
+    <!-- TRUST STRIP -->
+    <div class="ap-trust" id="apTrust">
+      <div class="ap-trust-item">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Reviewed in 48 hours
+      </div>
+      <div class="ap-trust-item">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        100% Confidential
+      </div>
+      <div class="ap-trust-item">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        No commitment required
+      </div>
+    </div>
+
+    <!-- CONFIRMATION -->
+    <div id="ap-confirm" class="ap-card" style="margin-top:0">
+      <div class="ap-pyramid" id="apPyramid">
+        <svg viewBox="0 0 120 120">
+          <polygon class="ap-pyramid-fill" id="pyramidFill" points="60,10 110,100 10,100"/>
+          <polygon class="ap-pyramid-path" id="pyramidPath" points="60,10 110,100 10,100"/>
+          <circle class="ap-pyramid-center" id="pyramidCenter" cx="60" cy="67" r="4"/>
+        </svg>
+      </div>
+      <span class="ap-confirm-label">Application Received</span>
+      <h2 class="ap-confirm-title">You're on the <span style="color:var(--gold)">List.</span></h2>
+      <p class="ap-confirm-sub">We've received your application and will personally review it within 48 hours. If it's a fit, you'll get a direct message to schedule your strategy call.</p>
+      <div class="ap-confirm-details">
+        <div class="ap-confirm-row">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.1 11.5a19.79 19.79 0 01-3.07-8.63A2 2 0 013 .82h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L7.91 8a16 16 0 006.29 6.29l.82-.82a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 15.92z"/></svg>
+          <span>We'll reach out via DM or email within 48 hours.</span>
+        </div>
+        <div class="ap-confirm-row">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span>Come prepared: know your monthly revenue, follower count, and what you want to fix first.</span>
+        </div>
+        <div class="ap-confirm-row">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>The call is 30 minutes, no pitch — just strategy and fit assessment.</span>
+        </div>
+      </div>
+      <a class="ap-confirm-home" href="/">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to GLJ Home
+      </a>
+    </div>
+
+    <!-- FOOTER -->
+    <p class="ap-footer">
+      &copy; 2025 GLJ Luxury Booking Management · All rights reserved<br>
+      <a href="/privacy">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms">Terms of Service</a>
+    </p>
+
+  </div><!-- /ap-inner -->
+</div><!-- /ap-shell -->
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* GHL NUCLEAR OVERRIDE                                                         */
+/* ─────────────────────────────────────────────────────────────────────────── */
+(function(){
+  function enforceOverride(){
+    ['background','backgroundColor'].forEach(function(p){
+      document.documentElement.style[p]='#0A0A0A';
+      document.body.style[p]='#0A0A0A';
+    });
+    var allEls=document.querySelectorAll('body *');
+    var gljEls=['AP-','GLJ-','ap-','glj-'];
+    allEls.forEach(function(el){
+      var cls=el.className||'';
+      var isOwn=typeof cls==='string'&&gljEls.some(function(p){return cls.indexOf(p)>-1;});
+      if(!isOwn&&!['SCRIPT','STYLE','LINK','META','HEAD','HTML','BODY'].includes(el.tagName)){
+        var cs=getComputedStyle(el);
+        if(cs.maxWidth&&cs.maxWidth!=='none'&&parseFloat(cs.maxWidth)<window.innerWidth){
+          el.style.setProperty('max-width','100%','important');
+        }
+      }
+    });
+  }
+  enforceOverride();
+  var obs=new MutationObserver(enforceOverride);
+  obs.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});
+  document.addEventListener('DOMContentLoaded',enforceOverride);
+})();
+
+/* ─── LENIS SMOOTH SCROLL ────────────────────────────────────────────────── */
+var lenis;
+document.addEventListener('DOMContentLoaded',function(){
+  lenis=new Lenis({lerp:.08,smooth:true});
+  function raf(t){lenis.raf(t);requestAnimationFrame(raf);}
+  requestAnimationFrame(raf);
+});
+
+/* ─── CUSTOM CURSOR ──────────────────────────────────────────────────────── */
+(function(){
+  if(window.matchMedia('(hover:none)').matches)return;
+  var dot=document.getElementById('cursorDot');
+  var ring=document.getElementById('cursorRing');
+  if(!dot||!ring)return;
+  var mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+  function animateRing(){
+    rx+=(mx-rx)*.12;ry+=(my-ry)*.12;
+    ring.style.left=rx+'px';ring.style.top=ry+'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+  document.querySelectorAll('a,button,.ap-tile label,.ap-btn-next,.ap-btn-back,.ap-btn-submit').forEach(function(el){
+    el.addEventListener('mouseenter',function(){ring.classList.add('grow');});
+    el.addEventListener('mouseleave',function(){ring.classList.remove('grow');});
+  });
+})();
+
+/* ─── MULTI-STEP FORM LOGIC ──────────────────────────────────────────────── */
+var currentStep=1;
+var totalSteps=4;
+var formData={};
+
+/* ── Progress updater ── */
+function setStep(n){
+  currentStep=n;
+  // update dots
+  for(var i=1;i<=totalSteps;i++){
+    var dot=document.getElementById('dot'+i);
+    var inner=dot.querySelector('.ap-step-dot-inner');
+    dot.classList.remove('active','done');
+    if(i<n){dot.classList.add('done');inner.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';}
+    else if(i===n){dot.classList.add('active');inner.textContent=i;}
+    else{inner.textContent=i;}
+    if(i<totalSteps){
+      var line=document.getElementById('line'+i);
+      if(i<n)line.classList.add('done');
+      else line.classList.remove('done');
+    }
+  }
+  // mobile step label
+  var ms=document.getElementById('mobileStep');
+  if(ms)ms.textContent='Step '+n+' of '+totalSteps;
+  // show panel
+  for(var j=1;j<=totalSteps;j++){
+    document.getElementById('panel'+j).classList.remove('active');
+  }
+  document.getElementById('panel'+n).classList.add('active');
+  // scroll to card
+  setTimeout(function(){
+    var card=document.getElementById('apCard');
+    if(card)card.scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
+}
+
+/* ── Validation ── */
+function validateStep(n){
+  var valid=true;
+  if(n===1){
+    var fields=[
+      {id:'firstName',  required:true,  errId:'f-firstName'},
+      {id:'lastName',   required:true,  errId:'f-lastName'},
+      {id:'instagram',  required:true,  errId:'f-instagram'},
+      {id:'email',      required:true,  type:'email', errId:'f-email'},
+      {id:'phone',      required:true,  type:'phone', errId:'f-phone'},
+      {id:'city',       required:true,  errId:'f-city'},
+    ];
+    fields.forEach(function(f){
+      var el=document.getElementById(f.id);
+      var fw=document.getElementById(f.errId);
+      var v=el.value.trim();
+      var ok=true;
+      if(f.required&&!v)ok=false;
+      if(ok&&f.type==='email'&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))ok=false;
+      if(ok&&f.type==='phone'&&v.replace(/\D/g,'').length<10)ok=false;
+      if(!ok){
+        el.classList.add('error');
+        if(fw)fw.classList.add('has-error');
+        valid=false;
+      }else{
+        el.classList.remove('error');
+        if(fw)fw.classList.remove('has-error');
+      }
+    });
+  }
+  if(n===2){
+    var radioGroups=['experience','setting','ticket'];
+    radioGroups.forEach(function(name){
+      var checked=document.querySelector('input[name="'+name+'"]:checked');
+      var fw=document.getElementById('f-'+name);
+      if(!checked){valid=false;if(fw)fw.classList.add('has-error');}
+      else{if(fw)fw.classList.remove('has-error');}
+    });
+    var styleEl=document.getElementById('style');
+    var sfw=document.getElementById('f-style');
+    if(!styleEl.value){valid=false;styleEl.classList.add('error');if(sfw)sfw.classList.add('has-error');}
+    else{styleEl.classList.remove('error');if(sfw)sfw.classList.remove('has-error');}
+  }
+  if(n===3){
+    var rg3=['bottleneck','agency'];
+    rg3.forEach(function(name){
+      var checked=document.querySelector('input[name="'+name+'"]:checked');
+      var fw=document.getElementById('f-'+name);
+      if(!checked){valid=false;if(fw)fw.classList.add('has-error');}
+      else{if(fw)fw.classList.remove('has-error');}
+    });
+    var inqEl=document.getElementById('inquiries');
+    var ifw=document.getElementById('f-inquiries');
+    if(!inqEl.value){valid=false;inqEl.classList.add('error');if(ifw)ifw.classList.add('has-error');}
+    else{inqEl.classList.remove('error');if(ifw)ifw.classList.remove('has-error');}
+  }
+  if(n===4){
+    var checked4=document.querySelector('input[name="tier"]:checked');
+    var tfw=document.getElementById('f-tier');
+    if(!checked4){valid=false;if(tfw)tfw.classList.add('has-error');}
+    else{if(tfw)tfw.classList.remove('has-error');}
+    var sdEl=document.getElementById('startDate');
+    var sdfw=document.getElementById('f-startDate');
+    if(!sdEl.value){valid=false;sdEl.classList.add('error');if(sdfw)sdfw.classList.add('has-error');}
+    else{sdEl.classList.remove('error');if(sdfw)sdfw.classList.remove('has-error');}
+  }
+  return valid;
+}
+
+/* ── Collect data ── */
+function collectStep(n){
+  if(n===1){
+    formData.firstName=document.getElementById('firstName').value.trim();
+    formData.lastName=document.getElementById('lastName').value.trim();
+    formData.fullName=formData.firstName+' '+formData.lastName;
+    formData.instagram=document.getElementById('instagram').value.trim();
+    formData.email=document.getElementById('email').value.trim();
+    formData.phone=document.getElementById('phone').value.trim();
+    formData.city=document.getElementById('city').options[document.getElementById('city').selectedIndex].text;
+  }
+  if(n===2){
+    formData.experience=document.querySelector('input[name="experience"]:checked').value;
+    formData.style=document.getElementById('style').options[document.getElementById('style').selectedIndex].text;
+    formData.setting=document.querySelector('input[name="setting"]:checked').value;
+    formData.ticket=document.querySelector('input[name="ticket"]:checked').value;
+  }
+  if(n===3){
+    formData.bottleneck=document.querySelector('input[name="bottleneck"]:checked').value;
+    formData.inquiries=document.getElementById('inquiries').options[document.getElementById('inquiries').selectedIndex].text;
+    formData.agency=document.querySelector('input[name="agency"]:checked').value;
+  }
+  if(n===4){
+    formData.tier=document.querySelector('input[name="tier"]:checked').value;
+    formData.startDate=document.getElementById('startDate').options[document.getElementById('startDate').selectedIndex].text;
+    formData.extra=document.getElementById('extra').value.trim();
+  }
+}
+
+/* ── Button events ── */
+document.getElementById('next1').addEventListener('click',function(){
+  if(validateStep(1)){collectStep(1);setStep(2);}
+});
+document.getElementById('next2').addEventListener('click',function(){
+  if(validateStep(2)){collectStep(2);setStep(3);}
+});
+document.getElementById('next3').addEventListener('click',function(){
+  if(validateStep(3)){collectStep(3);setStep(4);}
+});
+document.getElementById('back2').addEventListener('click',function(){setStep(1);});
+document.getElementById('back3').addEventListener('click',function(){setStep(2);});
+document.getElementById('back4').addEventListener('click',function(){setStep(3);});
+
+/* ── SUBMIT ── */
+document.getElementById('submitBtn').addEventListener('click',function(){
+  if(!validateStep(4))return;
+  collectStep(4);
+  submitApplication();
+});
+
+/* ─── SUBMISSION ─────────────────────────────────────────────────────────── */
+function submitApplication(){
+  var loading=document.getElementById('apLoading');
+  loading.classList.add('active');
+
+  /* ── GHL Webhook Payload ── */
+  var payload={
+    /* GHL contact fields */
+    firstName:       formData.firstName,
+    lastName:        formData.lastName,
+    name:            formData.fullName,
+    email:           formData.email,
+    phone:           formData.phone,
+    /* Custom fields */
+    instagram:       formData.instagram,
+    city:            formData.city,
+    experience:      formData.experience,
+    styleSpecialty:  formData.style,
+    studioSetup:     formData.setting,
+    avgTicket:       formData.ticket,
+    biggestPain:     formData.bottleneck,
+    inquiryProcess:  formData.inquiries,
+    agencyHistory:   formData.agency,
+    tierInterest:    formData.tier,
+    startDate:       formData.startDate,
+    notes:           formData.extra||'—',
+    /* Meta */
+    source:          'GLJ Apply Page',
+    tags:            ['glj-applicant','tattoo-artist'],
+    pipeline:        'GLJ Applications',
+    pipelineStage:   'New Application',
+  };
+
+  /* ── POST to GHL Inbound Webhook ── */
+  var GHL_WEBHOOK='https://services.leadconnectorhq.com/hooks/d7iUPfamAaPlSBNj6IhT/webhook-trigger/glj-apply';
+
+  fetch(GHL_WEBHOOK,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload),
+  })
+  .then(function(r){return r;})
+  .catch(function(){/* fail silently — show confirmation anyway */})
+  .finally(function(){
+    loading.classList.remove('active');
+    showConfirmation();
+  });
+}
+
+/* ─── CONFIRMATION SCREEN ────────────────────────────────────────────────── */
+function showConfirmation(){
+  /* Hide form elements */
+  document.getElementById('apCard').style.display='none';
+  document.getElementById('apProgress').style.display='none';
+  document.getElementById('apTrust').style.display='none';
+  document.getElementById('apHeader').style.display='none';
+
+  /* Show confirmation */
+  var confirm=document.getElementById('ap-confirm');
+  confirm.style.display='block';
+  confirm.classList.add('visible');
+
+  /* Pyramid animation */
+  setTimeout(function(){animatePyramid();},200);
+
+  /* Scroll to top */
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function animatePyramid(){
+  if(typeof gsap==='undefined')return;
+  var fill=document.getElementById('pyramidFill');
+  var path=document.getElementById('pyramidPath');
+  var center=document.getElementById('pyramidCenter');
+  var pathEl=document.querySelector('.ap-pyramid-path');
+
+  /* Draw outline */
+  gsap.set(pathEl,{strokeDashoffset:400,opacity:0});
+  gsap.to(pathEl,{strokeDashoffset:0,opacity:1,duration:1.4,ease:'power2.out',delay:.2});
+  /* Fade fill */
+  gsap.to(fill,{opacity:1,duration:.8,ease:'power2.out',delay:1.2});
+  /* Pop center dot */
+  gsap.fromTo(center,
+    {opacity:0,scale:0,transformOrigin:'60px 67px'},
+    {opacity:1,scale:1,duration:.5,ease:'back.out(2)',delay:1.6}
+  );
+  /* Pulse */
+  gsap.to(center,{
+    scale:1.4,transformOrigin:'60px 67px',
+    repeat:-1,yoyo:true,duration:1.2,ease:'sine.inOut',delay:2.2
+  });
+}
+
+/* ─── LIVE FIELD CLEAR-ERROR ─────────────────────────────────────────────── */
+document.querySelectorAll('.ap-input,.ap-select,.ap-textarea').forEach(function(el){
+  el.addEventListener('input',function(){
+    el.classList.remove('error');
+    var fw=el.closest('.ap-field');
+    if(fw)fw.classList.remove('has-error');
+  });
+  el.addEventListener('change',function(){
+    el.classList.remove('error');
+    var fw=el.closest('.ap-field');
+    if(fw)fw.classList.remove('has-error');
+  });
+});
+
+document.querySelectorAll('.ap-tile input').forEach(function(inp){
+  inp.addEventListener('change',function(){
+    var fw=inp.closest('.ap-field')||inp.parentElement.parentElement;
+    if(fw)fw.classList.remove('has-error');
+  });
+});
+
+/* ─── GSAP REVEAL ON LOAD ────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded',function(){
+  if(typeof gsap!=='undefined'&&typeof SplitText!=='undefined'){
+    var title=document.querySelector('.ap-title');
+    if(title){
+      var split=new SplitText(title,{type:'words'});
+      gsap.from(split.words,{
+        y:40,opacity:0,duration:1,ease:'power3.out',stagger:.08,delay:.2
+      });
+    }
+    gsap.from('.ap-label',{y:20,opacity:0,duration:.8,ease:'power3.out',delay:.1});
+    gsap.from('.ap-sub',{y:20,opacity:0,duration:.8,ease:'power3.out',delay:.35});
+    gsap.from('#apProgress',{y:20,opacity:0,duration:.8,ease:'power3.out',delay:.5});
+    gsap.from('#apCard',{y:30,opacity:0,duration:1,ease:'power3.out',delay:.6});
+    gsap.from('#apTrust',{y:20,opacity:0,duration:.8,ease:'power3.out',delay:.8});
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- ── SWAP THESE PER ATHLETE ─────────────────────────────── -->
+<title>Marcus Thompson | WR · Evans High School | JRZ Sports</title>
+<meta name="description" content="Marcus Thompson — Wide Receiver, Evans High School, Class of 2026. 6'1 · 175lbs · 4.45 40-yd · 3.8 GPA. Recruiting profile powered by JRZ Sports.">
+<meta property="og:title" content="Marcus Thompson | WR · Evans HS | JRZ Sports">
+<meta property="og:description" content="Recruiting profile — Wide Receiver, Class of 2026, Orlando, FL. Available for college recruitment and brand partnerships.">
+<meta property="og:type" content="profile">
+<meta property="og:image" content="ATHLETE_HEADSHOT_URL_HERE">
+<!-- ─────────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,800;0,900;1,800;1,900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
+
+<style>
+/* ── GHL OVERRIDE ───────────────────────────────────────── */
+html,body,.c-section,.c-wrapper,.row-container,.c-row,.c-column,.vertical,.full,
+.hl-builder,.hl_page-preview,#full-width-row,.section,.inner,.container,
+.container-fluid,.row,section.c-section,div[data-default-columns],
+[class*="container"],[class*="section"],[class*="wrapper"],[class*="inner"],
+[class*="full-width"],[class*="hl_"],[id*="section"],[id*="row"]{
+  max-width:100%!important;width:100%!important;
+  margin-left:0!important;margin-right:0!important;
+  padding-left:0!important;padding-right:0!important;
+  box-sizing:border-box!important;overflow-x:hidden!important;}
+html,body{overflow-x:hidden!important;}
+
+/* ── VARS ───────────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --black:#060608;--dark:#0c0d12;--card:#111319;--card2:#16181f;
+  --blue:#1E54F0;--blue2:#3B6FF5;--gold:#F5A623;
+  --white:#fff;--gray:#55586a;--gray2:#8a8d9f;
+  --fd:'Barlow Condensed',Impact,sans-serif;
+  --fb:'Inter',system-ui,sans-serif;
+  --g:clamp(20px,4vw,72px);
+  --sp:clamp(64px,8vw,120px);
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+}
+html{scroll-behavior:auto;}
+body{font-family:var(--fb);background:var(--black);color:var(--white);
+  -webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden;cursor:none;}
+a{color:inherit;text-decoration:none;}
+img{display:block;width:100%;height:100%;object-fit:cover;}
+
+/* ── CURSOR ─────────────────────────────────────────────── */
+#cursor-ball{position:fixed;width:10px;height:10px;border-radius:50%;
+  background:var(--blue);pointer-events:none;z-index:99999;
+  mix-blend-mode:difference;transform:translate(-50%,-50%);}
+#cursor-ring{position:fixed;width:36px;height:36px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.35);pointer-events:none;z-index:99998;
+  transform:translate(-50%,-50%);}
+
+/* ── FILM GRAIN ─────────────────────────────────────────── */
+#grain{position:fixed;inset:0;z-index:99990;pointer-events:none;opacity:.026;
+  animation:grainAnim .4s steps(1) infinite;}
+@keyframes grainAnim{0%{transform:translate(0,0)}20%{transform:translate(-2px,2px)}40%{transform:translate(2px,-2px)}60%{transform:translate(-1px,1px)}80%{transform:translate(1px,-1px)}100%{transform:translate(0,0)}}
+
+/* ── LOADER ─────────────────────────────────────────────── */
+#loader{position:fixed;inset:0;z-index:9998;background:var(--black);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.loader-count{font-family:var(--fd);font-size:clamp(80px,18vw,200px);
+  font-style:italic;font-weight:900;line-height:.85;color:var(--white);}
+.loader-bar-wrap{width:clamp(180px,24vw,320px);height:1px;
+  background:rgba(255,255,255,.1);margin-top:28px;overflow:hidden;}
+.loader-bar-fill{height:100%;width:0%;background:var(--blue);}
+.loader-sub{margin-top:14px;font-size:9px;font-weight:700;letter-spacing:.3em;
+  text-transform:uppercase;color:rgba(255,255,255,.28);}
+
+/* ── PROFILE HERO ─────────────────────────────────────────── */
+.profile-hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;}
+.ph-bg{position:absolute;inset:0;z-index:1;overflow:hidden;}
+.ph-bg-img{width:100%;height:110%;object-fit:cover;object-position:center 15%;
+  transform-origin:center;will-change:transform;}
+.ph-overlay{position:absolute;inset:0;z-index:2;
+  background:linear-gradient(to bottom,rgba(6,6,8,.2) 0%,rgba(6,6,8,.45) 40%,rgba(6,6,8,.98) 100%);}
+.ph-inner{position:relative;z-index:3;
+  padding:0 var(--g) clamp(56px,8vh,100px);width:100%;}
+.ph-agency{display:flex;align-items:center;gap:10px;margin-bottom:20px;
+  font-size:9px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--gold);opacity:0;transform:translateY(12px);}
+.ph-agency::before{content:'';width:24px;height:1.5px;background:var(--gold);}
+.ph-agency a{color:var(--gold);}
+.ph-name{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(60px,10vw,160px);line-height:.86;text-transform:uppercase;
+  letter-spacing:-.01em;opacity:0;}
+.ph-name .char{display:inline-block;transform:translateY(110%) rotate(4deg);opacity:0;}
+.ph-sport-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:20px;margin-bottom:32px;opacity:0;}
+.ph-sport-badge{background:var(--blue);font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(11px,1.2vw,14px);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 14px;color:#fff;}
+.ph-sport-detail{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.45);}
+.ph-cta-row{display:flex;gap:14px;flex-wrap:wrap;opacity:0;}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;
+  background:var(--blue);color:#fff;font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(13px,1.15vw,16px);letter-spacing:.06em;text-transform:uppercase;
+  padding:15px 30px;border:none;cursor:none;transition:background .25s,transform .25s;}
+.btn-primary:hover{background:var(--blue2);transform:translateY(-2px);}
+.btn-ghost{display:inline-flex;align-items:center;gap:10px;
+  background:transparent;color:#fff;font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(13px,1.15vw,16px);letter-spacing:.06em;text-transform:uppercase;
+  padding:14px 30px;border:1px solid rgba(255,255,255,.28);cursor:none;
+  transition:border-color .25s,color .25s;}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue);}
+
+/* ── STAT BAR ─────────────────────────────────────────────── */
+.stat-bar{background:var(--card);display:flex;align-items:stretch;flex-wrap:wrap;}
+.stat-item{flex:1;min-width:120px;padding:clamp(20px,2.5vw,32px) clamp(20px,3vw,44px);
+  border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;justify-content:center;}
+.stat-item:last-child{border-right:none;}
+.stat-val{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(24px,3vw,40px);color:var(--white);line-height:1;}
+.stat-val span{color:var(--blue);}
+.stat-label{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gray2);margin-top:5px;}
+
+/* ── BIO SPLIT ────────────────────────────────────────────── */
+.bio-sect{padding:var(--sp) var(--g);background:var(--black);}
+.bio-split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(48px,7vw,100px);align-items:start;}
+.bio-pre{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--blue);display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.bio-pre::before{content:'';width:24px;height:1px;background:var(--blue);}
+.bio-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(36px,5vw,72px);line-height:.88;text-transform:uppercase;margin-bottom:24px;}
+.bio-body{font-size:15px;color:var(--gray2);line-height:1.78;margin-bottom:32px;}
+.bio-details{display:flex;flex-direction:column;gap:12px;}
+.bio-detail-row{display:flex;align-items:center;gap:16px;padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);}
+.bio-detail-label{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gray2);min-width:120px;}
+.bio-detail-val{font-size:14px;font-weight:500;color:var(--white);}
+.bio-img-wrap{position:relative;}
+.bio-img{width:100%;aspect-ratio:3/4;object-fit:cover;}
+
+/* ── HIGHLIGHT VIDEO ──────────────────────────────────────── */
+.video-sect{padding:var(--sp) var(--g);background:var(--dark);}
+.video-pre{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--blue);display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.video-pre::before{content:'';width:24px;height:1px;background:var(--blue);}
+.video-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(36px,5vw,72px);line-height:.88;text-transform:uppercase;
+  margin-bottom:clamp(32px,4vw,56px);}
+.video-embed{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;background:#000;}
+.video-embed iframe,.video-embed video{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.video-caption{margin-top:16px;font-size:12px;color:var(--gray2);letter-spacing:.06em;}
+
+/* ── PHOTO GALLERY ────────────────────────────────────────── */
+.gallery-sect{padding:var(--sp) var(--g);background:var(--black);}
+.gallery-pre{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--blue);display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.gallery-pre::before{content:'';width:24px;height:1px;background:var(--blue);}
+.gallery-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(36px,5vw,72px);line-height:.88;text-transform:uppercase;
+  margin-bottom:clamp(32px,4vw,56px);}
+/* Masonry-style CSS grid */
+.photo-grid{display:grid;gap:3px;
+  grid-template-columns:repeat(4,1fr);
+  grid-template-rows:auto;}
+.pg-item{overflow:hidden;position:relative;cursor:none;}
+.pg-item.tall{grid-row:span 2;}
+.pg-item.wide{grid-column:span 2;}
+.pg-img{width:100%;height:100%;min-height:220px;object-fit:cover;
+  transition:transform .6s var(--ease-out);}
+.pg-item:hover .pg-img{transform:scale(1.04);}
+/* Lightbox overlay on hover */
+.pg-caption{position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(to top,rgba(6,6,8,.9) 0%,transparent 100%);
+  padding:16px;opacity:0;transition:opacity .3s;}
+.pg-item:hover .pg-caption{opacity:1;}
+.pg-caption span{font-size:10px;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--blue);}
+/* Update note for JRZ -->
+/* TO ADD PHOTOS: Add <div class="pg-item"><img class="pg-img" src="CLOUDINARY_URL"></div> */
+/* TO ADD TALL: class="pg-item tall" | TO ADD WIDE: class="pg-item wide" */
+
+/* ── ACHIEVEMENTS ─────────────────────────────────────────── */
+.achieve-sect{padding:var(--sp) var(--g);background:var(--dark);}
+.achieve-pre{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--blue);display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.achieve-pre::before{content:'';width:24px;height:1px;background:var(--blue);}
+.achieve-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(36px,5vw,72px);line-height:.88;text-transform:uppercase;
+  margin-bottom:clamp(32px,4vw,56px);}
+.achieve-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
+.achieve-card{background:var(--card);padding:clamp(24px,3vw,40px);position:relative;overflow:hidden;}
+.achieve-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:0;
+  background:var(--gold);transition:height .4s var(--ease-out);}
+.achieve-card:hover::before{height:100%;}
+.achieve-year{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;}
+.achieve-title{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(18px,2vw,24px);text-transform:uppercase;margin-bottom:8px;}
+.achieve-desc{font-size:13px;color:var(--gray2);line-height:1.6;}
+
+/* ── CONTACT SECTION ──────────────────────────────────────── */
+.recruit-sect{padding:var(--sp) var(--g);background:var(--black);}
+.recruit-split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(48px,7vw,100px);align-items:start;}
+.recruit-pre{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--blue);display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.recruit-pre::before{content:'';width:24px;height:1px;background:var(--blue);}
+.recruit-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(36px,5vw,72px);line-height:.88;text-transform:uppercase;margin-bottom:20px;}
+.recruit-body{font-size:15px;color:var(--gray2);line-height:1.75;margin-bottom:32px;}
+.recruit-contact-items{display:flex;flex-direction:column;gap:16px;}
+.recruit-contact-item{display:flex;align-items:center;gap:16px;padding:18px;background:var(--card);}
+.rc-icon{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.rc-icon svg{width:20px;height:20px;stroke:var(--blue);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.rc-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gray2);margin-bottom:3px;}
+.rc-val{font-size:14px;font-weight:600;color:var(--white);}
+.recruit-form iframe{width:100%;min-height:560px;border:none;display:block;}
+
+/* ── CTA STRIP ───────────────────────────────────────────── */
+.cta-strip{background:var(--blue);padding:clamp(48px,6vw,80px) var(--g);
+  display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;}
+.cta-strip-text{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(28px,4.5vw,64px);line-height:.9;text-transform:uppercase;color:#fff;}
+.cta-strip-right{display:flex;flex-direction:column;align-items:flex-end;gap:16px;}
+.btn-dark{display:inline-flex;align-items:center;gap:10px;
+  background:#000;color:#fff;font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(13px,1.2vw,16px);letter-spacing:.06em;text-transform:uppercase;
+  padding:16px 32px;border:none;cursor:none;transition:opacity .25s;}
+.btn-dark:hover{opacity:.75;}
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.footer{background:var(--dark);padding:clamp(40px,5vw,72px) var(--g);
+  display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:28px;
+  border-top:1px solid rgba(255,255,255,.06);}
+.foot-logo{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(20px,2.5vw,34px);text-transform:uppercase;}
+.foot-logo em{color:var(--blue);}
+.foot-info{font-size:11px;color:rgba(255,255,255,.22);line-height:1.7;text-align:right;}
+.foot-info a{color:var(--blue);}
+
+/* ── SHARED ──────────────────────────────────────────────── */
+.fade-up{opacity:0;transform:translateY(32px);}
+
+/* ── MOBILE ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  .profile-hero{align-items:flex-start!important;min-height:100svh;}
+  .ph-inner{padding-top:clamp(88px,22svh,140px)!important;padding-bottom:clamp(32px,5svh,56px)!important;text-align:center;}
+  .ph-agency{justify-content:center;}
+  .ph-sport-row{justify-content:center;}
+  .ph-cta-row{justify-content:center;}
+  .stat-bar{flex-wrap:wrap;}
+  .stat-item{min-width:50%;border-bottom:1px solid rgba(255,255,255,.06);}
+  .bio-split{grid-template-columns:1fr;}
+  .bio-img-wrap{order:-1;}
+  .bio-img{aspect-ratio:16/9;}
+  .photo-grid{grid-template-columns:1fr 1fr;}
+  .pg-item.tall,.pg-item.wide{grid-row:unset;grid-column:unset;}
+  .achieve-grid{grid-template-columns:1fr;}
+  .recruit-split{grid-template-columns:1fr;}
+  .cta-strip{flex-direction:column;text-align:center;}
+  .cta-strip-right{align-items:center;}
+  .footer{flex-direction:column;text-align:center;}
+  .foot-info{text-align:center;}
+}
+@media(max-width:480px){
+  .photo-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- FILM GRAIN -->
+<svg id="grain" xmlns="http://www.w3.org/2000/svg" style="position:fixed;inset:0;z-index:99990;pointer-events:none;width:100%;height:100%;opacity:.026;">
+  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency=".65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  <rect width="100%" height="100%" filter="url(#noise)" opacity="1"/>
+</svg>
+
+<!-- CURSOR -->
+<div id="cursor-ball"></div>
+<div id="cursor-ring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-count" id="loaderCount">0</div>
+  <div class="loader-bar-wrap"><div class="loader-bar-fill" id="loaderBar"></div></div>
+  <div class="loader-sub" id="loaderSub">Marcus Thompson · WR · Evans HS</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROFILE HERO                                            -->
+<!-- SWAP: ph-bg-img src, athlete name, sport badge, school  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="profile-hero" id="profileHero">
+  <div class="ph-bg">
+    <!-- ── SWAP: Replace with athlete's hero photo/action shot ── -->
+    <img class="ph-bg-img" id="phBg"
+      src="https://images.pexels.com/photos/2526878/pexels-photo-2526878.jpeg?auto=compress&cs=tinysrgb&w=1920"
+      alt="Marcus Thompson — WR, Evans High School" loading="eager">
+    <div class="ph-overlay"></div>
+  </div>
+  <div class="ph-inner">
+    <div class="ph-agency" id="phAgency">
+      <a href="/">JRZ Sports</a> · Athlete Profile
+    </div>
+    <!-- ── SWAP: Athlete full name ── -->
+    <h1 class="ph-name" id="phName">Marcus Thompson</h1>
+    <div class="ph-sport-row" id="phSportRow">
+      <!-- ── SWAP: Sport · Position ── -->
+      <span class="ph-sport-badge">Football · WR</span>
+      <span class="ph-sport-detail">Evans High School</span>
+      <span class="ph-sport-detail">·</span>
+      <span class="ph-sport-detail">Class of 2026</span>
+      <span class="ph-sport-detail">·</span>
+      <span class="ph-sport-detail">Orlando, FL</span>
+    </div>
+    <div class="ph-cta-row" id="phCtaRow">
+      <a href="#recruit" class="btn-primary">Contact for Recruiting →</a>
+      <a href="#video" class="btn-ghost">Watch Highlights</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STAT BAR — SWAP each stat per athlete                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="stat-bar">
+  <div class="stat-item fade-up">
+    <div class="stat-val">6<span>'1"</span></div>
+    <div class="stat-label">Height</div>
+  </div>
+  <div class="stat-item fade-up" style="transition-delay:.05s">
+    <div class="stat-val">175<span>lbs</span></div>
+    <div class="stat-label">Weight</div>
+  </div>
+  <div class="stat-item fade-up" style="transition-delay:.1s">
+    <div class="stat-val">4.<span>45</span></div>
+    <div class="stat-label">40-Yard Dash</div>
+  </div>
+  <div class="stat-item fade-up" style="transition-delay:.15s">
+    <div class="stat-val">3.<span>8</span></div>
+    <div class="stat-label">GPA</div>
+  </div>
+  <div class="stat-item fade-up" style="transition-delay:.2s">
+    <div class="stat-val">2026</div>
+    <div class="stat-label">Grad Year</div>
+  </div>
+  <div class="stat-item fade-up" style="transition-delay:.25s">
+    <div class="stat-val">FL</div>
+    <div class="stat-label">State</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- BIO — SWAP text + photo                                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="bio-sect" id="bio">
+  <div class="bio-split">
+    <div class="fade-up">
+      <div class="bio-pre">About</div>
+      <h2 class="bio-h2" data-split>The<br><span style="color:var(--blue)">Athlete.</span></h2>
+      <!-- ── SWAP: Athlete bio paragraph ── -->
+      <p class="bio-body">Marcus Thompson is a standout wide receiver from Evans High School in Orlando, FL. Known for his elite route running, strong hands in traffic, and competitive motor, Marcus has been a top performer in the Orlando area since his freshman year. He's a coachable, high-character student-athlete who brings intensity to every rep.</p>
+      <div class="bio-details">
+        <div class="bio-detail-row">
+          <span class="bio-detail-label">Full Name</span>
+          <span class="bio-detail-val">Marcus D. Thompson</span>
+        </div>
+        <div class="bio-detail-row">
+          <span class="bio-detail-label">Sport / Position</span>
+          <span class="bio-detail-val">Football · Wide Receiver</span>
+        </div>
+        <div class="bio-detail-row">
+          <span class="bio-detail-label">School</span>
+          <span class="bio-detail-val">Evans High School — Orlando, FL</span>
+        </div>
+        <div class="bio-detail-row">
+          <span class="bio-detail-label">Graduation</span>
+          <span class="bio-detail-val">Spring 2026</span>
+        </div>
+        <div class="bio-detail-row">
+          <span class="bio-detail-label">GPA</span>
+          <span class="bio-detail-val">3.8 / 4.0</span>
+        </div>
+        <div class="bio-detail-row">
+          <span class="bio-detail-label">College Targets</span>
+          <span class="bio-detail-val">UCF, FAU, FIU, FAMU</span>
+        </div>
+        <div class="bio-detail-row">
+          <span class="bio-detail-label">Social</span>
+          <span class="bio-detail-val">@marcust_wr · <a href="#" style="color:var(--blue)">Instagram</a> · <a href="#" style="color:var(--blue)">TikTok</a></span>
+        </div>
+      </div>
+    </div>
+    <div class="bio-img-wrap fade-up" style="transition-delay:.12s">
+      <!-- ── SWAP: Athlete action or portrait photo ── -->
+      <img class="bio-img" src="https://images.pexels.com/photos/3621104/pexels-photo-3621104.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Marcus Thompson">
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- HIGHLIGHT VIDEO — SWAP embed URL                        -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="video-sect" id="video">
+  <div class="video-pre">Highlights</div>
+  <h2 class="video-h2" data-split>Watch The<br><span style="color:var(--blue)">Reel.</span></h2>
+  <!-- Option 1: YouTube embed -->
+  <!-- <div class="video-embed"><iframe src="https://www.youtube.com/embed/VIDEO_ID?rel=0&modestbranding=1" allowfullscreen></iframe></div> -->
+  <!-- Option 2: Cloudinary / direct MP4 -->
+  <div class="video-embed">
+    <video controls playsinline poster="ATHLETE_THUMBNAIL_URL">
+      <source src="ATHLETE_HIGHLIGHT_VIDEO_URL.mp4" type="video/mp4">
+      <!-- Fallback: replace with actual Cloudinary or hosted video URL -->
+    </video>
+  </div>
+  <p class="video-caption fade-up">Marcus Thompson · Highlight Reel · 2024–2025 Season · Evans High School</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PHOTO GALLERY                                           -->
+<!-- ADD PHOTOS: drop new .pg-item divs into .photo-grid    -->
+<!-- Cloudinary URLs go in the src attribute                 -->
+<!-- Add class="tall" for portrait, class="wide" for banner -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="gallery-sect" id="gallery">
+  <div class="gallery-pre">Gallery</div>
+  <h2 class="gallery-h2" data-split>The<br><span style="color:var(--blue)">Photos.</span></h2>
+
+  <div class="photo-grid" id="photoGrid">
+
+    <!-- ── Row 1 ── -->
+    <div class="pg-item tall">
+      <!-- SWAP: Game action shot -->
+      <img class="pg-img" src="https://images.pexels.com/photos/2526878/pexels-photo-2526878.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Marcus Thompson game action">
+      <div class="pg-caption"><span>Game Day · 2024</span></div>
+    </div>
+    <div class="pg-item">
+      <img class="pg-img" src="https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Training">
+      <div class="pg-caption"><span>Training · Summer 2024</span></div>
+    </div>
+    <div class="pg-item">
+      <img class="pg-img" src="https://images.pexels.com/photos/3621104/pexels-photo-3621104.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Portrait">
+      <div class="pg-caption"><span>Profile Shot · 2025</span></div>
+    </div>
+    <div class="pg-item tall">
+      <img class="pg-img" src="https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Awards">
+      <div class="pg-caption"><span>Awards Night · 2024</span></div>
+    </div>
+
+    <!-- ── Row 2 ── -->
+    <div class="pg-item wide">
+      <img class="pg-img" src="https://images.pexels.com/photos/863988/pexels-photo-863988.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Team">
+      <div class="pg-caption"><span>Evans HS Team · 2024</span></div>
+    </div>
+    <div class="pg-item">
+      <img class="pg-img" src="https://images.pexels.com/photos/3076509/pexels-photo-3076509.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Combine">
+      <div class="pg-caption"><span>Combine · Spring 2025</span></div>
+    </div>
+    <div class="pg-item">
+      <img class="pg-img" src="https://images.pexels.com/photos/2526878/pexels-photo-2526878.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Route running">
+      <div class="pg-caption"><span>Route Work · Practice</span></div>
+    </div>
+
+    <!-- ══ TO ADD MORE PHOTOS — paste below ══
+    <div class="pg-item">
+      <img class="pg-img" src="YOUR_CLOUDINARY_URL" alt="Caption">
+      <div class="pg-caption"><span>Your Caption Here</span></div>
+    </div>
+    ══════════════════════════════════════════ -->
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ACHIEVEMENTS — SWAP per athlete                         -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="achieve-sect" id="achievements">
+  <div class="achieve-pre">Achievements</div>
+  <h2 class="achieve-h2" data-split>The<br><span style="color:var(--blue)">Resume.</span></h2>
+  <div class="achieve-grid">
+    <div class="achieve-card fade-up">
+      <div class="achieve-year">2024</div>
+      <div class="achieve-title">All-District First Team</div>
+      <p class="achieve-desc">Selected to All-District First Team WR after recording 48 catches for 720 yards and 9 touchdowns in the 2024 season.</p>
+    </div>
+    <div class="achieve-card fade-up" style="transition-delay:.08s">
+      <div class="achieve-year">2024</div>
+      <div class="achieve-title">Orange County Invitational — MVP</div>
+      <p class="achieve-desc">Named offensive MVP at the Orange County Invitational 7-on-7 tournament with 6 touchdowns across 3 games.</p>
+    </div>
+    <div class="achieve-card fade-up" style="transition-delay:.16s">
+      <div class="achieve-year">2023</div>
+      <div class="achieve-title">Sophomore Varsity Starter</div>
+      <p class="achieve-desc">One of only two sophomores to earn a varsity starting position at Evans HS — played all 10 regular season games as a starter.</p>
+    </div>
+    <!-- ADD MORE: copy .achieve-card block above -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- CONTACT / RECRUIT                                       -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="recruit-sect" id="recruit">
+  <div class="recruit-split">
+    <div class="fade-up">
+      <div class="recruit-pre">Contact</div>
+      <h2 class="recruit-h2" data-split>Recruit<br><span style="color:var(--blue)">Marcus.</span></h2>
+      <p class="recruit-body">College coaches and brand representatives — reach out using the form. JRZ Sports manages all inquiries on Marcus's behalf and responds within 24 hours.</p>
+      <div class="recruit-contact-items">
+        <div class="recruit-contact-item">
+          <div class="rc-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+          <div>
+            <div class="rc-label">Phone / SMS</div>
+            <div class="rc-val">(407) 550-5898 — JRZ Sports</div>
+          </div>
+        </div>
+        <div class="recruit-contact-item">
+          <div class="rc-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div>
+            <div class="rc-label">Email</div>
+            <div class="rc-val">info@jrzmarketing.com</div>
+          </div>
+        </div>
+        <div class="recruit-contact-item">
+          <div class="rc-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+          <div>
+            <div class="rc-label">Managed By</div>
+            <div class="rc-val">JRZ Sports · Orlando, FL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fade-up" style="transition-delay:.12s">
+      <!-- SWAP form ID for JRZ Sports recruiting inquiry form -->
+      <div class="recruit-form">
+        <iframe src="https://links.jrzmarketing.com/widget/form/5XhL0vWCuJ59HWHQoHGG"
+          title="Recruiting Inquiry — Marcus Thompson" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<div class="cta-strip">
+  <div class="cta-strip-text">Want your athlete<br>on the roster?</div>
+  <div class="cta-strip-right">
+    <a href="/" class="btn-dark">Join JRZ Sports →</a>
+    <p style="font-size:11px;color:rgba(255,255,255,.55);">Orlando, FL · Middle &amp; High School Athletes</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>
+    <div class="foot-logo">JRZ <em>Sports</em></div>
+    <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,.3);">Athlete Management · College Recruitment · Brand Deals</div>
+  </div>
+  <div class="foot-info">
+    © 2026 JRZ Sports · Orlando, FL<br>
+    A <a href="https://jrzmarketing.com">JRZ Marketing</a> company<br>
+    <a href="/">Back to JRZ Sports</a>
+  </div>
+</footer>
+
+<script>
+/* ── LENIS ──────────────────────────────────────────────── */
+const lenis=new Lenis({duration:1.15,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t))});
+function raf(time){lenis.raf(time);requestAnimationFrame(raf);}
+requestAnimationFrame(raf);
+lenis.on('scroll',ScrollTrigger.update);
+gsap.ticker.add(time=>lenis.raf(time*1000));
+gsap.ticker.lagSmoothing(0);
+
+/* ── CURSOR ─────────────────────────────────────────────── */
+const ball=document.getElementById('cursor-ball');
+const ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+window.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  gsap.to(ball,{x:mx,y:my,duration:.1,ease:'none'});
+});
+(function animRing(){
+  rx+=(mx-rx)*.1;ry+=(my-ry)*.1;
+  gsap.set(ring,{x:rx,y:ry});requestAnimationFrame(animRing);
+})();
+
+/* ── LOADER ──────────────────────────────────────────────── */
+const countEl=document.getElementById('loaderCount');
+const barEl=document.getElementById('loaderBar');
+let n=0;
+const iv=setInterval(()=>{
+  n+=Math.floor(Math.random()*4)+1;
+  if(n>=100){
+    n=100;clearInterval(iv);
+    setTimeout(()=>{
+      gsap.to('#loader',{yPercent:-100,duration:.9,ease:'expo.inOut',
+        onComplete:()=>{document.getElementById('loader').style.display='none';initPage();}});
+    },200);
+  }
+  countEl.textContent=n;barEl.style.width=n+'%';
+},28);
+
+/* ── PAGE INIT ──────────────────────────────────────────── */
+function initPage(){
+  /* hero parallax */
+  gsap.to('#phBg',{yPercent:18,ease:'none',
+    scrollTrigger:{trigger:'.profile-hero',start:'top top',end:'bottom top',scrub:true}});
+
+  /* hero text entrance */
+  gsap.to('#phAgency',{opacity:1,y:0,duration:.8,ease:'expo.out',delay:.1});
+  const nameSplit=new SplitType('#phName',{types:'chars'});
+  gsap.to(nameSplit.chars,{opacity:1,yPercent:0,rotate:0,stagger:.022,duration:.9,ease:'expo.out',delay:.2});
+  gsap.to('#phSportRow',{opacity:1,duration:.8,ease:'expo.out',delay:.55});
+  gsap.to('#phCtaRow',{opacity:1,y:0,duration:.8,ease:'expo.out',delay:.7});
+
+  /* scroll splits */
+  document.querySelectorAll('[data-split]').forEach(el=>{
+    const st=new SplitType(el,{types:'chars'});
+    gsap.from(st.chars,{yPercent:110,opacity:0,stagger:.022,duration:.8,ease:'expo.out',
+      scrollTrigger:{trigger:el,start:'top 82%',once:true}});
+  });
+
+  /* fade-ups */
+  document.querySelectorAll('.fade-up').forEach(el=>{
+    gsap.to(el,{opacity:1,y:0,duration:.75,ease:'expo.out',
+      scrollTrigger:{trigger:el,start:'top 86%',once:true}});
+  });
+
+  /* stat bar counter animation */
+  document.querySelectorAll('.stat-val').forEach(el=>{
+    const text=el.innerHTML;
+    gsap.from(el,{opacity:0,y:16,duration:.6,ease:'expo.out',
+      scrollTrigger:{trigger:el,start:'top 88%',once:true}});
+  });
+
+  /* photo grid hover reveal — already CSS-driven */
+
+  /* magnetic buttons */
+  document.querySelectorAll('.btn-primary,.btn-ghost,.btn-dark').forEach(btn=>{
+    btn.addEventListener('mousemove',e=>{
+      const r=btn.getBoundingClientRect();
+      gsap.to(btn,{x:(e.clientX-r.left-r.width/2)*.28,y:(e.clientY-r.top-r.height/2)*.28,duration:.3,ease:'power2.out'});
+    });
+    btn.addEventListener('mouseleave',()=>{
+      gsap.to(btn,{x:0,y:0,duration:.7,ease:'elastic.out(1,0.5)'});
+    });
+  });
+}
+
+/* ── SMOOTH ANCHOR ──────────────────────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();lenis.scrollTo(t,{offset:-60});}
+  });
+});
+</script>
+</body>
+</html>

@@ -107,13 +107,19 @@ async function adsMutate(customerId, resource, operations) {
   const cid     = customerId.replace(/-/g, '');
   const headers = await adsHeaders(cid);
 
-  const res = await axios.post(
-    `${BASE_URL}/customers/${cid}/${resource}:mutate`,
-    { operations },
-    { headers }
-  );
-
-  return res.data;
+  try {
+    const res = await axios.post(
+      `${BASE_URL}/customers/${cid}/${resource}:mutate`,
+      { operations },
+      { headers }
+    );
+    return res.data;
+  } catch (err) {
+    const detail = err.response?.data
+      ? JSON.stringify(err.response.data).slice(0, 800)
+      : err.message;
+    throw new Error(`Google Ads [${resource}] ${err.response?.status || ''}: ${detail}`);
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -343,6 +349,7 @@ async function createSearchCampaign(customerId, {
       target_cpa_micros: Math.round(targetCpaUSD * 1e6)
     } : undefined,
     maximize_conversions: bidStrategy === 'MAXIMIZE_CONVERSIONS' ? {} : undefined,
+    target_spend: bidStrategy === 'MAXIMIZE_CLICKS' ? {} : undefined,
     start_date: startDate || new Date().toISOString().slice(0, 10).replace(/-/g, ''),
     contains_eu_political_advertising: 'DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING', // required in v20
   };
@@ -459,8 +466,7 @@ async function createResponsiveSearchAd(customerId, adGroupResourceName, {
       ad_group: adGroupResourceName,
       status: 'PAUSED',
       ad: {
-        final_urls:  [finalUrl],
-        display_url: new URL(finalUrl).hostname,
+        final_urls: [finalUrl],
         responsive_search_ad: {
           headlines:    h,
           descriptions: d,
@@ -846,6 +852,362 @@ async function setLanguageTargeting(customerId, campaignResourceNames = [], lang
   return results;
 }
 
+/**
+ * Add call + sitelink + callout assets to a campaign
+ * config: {
+ *   phone:     '6765394474',
+ *   countryCode: 'US',
+ *   sitelinks: [{ text, url }],
+ *   callouts:  ['Free Estimates', 'Licensed & Insured', ...]
+ * }
+ */
+async function addCampaignExtensions(customerId, campaignResourceName, config = {}) {
+  const cid = customerId.replace(/-/g, '');
+  const log = [];
+
+  // ── 1. Call asset ────────────────────────────────────────────────────────────
+  if (config.phone) {
+    try {
+      const callRes = await adsMutate(cid, 'assets', [{
+        create: {
+          call_asset: {
+            country_code: config.countryCode || 'US',
+            phone_number: config.phone,
+            call_conversion_reporting_state: 'USE_ACCOUNT_LEVEL_CALL_CONVERSION_ACTION',
+          },
+        },
+      }]);
+      const callAssetRN = callRes.results[0].resourceName;
+
+      await adsMutate(cid, 'campaignAssets', [{
+        create: {
+          asset:      callAssetRN,
+          campaign:   campaignResourceName,
+          field_type: 'CALL',
+        },
+      }]);
+      log.push({ type: 'call', asset: callAssetRN, phone: config.phone });
+      console.log(`[Google Ads] Call asset added: ${config.phone}`);
+    } catch (e) {
+      log.push({ type: 'call', error: e.message });
+    }
+  }
+
+  // ── 2. Sitelink assets ───────────────────────────────────────────────────────
+  if (config.sitelinks && config.sitelinks.length) {
+    for (const sl of config.sitelinks) {
+      try {
+        const slInner = { link_text: sl.text.slice(0, 25) };
+        if (sl.desc1) slInner.description1 = sl.desc1.slice(0, 35);
+        if (sl.desc2) slInner.description2 = sl.desc2.slice(0, 35);
+        // In v20, final_urls lives on the outer Asset, not inside sitelink_asset
+        const slRes = await adsMutate(cid, 'assets', [{
+          create: {
+            final_urls:    [sl.url],
+            sitelink_asset: slInner,
+          },
+        }]);
+        const slRN = slRes.results[0].resourceName;
+
+        await adsMutate(cid, 'campaignAssets', [{
+          create: {
+            asset:      slRN,
+            campaign:   campaignResourceName,
+            field_type: 'SITELINK',
+          },
+        }]);
+        log.push({ type: 'sitelink', asset: slRN, text: sl.text });
+      } catch (e) {
+        log.push({ type: 'sitelink', text: sl.text, error: e.message });
+      }
+    }
+    console.log(`[Google Ads] ${config.sitelinks.length} sitelinks added to ${campaignResourceName}`);
+  }
+
+  // ── 3. Callout assets ────────────────────────────────────────────────────────
+  if (config.callouts && config.callouts.length) {
+    for (const text of config.callouts) {
+      try {
+        const coRes = await adsMutate(cid, 'assets', [{
+          create: {
+            callout_asset: { callout_text: text.slice(0, 25) },
+          },
+        }]);
+        const coRN = coRes.results[0].resourceName;
+
+        await adsMutate(cid, 'campaignAssets', [{
+          create: {
+            asset:      coRN,
+            campaign:   campaignResourceName,
+            field_type: 'CALLOUT',
+          },
+        }]);
+        log.push({ type: 'callout', asset: coRN, text });
+      } catch (e) {
+        log.push({ type: 'callout', text, error: e.message });
+      }
+    }
+    console.log(`[Google Ads] ${config.callouts.length} callouts added`);
+  }
+
+  return log;
+}
+
+/**
+ * Create conversion actions for call tracking + website form
+ * Returns array of { name, resourceName, type }
+ */
+async function setupConversionTracking(customerId, { accountName = 'Client' } = {}) {
+  const cid = customerId.replace(/-/g, '');
+  const results = [];
+
+  const conversionDefs = [
+    {
+      name:                        `${accountName} - Calls from Ads`,
+      type:                        'AD_CALL',
+      category:                    'DEFAULT',
+      status:                      'ENABLED',
+      counting_type:               'ONE_PER_CLICK',
+      phone_call_duration_seconds:  60,
+      value_settings: { default_value: 0, always_use_default_value: true },
+    },
+    {
+      name:          `${accountName} - Website Form Leads`,
+      type:          'WEBPAGE',
+      category:      'SUBMIT_LEAD_FORM',
+      status:        'ENABLED',
+      counting_type: 'ONE_PER_CLICK',
+      value_settings: { default_value: 0, always_use_default_value: true },
+    },
+  ];
+
+  for (const conv of conversionDefs) {
+    try {
+      const res = await adsMutate(cid, 'conversionActions', [{ create: conv }]);
+      const rn = res.results[0].resourceName;
+      results.push({ name: conv.name, type: conv.type, resourceName: rn });
+      console.log(`[Google Ads] Conversion action created: ${conv.name} → ${rn}`);
+    } catch (e) {
+      results.push({ name: conv.name, type: conv.type, error: e.message });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Pause all Smart Campaigns in the account (they never perform — replace with Search)
+ */
+async function pauseSmartCampaigns(customerId) {
+  const cid = customerId.replace(/-/g, '');
+
+  const query = `
+    SELECT campaign.resource_name, campaign.name, campaign.status
+    FROM campaign
+    WHERE campaign.advertising_channel_type = 'SMART'
+      AND campaign.status != 'REMOVED'
+  `;
+
+  const rows = await gaqlSearch(cid, query);
+  if (!rows.length) {
+    console.log('[Google Ads] No Smart Campaigns found');
+    return [];
+  }
+
+  const paused = [];
+  for (const row of rows) {
+    const rn = row.campaign?.resourceName;
+    if (!rn) continue;
+    try {
+      await adsMutate(cid, 'campaigns', [{
+        update:      { resource_name: rn, status: 'PAUSED' },
+        update_mask: { paths: ['status'] },
+      }]);
+      paused.push({ name: row.campaign?.name, resourceName: rn });
+      console.log(`[Google Ads] Smart Campaign paused: ${row.campaign?.name}`);
+    } catch (e) {
+      paused.push({ name: row.campaign?.name, error: e.message });
+    }
+  }
+
+  return paused;
+}
+
+/**
+ * Enable all paused ads + ad groups inside a campaign so they serve when campaign is enabled
+ */
+async function enableCampaignAds(customerId, campaignResourceName) {
+  const cid = customerId.replace(/-/g, '');
+
+  // Enable ad groups
+  const agQuery = `
+    SELECT ad_group.resource_name, ad_group.name, ad_group.status
+    FROM ad_group
+    WHERE campaign.resource_name = '${campaignResourceName}'
+      AND ad_group.status = 'PAUSED'
+  `;
+  const agRows = await gaqlSearch(cid, agQuery);
+  for (const row of agRows) {
+    const rn = row.adGroup?.resourceName;
+    if (!rn) continue;
+    await adsMutate(cid, 'adGroups', [{
+      update:      { resource_name: rn, status: 'ENABLED' },
+      update_mask: { paths: ['status'] },
+    }]).catch(() => null);
+  }
+
+  // Enable ads
+  const adQuery = `
+    SELECT ad_group_ad.resource_name, ad_group_ad.status
+    FROM ad_group_ad
+    WHERE campaign.resource_name = '${campaignResourceName}'
+      AND ad_group_ad.status = 'PAUSED'
+  `;
+  const adRows = await gaqlSearch(cid, adQuery);
+  for (const row of adRows) {
+    const rn = row.adGroupAd?.resourceName;
+    if (!rn) continue;
+    await adsMutate(cid, 'adGroupAds', [{
+      update:      { resource_name: rn, status: 'ENABLED' },
+      update_mask: { paths: ['status'] },
+    }]).catch(() => null);
+  }
+
+  console.log(`[Google Ads] Enabled ${agRows.length} ad groups + ${adRows.length} ads in ${campaignResourceName}`);
+  return { adGroupsEnabled: agRows.length, adsEnabled: adRows.length };
+}
+
+/**
+ * Add ad schedule to a campaign (e.g. Mon-Fri 8am-6pm)
+ * days: array of day strings — 'MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'
+ * startHour / endHour: 0-24 (integers)
+ */
+async function addAdSchedule(customerId, campaignResourceName, {
+  days      = ['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY'],
+  startHour = 8,
+  endHour   = 18,
+} = {}) {
+  const cid = customerId.replace(/-/g, '');
+
+  const operations = days.map(day => ({
+    create: {
+      campaign:    campaignResourceName,
+      ad_schedule: {
+        day_of_week:  day,
+        start_hour:   startHour,
+        start_minute: 'ZERO',
+        end_hour:     endHour,
+        end_minute:   'ZERO',
+      },
+    },
+  }));
+
+  const result = await adsMutate(cid, 'campaignCriteria', operations);
+  console.log(`[Google Ads] Ad schedule set: ${days.join(',')} ${startHour}h–${endHour}h → ${campaignResourceName}`);
+  return result;
+}
+
+/**
+ * Add proximity (radius) targeting to a campaign
+ * Uses city-level address + radius in miles
+ */
+async function addProximityTarget(customerId, campaignResourceName, {
+  cityName     = 'Orlando',
+  countryCode  = 'US',
+  provinceCode = 'FL',
+  radius       = 20,
+  radiusUnits  = 'MILES',
+} = {}) {
+  const cid = customerId.replace(/-/g, '');
+
+  const result = await adsMutate(cid, 'campaignCriteria', [{
+    create: {
+      campaign: campaignResourceName,
+      negative: false,
+      proximity: {
+        address: {
+          city_name:    cityName,
+          country_code: countryCode,
+          province_code: provinceCode,
+        },
+        radius,
+        radius_units: radiusUnits,
+      },
+    },
+  }]);
+
+  console.log(`[Google Ads] Proximity target added: ${cityName}, ${provinceCode} ±${radius} ${radiusUnits}`);
+  return result;
+}
+
+/**
+ * Build a FULL search campaign — multiple ad groups, schedule, proximity, negatives
+ * config shape:
+ * {
+ *   name, budget, finalUrl, bidStrategy?,
+ *   adGroups: [{ name, keywords, headlines, descriptions, path1?, path2? }],
+ *   negatives: [],
+ *   schedule: { days?, startHour?, endHour? },
+ *   proximity: { cityName?, countryCode?, provinceCode?, radius?, radiusUnits? },
+ * }
+ */
+async function buildFullSearchCampaign(customerId, config) {
+  const cid = customerId.replace(/-/g, '');
+  const log = [];
+
+  // 1 — Campaign
+  const campaignRN = await createSearchCampaign(cid, {
+    name:           config.name,
+    dailyBudgetUSD: config.budget,
+    bidStrategy:    config.bidStrategy || 'MAXIMIZE_CLICKS',
+    targetCpaUSD:   config.targetCpaUSD || null,
+  });
+  log.push({ step: 'campaign', resourceName: campaignRN });
+
+  // 2 — Ad Groups + Keywords + RSA (one per adGroup config)
+  const adGroupResults = [];
+  for (const ag of (config.adGroups || [])) {
+    const agRN = await createAdGroup(cid, campaignRN, {
+      name:      ag.name,
+      cpcBidUSD: ag.cpcBidUSD || 3.00,
+    });
+
+    await addKeywords(cid, agRN, ag.keywords, ag.matchType || 'PHRASE');
+
+    const adRN = await createResponsiveSearchAd(cid, agRN, {
+      finalUrl:     config.finalUrl,
+      headlines:    ag.headlines,
+      descriptions: ag.descriptions,
+      path1:        ag.path1 || '',
+      path2:        ag.path2 || '',
+    });
+
+    adGroupResults.push({ name: ag.name, adGroupRN: agRN, adRN });
+    log.push({ step: 'adGroup', name: ag.name, adGroupRN: agRN });
+  }
+
+  // 3 — Negative keywords
+  if (config.negatives && config.negatives.length) {
+    await addCampaignNegatives(cid, campaignRN, config.negatives, 'BROAD');
+    log.push({ step: 'negatives', count: config.negatives.length });
+  }
+
+  // 4 — Ad schedule
+  if (config.schedule) {
+    await addAdSchedule(cid, campaignRN, config.schedule);
+    log.push({ step: 'schedule', ...config.schedule });
+  }
+
+  // 5 — Proximity targeting
+  if (config.proximity) {
+    await addProximityTarget(cid, campaignRN, config.proximity);
+    log.push({ step: 'proximity', ...config.proximity });
+  }
+
+  console.log(`[Google Ads] ✅ Full campaign built: ${config.name} — ${adGroupResults.length} ad groups`);
+  return { campaignRN, adGroups: adGroupResults, log, status: 'PAUSED — review before enabling' };
+}
+
 // ─── List All Accessible Customer Accounts ───────────────────────────────────
 // Hits the MCC and returns every sub-account linked under it.
 // Use this to discover customer IDs for all your clients.
@@ -980,6 +1342,9 @@ module.exports = {
   getWeeklyReport,
   getSearchTermsReport,
 
+  // Core
+  adsMutate,
+
   // Write
   createBudget,
   createSearchCampaign,
@@ -993,8 +1358,15 @@ module.exports = {
 
   // Bulk
   buildSearchCampaign,
+  buildFullSearchCampaign,
   optimizeAccount,
   setLanguageTargeting,
+  addAdSchedule,
+  addProximityTarget,
+  addCampaignExtensions,
+  setupConversionTracking,
+  pauseSmartCampaigns,
+  enableCampaignAds,
 
   // Constants
   MANAGER_ID,

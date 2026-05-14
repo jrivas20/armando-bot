@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GLJ Management — Luxury Booking for Elite Tattoo Artists</title>
+<meta name="description" content="The private growth and booking system for elite tattoo artists. AI-powered. Concierge-level. By application only.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="GLJ Management — You Tattoo. We Handle the Empire.">
+<meta property="og:description" content="The private booking system for elite tattoo artists. AI-powered. By application only.">
+<meta property="og:url" content="https://glj-management.com">
+<meta name="theme-color" content="#0A0A0A">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800;900&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.0.42/dist/lenis.min.js"></script>
+
+<style>
+/* ─── GHL NUCLEAR OVERRIDE ─────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;max-width:100%;overflow-x:hidden;background:#0A0A0A}
+body>div,body>section,.container,.wrapper,.row,.col,
+[class*="c-section"],[class*="c-row"],[class*="c-column"],[class*="c-wrapper"],
+[class*="hl-page"],[class*="page-section"]{
+  max-width:100%!important;padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important
+}
+
+/* ─── TOKENS ────────────────────────────────────────────────────────────────── */
+:root{
+  --black:#0A0A0A;--dark:#111111;--surface:#161616;--charcoal:#333333;
+  --gold:#D4AF37;--gold-light:#E6C757;--gold-muted:#9A7B22;
+  --white:#FFFFFF;--gray:#888888;--gray-dim:rgba(255,255,255,.4);
+  --gold-grad:linear-gradient(135deg,#E6C757 0%,#D4AF37 50%,#9A7B22 100%);
+  --border:rgba(255,255,255,.07);--border-gold:rgba(212,175,55,.2);
+  --bebas:'Bebas Neue',sans-serif;
+  --mont:'Montserrat',sans-serif;
+  --ral:'Raleway',sans-serif;
+  --serif:'DM Serif Display',serif;
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+  --ease-micro:cubic-bezier(0.4,0,0.2,1);
+  --max:1240px;
+}
+
+/* ─── GLOBAL ────────────────────────────────────────────────────────────────── */
+html{scroll-behavior:auto}
+body{font-family:var(--ral);color:var(--white);background:var(--black);cursor:none;-webkit-font-smoothing:antialiased}
+img,video{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:var(--ral);cursor:none;border:none;background:none}
+::selection{background:var(--gold);color:var(--black)}
+body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px 200px}
+@media(hover:none){body,button{cursor:auto}a{cursor:pointer}}
+
+/* ─── CURSOR ────────────────────────────────────────────────────────────────── */
+.glj-cursor-dot{position:fixed;width:6px;height:6px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .08s}
+.glj-cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(212,175,55,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .35s var(--ease-out),height .35s var(--ease-out),opacity .35s;opacity:.6}
+.glj-cursor-ring.grow{width:60px;height:60px;opacity:1;border-color:var(--gold)}
+@media(hover:none){.glj-cursor-dot,.glj-cursor-ring{display:none}}
+
+/* ─── LAYOUT ────────────────────────────────────────────────────────────────── */
+.glj-c{width:min(var(--max),calc(100% - 4rem));margin:0 auto}
+@media(max-width:768px){.glj-c{width:calc(100% - 2rem)}}
+
+/* ─── LOGO IMAGE ────────────────────────────────────────────────────────────── */
+.glj-logo-img{display:block;object-fit:contain;mix-blend-mode:screen;-webkit-mix-blend-mode:screen}
+
+/* ─── TYPE ──────────────────────────────────────────────────────────────────── */
+.eyebrow{font-family:var(--ral);font-size:10px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+.gold-text{background:var(--gold-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ─── BUTTONS ───────────────────────────────────────────────────────────────── */
+.btn-gold{display:inline-flex;align-items:center;gap:.65rem;font-family:var(--ral);font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:.9rem 2.25rem;border:1px solid var(--gold);color:var(--gold);background:transparent;position:relative;overflow:hidden;transition:color .3s var(--ease-micro)}
+.btn-gold::before{content:'';position:absolute;inset:0;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease-out)}
+.btn-gold span,.btn-gold svg{position:relative;z-index:1;transition:color .3s,stroke .3s}
+.btn-gold:hover::before{transform:scaleX(1)}
+.btn-gold:hover span{color:var(--black)}
+.btn-gold:hover svg{stroke:var(--black)}
+.btn-ghost{font-family:var(--ral);font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);transition:color .3s}
+.btn-ghost:hover{color:var(--white)}
+
+/* ─── REVEAL ────────────────────────────────────────────────────────────────── */
+[data-r]{opacity:0;transform:translateY(28px)}
+[data-r].in{opacity:1;transform:translateY(0);transition:opacity 1s var(--ease-out),transform 1s var(--ease-out)}
+[data-r][data-delay="1"].in{transition-delay:.1s}
+[data-r][data-delay="2"].in{transition-delay:.2s}
+[data-r][data-delay="3"].in{transition-delay:.3s}
+[data-r][data-delay="4"].in{transition-delay:.4s}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* NAV                                                                         */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#glj-nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1.5rem 0;transition:padding .4s,background .4s,backdrop-filter .4s}
+#glj-nav.scrolled{padding:.85rem 0;background:rgba(10,10,10,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,175,55,.07)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;width:min(var(--max),calc(100% - 4rem));margin:0 auto}
+.nav-brand{display:flex;align-items:center;gap:.85rem}
+.nav-logo-img{width:38px;height:38px;object-fit:contain}
+.nav-wordmark{font-family:var(--bebas);font-size:20px;letter-spacing:.18em;color:var(--white)}
+.nav-wordmark em{color:var(--gold);font-style:normal}
+.nav-links{display:flex;align-items:center;gap:2.5rem;list-style:none}
+.nav-links a{font-family:var(--ral);font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45);transition:color .3s}
+.nav-links a:hover{color:var(--white)}
+.nav-cta{font-family:var(--ral);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:.6rem 1.5rem;border:1px solid var(--gold);color:var(--gold);transition:all .3s}
+.nav-cta:hover{background:var(--gold);color:var(--black)}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;padding:4px}
+.nav-hamburger span{display:block;width:22px;height:1px;background:var(--white)}
+@media(max-width:900px){.nav-links,.nav-cta{display:none}.nav-hamburger{display:flex}.nav-inner{width:calc(100% - 2rem)}}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* HERO                                                                        */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--black)}
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.4}
+.hero-over{position:absolute;inset:0;z-index:2;
+  background:radial-gradient(ellipse 90% 80% at 50% 50%,transparent 20%,rgba(10,10,10,.65) 100%),
+  linear-gradient(to bottom,rgba(10,10,10,.5) 0%,rgba(10,10,10,.05) 40%,rgba(10,10,10,.05) 60%,rgba(10,10,10,.96) 100%)}
+.hero-content{position:relative;z-index:3;text-align:center;padding:0 1.5rem;max-width:1000px}
+.hero-logo{width:min(110px,20vw);height:auto;margin:0 auto 2.25rem;display:block;object-fit:contain;opacity:0;transform:translateY(16px)}
+.hero-eyebrow{margin-bottom:1.1rem;opacity:0}
+.hero-h1{font-family:var(--bebas);font-size:clamp(58px,10vw,138px);line-height:.9;letter-spacing:.03em;margin-bottom:1.5rem;color:var(--white)}
+.hero-h1 em{font-style:normal;background:var(--gold-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-family:var(--ral);font-size:clamp(15px,1.1vw,18px);color:rgba(255,255,255,.5);line-height:1.7;max-width:500px;margin:0 auto 2.75rem;opacity:0}
+.hero-actions{display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap;opacity:0}
+.hero-scroll{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:.5rem;opacity:0}
+.hero-scroll-lbl{font-family:var(--ral);font-size:9px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.hero-scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,rgba(212,175,55,.6),transparent);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.3;transform:scaleY(.5)}50%{opacity:1;transform:scaleY(1)}}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* TICKER                                                                      */
+/* ══════════════════════════════════════════════════════════════════════════ */
+.glj-ticker{overflow:hidden;border-top:1px solid rgba(212,175,55,.12);border-bottom:1px solid rgba(212,175,55,.12);background:rgba(212,175,55,.02);padding:.65rem 0}
+.glj-ticker-track{display:inline-flex;align-items:center;gap:3rem;white-space:nowrap;animation:ticker 40s linear infinite}
+.glj-ticker:hover .glj-ticker-track{animation-play-state:paused}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker-item{display:flex;align-items:center;gap:.75rem;font-family:var(--ral);font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(212,175,55,.55);flex-shrink:0}
+.ticker-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.5;flex-shrink:0}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* PAIN SECTION                                                                */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#pain{padding:8rem 0;background:var(--dark)}
+.pain-header{margin-bottom:4.5rem}
+.pain-header .eyebrow{display:block;margin-bottom:1.25rem}
+.pain-title{font-family:var(--bebas);font-size:clamp(48px,6.5vw,88px);line-height:.92;letter-spacing:.03em;color:var(--white)}
+.pain-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--border)}
+.pain-item{display:flex;align-items:flex-start;gap:2rem;padding:2rem 0;border-bottom:1px solid var(--border);position:relative;transition:background .3s}
+.pain-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(212,175,55,.04);transition:width .4s var(--ease-out)}
+.pain-item:hover::before{width:100%}
+.pain-num{font-family:var(--bebas);font-size:13px;letter-spacing:.2em;color:var(--gold);flex-shrink:0;padding-top:.15rem;min-width:28px}
+.pain-text{font-family:var(--mont);font-size:clamp(16px,1.6vw,22px);font-weight:600;color:rgba(255,255,255,.85);line-height:1.35}
+.pain-text span{color:rgba(255,255,255,.35);font-weight:400;display:block;font-size:.78em;margin-top:.35rem;font-family:var(--ral);letter-spacing:.01em;line-height:1.6}
+
+/* ── Pivot statement ── */
+.pain-pivot{
+  margin-top:5rem;padding:4rem 3.5rem;
+  border:1px solid rgba(212,175,55,.15);
+  background:rgba(212,175,55,.04);
+  position:relative;overflow:hidden;
+}
+.pain-pivot::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--gold-grad);
+}
+.pain-pivot-text{font-family:var(--bebas);font-size:clamp(28px,4vw,52px);line-height:1.05;letter-spacing:.04em;color:var(--white)}
+.pain-pivot-text em{font-style:normal;color:var(--gold)}
+.pain-pivot-sub{margin-top:1rem;font-family:var(--ral);font-size:15px;color:rgba(255,255,255,.45);line-height:1.6;max-width:540px}
+@media(max-width:768px){
+  .pain-pivot{padding:2.5rem 2rem}
+  .pain-item{gap:1.25rem;padding:1.5rem 0}
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* YOU / WE SECTION                                                            */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#youwe{
+  padding:8rem 0;background:var(--black);
+  position:relative;overflow:hidden;
+}
+#youwe::before{
+  content:'';position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  width:900px;height:700px;
+  background:radial-gradient(ellipse,rgba(212,175,55,.04) 0%,transparent 70%);
+  pointer-events:none;
+}
+.youwe-header{margin-bottom:5rem}
+.youwe-header .eyebrow{display:block;margin-bottom:1.25rem}
+.youwe-title{font-family:var(--bebas);font-size:clamp(48px,6.5vw,88px);line-height:.92;letter-spacing:.03em}
+.youwe-rows{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--border)}
+.youwe-row{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:0;border-bottom:1px solid var(--border);
+  position:relative;
+}
+.youwe-row::after{
+  content:'';
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:1px;height:100%;
+  background:var(--border);
+}
+.youwe-cell{
+  padding:2.25rem 0;
+  display:flex;align-items:center;gap:1.5rem;
+}
+.youwe-cell:first-child{padding-right:3rem}
+.youwe-cell:last-child{padding-left:3rem}
+.youwe-label{
+  font-family:var(--ral);font-size:10px;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(255,255,255,.2);flex-shrink:0;
+}
+.youwe-cell.is-you .youwe-label{color:rgba(255,255,255,.25)}
+.youwe-cell.is-we .youwe-label{color:var(--gold);opacity:.7}
+.youwe-text{
+  font-family:var(--mont);font-size:clamp(15px,1.4vw,19px);
+  font-weight:700;line-height:1.3;color:rgba(255,255,255,.8);
+}
+.youwe-cell.is-we .youwe-text{color:var(--white)}
+.youwe-icon{
+  width:36px;height:36px;border:1px solid rgba(212,175,55,.2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.youwe-icon svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.youwe-bottom{
+  margin-top:4rem;padding:2.5rem;
+  border:1px solid rgba(212,175,55,.12);
+  background:rgba(212,175,55,.03);
+  display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;
+}
+.youwe-bottom-text{
+  font-family:var(--bebas);font-size:clamp(22px,2.5vw,34px);
+  letter-spacing:.04em;color:var(--white);
+}
+.youwe-bottom-text em{font-style:normal;color:var(--gold)}
+@media(max-width:700px){
+  .youwe-row{grid-template-columns:1fr;gap:0}
+  .youwe-row::after{display:none}
+  .youwe-cell:first-child{padding-right:0;padding-bottom:0;border-bottom:1px solid var(--border)}
+  .youwe-cell:last-child{padding-left:0;padding-top:1.5rem}
+  .youwe-bottom{flex-direction:column;text-align:center}
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* METRICS STRIP                                                               */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#metrics{
+  padding:0;background:var(--surface);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+.metrics-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:0;
+}
+.metric{
+  padding:3.5rem 2.5rem;text-align:center;
+  border-right:1px solid var(--border);
+  position:relative;overflow:hidden;
+  transition:background .3s;
+}
+.metric:last-child{border-right:none}
+.metric::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--gold-grad);
+  transform:scaleX(0);transform-origin:center;
+  transition:transform .5s var(--ease-out);
+}
+.metric:hover{background:rgba(212,175,55,.04)}
+.metric:hover::before{transform:scaleX(1)}
+.metric-num{
+  font-family:var(--bebas);font-size:clamp(44px,5vw,72px);
+  color:var(--gold);line-height:1;letter-spacing:.03em;margin-bottom:.35rem;
+}
+.metric-label{font-family:var(--ral);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.metric-compare{font-family:var(--ral);font-size:11px;color:rgba(255,255,255,.2);margin-top:.4rem}
+.metric-compare s{color:rgba(255,255,255,.15)}
+@media(max-width:900px){
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .metric{border-bottom:1px solid var(--border)}
+  .metric:nth-child(2){border-right:none}
+}
+@media(max-width:480px){
+  .metrics-grid{grid-template-columns:1fr}
+  .metric{border-right:none}
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* SYSTEMS SECTION                                                             */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#systems{padding:8rem 0;background:var(--dark)}
+.systems-header{margin-bottom:4.5rem}
+.systems-header .eyebrow{display:block;margin-bottom:1.25rem}
+.systems-title{font-family:var(--bebas);font-size:clamp(48px,6.5vw,88px);line-height:.92;letter-spacing:.03em}
+.systems-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--border);
+}
+.system-card{
+  padding:3rem 2.75rem;background:var(--dark);
+  position:relative;overflow:hidden;
+  transition:background .4s var(--ease-out);
+}
+.system-card::before{
+  content:'';position:absolute;top:0;left:0;width:2px;height:0;
+  background:var(--gold-grad);
+  transition:height .5s var(--ease-out);
+}
+.system-card:hover{background:rgba(212,175,55,.03)}
+.system-card:hover::before{height:100%}
+.system-num{
+  font-family:var(--bebas);font-size:11px;letter-spacing:.3em;
+  color:var(--gold);display:block;margin-bottom:1.5rem;
+}
+.system-title{
+  font-family:var(--mont);font-weight:800;font-size:17px;
+  line-height:1.2;color:var(--white);margin-bottom:.85rem;
+}
+.system-body{
+  font-family:var(--ral);font-size:14px;line-height:1.75;
+  color:rgba(255,255,255,.4);
+}
+@media(max-width:900px){.systems-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.systems-grid{grid-template-columns:1fr}.system-card{padding:2.25rem 1.75rem}}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* WHO IT'S FOR                                                                */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#who{padding:8rem 0;background:var(--black);position:relative;overflow:hidden}
+#who::before{
+  content:'';position:absolute;
+  right:-200px;top:50%;transform:translateY(-50%);
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(212,175,55,.04) 0%,transparent 70%);
+  pointer-events:none;
+}
+.who-grid{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:start}
+.who-left .eyebrow{display:block;margin-bottom:1.25rem}
+.who-title{font-family:var(--bebas);font-size:clamp(44px,6vw,80px);line-height:.92;letter-spacing:.03em;margin-bottom:2rem}
+.who-sub{font-family:var(--ral);font-size:16px;line-height:1.75;color:rgba(255,255,255,.45);margin-bottom:2.5rem}
+.who-right{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--border)}
+.who-item{
+  display:flex;align-items:flex-start;gap:1.25rem;
+  padding:1.75rem 0;border-bottom:1px solid var(--border);
+  transition:background .3s;
+}
+.who-check{
+  width:28px;height:28px;border:1px solid rgba(212,175,55,.3);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem;
+  transition:background .3s,border-color .3s;
+}
+.who-item:hover .who-check{background:rgba(212,175,55,.1);border-color:var(--gold)}
+.who-check svg{width:13px;height:13px;stroke:var(--gold);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.who-item-text{font-family:var(--mont);font-size:15px;font-weight:600;color:rgba(255,255,255,.8);line-height:1.4}
+.who-item-text span{display:block;font-family:var(--ral);font-size:13px;font-weight:400;color:rgba(255,255,255,.35);margin-top:.3rem;line-height:1.5}
+
+/* ── Not for everyone ── */
+.who-not{
+  margin-top:2.5rem;padding:2rem 2.5rem;
+  border:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.02);
+}
+.who-not-label{font-family:var(--ral);font-size:10px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:.75rem;display:block}
+.who-not-text{font-family:var(--ral);font-size:14px;line-height:1.65;color:rgba(255,255,255,.35)}
+.who-not-text strong{color:rgba(255,255,255,.6);font-weight:600}
+@media(max-width:900px){.who-grid{grid-template-columns:1fr;gap:3.5rem}}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* METROS                                                                      */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#metros{padding:8rem 0 0;background:var(--dark)}
+.metros-header{margin-bottom:4rem}
+.metros-header .eyebrow{display:block;margin-bottom:1.25rem}
+.metros-title{font-family:var(--bebas);font-size:clamp(44px,6vw,80px);line-height:.92;letter-spacing:.03em}
+.metro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);margin-top:0}
+.metro-card{position:relative;overflow:hidden;aspect-ratio:3/4;background:var(--black)}
+.metro-img{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .8s var(--ease-out);filter:grayscale(60%) brightness(.5)}
+.metro-card:hover .metro-img{transform:scale(1.06);filter:grayscale(30%) brightness(.55)}
+.metro-fade{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,.97) 0%,rgba(10,10,10,.3) 55%,rgba(10,10,10,.1) 100%);transition:background .5s}
+.metro-card:hover .metro-fade{background:linear-gradient(to top,rgba(10,10,10,1) 0%,rgba(10,10,10,.55) 55%,rgba(10,10,10,.15) 100%)}
+.metro-info{position:absolute;bottom:0;left:0;right:0;padding:2rem}
+.metro-line{width:28px;height:1px;background:var(--gold);margin-bottom:.75rem;transition:width .4s var(--ease-out)}
+.metro-card:hover .metro-line{width:48px}
+.metro-city{font-family:var(--bebas);font-size:28px;letter-spacing:.06em;display:block;margin-bottom:.2rem}
+.metro-state{font-family:var(--ral);font-size:10px;font-weight:600;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
+.metro-desc{font-family:var(--ral);font-size:12px;line-height:1.6;color:rgba(255,255,255,.35);max-height:0;overflow:hidden;transition:max-height .5s var(--ease-out),opacity .5s;opacity:0}
+.metro-card:hover .metro-desc{max-height:60px;opacity:1}
+@media(max-width:900px){.metro-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.metro-grid{grid-template-columns:1fr}}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* TIERS                                                                       */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#tiers{padding:8rem 0;background:var(--black)}
+.tiers-header{margin-bottom:4.5rem}
+.tiers-header .eyebrow{display:block;margin-bottom:1.25rem}
+.tiers-title{font-family:var(--bebas);font-size:clamp(44px,6vw,80px);line-height:.92;letter-spacing:.03em}
+.tiers-sub{font-family:var(--ral);font-size:15px;color:rgba(255,255,255,.4);margin-top:.75rem;line-height:1.65;max-width:480px}
+.tiers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.tier{
+  padding:3rem 2.75rem;background:var(--black);
+  position:relative;overflow:hidden;border:1px solid transparent;
+  transition:border-color .4s;
+}
+.tier.featured{background:rgba(212,175,55,.04);border-color:rgba(212,175,55,.18)}
+.tier-badge{position:absolute;top:1.5rem;right:1.5rem;font-family:var(--ral);font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;background:var(--gold);color:var(--black);padding:.25rem .7rem}
+.tier-name{font-family:var(--bebas);font-size:32px;letter-spacing:.08em;display:block;margin-bottom:.45rem}
+.tier.featured .tier-name{color:var(--gold)}
+.tier-tagline{font-family:var(--ral);font-size:13px;color:rgba(255,255,255,.35);margin-bottom:2rem;line-height:1.5}
+.tier-divider{width:100%;height:1px;background:rgba(255,255,255,.07);margin-bottom:2rem}
+.tier.featured .tier-divider{background:rgba(212,175,55,.15)}
+.tier-features{display:flex;flex-direction:column;gap:.8rem;margin-bottom:2.5rem}
+.tier-feat{display:flex;align-items:flex-start;gap:.7rem;font-family:var(--ral);font-size:13px;color:rgba(255,255,255,.5);line-height:1.5}
+.tier-feat svg{width:13px;height:13px;flex-shrink:0;stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:.15rem}
+.tier-cta{display:block;text-align:center;padding:.8rem;font-family:var(--ral);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(212,175,55,.3);transition:all .3s}
+.tier-cta:hover{background:var(--gold);color:var(--black);border-color:var(--gold)}
+.tier.featured .tier-cta{background:var(--gold);color:var(--black);border-color:var(--gold)}
+.tier.featured .tier-cta:hover{background:var(--gold-light)}
+@media(max-width:900px){.tiers-grid{grid-template-columns:1fr;max-width:440px}}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* AUTHORITY / WHY GLJ                                                         */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#why{padding:8rem 0;background:var(--surface);border-top:1px solid var(--border)}
+.why-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:6rem;align-items:center}
+.why-left .eyebrow{display:block;margin-bottom:1.25rem}
+.why-title{font-family:var(--bebas);font-size:clamp(42px,5.5vw,76px);line-height:.9;letter-spacing:.03em;margin-bottom:1.5rem}
+.why-quote{font-family:var(--serif);font-style:italic;font-size:clamp(18px,2vw,26px);line-height:1.45;color:rgba(255,255,255,.7);margin-bottom:1.75rem}
+.why-actions{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
+.why-right{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--border)}
+.why-point{display:flex;align-items:flex-start;gap:1.5rem;padding:2rem 0;border-bottom:1px solid var(--border)}
+.why-point-num{font-family:var(--bebas);font-size:40px;letter-spacing:.04em;color:rgba(212,175,55,.2);flex-shrink:0;line-height:1;transition:color .3s}
+.why-point:hover .why-point-num{color:rgba(212,175,55,.5)}
+.why-point-body h4{font-family:var(--mont);font-weight:700;font-size:16px;color:var(--white);margin-bottom:.4rem}
+.why-point-body p{font-family:var(--ral);font-size:14px;color:rgba(255,255,255,.4);line-height:1.65}
+@media(max-width:900px){.why-grid{grid-template-columns:1fr;gap:3.5rem}}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* SOCIAL PROOF                                                                */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#proof{padding:8rem 0;background:var(--dark)}
+.proof-header{text-align:center;margin-bottom:4.5rem}
+.proof-header .eyebrow{display:block;margin-bottom:1rem}
+.proof-header h2{font-family:var(--bebas);font-size:clamp(42px,5.5vw,72px);line-height:.92;letter-spacing:.04em}
+.proof-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.proof-card{
+  padding:2.75rem;background:var(--dark);
+  position:relative;overflow:hidden;
+  transition:background .4s;
+}
+.proof-card::before{content:'"';position:absolute;top:-.5rem;left:1.5rem;font-family:var(--serif);font-size:120px;color:rgba(212,175,55,.04);line-height:1;pointer-events:none}
+.proof-card:hover{background:rgba(212,175,55,.03)}
+.proof-quote{font-family:var(--ral);font-size:15px;font-style:italic;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:1.75rem;position:relative;z-index:1}
+.proof-divider{width:32px;height:1px;background:var(--gold);margin-bottom:1.25rem}
+.proof-name{font-family:var(--mont);font-weight:700;font-size:14px;color:var(--white);margin-bottom:.2rem}
+.proof-meta{font-family:var(--ral);font-size:12px;color:rgba(255,255,255,.3)}
+@media(max-width:900px){.proof-cards{grid-template-columns:1fr}}
+@media(max-width:600px){.proof-card{padding:2rem 1.75rem}}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* FINAL CTA                                                                   */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#cta{
+  padding:10rem 0;background:var(--black);
+  position:relative;overflow:hidden;text-align:center;
+}
+#cta::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(212,175,55,.06) 0%,transparent 65%);
+}
+.cta-wm{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;overflow:hidden;
+}
+.cta-wm-text{font-family:var(--bebas);font-size:min(32vw,400px);color:rgba(212,175,55,.025);letter-spacing:.05em;line-height:1;user-select:none;animation:wmsway 50s ease-in-out infinite alternate}
+@keyframes wmsway{from{transform:rotate(-2deg)}to{transform:rotate(2deg)}}
+.cta-inner{position:relative;z-index:2;max-width:700px;margin:0 auto;padding:0 2rem}
+.cta-inner .eyebrow{display:block;margin-bottom:1.25rem}
+.cta-title{font-family:var(--bebas);font-size:clamp(52px,8vw,112px);line-height:.9;letter-spacing:.03em;margin-bottom:1.5rem}
+.cta-title em{font-style:normal;color:var(--gold)}
+.cta-body{font-family:var(--ral);font-size:16px;color:rgba(255,255,255,.4);line-height:1.75;max-width:460px;margin:0 auto 3rem}
+.cta-actions{display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap}
+.cta-fine{font-family:var(--ral);font-size:11px;color:rgba(255,255,255,.2);letter-spacing:.06em;margin-top:2rem}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* FOOTER                                                                      */
+/* ══════════════════════════════════════════════════════════════════════════ */
+#footer{padding:5rem 0 3rem;background:var(--surface);border-top:1px solid var(--border)}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4rem;margin-bottom:4rem}
+.footer-brand-img{width:56px;height:56px;object-fit:contain;margin-bottom:1.25rem}
+.footer-name{font-family:var(--bebas);font-size:20px;letter-spacing:.18em;margin-bottom:.25rem}
+.footer-name em{color:var(--gold);font-style:normal}
+.footer-tagline{font-family:var(--ral);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.2)}
+.footer-desc{font-family:var(--ral);font-size:13px;color:rgba(255,255,255,.25);line-height:1.65;margin-top:.75rem;max-width:220px}
+.footer-col-title{font-family:var(--ral);font-size:10px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:1.25rem}
+.footer-list{display:flex;flex-direction:column;gap:.65rem;list-style:none}
+.footer-list a{font-family:var(--ral);font-size:13px;color:rgba(255,255,255,.3);transition:color .3s}
+.footer-list a:hover{color:var(--white)}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:2rem;border-top:1px solid var(--border);flex-wrap:wrap;gap:1rem}
+.footer-copy{font-family:var(--ral);font-size:11px;color:rgba(255,255,255,.18)}
+.footer-legal{display:flex;gap:1.5rem;list-style:none}
+.footer-legal a{font-family:var(--ral);font-size:11px;color:rgba(255,255,255,.2);transition:color .3s}
+.footer-legal a:hover{color:rgba(212,175,55,.6)}
+@media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:3rem}.footer-grid>:first-child{grid-column:1/-1}}
+@media(max-width:600px){.footer-grid{grid-template-columns:1fr}.footer-grid>:first-child{grid-column:unset}.footer-bottom{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+
+<div class="glj-cursor-dot" id="cDot"></div>
+<div class="glj-cursor-ring" id="cRing"></div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- NAV                                                                        -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<nav id="glj-nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="/">
+      <img class="nav-logo-img glj-logo-img"
+           src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/69f2d4d9fc17decc45134d1a.png"
+           alt="GLJ" width="38" height="38">
+      <span class="nav-wordmark">GLJ <em>MANAGEMENT</em></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#systems">What We Build</a></li>
+      <li><a href="#who">Who It's For</a></li>
+      <li><a href="#tiers">Access Levels</a></li>
+      <li><a href="#why">Why GLJ</a></li>
+    </ul>
+    <a class="nav-cta" href="/apply">Apply Now</a>
+    <button class="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- HERO                                                                       -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="hero">
+  <video class="hero-video" autoplay muted loop playsinline preload="metadata"
+    poster="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1920&q=75">
+    <source src="https://videos.pexels.com/video-files/5483077/5483077-hd_1920_1080_25fps.mp4" type="video/mp4">
+    <source src="https://videos.pexels.com/video-files/3045163/3045163-hd_1920_1080_24fps.mp4" type="video/mp4">
+  </video>
+  <div class="hero-over"></div>
+  <div class="hero-content">
+    <img class="hero-logo glj-logo-img" id="heroMark"
+         src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/69f2d4d9fc17decc45134d1a.png"
+         alt="GLJ Management">
+    <p class="eyebrow hero-eyebrow">Private · By Application Only · Elite Tattoo Artists</p>
+    <h1 class="hero-h1" id="heroH1">YOU TATTOO.<br><em>WE HANDLE<br>THE EMPIRE.</em></h1>
+    <p class="hero-sub" id="heroSub">The private booking and growth system built exclusively for elite tattoo artists. AI-powered. Concierge-level. Built to make you untouchable.</p>
+    <div class="hero-actions" id="heroActions">
+      <a class="btn-gold" href="/apply">
+        <span>Apply for Access</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="var(--gold)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a class="btn-ghost" href="#systems">See What We Build &rarr;</a>
+    </div>
+  </div>
+  <div class="hero-scroll" id="heroScroll">
+    <span class="hero-scroll-lbl">Scroll</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- TICKER                                                                     -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div class="glj-ticker" aria-hidden="true">
+  <div class="glj-ticker-track">
+    <span class="ticker-item"><span class="ticker-dot"></span>You Tattoo. We Handle Everything Else.</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>By Application Only</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>New York · Los Angeles · Miami · Las Vegas</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>AI-Powered · Concierge-Level · Elite Artists</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Powered by AI. Built for Legends.</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>You Tattoo. We Handle Everything Else.</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>By Application Only</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>New York · Los Angeles · Miami · Las Vegas</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>AI-Powered · Concierge-Level · Elite Artists</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Powered by AI. Built for Legends.</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- PAIN POINTS                                                                -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="pain">
+  <div class="glj-c">
+    <div class="pain-header">
+      <span class="eyebrow" data-r>Sound familiar?</span>
+      <h2 class="pain-title" data-r>IF ANY OF THIS IS<br><span class="gold-text">YOU, KEEP READING.</span></h2>
+    </div>
+    <div class="pain-list">
+      <div class="pain-item" data-r>
+        <span class="pain-num">01</span>
+        <div class="pain-text">You have the followers. Your calendar still has gaps.
+          <span>Reach without a system doesn't pay the bills. It just looks good on the feed.</span>
+        </div>
+      </div>
+      <div class="pain-item" data-r data-delay="1">
+        <span class="pain-num">02</span>
+        <div class="pain-text">You spend 3 hours a day in DMs — and none of them convert.
+          <span>Manually qualifying leads, sending prices, answering the same questions. That's not a business. That's a second job.</span>
+        </div>
+      </div>
+      <div class="pain-item" data-r data-delay="2">
+        <span class="pain-num">03</span>
+        <div class="pain-text">Clients ghost. Deposits disappear. Calendar gaps cost you thousands.
+          <span>One week of no-shows can erase a month of content effort. With no system, it keeps happening.</span>
+        </div>
+      </div>
+      <div class="pain-item" data-r data-delay="3">
+        <span class="pain-num">04</span>
+        <div class="pain-text">You're undercharging — and your ideal clients are going to someone else.
+          <span>Positioning and systems determine what you can charge. Your rate isn't a talent problem. It's a perception problem.</span>
+        </div>
+      </div>
+      <div class="pain-item" data-r data-delay="4">
+        <span class="pain-num">05</span>
+        <div class="pain-text">You're doing everything yourself — and burning out while doing it.
+          <span>Marketing, booking, follow-ups, content — on top of actually tattooing. Something has to break.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pain-pivot" data-r>
+      <p class="pain-pivot-text">THAT'S NOT A TALENT PROBLEM.<br><em>IT'S A SYSTEMS PROBLEM.</em></p>
+      <p class="pain-pivot-sub">Every artist on our roster faced exactly this. The ones who built something real didn't work harder — they built a system that worked for them while they tattooed.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- YOU / WE                                                                   -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="youwe">
+  <div class="glj-c">
+    <div class="youwe-header">
+      <span class="eyebrow" data-r>How GLJ Works</span>
+      <h2 class="youwe-title" data-r>YOU TATTOO.<br><span class="gold-text">WE RUN THE REST.</span></h2>
+    </div>
+    <div class="youwe-rows">
+
+      <div class="youwe-row" data-r>
+        <div class="youwe-cell is-you">
+          <span class="youwe-label">You</span>
+          <span class="youwe-text">Show up. Do the work. Create masterpieces.</span>
+        </div>
+        <div class="youwe-cell is-we">
+          <div class="youwe-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div>
+            <span class="youwe-label">We</span>
+            <span class="youwe-text" style="display:block">Fill your calendar with qualified, high-ticket clients.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="youwe-row" data-r>
+        <div class="youwe-cell is-you">
+          <span class="youwe-label">You</span>
+          <span class="youwe-text">Set your style, rates, and standards.</span>
+        </div>
+        <div class="youwe-cell is-we">
+          <div class="youwe-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div>
+            <span class="youwe-label">We</span>
+            <span class="youwe-text" style="display:block">Enforce them automatically. No awkward conversations.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="youwe-row" data-r>
+        <div class="youwe-cell is-you">
+          <span class="youwe-label">You</span>
+          <span class="youwe-text">Occasionally post content when you feel like it.</span>
+        </div>
+        <div class="youwe-cell is-we">
+          <div class="youwe-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div>
+            <span class="youwe-label">We</span>
+            <span class="youwe-text" style="display:block">Run every campaign, every channel, every ad — on autopilot.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="youwe-row" data-r>
+        <div class="youwe-cell is-you">
+          <span class="youwe-label">You</span>
+          <span class="youwe-text">Ignore your inbox entirely.</span>
+        </div>
+        <div class="youwe-cell is-we">
+          <div class="youwe-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div>
+            <span class="youwe-label">We</span>
+            <span class="youwe-text" style="display:block">Respond to every lead within 60 seconds, qualify them, and collect the deposit.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="youwe-bottom" data-r>
+      <p class="youwe-bottom-text">You get one notification<br>when someone books. <em>That's it.</em></p>
+      <a class="btn-gold" href="/apply">
+        <span>Apply for Access</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="var(--gold)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- METRICS                                                                    -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div id="metrics">
+  <div class="metrics-grid">
+    <div class="metric" data-r>
+      <div class="metric-num">&lt;60<span style="font-size:.55em">s</span></div>
+      <div class="metric-label">Response Time</div>
+      <div class="metric-compare">Industry avg: <s>24–48hrs</s></div>
+    </div>
+    <div class="metric" data-r data-delay="1">
+      <div class="metric-num"><span class="count" data-target="94">0</span>%</div>
+      <div class="metric-label">Booking Rate</div>
+      <div class="metric-compare">Industry avg: <s>30–45%</s></div>
+    </div>
+    <div class="metric" data-r data-delay="2">
+      <div class="metric-num"><span class="count" data-target="3">0</span>.2x</div>
+      <div class="metric-label">Revenue Increase</div>
+      <div class="metric-compare">Avg within 90 days</div>
+    </div>
+    <div class="metric" data-r data-delay="3">
+      <div class="metric-num">$<span class="count" data-target="0">0</span></div>
+      <div class="metric-label">Setup Cost</div>
+      <div class="metric-compare">We win when you win</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- SYSTEMS                                                                    -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="systems">
+  <div class="glj-c">
+    <div class="systems-header">
+      <span class="eyebrow" data-r>What We Build</span>
+      <h2 class="systems-title" data-r>THE 6 SYSTEMS<br><span class="gold-text">WE INSTALL FOR YOU.</span></h2>
+    </div>
+    <div class="systems-grid">
+      <div class="system-card" data-r>
+        <span class="system-num">01</span>
+        <h3 class="system-title">Concierge Booking System</h3>
+        <p class="system-body">Your calendar fills itself. Custom intake flow, consultation scheduling, deposit collection — all branded to you, all automated.</p>
+      </div>
+      <div class="system-card" data-r data-delay="1">
+        <span class="system-num">02</span>
+        <h3 class="system-title">AI-Powered Lead Qualification</h3>
+        <p class="system-body">Every DM, form, and inquiry is responded to within 60 seconds and scored by budget, style fit, and intent. Only serious clients reach you.</p>
+      </div>
+      <div class="system-card" data-r data-delay="2">
+        <span class="system-num">03</span>
+        <h3 class="system-title">Paid Advertising (Meta + Google)</h3>
+        <p class="system-body">Targeted campaigns that put your work in front of clients in your market who can actually afford you. Built and managed by us.</p>
+      </div>
+      <div class="system-card" data-r>
+        <span class="system-num">04</span>
+        <h3 class="system-title">Content + Social Management</h3>
+        <p class="system-body">Your feed stays active, your story stays relevant, and your brand grows — without you touching a phone outside the studio.</p>
+      </div>
+      <div class="system-card" data-r data-delay="1">
+        <span class="system-num">05</span>
+        <h3 class="system-title">Automated Follow-Up Engine</h3>
+        <p class="system-body">No more ghosts. Our system follows up with every lead on every channel until they book, pay the deposit, or explicitly opt out.</p>
+      </div>
+      <div class="system-card" data-r data-delay="2">
+        <span class="system-num">06</span>
+        <h3 class="system-title">Retention + Referral Network</h3>
+        <p class="system-body">Aftercare sequences, rebooking prompts, and referral triggers that turn every client into a recurring revenue source and a brand ambassador.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- WHO IT'S FOR                                                               -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="who">
+  <div class="glj-c">
+    <div class="who-grid">
+      <div class="who-left">
+        <span class="eyebrow" data-r>Qualification</span>
+        <h2 class="who-title" data-r>THIS IS BUILT<br><span class="gold-text">FOR YOU IF…</span></h2>
+        <p class="who-sub" data-r>We don't work with everyone. GLJ is a private network — not a platform. We take on a limited number of artists per market.</p>
+        <div data-r>
+          <a class="btn-gold" href="/apply">
+            <span>Check If You Qualify</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="var(--gold)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="who-right" data-r>
+        <div class="who-item">
+          <div class="who-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="who-item-text">You're a solo artist or private studio
+            <span>Not a chain shop. You own your reputation and your calendar.</span>
+          </div>
+        </div>
+        <div class="who-item">
+          <div class="who-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="who-item-text">You're charging $400+ per session — or want to be
+            <span>You're positioned at the premium end, or you're ready to move there.</span>
+          </div>
+        </div>
+        <div class="who-item">
+          <div class="who-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="who-item-text">Your work drives your bookings — not your discounts
+            <span>Portfolio-driven. You compete on quality, not price.</span>
+          </div>
+        </div>
+        <div class="who-item">
+          <div class="who-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="who-item-text">You're operating in New York, Los Angeles, Miami, or Las Vegas
+            <span>Or a comparable high-demand market. We go where premium clientele are concentrated.</span>
+          </div>
+        </div>
+        <div class="who-item">
+          <div class="who-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="who-item-text">You're ready to stop doing admin and start scaling
+            <span>No more manual DMs. No more chasing deposits. You want a system, not more work.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="who-not" data-r>
+      <span class="who-not-label">This is not for you if…</span>
+      <p class="who-not-text">You're just starting out and need to build a portfolio. You're not serious about pricing at a premium level. You want to stay fully hands-on with every client interaction. <strong>GLJ is built for artists who are already good — and want a system that matches that level.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- METROS                                                                     -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="metros">
+  <div class="glj-c metros-header">
+    <span class="eyebrow" data-r>Our Markets</span>
+    <h2 class="metros-title" data-r>OPERATING WHERE<br><span class="gold-text">DEMAND IS HIGHEST.</span></h2>
+  </div>
+  <div class="metro-grid">
+    <div class="metro-card" data-r>
+      <div class="metro-img" style="background-image:url('https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&q=70')"></div>
+      <div class="metro-fade"></div>
+      <div class="metro-info">
+        <div class="metro-line"></div>
+        <span class="metro-city">New York</span>
+        <span class="metro-state">New York</span>
+        <p class="metro-desc">The most competitive market. Highest demand. Clients who pay for the best.</p>
+      </div>
+    </div>
+    <div class="metro-card" data-r>
+      <div class="metro-img" style="background-image:url('https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=800&q=70')"></div>
+      <div class="metro-fade"></div>
+      <div class="metro-info">
+        <div class="metro-line"></div>
+        <span class="metro-city">Los Angeles</span>
+        <span class="metro-state">California</span>
+        <p class="metro-desc">Celebrity clientele. Culture-defining work. The highest ticket rates in the country.</p>
+      </div>
+    </div>
+    <div class="metro-card" data-r>
+      <div class="metro-img" style="background-image:url('https://images.unsplash.com/photo-1514214246283-d427a95c5d2f?w=800&q=70')"></div>
+      <div class="metro-fade"></div>
+      <div class="metro-info">
+        <div class="metro-line"></div>
+        <span class="metro-city">Miami</span>
+        <span class="metro-state">Florida</span>
+        <p class="metro-desc">A luxury lifestyle market. Premium clients who expect premium everything.</p>
+      </div>
+    </div>
+    <div class="metro-card" data-r>
+      <div class="metro-img" style="background-image:url('https://images.unsplash.com/photo-1581351721010-8cf859cb14a4?w=800&q=70')"></div>
+      <div class="metro-fade"></div>
+      <div class="metro-info">
+        <div class="metro-line"></div>
+        <span class="metro-city">Las Vegas</span>
+        <span class="metro-state">Nevada</span>
+        <p class="metro-desc">High-spend tourists, entertainment industry, and a market that never sleeps.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- TIERS                                                                      -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="tiers">
+  <div class="glj-c">
+    <div class="tiers-header">
+      <span class="eyebrow" data-r>Access Levels</span>
+      <h2 class="tiers-title" data-r>CHOOSE YOUR<br><span class="gold-text">LEVEL OF ACCESS.</span></h2>
+      <p class="tiers-sub" data-r>Three tiers. All exclusive. No long-term contracts. Performance-based — we only win when you win.</p>
+    </div>
+    <div class="tiers-grid">
+      <div class="tier" data-r>
+        <span class="tier-name">Signature</span>
+        <p class="tier-tagline">Core systems. For artists getting structured for the first time — and staying there.</p>
+        <div class="tier-divider"></div>
+        <div class="tier-features">
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>AI inquiry management + qualification</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Automated booking + deposit collection</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Calendar control and scheduling rules</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Client filtering by budget and style</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Monthly performance report</div>
+        </div>
+        <a class="tier-cta" href="/apply">Apply — Signature</a>
+      </div>
+      <div class="tier featured" data-r>
+        <span class="tier-badge">Most Popular</span>
+        <span class="tier-name">Elite</span>
+        <p class="tier-tagline">Full growth stack. For artists scaling past six figures and building brand equity that lasts.</p>
+        <div class="tier-divider"></div>
+        <div class="tier-features">
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Everything in Signature</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Concierge booking with live support</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Paid ads — Meta + Google campaigns</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Content strategy + social scheduling</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Referral system + retention engine</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Bi-weekly strategy calls</div>
+        </div>
+        <a class="tier-cta" href="/apply">Apply — Elite</a>
+      </div>
+      <div class="tier" data-r>
+        <span class="tier-name">Prestige</span>
+        <p class="tier-tagline">White-glove. Completely hands-off. Your business runs at the highest level without your involvement.</p>
+        <div class="tier-divider"></div>
+        <div class="tier-features">
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Everything in Elite</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Dedicated full-time GLJ manager</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Brand identity + media production</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>VIP client list management</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Priority placement in GLJ markets</div>
+          <div class="tier-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Weekly 1-on-1 growth strategy</div>
+        </div>
+        <a class="tier-cta" href="/apply">Apply — Prestige</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- WHY GLJ                                                                    -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="why">
+  <div class="glj-c">
+    <div class="why-grid">
+      <div class="why-left">
+        <span class="eyebrow" data-r>Why GLJ</span>
+        <h2 class="why-title" data-r>WE ONLY WIN<br><span class="gold-text">WHEN YOU WIN.</span></h2>
+        <p class="why-quote" data-r>"Before GLJ, I was turning away clients because I had no system. Three months in — I raised my rates 40%, closed my waitlist, and work only the days I choose."</p>
+        <p style="font-family:var(--ral);font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(212,175,55,.6);margin-bottom:2rem" data-r>— Javier V., Fine Line · New York · Elite Tier</p>
+        <div class="why-actions" data-r>
+          <a class="btn-gold" href="/apply">
+            <span>Apply for Access</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="var(--gold)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="why-right" data-r>
+        <div class="why-point">
+          <span class="why-point-num">01</span>
+          <div class="why-point-body">
+            <h4>Private — Not a Platform</h4>
+            <p>GLJ is not software you manage. It's a dedicated system that operates on your behalf, 24 hours a day. You're a member, not a user.</p>
+          </div>
+        </div>
+        <div class="why-point">
+          <span class="why-point-num">02</span>
+          <div class="why-point-body">
+            <h4>Performance-Based Model</h4>
+            <p>We don't make money until you make money. Our incentives are aligned with your results — not a flat monthly retainer regardless of performance.</p>
+          </div>
+        </div>
+        <div class="why-point">
+          <span class="why-point-num">03</span>
+          <div class="why-point-body">
+            <h4>Limited Roster Per Market</h4>
+            <p>We don't take 50 artists per city. We take a select few per market and invest heavily in each one. You're not competing with our other clients — you're benefiting from the same network.</p>
+          </div>
+        </div>
+        <div class="why-point">
+          <span class="why-point-num">04</span>
+          <div class="why-point-body">
+            <h4>10+ Years in Artist Growth</h4>
+            <p>Built by people who understand both the craft and the business behind it. Not a tech startup. A team that knows what it takes to run a sustainable creative business at the highest level.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- SOCIAL PROOF                                                               -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="proof">
+  <div class="glj-c">
+    <div class="proof-header">
+      <span class="eyebrow" data-r>Artist Results</span>
+      <h2 data-r style="font-family:var(--bebas);font-size:clamp(42px,5.5vw,72px);line-height:.92;letter-spacing:.04em">WHAT OUR ARTISTS SAY.</h2>
+    </div>
+    <div class="proof-cards">
+      <div class="proof-card" data-r>
+        <p class="proof-quote">"I went from 2 hours in DMs every morning to getting one notification when someone books. That's it. My calendar is full 60 days ahead and I didn't touch any of it."</p>
+        <div class="proof-divider"></div>
+        <p class="proof-name">Marcus R.</p>
+        <p class="proof-meta">Black &amp; Grey Realism · Los Angeles · Signature Tier</p>
+      </div>
+      <div class="proof-card" data-r data-delay="1">
+        <p class="proof-quote">"Raised my minimum from $350 to $650 in the first 90 days. The system filters out anyone below that automatically. I didn't even have to have the conversation."</p>
+        <div class="proof-divider"></div>
+        <p class="proof-name">Diana M.</p>
+        <p class="proof-meta">Fine Line · Miami · Elite Tier</p>
+      </div>
+      <div class="proof-card" data-r data-delay="2">
+        <p class="proof-quote">"The ads brought in clients I never would have reached on my own. High-budget, serious about the work, no haggling. GLJ changed who's sitting in my chair."</p>
+        <div class="proof-divider"></div>
+        <p class="proof-name">Carlos V.</p>
+        <p class="proof-meta">Color Realism · New York · Elite Tier</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- CTA                                                                        -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<section id="cta">
+  <div class="cta-wm" aria-hidden="true"><div class="cta-wm-text">GLJ</div></div>
+  <div class="cta-inner">
+    <span class="eyebrow" data-r>Limited Availability</span>
+    <h2 class="cta-title" data-r>APPLY.<br>OR STAY <em>STUCK.</em></h2>
+    <p class="cta-body" data-r>We're selective. We take a small number of artists per market and we invest heavily in each one. If you're serious — the application takes 3 minutes.</p>
+    <div class="cta-actions" data-r>
+      <a class="btn-gold" href="/apply">
+        <span>Apply for Access</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="var(--gold)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+    </div>
+    <p class="cta-fine" data-r>Every application is reviewed personally. You'll hear back within 48 hours.</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                                     -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<footer id="footer">
+  <div class="glj-c">
+    <div class="footer-grid">
+      <div>
+        <img class="footer-brand-img glj-logo-img"
+             src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/69f2d4d9fc17decc45134d1a.png"
+             alt="GLJ" width="56" height="56">
+        <div class="footer-name">GLJ <em>MANAGEMENT</em></div>
+        <div class="footer-tagline">Luxury Booking Management</div>
+        <p class="footer-desc">Powered by AI. Driven by artistry. Built for legends.</p>
+      </div>
+      <div>
+        <p class="footer-col-title">System</p>
+        <ul class="footer-list">
+          <li><a href="#systems">What We Build</a></li>
+          <li><a href="#youwe">How It Works</a></li>
+          <li><a href="#tiers">Access Levels</a></li>
+          <li><a href="#why">Why GLJ</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Markets</p>
+        <ul class="footer-list">
+          <li><a href="#metros">New York</a></li>
+          <li><a href="#metros">Los Angeles</a></li>
+          <li><a href="#metros">Miami</a></li>
+          <li><a href="#metros">Las Vegas</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Connect</p>
+        <ul class="footer-list">
+          <li><a href="/apply">Apply Now</a></li>
+          <li><a href="mailto:info@glj-management.com">info@glj-management.com</a></li>
+          <li><a href="https://instagram.com/glj.management" target="_blank" rel="noopener">@glj.management</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">&copy; 2025 GLJ Luxury Booking Management. All rights reserved.</p>
+      <ul class="footer-legal">
+        <li><a href="/privacy">Privacy</a></li>
+        <li><a href="/terms">Terms</a></li>
+        <li><a href="/apply">Apply</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+
+/* GHL NUCLEAR OVERRIDE */
+(function(){
+  function e(){document.documentElement.style.background='#0A0A0A';document.body.style.background='#0A0A0A';}
+  e();new MutationObserver(e).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});
+  document.addEventListener('DOMContentLoaded',e);
+})();
+
+/* LENIS */
+var lenis;
+var isMobile='ontouchstart'in window||window.innerWidth<768;
+var reduced=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+if(!isMobile&&!reduced&&typeof Lenis!=='undefined'){
+  lenis=new Lenis({duration:1.5,easing:function(t){return Math.min(1,1.001-Math.pow(2,-10*t))},smoothWheel:true});
+  function raf(t){lenis.raf(t);requestAnimationFrame(raf);}
+  requestAnimationFrame(raf);
+  if(typeof ScrollTrigger!=='undefined'){
+    lenis.on('scroll',ScrollTrigger.update);
+    gsap.ticker.add(function(t){lenis.raf(t*1000);});
+    gsap.ticker.lagSmoothing(0);
+  }
+}
+
+/* CURSOR */
+(function(){
+  if(window.matchMedia('(hover:none)').matches)return;
+  var dot=document.getElementById('cDot'),ring=document.getElementById('cRing');
+  if(!dot||!ring)return;
+  var mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+  function ar(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar);}
+  ar();
+  document.querySelectorAll('a,button,.tier,.system-card,.metro-card,.who-item,.why-point,.proof-card').forEach(function(el){
+    el.addEventListener('mouseenter',function(){ring.classList.add('grow');});
+    el.addEventListener('mouseleave',function(){ring.classList.remove('grow');});
+  });
+})();
+
+/* NAV SCROLL */
+(function(){
+  var nav=document.getElementById('glj-nav');
+  if(!nav)return;
+  function h(){nav.classList.toggle('scrolled',window.scrollY>50);}
+  window.addEventListener('scroll',h,{passive:true});h();
+})();
+
+/* HERO ENTRANCE */
+(function(){
+  if(typeof gsap==='undefined')return;
+  var mark=document.getElementById('heroMark');
+  var h1=document.getElementById('heroH1');
+  var sub=document.getElementById('heroSub');
+  var actions=document.getElementById('heroActions');
+  var scroll=document.getElementById('heroScroll');
+  var eyebrow=document.querySelector('.hero-eyebrow');
+  var tl=gsap.timeline({delay:.25});
+  if(mark)tl.to(mark,{opacity:1,y:0,duration:1.1,ease:'power3.out'},0);
+  if(eyebrow)tl.to(eyebrow,{opacity:1,duration:.8,ease:'power2.out'},.35);
+  if(h1&&typeof SplitText!=='undefined'){
+    var sp=new SplitText(h1,{type:'lines',linesClass:'hline'});
+    tl.from(sp.lines,{y:80,opacity:0,stagger:.08,duration:1,ease:'power3.out'},.45);
+  }
+  if(sub)tl.to(sub,{opacity:1,duration:.8,ease:'power2.out'},1.1);
+  if(actions)tl.to(actions,{opacity:1,duration:.8,ease:'power2.out'},1.3);
+  if(scroll)tl.to(scroll,{opacity:1,duration:.8,ease:'power2.out'},1.6);
+})();
+
+/* SCROLL REVEAL */
+(function(){
+  var els=document.querySelectorAll('[data-r]');
+  if(!els.length)return;
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        var d=e.target.getAttribute('data-delay');
+        if(d){
+          setTimeout(function(){e.target.classList.add('in');},parseInt(d)*120);
+        }else{
+          e.target.classList.add('in');
+        }
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:.1,rootMargin:'0px 0px -50px 0px'});
+  els.forEach(function(el){io.observe(el);});
+})();
+
+/* STAT COUNTERS */
+(function(){
+  var counters=document.querySelectorAll('.count[data-target]');
+  if(!counters.length)return;
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting)return;
+      var el=e.target,target=+el.getAttribute('data-target'),start=Date.now();
+      var dur=1600;
+      function step(){
+        var p=Math.min((Date.now()-start)/dur,1);
+        var ease=1-Math.pow(1-p,3);
+        el.textContent=target<5?parseFloat((target*ease).toFixed(1)):Math.round(target*ease);
+        if(p<1)requestAnimationFrame(step);
+        else el.textContent=target;
+      }
+      requestAnimationFrame(step);
+      io.unobserve(el);
+    });
+  },{threshold:.5});
+  counters.forEach(function(el){io.observe(el);});
+})();
+
+/* VIDEO FALLBACK */
+(function(){
+  var v=document.querySelector('.hero-video');
+  if(!v)return;
+  v.addEventListener('error',function(){
+    v.style.display='none';
+    var d=document.createElement('div');
+    d.style.cssText='position:absolute;inset:0;z-index:0;background:url(https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1920&q=75) center/cover no-repeat;opacity:.4;';
+    v.parentElement.insertBefore(d,v);
+  });
+})();
+
+})();
+</script>
+</body>
+</html>

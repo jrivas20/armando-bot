@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Services | The Florida Foot and Ankle Institute — Kissimmee, FL</title>
+  <meta name="description" content="Complete foot and ankle services in Kissimmee FL. Limb salvage, diabetic foot care, heel pain, sports medicine, surgery, pediatric, orthotics &amp; wound care.">
+  <meta name="keywords" content="foot and ankle services kissimmee, diabetic foot care florida, limb salvage kissimmee, podiatry services kissimmee fl">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+  html,body,.page-section,.page-section--content,.funnelish-section,.funnelish-section--content,.section-wrap,.section-wrap--content,.hl_page-section,.hl_page-section--content,.container,.container-fluid,.row,.col,[class*="col-"],[class*="section"],[class*="container"],[class*="wrapper"],[class*="inner"],[class*="page-section"],[class*="hl_"]{max-width:100%!important;width:100%!important;padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box!important;}
+  html{touch-action:pan-y;}body{overflow-x:clip;overscroll-behavior-x:none;}
+  </style>
+  <style>
+    :root {
+      --teal: #007a7f;
+      --teal-dark: #005f63;
+      --teal-light: #e0f4f5;
+      --orange: #eb9220;
+      --orange-dark: #d07d18;
+      --white: #ffffff;
+      --bg: #f9fafb;
+      --text: #1a2332;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --soft: #f0fafa;
+      --shadow: 0 4px 24px rgba(0,122,127,.10);
+      --shadow-lg: 0 8px 40px rgba(0,122,127,.14);
+      --radius: 12px;
+      --max: 1200px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+
+    /* ===== NAV ===== */
+    .fa-nav {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: var(--white);
+      border-bottom: 2px solid var(--teal-light);
+      padding: 0 24px;
+      transition: box-shadow .3s;
+    }
+    .fa-nav.scrolled { box-shadow: 0 2px 20px rgba(0,122,127,.12); }
+    .fa-nav-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+    .fa-nav-logo img { height: 54px; width: auto; object-fit: contain; }
+    .fa-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+    .fa-nav-links a {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      transition: color .2s;
+    }
+    .fa-nav-links a:hover { color: var(--teal); }
+    .fa-nav-links a.active {
+      color: var(--teal);
+      border-bottom: 2px solid var(--teal);
+      padding-bottom: 2px;
+    }
+    .fa-nav-cta {
+      display: inline-flex;
+      align-items: center;
+      background: var(--teal);
+      color: var(--white) !important;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px 22px;
+      border-radius: 50px;
+      transition: background .2s, transform .2s;
+    }
+    .fa-nav-cta:hover { background: var(--teal-dark); transform: translateY(-1px); }
+    .fa-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 6px;
+      background: none;
+      border: none;
+    }
+    .fa-hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all .3s;
+    }
+    .fa-mobile-menu {
+      display: none;
+      flex-direction: column;
+      background: var(--white);
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      gap: 4px;
+    }
+    .fa-mobile-menu a {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text);
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .fa-mobile-menu a:last-child { border-bottom: none; margin-top: 12px; }
+    .fa-mobile-menu a.active { color: var(--teal); }
+    .fa-mobile-menu.open { display: flex; }
+
+    /* ===== HERO ===== */
+    .fa-hero {
+      background: linear-gradient(135deg, #007a7f, #005f63);
+      padding: 72px 24px 80px;
+      text-align: center;
+    }
+    .fa-hero-inner { max-width: 720px; margin: 0 auto; }
+    .fa-eyebrow {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+    }
+    .fa-hero h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: clamp(36px, 5vw, 56px);
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 18px;
+    }
+    .fa-hero p {
+      font-size: 18px;
+      color: rgba(255,255,255,.85);
+      line-height: 1.65;
+      margin-bottom: 32px;
+      max-width: 580px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .fa-btn-white {
+      display: inline-flex;
+      align-items: center;
+      background: var(--white);
+      color: var(--teal);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 14px 32px;
+      border-radius: 50px;
+      transition: background .2s, transform .2s;
+    }
+    .fa-btn-white:hover { background: var(--teal-light); transform: translateY(-2px); }
+
+    /* ===== SECTION SHARED ===== */
+    .fa-section { padding: 88px 24px; }
+    .fa-section-inner { max-width: var(--max); margin: 0 auto; }
+    .fa-section-label {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 12px;
+      display: block;
+    }
+    .fa-section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: clamp(28px, 4vw, 42px);
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .fa-section-sub {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 600px;
+    }
+    .fa-section-head { text-align: center; margin-bottom: 56px; }
+    .fa-section-head .fa-section-sub { margin: 0 auto; }
+
+    /* ===== SERVICE CARDS ===== */
+    .fa-services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+    }
+    .fa-card {
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border-left: 4px solid transparent;
+      transition: transform .3s, box-shadow .3s, border-color .3s;
+    }
+    .fa-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
+      border-left-color: var(--teal);
+    }
+    .fa-card-header {
+      background: linear-gradient(90deg, var(--teal), var(--teal-dark));
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+    }
+    .fa-card-num {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--orange);
+      letter-spacing: .06em;
+    }
+    .fa-card-body { padding: 28px 28px 26px; }
+    .fa-card-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 18px;
+    }
+    .fa-card h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 19px;
+      color: var(--teal);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .fa-card p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 22px;
+    }
+    .fa-btn-outline {
+      display: inline-flex;
+      align-items: center;
+      border: 2px solid var(--teal);
+      color: var(--teal);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 9px 22px;
+      border-radius: 50px;
+      transition: background .2s, color .2s;
+    }
+    .fa-btn-outline:hover { background: var(--teal); color: var(--white); }
+
+    /* ===== PILLARS ===== */
+    .fa-pillars { background: var(--soft); }
+    .fa-pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .fa-pillar {
+      text-align: center;
+      padding: 40px 28px;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .fa-pillar-icon { font-size: 40px; margin-bottom: 16px; }
+    .fa-pillar h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .fa-pillar p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+    /* ===== INSURANCE ===== */
+    .fa-insurance { background: var(--white); padding: 64px 24px; }
+    .fa-ins-card {
+      max-width: 860px;
+      margin: 0 auto;
+      background: var(--white);
+      border-left: 6px solid var(--teal);
+      border-radius: var(--radius);
+      padding: 36px 44px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+    .fa-ins-text { flex: 1; }
+    .fa-ins-text h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .fa-ins-text p { font-size: 15px; color: var(--muted); line-height: 1.65; }
+    .fa-btn-orange {
+      display: inline-flex;
+      align-items: center;
+      background: var(--orange);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 13px 28px;
+      border-radius: 50px;
+      white-space: nowrap;
+      transition: background .2s, transform .2s;
+    }
+    .fa-btn-orange:hover { background: var(--orange-dark); transform: translateY(-2px); }
+
+    /* ===== CTA BAND ===== */
+    .fa-cta-band { background: var(--teal); padding: 80px 24px; text-align: center; }
+    .fa-cta-band h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: clamp(26px, 3.5vw, 38px);
+      color: var(--white);
+      margin-bottom: 36px;
+    }
+    .fa-cta-buttons { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .fa-btn-orange-solid {
+      display: inline-flex;
+      align-items: center;
+      background: var(--orange);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 15px 34px;
+      border-radius: 50px;
+      transition: background .2s, transform .2s;
+    }
+    .fa-btn-orange-solid:hover { background: var(--orange-dark); transform: translateY(-2px); }
+    .fa-btn-white-outline {
+      display: inline-flex;
+      align-items: center;
+      border: 2px solid rgba(255,255,255,.8);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 15px 34px;
+      border-radius: 50px;
+      transition: background .2s, border-color .2s;
+    }
+    .fa-btn-white-outline:hover { background: rgba(255,255,255,.1); border-color: var(--white); }
+
+    /* ===== FOOTER ===== */
+    .fa-footer { background: #0f2027; padding: 72px 24px 32px; }
+    .fa-footer-inner { max-width: var(--max); margin: 0 auto; }
+    .fa-footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1.3fr;
+      gap: 48px;
+      margin-bottom: 56px;
+    }
+    .fa-footer-logo { height: 48px; width: auto; margin-bottom: 16px; object-fit: contain; }
+    .fa-footer-tagline { font-size: 14px; color: rgba(255,255,255,.55); line-height: 1.7; }
+    .fa-footer-col h4 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--orange);
+      margin-bottom: 18px;
+    }
+    .fa-footer-col ul { list-style: none; }
+    .fa-footer-col ul li { margin-bottom: 10px; }
+    .fa-footer-col ul li a { font-size: 14px; color: rgba(255,255,255,.6); transition: color .2s; }
+    .fa-footer-col ul li a:hover { color: var(--white); }
+    .fa-footer-contact p { font-size: 14px; color: rgba(255,255,255,.6); line-height: 1.7; margin-bottom: 6px; }
+    .fa-footer-bottom { border-top: 1px solid rgba(255,255,255,.08); padding-top: 24px; text-align: center; }
+    .fa-footer-bottom p { font-size: 13px; color: rgba(255,255,255,.35); }
+
+    /* ===== SCROLL REVEAL ===== */
+    .fa-rv { opacity: 0; transform: translateY(28px); transition: opacity .6s ease, transform .6s ease; }
+    .fa-rv.in { opacity: 1; transform: translateY(0); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 960px) {
+      .fa-services-grid { grid-template-columns: 1fr; }
+      .fa-pillars-grid { grid-template-columns: 1fr; }
+      .fa-footer-grid { grid-template-columns: 1fr 1fr; gap: 36px; }
+      .fa-ins-card { flex-direction: column; gap: 20px; text-align: center; }
+    }
+    @media (max-width: 640px) {
+      .fa-nav-links { display: none; }
+      .fa-hamburger { display: flex; }
+      .fa-footer-grid { grid-template-columns: 1fr; }
+      .fa-section { padding: 64px 20px; }
+      .fa-hero { padding: 56px 20px 64px; }
+      .fa-ins-card { padding: 28px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="fa-nav" id="fa-nav">
+    <div class="fa-nav-inner">
+      <a href="/" class="fa-nav-logo">
+        <img src="https://static.wixstatic.com/media/e1b08d_44ac69541fad47a484758d5f27542c81~mv2.png" alt="The Florida Foot and Ankle Institute">
+      </a>
+      <ul class="fa-nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/about-us">About Us</a></li>
+        <li><a href="/services" class="active">Services</a></li>
+        <li><a href="/contact">Contact Us</a></li>
+        <li><a href="/contact" class="fa-nav-cta">Request Appointment</a></li>
+      </ul>
+      <button class="fa-hamburger" id="fa-hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="fa-mobile-menu" id="fa-mobile-menu">
+      <a href="/">Home</a>
+      <a href="/about-us">About Us</a>
+      <a href="/services" class="active">Services</a>
+      <a href="/contact">Contact Us</a>
+      <a href="/contact" class="fa-nav-cta" style="text-align:center;border-bottom:none;">Request Appointment</a>
+    </div>
+  </nav>
+
+  <!-- PAGE HERO -->
+  <section class="fa-hero">
+    <div class="fa-hero-inner">
+      <span class="fa-eyebrow">Comprehensive Podiatric Care</span>
+      <h1>Our Services</h1>
+      <p>From preventive care to complex surgical procedures — complete foot and ankle treatment for every patient, every age.</p>
+      <a href="/contact" class="fa-btn-white">Request an Appointment</a>
+    </div>
+  </section>
+
+  <!-- SERVICES FULL DETAIL -->
+  <section class="fa-section" style="background:var(--white);">
+    <div class="fa-section-inner">
+      <div class="fa-section-head fa-rv">
+        <span class="fa-section-label">What We Treat</span>
+        <h2 class="fa-section-title">Specialized Care for Every Condition</h2>
+        <p class="fa-section-sub">Our team of experienced podiatrists offers comprehensive care across a wide range of foot and ankle conditions — from routine visits to advanced surgical solutions.</p>
+      </div>
+
+      <div class="fa-services-grid">
+
+        <!-- 01 Limb Salvage -->
+        <div class="fa-card fa-rv">
+          <div class="fa-card-header"><span class="fa-card-num">01</span></div>
+          <div class="fa-card-body">
+            <svg class="fa-card-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="24" cy="24" r="19" stroke="#007a7f" stroke-width="2.4"/>
+              <path d="M16 24h16M24 16v16" stroke="#007a7f" stroke-width="2.4" stroke-linecap="round"/>
+              <path d="M19 34c0 0 2-4 5-4s5 4 5 4" stroke="#eb9220" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h3>Limb Salvage</h3>
+            <p>Advanced limb preservation care for high-risk patients with complex foot conditions, circulation concerns, or severe tissue damage, with the goal of protecting mobility and preventing further complications.</p>
+            <a href="/contact" class="fa-btn-outline">Book Appointment</a>
+          </div>
+        </div>
+
+        <!-- 02 Heel & Arch Pain -->
+        <div class="fa-card fa-rv">
+          <div class="fa-card-header"><span class="fa-card-num">02</span></div>
+          <div class="fa-card-body">
+            <svg class="fa-card-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 38c2-8 6-14 14-17s14-7 14-15" stroke="#007a7f" stroke-width="2.4" stroke-linecap="round"/>
+              <ellipse cx="14" cy="38" rx="6" ry="4" stroke="#007a7f" stroke-width="2.2"/>
+              <path d="M20 38h20" stroke="#007a7f" stroke-width="2.2" stroke-linecap="round"/>
+              <circle cx="32" cy="16" r="3" fill="#eb9220"/>
+            </svg>
+            <h3>Heel &amp; Arch Pain</h3>
+            <p>Relief for plantar fasciitis, chronic heel pain, arch strain, and overuse injuries through targeted evaluation, customized treatment plans, and long-term support for daily comfort.</p>
+            <a href="/contact" class="fa-btn-outline">Book Appointment</a>
+          </div>
+        </div>
+
+        <!-- 03 Diabetic Foot Care -->
+        <div class="fa-card fa-rv">
+          <div class="fa-card-header"><span class="fa-card-num">03</span></div>
+          <div class="fa-card-body">
+            <svg class="fa-card-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 8c-8 0-14 6-14 14 0 10 14 20 14 20s14-10 14-20c0-8-6-14-14-14z" stroke="#007a7f" stroke-width="2.4"/>
+              <path d="M24 17v6l4 3" stroke="#007a7f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3>Diabetic Foot Care</h3>
+            <p>Preventive and ongoing diabetic foot care focused on circulation, sensation, wound prevention, skin health, and early intervention to reduce serious complications.</p>
+            <a href="/contact" class="fa-btn-outline">Book Appointment</a>
+          </div>
+        </div>
+
+        <!-- 04 Sports Medicine & Injury -->
+        <div class="fa-card fa-rv">
+          <div class="fa-card-header"><span class="fa-card-num">04</span></div>
+          <div class="fa-card-body">
+            <svg class="fa-card-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="24" cy="24" r="18" stroke="#007a7f" stroke-width="2.4"/>
+              <path d="M14 30l4-9 4 6 4-10 5 13" stroke="#007a7f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3>Sports Medicine &amp; Injury</h3>
+            <p>Specialized care for athletes and active patients dealing with sprains, instability, tendon issues, stress injuries, and foot or ankle pain that affects performance.</p>
+            <a href="/contact" class="fa-btn-outline">Book Appointment</a>
+          </div>
+        </div>
+
+        <!-- 05 Foot & Ankle Surgery -->
+        <div class="fa-card fa-rv">
+          <div class="fa-card-header"><span class="fa-card-num">05</span></div>
+          <div class="fa-card-body">
+            <svg class="fa-card-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="8" width="32" height="32" rx="8" stroke="#007a7f" stroke-width="2.4"/>
+              <path d="M18 24h12M24 18v12" stroke="#007a7f" stroke-width="2.4" stroke-linecap="round"/>
+            </svg>
+            <h3>Foot &amp; Ankle Surgery</h3>
+            <p>When conservative treatment is not enough, we provide surgical solutions with careful planning, patient education, and recovery strategies designed for the best possible outcome.</p>
+            <a href="/contact" class="fa-btn-outline">Book Appointment</a>
+          </div>
+        </div>
+
+        <!-- 06 Pediatric Foot Care -->
+        <div class="fa-card fa-rv">
+          <div class="fa-card-header"><span class="fa-card-num">06</span></div>
+          <div class="fa-card-body">
+            <svg class="fa-card-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 20c0-6 4-12 8-12s8 6 8 12c0 8-4 16-8 16s-8-8-8-16z" stroke="#007a7f" stroke-width="2.4"/>
+              <circle cx="21" cy="16" r="1.5" fill="#007a7f"/>
+              <circle cx="27" cy="16" r="1.5" fill="#007a7f"/>
+              <path d="M21 24c0 0 1.5 3 3 3s3-3 3-3" stroke="#007a7f" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <h3>Pediatric Foot Care</h3>
+            <p>Supportive care for children with gait abnormalities, flat feet, growth-related concerns, pain, or structural issues that need professional attention early on.</p>
+            <a href="/contact" class="fa-btn-outline">Book Appointment</a>
+          </div>
+        </div>
+
+        <!-- 07 Orthotics & Custom Insoles -->
+        <div class="fa-card fa-rv">
+          <div class="fa-card-header"><span class="fa-card-num">07</span></div>
+          <div class="fa-card-body">
+            <svg class="fa-card-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 36c5-18 27-22 32-8" stroke="#007a7f" stroke-width="2.4" stroke-linecap="round"/>
+              <path d="M8 36h32" stroke="#007a7f" stroke-width="2.4" stroke-linecap="round"/>
+              <path d="M16 30c0 0 4-5 8-3" stroke="#eb9220" stroke-width="2" stroke-linecap="round"/>
+              <path d="M28 26c0 0 4 2 4 8" stroke="#eb9220" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h3>Orthotics &amp; Custom Insoles</h3>
+            <p>Custom orthotic solutions designed to improve alignment, reduce pressure, ease pain, and support better movement for work, exercise, and everyday life.</p>
+            <a href="/contact" class="fa-btn-outline">Book Appointment</a>
+          </div>
+        </div>
+
+        <!-- 08 Ingrown Toenails / Wound Care -->
+        <div class="fa-card fa-rv">
+          <div class="fa-card-header"><span class="fa-card-num">08</span></div>
+          <div class="fa-card-body">
+            <svg class="fa-card-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="28" width="28" height="12" rx="5" stroke="#007a7f" stroke-width="2.4"/>
+              <path d="M17 28v-6a7 7 0 0 1 14 0v6" stroke="#007a7f" stroke-width="2.4"/>
+              <line x1="24" y1="22" x2="24" y2="12" stroke="#007a7f" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="20" y1="16" x2="28" y2="16" stroke="#007a7f" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+            <h3>Ingrown Toenails / Wound Care</h3>
+            <p>Prompt treatment for ingrown toenails, ulcers, and wounds that require expert foot care to reduce pain, support healing, and prevent infection.</p>
+            <a href="/contact" class="fa-btn-outline">Book Appointment</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PATIENT COMMITMENT -->
+  <section class="fa-section fa-pillars">
+    <div class="fa-section-inner">
+      <div class="fa-section-head fa-rv">
+        <span class="fa-section-label">Why Choose Us</span>
+        <h2 class="fa-section-title">Our Patient Commitment</h2>
+        <p class="fa-section-sub">Every patient who walks through our door receives personalized, evidence-based care delivered with compassion and respect.</p>
+      </div>
+      <div class="fa-pillars-grid">
+        <div class="fa-pillar fa-rv">
+          <div class="fa-pillar-icon">&#x1F6E1;&#xFE0F;</div>
+          <h3>Evidence-Based Care</h3>
+          <p>We follow the latest clinical guidelines to ensure safe, effective treatment outcomes for every patient we serve.</p>
+        </div>
+        <div class="fa-pillar fa-rv">
+          <div class="fa-pillar-icon">&#x1F468;&#x200D;&#x1F469;&#x200D;&#x1F467;</div>
+          <h3>All Ages Welcome</h3>
+          <p>From pediatric patients to seniors, our team is trained to treat the full spectrum of foot and ankle needs.</p>
+        </div>
+        <div class="fa-pillar fa-rv">
+          <div class="fa-pillar-icon">&#x1F4CD;</div>
+          <h3>Central Florida's Choice</h3>
+          <p>Conveniently located in Kissimmee, serving patients from across Orlando and beyond with expert podiatric care.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSURANCE BANNER -->
+  <section class="fa-insurance">
+    <div class="fa-ins-card fa-rv">
+      <div class="fa-ins-text">
+        <h3>Insurance &amp; Coverage</h3>
+        <p>We accept most major insurance plans. Contact our office to verify your coverage before your visit.</p>
+      </div>
+      <a href="/contact" class="fa-btn-orange">Contact Us</a>
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <section class="fa-cta-band">
+    <div style="max-width:var(--max);margin:0 auto;">
+      <h2>Ready to Schedule Your Visit?</h2>
+      <div class="fa-cta-buttons">
+        <a href="/contact" class="fa-btn-orange-solid">Request an Appointment</a>
+        <a href="tel:4079999999" class="fa-btn-white-outline">Call Our Office</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="fa-footer">
+    <div class="fa-footer-inner">
+      <div class="fa-footer-grid">
+        <!-- Brand -->
+        <div>
+          <img src="https://static.wixstatic.com/media/e1b08d_44ac69541fad47a484758d5f27542c81~mv2.png" alt="Florida Foot and Ankle Institute" class="fa-footer-logo">
+          <p class="fa-footer-tagline">Comprehensive foot and ankle care for every patient, every age — right here in Kissimmee, Florida.</p>
+        </div>
+        <!-- Services -->
+        <div class="fa-footer-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="/services">Limb Salvage</a></li>
+            <li><a href="/services">Heel &amp; Arch Pain</a></li>
+            <li><a href="/services">Diabetic Foot Care</a></li>
+            <li><a href="/services">Sports Medicine &amp; Injury</a></li>
+            <li><a href="/services">Foot &amp; Ankle Surgery</a></li>
+            <li><a href="/services">Pediatric Foot Care</a></li>
+            <li><a href="/services">Orthotics &amp; Custom Insoles</a></li>
+            <li><a href="/services">Ingrown Toenails / Wound Care</a></li>
+          </ul>
+        </div>
+        <!-- Quick Links -->
+        <div class="fa-footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about-us">About Us</a></li>
+            <li><a href="/services">Services</a></li>
+            <li><a href="/contact">Contact Us</a></li>
+            <li><a href="/contact">Request Appointment</a></li>
+          </ul>
+        </div>
+        <!-- Contact -->
+        <div class="fa-footer-col fa-footer-contact">
+          <h4>Contact</h4>
+          <p>102 Park Place Blvd<br>Building A, Suite 3<br>Kissimmee, FL 34741</p>
+          <p style="margin-top:12px;"><a href="tel:4079999999" style="color:rgba(255,255,255,.6);">(407) XXX-XXXX</a></p>
+          <p><a href="mailto:info@thefloridafootankleinstitute.com" style="color:rgba(255,255,255,.6);">info@thefloridafootankleinstitute.com</a></p>
+        </div>
+      </div>
+      <div class="fa-footer-bottom">
+        <p>&copy; 2026 The Florida Foot and Ankle Institute. All rights reserved. | Kissimmee, FL 34741</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Sticky nav shadow on scroll
+    const nav = document.getElementById('fa-nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // Mobile hamburger toggle
+    const hamburger = document.getElementById('fa-hamburger');
+    const mobileMenu = document.getElementById('fa-mobile-menu');
+    hamburger.addEventListener('click', () => {
+      mobileMenu.classList.toggle('open');
+    });
+
+    // Scroll reveal via IntersectionObserver
+    const revealEls = document.querySelectorAll('.fa-rv');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => revealObserver.observe(el));
+  </script>
+</body>
+</html>

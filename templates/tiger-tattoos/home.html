@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Tiger Tattoos — Central Florida's Premier Tattoo &amp; Piercing Studio</title>
+<meta name="description" content="Tiger Tattoos — Central Florida's premier tattoo and piercing studio. Two locations in Deltona and Kissimmee. Color realism, fine line, cover-ups, anime, watercolor, and piercings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- ── GHL FULL BLEED OVERRIDE ── -->
+<style>
+html, body,
+.page-section,.page-section--content,
+.funnelish-section,.funnelish-section--content,
+.section-wrap,.section-wrap--content,
+.hl_page-section,.hl_page-section--content,
+.container,.container-fluid,
+.row,.col,[class*="col-"],
+[class*="section"],[class*="container"],
+[class*="wrapper"],[class*="inner"],
+[class*="page-section"],[class*="hl_"] {
+  max-width:100%!important;width:100%!important;
+  padding-left:0!important;padding-right:0!important;
+  margin-left:0!important;margin-right:0!important;
+  box-sizing:border-box!important;
+}
+body{overflow-x:hidden!important;}
+</style>
+
+<style>
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+/* ── PREMIUM GRADIENT VARIABLES ── */
+:root{
+  --bg:#030303;
+  --bg1:#060606;
+  --bg2:#0a0a0a;
+  --bg3:#101010;
+  --bg4:#141414;
+  --accent:#5cdaf3;
+  --accent-glow:rgba(92,218,243,0.20);
+  --accent-dim:rgba(92,218,243,0.09);
+  --accent-border:rgba(92,218,243,0.28);
+  --white:#f2f2f2;
+  --muted:rgba(242,242,242,0.52);
+  --muted2:rgba(242,242,242,0.26);
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.04);
+  --grad-section:linear-gradient(180deg,#060606 0%,#0a0a0a 50%,#060606 100%);
+  --grad-card:linear-gradient(145deg,#141414 0%,#0c0c0c 100%);
+  --grad-divider:linear-gradient(90deg,transparent,rgba(92,218,243,0.4),transparent);
+}
+
+html{scroll-behavior:smooth;}
+
+/* ── BODY — premium black with grain ── */
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:'Inter',sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* CSS Grain overlay */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  pointer-events:none;
+  opacity:0.028;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+}
+
+a{text-decoration:none;color:inherit;}
+img{display:block;width:100%;height:auto;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--accent);}
+
+/* ── TYPOGRAPHY ── */
+.overline{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:4.5px;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+
+/* ── SECTION GRADIENT DIVIDER ── */
+.grad-divider{
+  height:1px;
+  background:var(--grad-divider);
+  border:none;
+}
+
+
+/* ── HERO — VIDEO ── */
+#hero{
+  position:relative;
+  height:100svh;
+  height:100dvh;
+  min-height:600px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#000;
+}
+#hero-vid{
+  position:absolute;
+  inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  z-index:0;
+  opacity:1;
+}
+/* Multi-layer premium dark overlay */
+.hero-overlay{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:
+    linear-gradient(to bottom,
+      rgba(0,0,0,0.72) 0%,
+      rgba(0,0,0,0.25) 35%,
+      rgba(0,0,0,0.35) 65%,
+      rgba(0,0,0,0.90) 100%),
+    radial-gradient(ellipse at 50% 40%,rgba(0,0,0,0) 30%,rgba(0,0,0,0.55) 100%);
+}
+.hero-content{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  padding:0 24px;
+  max-width:920px;
+}
+.hero-overline{
+  font-size:10px;font-weight:700;letter-spacing:5px;
+  text-transform:uppercase;color:var(--accent);
+  margin-bottom:22px;
+  display:flex;align-items:center;justify-content:center;gap:16px;
+}
+.hero-overline::before,.hero-overline::after{
+  content:'';display:block;width:40px;height:1px;
+  background:linear-gradient(to right,transparent,var(--accent));
+}
+.hero-overline::after{background:linear-gradient(to left,transparent,var(--accent));}
+.hero-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(88px,14vw,190px);
+  line-height:0.86;
+  letter-spacing:2px;
+  margin-bottom:28px;
+}
+.hero-title span{display:block;}
+.ht-white{
+  color:var(--white);
+  text-shadow:0 0 80px rgba(0,0,0,0.8);
+}
+.ht-accent{
+  background:linear-gradient(135deg,var(--accent) 0%,#a8eefa 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  filter:drop-shadow(0 0 32px rgba(92,218,243,0.35));
+}
+.hero-sub{
+  font-size:14px;font-weight:400;letter-spacing:0.3px;
+  color:rgba(242,242,242,0.65);
+  margin-bottom:44px;max-width:420px;
+  margin-left:auto;margin-right:auto;line-height:1.8;
+}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:15px 36px;background:var(--accent);
+  font-size:10px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:#030303;
+  transition:transform 0.25s,opacity 0.25s,box-shadow 0.25s;
+}
+.btn-primary:hover{transform:translateY(-2px);opacity:0.9;box-shadow:0 10px 32px rgba(92,218,243,0.38);}
+.btn-outline{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:14px 36px;
+  border:1px solid rgba(92,218,243,0.38);
+  font-size:10px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);
+  transition:background 0.25s,border-color 0.25s,transform 0.25s,box-shadow 0.25s;
+}
+.btn-outline:hover{
+  background:rgba(92,218,243,0.08);
+  border-color:var(--accent);
+  transform:translateY(-2px);
+  box-shadow:0 0 24px rgba(92,218,243,0.15);
+}
+.hero-scroll{
+  position:absolute;bottom:32px;left:50%;
+  transform:translateX(-50%);z-index:2;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.hero-scroll span{font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--muted2);}
+.scroll-line{
+  width:1px;height:44px;
+  background:linear-gradient(to bottom,var(--accent),transparent);
+  animation:scrollpulse 2.2s ease-in-out infinite;
+}
+@keyframes scrollpulse{
+  0%,100%{opacity:0.3;transform:scaleY(1);}
+  50%{opacity:1;transform:scaleY(1.15);}
+}
+
+/* ── STATS BAR ── */
+#stats-bar{
+  background:linear-gradient(180deg,#050505,#080808);
+  border-top:1px solid var(--border2);
+  border-bottom:1px solid var(--border2);
+  padding:20px 52px;
+  display:flex;align-items:center;
+  justify-content:center;gap:0;flex-wrap:wrap;overflow:hidden;
+  position:relative;
+}
+#stats-bar::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 100%,rgba(92,218,243,0.05),transparent 70%);
+  pointer-events:none;
+}
+.stat-item{
+  display:flex;align-items:center;gap:14px;
+  padding:8px 36px;
+  border-right:1px solid var(--border);
+}
+.stat-item:last-child{border-right:none;}
+.stat-num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:34px;line-height:1;color:var(--accent);
+}
+.stat-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.stat-stars{color:var(--accent);font-size:13px;letter-spacing:2px;}
+
+/* ── MARQUEE ── */
+#marquee{
+  background:var(--accent);
+  padding:13px 0;overflow:hidden;
+}
+.marquee-track{
+  display:flex;width:max-content;
+  animation:marquee-slide 26s linear infinite;
+}
+.marquee-track span{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:15px;letter-spacing:4px;
+  color:#030303;padding:0 20px;white-space:nowrap;
+}
+.marquee-dot{
+  display:inline-block;width:4px;height:4px;
+  border-radius:50%;background:#030303;
+  opacity:0.35;vertical-align:middle;margin:0 2px;
+}
+@keyframes marquee-slide{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* ── GALLERY — SLIDESHOW ── */
+#gallery{
+  padding:96px 0 100px;
+  background:linear-gradient(180deg,#080808 0%,#040404 40%,#080808 100%);
+  position:relative;
+}
+#gallery::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:var(--grad-divider);
+}
+.gallery-header{
+  text-align:center;padding:0 48px;margin-bottom:52px;
+}
+.section-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(52px,8vw,100px);
+  line-height:0.9;color:var(--white);margin-top:14px;
+}
+.accent-line{width:44px;height:2px;background:var(--accent);margin:18px auto 0;}
+
+/* Slideshow */
+.ss-outer{
+  max-width:520px;
+  margin:0 auto;
+  padding:0 24px;
+  position:relative;
+}
+.ss-frame-border{
+  /* Gradient border using padding trick */
+  background:linear-gradient(145deg,rgba(92,218,243,0.32),rgba(92,218,243,0.06) 40%,rgba(255,255,255,0.05) 70%,rgba(92,218,243,0.12));
+  padding:1px;
+  position:relative;
+}
+.ss-stack{
+  position:relative;
+  width:100%;
+  aspect-ratio:4/5;
+  overflow:hidden;
+  background:#0a0a0a;
+}
+.ss-slide{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transition:opacity 0.7s cubic-bezier(0.4,0,0.2,1);
+  z-index:0;
+}
+.ss-slide.active{opacity:1;z-index:1;}
+.ss-slide img{
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+}
+/* Vignette on each photo */
+.ss-slide::after{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,0.45) 100%),
+    linear-gradient(to bottom,rgba(0,0,0,0.15) 0%,transparent 20%,transparent 75%,rgba(0,0,0,0.5) 100%);
+  pointer-events:none;z-index:1;
+}
+/* Overlay counter */
+.ss-counter-overlay{
+  position:absolute;bottom:14px;right:14px;
+  font-size:10px;font-weight:700;letter-spacing:2px;
+  color:rgba(255,255,255,0.75);
+  background:rgba(0,0,0,0.5);
+  padding:5px 11px;
+  backdrop-filter:blur(6px);
+  z-index:3;
+}
+/* Progress bar inside frame */
+.ss-progress-bar{
+  position:absolute;bottom:0;left:0;right:0;
+  height:2px;background:rgba(255,255,255,0.08);
+  z-index:3;
+}
+.ss-progress-fill{
+  height:100%;background:var(--accent);
+  width:6.67%; /* 1/15 */
+  transition:width 0.4s ease;
+}
+/* Navigation below frame */
+.ss-nav{
+  display:flex;align-items:center;
+  justify-content:space-between;
+  margin-top:16px;
+  padding:0 2px;
+}
+.ss-btn{
+  background:none;
+  border:1px solid var(--border);
+  color:var(--muted);
+  width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:border-color 0.25s,color 0.25s,box-shadow 0.25s;
+  font-size:18px;line-height:1;
+}
+.ss-btn:hover{
+  border-color:var(--accent);color:var(--accent);
+  box-shadow:0 0 16px rgba(92,218,243,0.15);
+}
+.ss-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;}
+.ss-label{
+  font-size:10px;font-weight:600;letter-spacing:3px;
+  text-transform:uppercase;color:var(--muted2);
+}
+
+/* ── SERVICES ── */
+#services{
+  padding:100px 52px;
+  background:linear-gradient(180deg,#080808 0%,#060606 50%,#090909 100%);
+  position:relative;
+}
+#services::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad-divider);}
+.section-inner{max-width:1280px;margin:0 auto;}
+.section-header{text-align:center;margin-bottom:64px;}
+.services-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:2px;
+  margin-top:64px;
+}
+.svc-card{
+  background:var(--grad-card);
+  padding:38px 28px;
+  position:relative;overflow:hidden;
+  transition:transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94);
+  border:1px solid var(--border2);
+}
+/* Glow line top */
+.svc-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:0;
+  transition:opacity 0.4s;
+}
+/* Ambient glow behind card */
+.svc-card::after{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,var(--accent-dim),transparent 70%);
+  opacity:0;
+  transition:opacity 0.4s;
+  pointer-events:none;
+}
+.svc-card:hover::before{opacity:1;}
+.svc-card:hover::after{opacity:1;}
+.svc-card:hover{transform:translateY(-5px);}
+.svc-icon{
+  width:52px;height:52px;
+  margin-bottom:24px;
+  color:var(--accent);
+  filter:drop-shadow(0 0 8px rgba(92,218,243,0.3));
+}
+.svc-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:26px;letter-spacing:1px;
+  color:var(--white);margin-bottom:10px;
+}
+.svc-desc{font-size:13px;line-height:1.78;color:var(--muted);}
+
+/* ── ABOUT + REVIEWS ── */
+#about{
+  padding:100px 52px;
+  background:linear-gradient(180deg,#060606,#0a0a0a);
+  position:relative;
+}
+#about::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad-divider);}
+.about-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:80px;align-items:start;
+  max-width:1280px;margin:0 auto;
+}
+.about-headline{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(52px,5.5vw,84px);
+  line-height:0.9;color:var(--white);
+  margin:16px 0 28px;
+}
+.about-headline em{font-style:normal;color:var(--accent);}
+.about-body{font-size:15px;line-height:1.85;color:var(--muted);margin-bottom:18px;}
+.about-stat-row{
+  display:flex;gap:40px;
+  margin-top:36px;padding-top:36px;
+  border-top:1px solid var(--border);
+}
+.as-num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:48px;color:var(--accent);line-height:1;
+  text-shadow:0 0 20px rgba(92,218,243,0.25);
+}
+.as-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-top:4px;}
+.reviews-col{display:flex;flex-direction:column;gap:14px;}
+.rv-card{
+  background:linear-gradient(145deg,#111 0%,#0c0c0c 100%);
+  border:1px solid var(--border);
+  border-left:2px solid var(--accent);
+  padding:24px 26px;
+  position:relative;
+  transition:border-color 0.3s,box-shadow 0.3s,transform 0.3s;
+}
+.rv-card:hover{
+  border-color:var(--accent-border);
+  box-shadow:0 4px 28px rgba(92,218,243,0.09),-4px 0 20px rgba(92,218,243,0.06);
+  transform:translateX(4px);
+}
+.rv-stars{color:var(--accent);font-size:14px;letter-spacing:3px;margin-bottom:12px;}
+.rv-text{font-size:14px;line-height:1.75;color:rgba(242,242,242,0.7);font-style:italic;margin-bottom:12px;}
+.rv-author{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);}
+.rv-source{
+  position:absolute;top:22px;right:18px;
+  font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted2);
+  display:flex;align-items:center;gap:5px;
+}
+.rv-source svg{width:11px;height:11px;}
+
+/* ── LOCATIONS ── */
+#locations{
+  padding:100px 52px;
+  background:linear-gradient(180deg,#080808 0%,#060606 100%);
+  position:relative;
+}
+#locations::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad-divider);}
+.loc-header-wrap{max-width:1280px;margin:0 auto 64px;}
+.loc-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:20px;max-width:1280px;margin:0 auto;
+}
+.loc-card{
+  background:linear-gradient(145deg,#111 0%,#0a0a0a 100%);
+  border:1px solid var(--border);
+  padding:48px 44px;
+  position:relative;overflow:hidden;
+  transition:border-color 0.3s,transform 0.3s,box-shadow 0.3s;
+}
+.loc-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),rgba(92,218,243,0.1));
+}
+/* Ambient top glow */
+.loc-card::after{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:120px;
+  background:linear-gradient(to bottom,rgba(92,218,243,0.04),transparent);
+  pointer-events:none;
+}
+.loc-card:hover{
+  border-color:var(--accent-border);
+  transform:translateY(-5px);
+  box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 0 1px rgba(92,218,243,0.1);
+}
+.loc-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent-dim);
+  border:1px solid var(--accent-border);
+  padding:5px 13px;margin-bottom:26px;
+}
+.loc-badge span{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);}
+.loc-badge-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--accent);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+.loc-name{font-family:'Bebas Neue',sans-serif;font-size:54px;line-height:0.9;color:var(--white);margin-bottom:18px;}
+.loc-reviews{display:flex;align-items:center;gap:10px;margin-bottom:26px;}
+.loc-score{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--accent);line-height:1;text-shadow:0 0 16px rgba(92,218,243,0.35);}
+.loc-stars{font-size:13px;color:var(--accent);letter-spacing:2px;}
+.loc-count{font-size:12px;color:var(--muted2);}
+.loc-addr{font-size:14px;line-height:1.7;color:var(--muted);margin-bottom:26px;}
+.loc-addr strong{color:var(--white);}
+.loc-hours{
+  background:rgba(0,0,0,0.4);
+  border:1px solid var(--border);
+  padding:18px 20px;margin-bottom:26px;
+}
+.loc-hours-title{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+.hours-row{
+  display:flex;justify-content:space-between;
+  font-size:13px;padding:5px 0;
+  border-bottom:1px solid var(--border2);
+  color:var(--muted);
+}
+.hours-row:last-child{border-bottom:none;}
+.hours-row .day{color:var(--white);font-weight:500;}
+.loc-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.loc-btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 20px;background:var(--accent);
+  font-size:10px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:#030303;
+  transition:opacity 0.2s,transform 0.2s,box-shadow 0.2s;
+  flex:1;justify-content:center;
+}
+.loc-btn-primary:hover{opacity:0.88;transform:translateY(-1px);box-shadow:0 8px 24px rgba(92,218,243,0.28);}
+.loc-btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 16px;border:1px solid var(--border);
+  font-size:10px;font-weight:600;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);
+  transition:border-color 0.2s,color 0.2s;
+}
+.loc-btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── CTA ── */
+#cta{
+  padding:120px 52px;
+  background:linear-gradient(180deg,#050505,#030303);
+  text-align:center;position:relative;overflow:hidden;
+}
+#cta::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad-divider);}
+/* Ambient radial glow */
+#cta::after{
+  content:'';position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:800px;height:400px;
+  background:radial-gradient(ellipse,rgba(92,218,243,0.06) 0%,transparent 70%);
+  pointer-events:none;
+}
+/* Ghost text watermark */
+.cta-ghost{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(140px,22vw,300px);
+  line-height:1;color:rgba(92,218,243,0.028);
+  white-space:nowrap;pointer-events:none;user-select:none;
+  letter-spacing:6px;
+}
+.cta-inner{position:relative;z-index:1;max-width:680px;margin:0 auto;}
+.cta-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(62px,10vw,128px);
+  line-height:0.88;color:var(--white);margin:16px 0 28px;
+}
+.cta-title em{font-style:normal;color:var(--accent);filter:drop-shadow(0 0 20px rgba(92,218,243,0.4));}
+.cta-sub{font-size:15px;color:var(--muted);line-height:1.78;margin-bottom:48px;}
+.cta-phones{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;align-items:center;}
+.cta-phone-block{text-align:center;}
+.cta-phone-loc{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;}
+.cta-phone-num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:34px;color:var(--accent);line-height:1;
+  transition:opacity 0.2s,text-shadow 0.2s;
+}
+.cta-phone-num:hover{opacity:0.75;text-shadow:0 0 24px rgba(92,218,243,0.5);}
+.cta-divider{width:1px;height:52px;background:var(--border);align-self:center;}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+
+/* ── FOOTER ── */
+footer{
+  background:#020202;
+  border-top:1px solid var(--border2);
+  padding:60px 52px 40px;
+}
+.footer-inner{max-width:1280px;margin:0 auto;}
+.footer-top{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  gap:52px;align-items:start;
+  padding-bottom:48px;
+  border-bottom:1px solid var(--border2);
+}
+.footer-logo{height:48px;width:auto;object-fit:contain;opacity:0.88;}
+.footer-logo-col{display:flex;flex-direction:column;align-items:flex-start;gap:14px;}
+.footer-tagline{font-size:12px;color:var(--muted2);line-height:1.7;}
+.footer-links-col h4{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:18px;}
+.footer-links-col ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.footer-links-col ul li a{font-size:13px;color:var(--muted);transition:color 0.2s;}
+.footer-links-col ul li a:hover{color:var(--white);}
+.footer-contact-col{text-align:right;}
+.footer-contact-col h4{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:18px;}
+.footer-contact-item{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:6px;display:block;transition:color 0.2s;}
+.footer-contact-item:hover{color:var(--white);}
+.footer-bottom{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:30px;flex-wrap:wrap;gap:16px;
+}
+.footer-copy{font-size:11px;color:var(--muted2);letter-spacing:0.5px;}
+.footer-socials{display:flex;gap:12px;}
+.footer-social-link{
+  width:36px;height:36px;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--muted2);transition:border-color 0.2s,color 0.2s,box-shadow 0.2s;
+}
+.footer-social-link:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px rgba(92,218,243,0.2);}
+.footer-social-link svg{width:15px;height:15px;}
+
+/* ── REVEAL ── */
+.rv{
+  opacity:0;transform:translateY(42px);
+  transition:opacity 0.75s cubic-bezier(0.25,0.46,0.45,0.94),
+             transform 0.75s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.rv.on{opacity:1;transform:translateY(0);}
+.rv-delay-1{transition-delay:0.1s;}
+.rv-delay-2{transition-delay:0.22s;}
+.rv-delay-3{transition-delay:0.34s;}
+.rv-delay-4{transition-delay:0.46s;}
+.rv-delay-5{transition-delay:0.58s;}
+
+/* ── HERO LOGO ── */
+.hero-logo-img{
+  height:120px;width:auto;max-width:380px;
+  object-fit:contain;
+  filter:brightness(1.05) drop-shadow(0 0 40px rgba(92,218,243,0.28)) drop-shadow(0 0 80px rgba(0,0,0,0.6));
+  margin-bottom:4px;
+}
+/* ── HERO BADGES ── */
+.hero-badges-row{
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+  margin-bottom:24px;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;
+  padding:7px 16px;
+  border:1px solid rgba(92,218,243,0.28);
+  background:rgba(92,218,243,0.06);
+  font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--accent);
+  backdrop-filter:blur(6px);
+}
+.hero-badge.lang-badge{color:var(--white);border-color:rgba(255,255,255,0.18);background:rgba(255,255,255,0.05);}
+.hero-badge.minority-badge{color:#c4b5fd;border-color:rgba(196,181,253,0.28);background:rgba(196,181,253,0.06);}
+.hero-badge.disability-badge{color:#6ee7b7;border-color:rgba(110,231,183,0.28);background:rgba(110,231,183,0.06);}
+.hero-cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:22px;}
+
+/* ── PIERCINGS SECTION ── */
+#piercings{
+  padding:100px 52px;
+  background:linear-gradient(180deg,#060606 0%,#0a0a0a 50%,#060606 100%);
+  position:relative;
+}
+#piercings::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad-divider);}
+.pierce-intro{font-size:15px;color:var(--muted);margin-top:22px;max-width:540px;margin-left:auto;margin-right:auto;line-height:1.82;text-align:center;}
+.pierce-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1280px;margin:56px auto 0;}
+.pierce-card{
+  background:var(--grad-card);border:1px solid var(--border);
+  padding:32px 28px;position:relative;overflow:hidden;
+  transition:border-color 0.3s,transform 0.3s,box-shadow 0.3s;
+}
+.pierce-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.3s;}
+.pierce-card:hover::before{opacity:1;}
+.pierce-card:hover{border-color:var(--accent-border);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(92,218,243,0.08);}
+.pierce-cat-icon{width:36px;height:36px;color:var(--accent);margin-bottom:16px;filter:drop-shadow(0 0 6px rgba(92,218,243,0.3));}
+.pierce-cat-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--white);margin-bottom:14px;}
+.pierce-list{list-style:none;display:flex;flex-direction:column;gap:0;}
+.pierce-list li{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border2);line-height:1.5;}
+.pierce-list li:last-child{border-bottom:none;}
+.pierce-list li::before{content:'';display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--accent);flex-shrink:0;opacity:0.7;}
+/* Infant / Minor */
+.pierce-infant-card{
+  max-width:1280px;margin:20px auto 0;
+  background:linear-gradient(145deg,#100d04,#0d0b05);
+  border:1px solid rgba(234,179,8,0.22);border-left:3px solid #eab308;
+  padding:40px 44px;display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:start;
+  position:relative;overflow:hidden;
+}
+.pierce-infant-card::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,rgba(234,179,8,0.04),transparent);pointer-events:none;}
+.pierce-infant-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.28);padding:5px 14px;margin-bottom:18px;}
+.pierce-infant-badge span{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#eab308;}
+.pierce-infant-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:1px;color:var(--white);margin-bottom:14px;line-height:1;}
+.pierce-infant-body{font-size:13px;line-height:1.82;color:var(--muted);margin-bottom:20px;}
+.pierce-infant-req{display:flex;flex-direction:column;gap:9px;}
+.pierce-infant-req-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);line-height:1.65;}
+.pierce-infant-req-item::before{content:'→';color:#eab308;font-size:12px;flex-shrink:0;margin-top:2px;}
+.pierce-age-box{padding:16px 18px;background:rgba(0,0,0,0.45);border:1px solid rgba(234,179,8,0.14);margin-bottom:12px;}
+.pierce-age-box:last-child{margin-bottom:0;}
+.pierce-age-label{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(234,179,8,0.75);margin-bottom:5px;}
+.pierce-age-body{font-size:13px;color:var(--muted);line-height:1.6;}
+.pierce-cta-row{max-width:1280px;margin:28px auto 0;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.pierce-consent-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border:1px solid rgba(234,179,8,0.32);font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#eab308;background:rgba(234,179,8,0.06);transition:background 0.2s,border-color 0.2s,transform 0.2s;}
+.pierce-consent-btn:hover{background:rgba(234,179,8,0.12);border-color:rgba(234,179,8,0.5);transform:translateY(-1px);}
+.pierce-consent-btn svg{width:14px;height:14px;flex-shrink:0;}
+.pierce-book-row{display:flex;gap:10px;flex-wrap:wrap;}
+
+/* ── LOCAL AREA SECTION ── */
+#local-area{padding:100px 52px;background:linear-gradient(180deg,#060606,#080808);position:relative;}
+#local-area::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad-divider);}
+.local-area-inner{max-width:1280px;margin:0 auto;}
+.city-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:48px;}
+.city-pill{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:1px solid var(--border);background:var(--bg3);font-size:11px;font-weight:500;letter-spacing:1px;color:var(--muted);transition:border-color 0.2s,color 0.2s,background 0.2s,transform 0.18s;}
+.city-pill:hover{border-color:var(--accent-border);color:var(--white);background:var(--accent-dim);transform:translateY(-2px);}
+.city-pill::before{content:'•';color:var(--accent);font-size:8px;}
+
+/* ── MAP EMBED ── */
+.loc-map{margin-top:22px;overflow:hidden;border:1px solid var(--border);}
+.loc-map iframe{display:block;width:100%;height:240px;border:0;filter:grayscale(100%) contrast(1.06) brightness(0.82);}
+
+/* ── GOOGLE REVIEW CTA ── */
+.review-cta-wrap{margin-top:32px;padding-top:28px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.review-cta-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);width:100%;margin-bottom:2px;}
+.btn-google-review{display:inline-flex;align-items:center;gap:9px;padding:12px 20px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);transition:background 0.2s,border-color 0.2s,transform 0.2s,color 0.2s;}
+.btn-google-review:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);transform:translateY(-1px);color:var(--white);}
+.btn-google-review svg{width:16px;height:16px;flex-shrink:0;}
+
+/* ── MOBILE ── */
+@media(max-width:1024px){
+  .services-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:900px){
+  .hero-logo-img{height:90px;}
+  .hero-title{font-size:clamp(76px,18vw,140px);}
+  #services{padding:72px 24px;}
+  #piercings{padding:72px 24px;}
+  #local-area{padding:72px 24px;}
+  .pierce-grid{grid-template-columns:repeat(2,1fr);}
+  .pierce-infant-card{grid-template-columns:1fr;gap:28px;padding:28px 24px;}
+  #about{padding:72px 24px;}
+  .about-grid{grid-template-columns:1fr;gap:52px;}
+  #locations{padding:72px 24px;}
+  .loc-grid{grid-template-columns:1fr;gap:20px;}
+  #cta{padding:88px 24px;}
+  footer{padding:52px 24px 36px;}
+  .footer-top{grid-template-columns:1fr;text-align:center;}
+  .footer-logo-col{align-items:center;}
+  .footer-contact-col{text-align:left;}
+  .footer-bottom{flex-direction:column;text-align:center;}
+  .cta-phones{flex-direction:column;align-items:center;}
+  .cta-divider{width:52px;height:1px;}
+  #stats-bar{padding:16px 20px;gap:0;justify-content:flex-start;overflow-x:auto;}
+  .stat-item{padding:8px 22px;flex-shrink:0;}
+}
+@media(max-width:600px){
+  .services-grid{grid-template-columns:1fr;}
+  .pierce-grid{grid-template-columns:1fr;}
+  .hero-logo-img{height:72px;}
+  .pierce-cta-row{flex-direction:column;align-items:flex-start;}
+  .pierce-book-row{flex-direction:column;}
+  .ss-outer{padding:0 16px;}
+  .about-headline{font-size:clamp(48px,14vw,72px);}
+  .cta-title{font-size:clamp(54px,15vw,90px);}
+  .loc-card{padding:32px 22px;}
+  .gallery-header{padding:0 20px;}
+  #stats-bar{
+    display:grid;grid-template-columns:1fr 1fr;
+    padding:16px;gap:0;
+  }
+  .stat-item{border-right:none;border-bottom:1px solid var(--border2);padding:14px 16px;}
+  .stat-item:nth-child(2n){border-left:1px solid var(--border2);}
+  .stat-item:last-child{border-bottom:none;}
+}
+</style>
+</head>
+<body>
+
+
+<!-- ── HERO — VIDEO ── -->
+<section id="hero">
+  <video id="hero-vid" autoplay muted loop playsinline preload="auto"
+    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:1;">
+    <source src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69ee9609717d5dd4e13382c2.mp4" type="video/mp4">
+  </video>
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <!-- Big Logo — prominent since nav is removed -->
+    <div id="hero-overline" style="margin-bottom:22px;display:flex;align-items:center;justify-content:center;">
+      <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5c84f9c149932493ad848.png" alt="Tiger Tattoos" class="hero-logo-img">
+    </div>
+    <h1 class="hero-title" id="hero-title">
+      <span class="ht-white" id="ht1">UNLEASH</span>
+      <span class="ht-accent" id="ht2">YOUR WILD.</span>
+    </h1>
+    <p class="hero-sub" id="hero-sub">
+      Central Florida's premier tattoo &amp; piercing destination — two locations, one legendary experience. Where creativity, precision, and hospitality come together. We proudly serve clients in English, Spanish, and American Sign Language (ASL).
+    </p>
+    <div id="hero-btns">
+      <!-- Identity Badge — Disability Owned only -->
+      <div class="hero-badges-row">
+        <span class="hero-badge disability-badge">Disability Owned</span>
+      </div>
+      <!-- Page CTAs — no phone icon, will link to location pages -->
+      <div class="hero-cta-row">
+        <a href="#" class="btn-primary">Kissimmee</a>
+        <a href="#" class="btn-outline">Deltona</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ── STATS BAR ── -->
+<div id="stats-bar">
+  <div class="stat-item rv">
+    <div><div class="stat-stars">★★★★★</div><div class="stat-label">Google Rating</div></div>
+    <div class="stat-num">5.0</div>
+  </div>
+  <div class="stat-item rv rv-delay-1">
+    <div class="stat-num" id="sn-reviews">671<span style="font-size:16px;color:var(--muted);">+</span></div>
+    <div class="stat-label">Google<br>Reviews</div>
+  </div>
+  <div class="stat-item rv rv-delay-2">
+    <div class="stat-num">2</div>
+    <div class="stat-label">Central FL<br>Locations</div>
+  </div>
+  <div class="stat-item rv rv-delay-3">
+    <div class="stat-num">7</div>
+    <div class="stat-label">Art<br>Specialties</div>
+  </div>
+  <div class="stat-item rv rv-delay-4">
+    <div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);line-height:2;">
+      Realism &middot; Fine Line<br>Anime &middot; Watercolor<br>Piercings &amp; More
+    </div>
+  </div>
+</div>
+
+<!-- ── MARQUEE ── -->
+<div id="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>TATTOOS</span><span class="marquee-dot"></span>
+    <span>COLOR REALISM</span><span class="marquee-dot"></span>
+    <span>COVER UPS</span><span class="marquee-dot"></span>
+    <span>FINE LINE</span><span class="marquee-dot"></span>
+    <span>ANIME</span><span class="marquee-dot"></span>
+    <span>WATERCOLOR</span><span class="marquee-dot"></span>
+    <span>BLACK &amp; GRAY</span><span class="marquee-dot"></span>
+    <span>PIERCINGS</span><span class="marquee-dot"></span>
+    <span>KISSIMMEE</span><span class="marquee-dot"></span>
+    <span>DELTONA</span><span class="marquee-dot"></span>
+    <span>TATTOOS</span><span class="marquee-dot"></span>
+    <span>COLOR REALISM</span><span class="marquee-dot"></span>
+    <span>COVER UPS</span><span class="marquee-dot"></span>
+    <span>FINE LINE</span><span class="marquee-dot"></span>
+    <span>ANIME</span><span class="marquee-dot"></span>
+    <span>WATERCOLOR</span><span class="marquee-dot"></span>
+    <span>BLACK &amp; GRAY</span><span class="marquee-dot"></span>
+    <span>PIERCINGS</span><span class="marquee-dot"></span>
+    <span>KISSIMMEE</span><span class="marquee-dot"></span>
+    <span>DELTONA</span><span class="marquee-dot"></span>
+  </div>
+</div>
+
+<!-- ── GALLERY — IG SLIDESHOW ── -->
+<section id="gallery">
+  <div class="gallery-header">
+    <div class="overline rv">Our Work</div>
+    <h2 class="section-title rv rv-delay-1">THE ART<br>SPEAKS FOR ITSELF.</h2>
+    <div class="accent-line rv rv-delay-2"></div>
+  </div>
+
+  <div class="ss-outer rv rv-delay-3">
+    <div class="ss-frame-border">
+      <div class="ss-stack" id="ssStack">
+
+        <div class="ss-slide active">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a6a887d8676b40a5bf38.jpeg" alt="Tiger Tattoos — Tattoo Art">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861320ef402a9c626de.png" alt="Tiger Tattoos — Realism" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861320ef44bbfc626dd.png" alt="Tiger Tattoos — Color Work" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861753f150ad4a89a21.png" alt="Tiger Tattoos — Fine Line" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861753f154e39a89a20.png" alt="Tiger Tattoos — Anime" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861753f15ad0ea89a1f.png" alt="Tiger Tattoos — Cover Up" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861b617a7e7ee87f420.png" alt="Tiger Tattoos — Watercolor" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861e07e36dd3ff989a9.png" alt="Tiger Tattoos — Black and Gray" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861eab43827dbe275ab.png" alt="Tiger Tattoos — Portrait" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861eab4388c06e275ad.png" alt="Tiger Tattoos — Custom" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861eab438e04ae275ac.png" alt="Tiger Tattoos — Sleeve" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861ec04fe0e62fb870c.png" alt="Tiger Tattoos — Detail" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861ec04fe13fefb870d.png" alt="Tiger Tattoos — Geometric" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861ec04fe2147fb8716.png" alt="Tiger Tattoos — Floral" loading="lazy">
+        </div>
+        <div class="ss-slide">
+          <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5a861ec04fefe56fb870e.png" alt="Tiger Tattoos — Abstract" loading="lazy">
+        </div>
+
+        <!-- Counter overlay -->
+        <div class="ss-counter-overlay" id="ssCounter">01 / 15</div>
+        <!-- Progress bar -->
+        <div class="ss-progress-bar"><div class="ss-progress-fill" id="ssProgressFill"></div></div>
+      </div>
+    </div>
+
+    <!-- Nav row -->
+    <div class="ss-nav">
+      <button class="ss-btn" id="ssPrev" aria-label="Previous">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="ss-label">Swipe or use arrows</span>
+      <button class="ss-btn" id="ssNext" aria-label="Next">
+        <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ── SERVICES ── -->
+<section id="services">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="overline rv">What We Do</div>
+      <h2 class="section-title rv rv-delay-1">EVERY STYLE.<br>ONE STANDARD.</h2>
+      <div class="accent-line rv rv-delay-2"></div>
+    </div>
+
+    <div class="services-grid">
+
+      <!-- REALISM — Detailed eye with lashes + iris lines -->
+      <div class="svc-card rv">
+        <svg class="svc-icon" viewBox="0 0 60 48" fill="none" stroke="currentColor">
+          <!-- Eye outer shape -->
+          <path d="M4 24C14 8 46 8 56 24C46 40 14 40 4 24z" stroke-width="1.4"/>
+          <!-- Iris -->
+          <circle cx="30" cy="24" r="10" stroke-width="1.4"/>
+          <!-- Iris starburst lines -->
+          <line x1="30" y1="14" x2="30" y2="34" stroke-width="0.45" opacity="0.55"/>
+          <line x1="20.3" y1="19" x2="39.7" y2="29" stroke-width="0.45" opacity="0.55"/>
+          <line x1="20.3" y1="29" x2="39.7" y2="19" stroke-width="0.45" opacity="0.55"/>
+          <line x1="22" y1="15.3" x2="38" y2="32.7" stroke-width="0.35" opacity="0.35"/>
+          <line x1="22" y1="32.7" x2="38" y2="15.3" stroke-width="0.35" opacity="0.35"/>
+          <!-- Pupil -->
+          <circle cx="30" cy="24" r="4.5" fill="currentColor" opacity="0.32"/>
+          <!-- Main highlight -->
+          <circle cx="35.5" cy="19.5" r="2.8" fill="currentColor"/>
+          <!-- Small secondary highlight -->
+          <circle cx="25.5" cy="29" r="1.2" fill="currentColor" opacity="0.5"/>
+          <!-- Top lashes -->
+          <line x1="16" y1="14" x2="13" y2="8" stroke-width="1.1" stroke-linecap="round"/>
+          <line x1="22" y1="10.5" x2="21" y2="4" stroke-width="1.1" stroke-linecap="round"/>
+          <line x1="28" y1="9" x2="28" y2="2.5" stroke-width="1.1" stroke-linecap="round"/>
+          <line x1="34" y1="9.5" x2="35" y2="3" stroke-width="1.1" stroke-linecap="round"/>
+          <line x1="40" y1="12.5" x2="43" y2="7" stroke-width="1.1" stroke-linecap="round"/>
+          <!-- Bottom lashes subtle -->
+          <line x1="20" y1="34" x2="18" y2="38.5" stroke-width="0.8" stroke-linecap="round" opacity="0.5"/>
+          <line x1="30" y1="34.5" x2="30" y2="39" stroke-width="0.8" stroke-linecap="round" opacity="0.5"/>
+          <line x1="40" y1="33.5" x2="42" y2="37.5" stroke-width="0.8" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+        <div class="svc-name">Realism</div>
+        <div class="svc-desc">Hyper-detailed portrait and photo-realistic tattoos. Every shadow, texture, and depth — executed with precision that turns skin into canvas.</div>
+      </div>
+
+      <!-- COVER UPS — Lotus rising over scribbled marks -->
+      <div class="svc-card rv rv-delay-1">
+        <svg class="svc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor">
+          <!-- Old tattoo scratch marks -->
+          <line x1="6" y1="46" x2="17" y2="36" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="3 3" opacity="0.28"/>
+          <line x1="8" y1="51" x2="21" y2="41" stroke-width="1" stroke-linecap="round" stroke-dasharray="2 4" opacity="0.2"/>
+          <line x1="4" y1="40" x2="13" y2="44" stroke-width="0.9" stroke-linecap="round" stroke-dasharray="2 3" opacity="0.18"/>
+          <!-- Stem -->
+          <path d="M28 50 Q27 44 28 36" stroke-width="1.4" stroke-linecap="round"/>
+          <!-- Left leaf on stem -->
+          <path d="M28 43 Q20 40 17 45 Q22 47 28 43z" stroke-width="1.2"/>
+          <!-- Lotus inner petals (back) -->
+          <path d="M28 34 Q21 24 23 16 Q28 22 28 30z" stroke-width="1.3"/>
+          <path d="M28 34 Q35 24 33 16 Q28 22 28 30z" stroke-width="1.3"/>
+          <!-- Lotus outer petals (front) -->
+          <path d="M28 32 Q16 22 16 28 Q20 34 28 32z" stroke-width="1.4"/>
+          <path d="M28 32 Q40 22 40 28 Q36 34 28 32z" stroke-width="1.4"/>
+          <!-- Center petal up -->
+          <path d="M28 30 Q26 18 28 10 Q30 18 28 30z" stroke-width="1.3"/>
+          <!-- Sparkle top left -->
+          <line x1="44" y1="13" x2="44" y2="7" stroke-width="1" stroke-linecap="round" opacity="0.7"/>
+          <line x1="41" y1="10" x2="47" y2="10" stroke-width="1" stroke-linecap="round" opacity="0.7"/>
+          <line x1="42" y1="8" x2="46" y2="12" stroke-width="0.7" stroke-linecap="round" opacity="0.4"/>
+          <line x1="46" y1="8" x2="42" y2="12" stroke-width="0.7" stroke-linecap="round" opacity="0.4"/>
+        </svg>
+        <div class="svc-name">Cover Ups</div>
+        <div class="svc-desc">Transform regret into art. Our artists specialize in covering old tattoos with stunning new designs that completely redefine the skin.</div>
+      </div>
+
+      <!-- FINE LINE — Tattoo machine needle with hair-thin lines -->
+      <div class="svc-card rv rv-delay-2">
+        <svg class="svc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor">
+          <!-- Machine grip body -->
+          <rect x="22" y="4" width="12" height="20" rx="2" stroke-width="1.4"/>
+          <!-- Grip texture lines -->
+          <line x1="24" y1="8" x2="24" y2="10" stroke-width="0.8" opacity="0.6"/>
+          <line x1="27" y1="8" x2="27" y2="10" stroke-width="0.8" opacity="0.6"/>
+          <line x1="30" y1="8" x2="30" y2="10" stroke-width="0.8" opacity="0.6"/>
+          <line x1="33" y1="8" x2="33" y2="10" stroke-width="0.8" opacity="0.6"/>
+          <line x1="24" y1="13" x2="24" y2="15" stroke-width="0.8" opacity="0.6"/>
+          <line x1="27" y1="13" x2="27" y2="15" stroke-width="0.8" opacity="0.6"/>
+          <line x1="30" y1="13" x2="30" y2="15" stroke-width="0.8" opacity="0.6"/>
+          <line x1="33" y1="13" x2="33" y2="15" stroke-width="0.8" opacity="0.6"/>
+          <!-- Needle tube -->
+          <line x1="28" y1="24" x2="28" y2="38" stroke-width="1.8" stroke-linecap="round"/>
+          <!-- Needle tip taper -->
+          <path d="M25 34 L28 44 L31 34" stroke-width="1.2" stroke-linejoin="round"/>
+          <!-- Fine lines from tip -->
+          <line x1="28" y1="44" x2="16" y2="54" stroke-width="0.55" stroke-linecap="round"/>
+          <line x1="28" y1="44" x2="28" y2="56" stroke-width="0.4" stroke-linecap="round" opacity="0.6"/>
+          <line x1="28" y1="44" x2="40" y2="54" stroke-width="0.55" stroke-linecap="round"/>
+          <line x1="28" y1="44" x2="10" y2="52" stroke-width="0.35" stroke-linecap="round" opacity="0.5"/>
+          <line x1="28" y1="44" x2="46" y2="52" stroke-width="0.35" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+        <div class="svc-name">Fine Line</div>
+        <div class="svc-desc">Delicate, intricate linework crafted with hair-thin precision. Minimalist elegance or complex botanical detail — refined to perfection.</div>
+      </div>
+
+      <!-- ANIME — Large dramatic anime eye -->
+      <div class="svc-card rv rv-delay-3">
+        <svg class="svc-icon" viewBox="0 0 60 56" fill="none" stroke="currentColor">
+          <!-- Outer eye shape — very large, anime proportion -->
+          <path d="M6 28 Q6 8 30 8 Q54 8 54 28 Q54 46 30 48 Q6 46 6 28z" stroke-width="1.4"/>
+          <!-- Bold top lid line -->
+          <path d="M6 24 Q30 4 54 24" stroke-width="3.5" stroke-linecap="round"/>
+          <!-- Large iris -->
+          <circle cx="30" cy="29" r="13" stroke-width="1.4"/>
+          <!-- Pupil -->
+          <circle cx="30" cy="29" r="6" fill="currentColor" opacity="0.35"/>
+          <!-- Main star highlight — large -->
+          <circle cx="36" cy="22" r="4.5" fill="currentColor"/>
+          <!-- Secondary highlight -->
+          <circle cx="23" cy="35" r="2" fill="currentColor" opacity="0.5"/>
+          <!-- Dot highlight tiny -->
+          <circle cx="38" cy="34" r="1" fill="currentColor" opacity="0.3"/>
+          <!-- Top dramatic lashes -->
+          <line x1="52" y1="20" x2="57" y2="12" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="46" y1="14" x2="49" y2="7" stroke-width="1.3" stroke-linecap="round"/>
+          <line x1="38" y1="10" x2="40" y2="3" stroke-width="1.2" stroke-linecap="round"/>
+          <!-- Blush marks -->
+          <line x1="2" y1="40" x2="8" y2="39" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+          <line x1="3" y1="43" x2="8" y2="42" stroke-width="1.2" stroke-linecap="round" opacity="0.28"/>
+          <line x1="52" y1="40" x2="58" y2="39" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+          <line x1="52" y1="43" x2="57" y2="42" stroke-width="1.2" stroke-linecap="round" opacity="0.28"/>
+        </svg>
+        <div class="svc-name">Anime</div>
+        <div class="svc-desc">Bring your favorite characters to life. Bold outlines, vibrant fills, and manga-accurate style — the best anime ink in Central Florida.</div>
+      </div>
+
+      <!-- WATERCOLOR — Ink drop with paintbrush strokes -->
+      <div class="svc-card rv rv-delay-4">
+        <svg class="svc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor">
+          <!-- Main ink drop -->
+          <path d="M28 6 Q42 22 42 34 Q42 48 28 52 Q14 48 14 34 Q14 22 28 6z" stroke-width="1.4"/>
+          <!-- Inner shine line -->
+          <path d="M28 13 Q37 24 36 34" stroke-width="0.7" stroke-linecap="round" opacity="0.5"/>
+          <path d="M26 15 Q21 26 22 36" stroke-width="0.5" stroke-linecap="round" opacity="0.3"/>
+          <!-- Brush stroke right -->
+          <path d="M43 18 Q50 13 54 8" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+          <path d="M45 26 Q53 25 56 21" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+          <path d="M44 34 Q52 35 55 32" stroke-width="0.9" stroke-linecap="round" opacity="0.35"/>
+          <!-- Brush stroke left -->
+          <path d="M13 18 Q6 13 2 8" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+          <path d="M11 26 Q3 25 0 21" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+          <!-- Splatter dots -->
+          <circle cx="48" cy="42" r="1.8" fill="currentColor" opacity="0.55"/>
+          <circle cx="52" cy="38" r="1.1" fill="currentColor" opacity="0.35"/>
+          <circle cx="46" cy="46" r="0.9" fill="currentColor" opacity="0.25"/>
+          <circle cx="8" cy="44" r="1.8" fill="currentColor" opacity="0.55"/>
+          <circle cx="4" cy="40" r="1.1" fill="currentColor" opacity="0.35"/>
+        </svg>
+        <div class="svc-name">Watercolor</div>
+        <div class="svc-desc">Flowing pigment, painterly bleeds, and dreamy color washes applied with artistic mastery. Wearable fine art that turns heads.</div>
+      </div>
+
+      <!-- BLACK & GRAY — Classic shaded rose -->
+      <div class="svc-card rv rv-delay-5">
+        <svg class="svc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor">
+          <!-- Stem -->
+          <path d="M28 52 Q26 46 28 40" stroke-width="1.4" stroke-linecap="round"/>
+          <!-- Left leaf -->
+          <path d="M28 45 Q18 41 14 47 Q20 49 28 45z" stroke-width="1.3"/>
+          <!-- Right leaf -->
+          <path d="M28 43 Q38 39 42 45 Q36 47 28 43z" stroke-width="1.3"/>
+          <!-- Rose base cup/sepal -->
+          <path d="M19 34 Q28 30 37 34 L35 40 Q28 42 21 40z" stroke-width="1.4"/>
+          <!-- Outer petals left -->
+          <path d="M19 34 Q11 24 15 16 Q22 21 19 34z" stroke-width="1.3"/>
+          <!-- Outer petals right -->
+          <path d="M37 34 Q45 24 41 16 Q34 21 37 34z" stroke-width="1.3"/>
+          <!-- Outer petal top-left -->
+          <path d="M21 30 Q16 18 24 10 Q29 18 21 30z" stroke-width="1.2"/>
+          <!-- Outer petal top-right -->
+          <path d="M35 30 Q40 18 32 10 Q27 18 35 30z" stroke-width="1.2"/>
+          <!-- Inner petal layer -->
+          <path d="M23 28 Q20 20 26 14 Q30 20 23 28z" stroke-width="1" opacity="0.7"/>
+          <path d="M33 28 Q36 20 30 14 Q26 20 33 28z" stroke-width="1" opacity="0.7"/>
+          <!-- Center rose spiral -->
+          <path d="M28 26 Q23 22 25 18 Q29 16 32 20 Q33 24 28 26z" stroke-width="1.2"/>
+          <!-- Innermost -->
+          <circle cx="28" cy="20" r="3" stroke-width="1.1"/>
+          <circle cx="28" cy="20" r="1.2" fill="currentColor" opacity="0.3"/>
+        </svg>
+        <div class="svc-name">Black &amp; Gray</div>
+        <div class="svc-desc">Classic shading, dramatic contrast, and timeless execution. From subtle gradients to bold blackwork — done with authority.</div>
+      </div>
+
+      <!-- PIERCINGS — Hoop ring with gem closure -->
+      <div class="svc-card rv">
+        <svg class="svc-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor">
+          <!-- Main hoop ring — large, open at top -->
+          <path d="M28 10 A18 18 0 1 0 28.01 10" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Ball closure at gap top -->
+          <circle cx="28" cy="9" r="5" stroke-width="1.4"/>
+          <!-- Gem facets on ball -->
+          <line x1="25" y1="8" x2="28" y2="5.5" stroke-width="0.8" opacity="0.6"/>
+          <line x1="31" y1="8" x2="28" y2="5.5" stroke-width="0.8" opacity="0.6"/>
+          <line x1="25" y1="10.5" x2="28" y2="12.5" stroke-width="0.7" opacity="0.4"/>
+          <line x1="31" y1="10.5" x2="28" y2="12.5" stroke-width="0.7" opacity="0.4"/>
+          <line x1="23" y1="9" x2="25" y2="9" stroke-width="0.7" opacity="0.5"/>
+          <line x1="31" y1="9" x2="33" y2="9" stroke-width="0.7" opacity="0.5"/>
+          <!-- Inner ring hint (gauge) -->
+          <path d="M28 14 A14 14 0 1 0 28.01 14" stroke-width="0.6" opacity="0.28" stroke-linecap="round"/>
+          <!-- Sparkle -->
+          <line x1="46" y1="12" x2="46" y2="8" stroke-width="0.9" stroke-linecap="round" opacity="0.5"/>
+          <line x1="44" y1="10" x2="48" y2="10" stroke-width="0.9" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+        <div class="svc-name">Piercings</div>
+        <div class="svc-desc">Professional piercing by trained specialists. Implant-grade jewelry, sterile technique, and expert placement for every style.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── PIERCINGS ── -->
+<section id="piercings">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="overline rv">Piercing Studio</div>
+      <h2 class="section-title rv rv-delay-1">EVERYTHING<br>WE PIERCE.</h2>
+      <div class="accent-line rv rv-delay-2"></div>
+      <p class="pierce-intro rv rv-delay-3">Professional piercing by certified specialists. Implant-grade jewelry, sterile technique, and expert placement for every style and every client.</p>
+    </div>
+
+    <!-- 6 Category Cards -->
+    <div class="pierce-grid">
+
+      <!-- EAR -->
+      <div class="pierce-card rv">
+        <svg class="pierce-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M6 12c0-3.31 2.69-6 6-6s6 2.69 6 6c0 4.5-3 7.5-5 9"/>
+          <path d="M9 13a3 3 0 006 0"/>
+          <circle cx="12" cy="12" r="1.2" fill="currentColor"/>
+        </svg>
+        <div class="pierce-cat-name">Ear Piercings</div>
+        <ul class="pierce-list">
+          <li>Anti-Tragus</li>
+          <li>Conch</li>
+          <li>Daith</li>
+          <li>Forward Helix</li>
+          <li>Helix / Cartilage</li>
+          <li>Industrial</li>
+          <li>Lobe (Single)</li>
+          <li>Lobe Set</li>
+          <li>Rook</li>
+          <li>Tragus</li>
+        </ul>
+      </div>
+
+      <!-- FACIAL -->
+      <div class="pierce-card rv rv-delay-1">
+        <svg class="pierce-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="7" r="4"/>
+          <path d="M6 21v-1a6 6 0 0112 0v1"/>
+          <line x1="12" y1="11" x2="12" y2="14"/>
+          <circle cx="12" cy="15.5" r="1" fill="currentColor"/>
+        </svg>
+        <div class="pierce-cat-name">Facial Piercings</div>
+        <ul class="pierce-list">
+          <li>Bridge</li>
+          <li>Cheek</li>
+          <li>Eyebrow</li>
+          <li>Lip</li>
+          <li>Nostril</li>
+          <li>Septum</li>
+        </ul>
+      </div>
+
+      <!-- ORAL -->
+      <div class="pierce-card rv rv-delay-2">
+        <svg class="pierce-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 10c0 5 4 8 9 8s9-3 9-8"/>
+          <path d="M3 10c0-2.5 2-4.5 4.5-4.5S11 7 12 7s4-.5 4.5-.5S21 7.5 21 10"/>
+          <line x1="9" y1="12" x2="15" y2="12"/>
+          <circle cx="12" cy="12" r="1.2" fill="currentColor"/>
+        </svg>
+        <div class="pierce-cat-name">Oral Piercings</div>
+        <ul class="pierce-list">
+          <li>Oral / Tongue</li>
+          <li>Snake Eyes / Frog Eyes</li>
+        </ul>
+      </div>
+
+      <!-- BODY -->
+      <div class="pierce-card rv rv-delay-3">
+        <svg class="pierce-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <ellipse cx="12" cy="7" rx="4" ry="5"/>
+          <path d="M8 10v3a4 4 0 008 0v-3"/>
+          <circle cx="12" cy="16" r="1.5"/>
+          <path d="M10.5 16.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5"/>
+        </svg>
+        <div class="pierce-cat-name">Body Piercings</div>
+        <ul class="pierce-list">
+          <li>Dermal</li>
+          <li>Navel</li>
+          <li>Nipple (Single)</li>
+          <li>Nipple Set</li>
+          <li>Surface Piercing</li>
+        </ul>
+      </div>
+
+      <!-- SPECIALTY -->
+      <div class="pierce-card rv rv-delay-4">
+        <svg class="pierce-cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        <div class="pierce-cat-name">Specialty</div>
+        <ul class="pierce-list">
+          <li>Angel Bites</li>
+          <li>Snake Bites</li>
+          <li>Hoop — Basic</li>
+          <li>Hoop — Invictus</li>
+          <li>Exotic / Genital</li>
+        </ul>
+      </div>
+
+      <!-- JEWELRY -->
+      <div class="pierce-card rv rv-delay-5">
+        <svg class="pierce-cat-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor">
+          <path d="M28 10 A18 18 0 1 0 28.01 10" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="28" cy="9" r="5" stroke-width="1.4"/>
+          <line x1="25" y1="8" x2="28" y2="5.5" stroke-width="0.8" opacity="0.6"/>
+          <line x1="31" y1="8" x2="28" y2="5.5" stroke-width="0.8" opacity="0.6"/>
+          <line x1="25" y1="10.5" x2="28" y2="12.5" stroke-width="0.7" opacity="0.4"/>
+          <line x1="31" y1="10.5" x2="28" y2="12.5" stroke-width="0.7" opacity="0.4"/>
+          <path d="M28 14 A14 14 0 1 0 28.01 14" stroke-width="0.6" opacity="0.3" stroke-linecap="round"/>
+        </svg>
+        <div class="pierce-cat-name">Jewelry</div>
+        <ul class="pierce-list">
+          <li>Implant-Grade Titanium</li>
+          <li>14k / 18k Gold</li>
+          <li>Surgical Steel</li>
+          <li>Custom Jewelry Available</li>
+          <li>Downsizing Service</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Infant & Minor Section -->
+    <div class="pierce-infant-card rv">
+      <div>
+        <div class="pierce-infant-badge"><span>Special Requirements</span></div>
+        <div class="pierce-infant-title">INFANT &amp;<br>MINOR PIERCINGS</div>
+        <p class="pierce-infant-body">We proudly offer safe, professional piercings for infants and minors. Our licensed piercers follow strict safety protocols with your child's comfort as the priority. A welcoming, inclusive environment for every family.</p>
+        <div class="pierce-infant-req">
+          <div class="pierce-infant-req-item">Parent or legal guardian must be present throughout the entire appointment</div>
+          <div class="pierce-infant-req-item">Valid government-issued ID required for the parent or guardian</div>
+          <div class="pierce-infant-req-item">Minor's birth certificate or school ID may be required</div>
+          <div class="pierce-infant-req-item">Consent form must be signed before any piercing is performed</div>
+          <div class="pierce-infant-req-item">Notary services available at both Kissimmee and Deltona locations</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#eab308;margin-bottom:18px;">Age Requirements</div>
+        <div class="pierce-age-box">
+          <div class="pierce-age-label">Infants</div>
+          <div class="pierce-age-body">Ear lobes only. Parent/guardian consent required. We recommend waiting until infant is at least 2 months old and in good health.</div>
+        </div>
+        <div class="pierce-age-box">
+          <div class="pierce-age-label">Minors (Under 18)</div>
+          <div class="pierce-age-body">Most piercings available with verified parental consent and a valid signed form. Some restrictions may apply based on age and piercing type.</div>
+        </div>
+        <div class="pierce-age-box">
+          <div class="pierce-age-label">Notary Services</div>
+          <div class="pierce-age-body">Need a notarized consent form? We assist with notary services at both our Kissimmee and Deltona studio locations. Ask our team upon arrival.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Piercing CTAs -->
+    <div class="pierce-cta-row rv">
+      <a href="#" class="pierce-consent-btn" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Download Consent Form
+      </a>
+      <div class="pierce-book-row">
+        <a href="tel:+13218443735" class="btn-primary" style="font-size:10px;padding:14px 22px;letter-spacing:2px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 4.18 2 2 0 015 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L9.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Book Piercing — Kissimmee
+        </a>
+        <a href="tel:+13863781903" class="btn-outline" style="font-size:10px;padding:14px 22px;letter-spacing:2px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 4.18 2 2 0 015 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L9.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Book Piercing — Deltona
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── ABOUT + REVIEWS ── -->
+<section id="about">
+  <div class="about-grid">
+    <div>
+      <div class="overline rv">Why Tiger Tattoos</div>
+      <h2 class="about-headline rv rv-delay-1">WHERE<br>EXCELLENCE<br>IS THE <em>STANDARD.</em></h2>
+      <p class="about-body rv rv-delay-2">Tiger Tattoos isn't just a studio — it's a commitment. From your first consult to the moment you walk out the door, every detail is handled with intention, precision, and care.</p>
+      <p class="about-body rv rv-delay-3">Our artists have mastered every style on the board. Whether you bring a concept or a blank canvas, we build something that's yours — permanent, powerful, and perfectly executed.</p>
+      <div class="about-stat-row rv rv-delay-4">
+        <div><div class="as-num">5.0</div><div class="as-label">Star Rating</div></div>
+        <div><div class="as-num">671<span style="font-size:22px;color:var(--muted);">+</span></div><div class="as-label">Reviews</div></div>
+        <div><div class="as-num">2</div><div class="as-label">Locations</div></div>
+      </div>
+      <!-- Google Review CTA -->
+      <div class="review-cta-wrap rv rv-delay-5">
+        <div class="review-cta-label">Leave a Google Review</div>
+        <a href="https://www.google.com/maps/search/Tiger+Tattoos+Kissimmee+FL" target="_blank" rel="noopener" class="btn-google-review">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Review — Kissimmee
+        </a>
+        <a href="https://www.google.com/maps/search/Tiger+Tattoos+Deltona+FL" target="_blank" rel="noopener" class="btn-google-review">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Review — Deltona
+        </a>
+      </div>
+    </div>
+
+    <div class="reviews-col">
+      <div class="rv-card rv">
+        <div class="rv-source">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google Review
+        </div>
+        <div class="rv-stars">★★★★★</div>
+        <div class="rv-text">"I cannot say enough good things about Tiger Tattoos. Got a full sleeve started here and the detail work is insane. Every session leaves me blown away. These artists are next level."</div>
+        <div class="rv-author">Marcus D. &nbsp;&middot;&nbsp; Deltona, FL</div>
+      </div>
+      <div class="rv-card rv rv-delay-1">
+        <div class="rv-source">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google Review
+        </div>
+        <div class="rv-stars">★★★★★</div>
+        <div class="rv-text">"Came in with an old tattoo I hated — walked out with a cover-up I'm obsessed with. The transformation was unreal. The whole team was professional, clean, and genuinely talented."</div>
+        <div class="rv-author">Priya M. &nbsp;&middot;&nbsp; Kissimmee, FL</div>
+      </div>
+      <div class="rv-card rv rv-delay-2">
+        <div class="rv-source">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google Review
+        </div>
+        <div class="rv-stars">★★★★★</div>
+        <div class="rv-text">"My anime piece is everything I imagined and more. The artist really listened, offered suggestions, and the final result was perfect. Tiger Tattoos is the only place I'll go from now on."</div>
+        <div class="rv-author">Carlos R. &nbsp;&middot;&nbsp; Orlando, FL</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LOCATIONS ── -->
+<section id="locations">
+  <div class="loc-header-wrap">
+    <div class="overline rv">Find Us</div>
+    <h2 class="section-title rv rv-delay-1">TWO LOCATIONS.<br>ONE MISSION.</h2>
+    <div class="accent-line rv rv-delay-2"></div>
+  </div>
+
+  <div class="loc-grid">
+
+    <!-- KISSIMMEE — FIRST -->
+    <div class="loc-card rv">
+      <div class="loc-badge"><div class="loc-badge-dot"></div><span>Now Open</span></div>
+      <div class="loc-name">KISSIMMEE</div>
+      <div class="loc-reviews">
+        <div class="loc-score">5.0</div>
+        <div class="loc-stars">★★★★★</div>
+        <div class="loc-count">137 Google Reviews</div>
+      </div>
+      <div class="loc-addr"><strong>4145 W Vine St</strong><br>Kissimmee, FL 34741</div>
+      <div class="loc-hours">
+        <div class="loc-hours-title">Hours of Operation</div>
+        <div class="hours-row"><span class="day">Mon – Wed</span><span>Closed</span></div>
+        <div class="hours-row"><span class="day">Thu – Sat</span><span>11:00 AM – 12:00 AM</span></div>
+        <div class="hours-row"><span class="day">Sunday</span><span>11:00 AM – 7:00 PM</span></div>
+      </div>
+      <!-- Google Maps Embed -->
+      <div class="loc-map">
+        <iframe src="https://maps.google.com/maps?q=4145+W+Vine+St+Kissimmee+FL+34741&output=embed&z=15" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="Tiger Tattoos Kissimmee"></iframe>
+      </div>
+      <div class="loc-actions" style="margin-top:20px;">
+        <a href="tel:+13218443735" class="loc-btn-primary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 4.18 2 2 0 015 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L9.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+          (321) 844-3735
+        </a>
+        <a href="https://maps.google.com/?q=4145+W+Vine+St+Kissimmee+FL+34741" target="_blank" rel="noopener" class="loc-btn-secondary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Directions
+        </a>
+      </div>
+    </div>
+
+    <!-- DELTONA — SECOND -->
+    <div class="loc-card rv rv-delay-1">
+      <div class="loc-badge"><div class="loc-badge-dot"></div><span>Now Open</span></div>
+      <div class="loc-name">DELTONA</div>
+      <div class="loc-reviews">
+        <div class="loc-score">5.0</div>
+        <div class="loc-stars">★★★★★</div>
+        <div class="loc-count">534 Google Reviews</div>
+      </div>
+      <div class="loc-addr"><strong>1382 Howland Blvd, Suite 8</strong><br>Deltona, FL 32738</div>
+      <div class="loc-hours">
+        <div class="loc-hours-title">Hours of Operation</div>
+        <div class="hours-row"><span class="day">Mon – Wed</span><span>Closed</span></div>
+        <div class="hours-row"><span class="day">Thursday</span><span>11:00 AM – 10:00 PM</span></div>
+        <div class="hours-row"><span class="day">Fri – Sat</span><span>11:00 AM – 12:00 AM</span></div>
+        <div class="hours-row"><span class="day">Sunday</span><span>11:00 AM – 7:00 PM</span></div>
+      </div>
+      <!-- Google Maps Embed -->
+      <div class="loc-map">
+        <iframe src="https://maps.google.com/maps?q=1382+Howland+Blvd+Deltona+FL+32738&output=embed&z=15" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="Tiger Tattoos Deltona"></iframe>
+      </div>
+      <div class="loc-actions" style="margin-top:20px;">
+        <a href="tel:+13863781903" class="loc-btn-primary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 4.18 2 2 0 015 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L9.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+          (386) 378-1903
+        </a>
+        <a href="https://maps.google.com/?q=1382+Howland+Blvd+Suite+8+Deltona+FL+32738" target="_blank" rel="noopener" class="loc-btn-secondary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Directions
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── LOCAL AREA ── -->
+<section id="local-area">
+  <div class="local-area-inner">
+    <div class="section-header">
+      <div class="overline rv">Service Area</div>
+      <h2 class="section-title rv rv-delay-1">WE SERVE<br>CENTRAL FLORIDA.</h2>
+      <div class="accent-line rv rv-delay-2"></div>
+      <p class="pierce-intro rv rv-delay-3" style="margin-top:20px;">From Orlando to the coast — wherever you are in Central Florida, world-class tattoos and piercings are within reach. Two locations, one legendary standard.</p>
+    </div>
+    <div class="city-grid rv rv-delay-4">
+      <span class="city-pill">Orlando</span>
+      <span class="city-pill">Kissimmee</span>
+      <span class="city-pill">Deltona</span>
+      <span class="city-pill">Sanford</span>
+      <span class="city-pill">Lake Mary</span>
+      <span class="city-pill">Longwood</span>
+      <span class="city-pill">Altamonte Springs</span>
+      <span class="city-pill">Casselberry</span>
+      <span class="city-pill">Winter Park</span>
+      <span class="city-pill">Celebration</span>
+      <span class="city-pill">Daytona Beach</span>
+      <span class="city-pill">DeLand</span>
+      <span class="city-pill">Orange City</span>
+      <span class="city-pill">Edgewater</span>
+      <span class="city-pill">New Smyrna Beach</span>
+      <span class="city-pill">Oviedo</span>
+      <span class="city-pill">Winter Springs</span>
+      <span class="city-pill">Lake Buena Vista</span>
+      <span class="city-pill">Clermont</span>
+      <span class="city-pill">Leesburg</span>
+      <span class="city-pill">Apopka</span>
+      <span class="city-pill">St. Cloud</span>
+      <span class="city-pill">Poinciana</span>
+      <span class="city-pill">Haines City</span>
+      <span class="city-pill">Winter Haven</span>
+      <span class="city-pill">Osceola County</span>
+      <span class="city-pill">Volusia County</span>
+      <span class="city-pill">Seminole County</span>
+      <span class="city-pill">Orange County</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ── -->
+<section id="cta">
+  <div class="cta-ghost">TIGER</div>
+  <div class="cta-inner">
+    <div class="overline rv">Ready?</div>
+    <h2 class="cta-title rv rv-delay-1">READY TO<br>INK YOUR<br><em>STORY?</em></h2>
+    <p class="cta-sub rv rv-delay-2">Walk in or call ahead. Our artists are ready to bring your vision to life — no judgment, no templates, just world-class work.</p>
+    <div class="cta-phones rv rv-delay-3">
+      <div class="cta-phone-block">
+        <div class="cta-phone-loc">Kissimmee</div>
+        <a href="tel:+13218443735" class="cta-phone-num">(321) 844-3735</a>
+      </div>
+      <div class="cta-divider"></div>
+      <div class="cta-phone-block">
+        <div class="cta-phone-loc">Deltona</div>
+        <a href="tel:+13863781903" class="cta-phone-num">(386) 378-1903</a>
+      </div>
+    </div>
+    <div class="cta-btns rv rv-delay-4">
+      <a href="https://www.instagram.com/tigertattoosfl/" target="_blank" rel="noopener" class="btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        Instagram
+      </a>
+      <a href="https://www.facebook.com/tigertattoosfl" target="_blank" rel="noopener" class="btn-outline">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+        Facebook
+      </a>
+      <a href="mailto:Info@tiger-tattoos.com" class="btn-outline">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email Us
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-logo-col">
+        <img src="https://assets.cdn.filesafe.space/QWZPYWo1AgLpLjHTG6OA/media/69a5c84f9c149932493ad848.png" alt="Tiger Tattoos" class="footer-logo">
+        <div class="footer-tagline">Central Florida's premier tattoo &amp; piercing studio.<br>Two locations. One relentless standard.</div>
+      </div>
+      <div class="footer-links-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#piercings">Piercings</a></li>
+          <li><a href="#about">Reviews</a></li>
+          <li><a href="#locations">Locations</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact-col">
+        <h4>Contact</h4>
+        <a href="tel:+13863781903" class="footer-contact-item">Deltona: (386) 378-1903</a>
+        <a href="tel:+13218443735" class="footer-contact-item">Kissimmee: (321) 844-3735</a>
+        <a href="mailto:Info@tiger-tattoos.com" class="footer-contact-item">Info@tiger-tattoos.com</a>
+        <div class="footer-contact-item" style="margin-top:10px;font-size:11px;letter-spacing:0.3px;color:var(--muted2);">
+          Mon–Wed 11AM–8PM &nbsp;|&nbsp; Thu 11AM–10PM<br>
+          Fri–Sat 11AM–12AM &nbsp;|&nbsp; Sun 11AM–7PM
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; 2026 Tiger Tattoos. All rights reserved. &nbsp;&middot;&nbsp; Deltona &amp; Kissimmee, FL</div>
+      <div class="footer-socials">
+        <a href="https://www.instagram.com/tigertattoosfl/" target="_blank" rel="noopener" class="footer-social-link" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="https://www.facebook.com/tigertattoosfl" target="_blank" rel="noopener" class="footer-social-link" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+        </a>
+        <a href="https://maps.google.com/?q=Tiger+Tattoos+Kissimmee+FL" target="_blank" rel="noopener" class="footer-social-link" aria-label="Google Maps">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ── SCRIPTS ── -->
+<script>
+
+/* ── HERO VIDEO — bulletproof autoplay loop ── */
+(function(){
+  var v = document.getElementById('hero-vid');
+  if(!v) return;
+  v.muted = true;
+  v.loop  = true;
+  v.setAttribute('playsinline','');
+  function tryPlay(){
+    v.muted = true;
+    var p = v.play();
+    if(p && p.catch) p.catch(function(){});
+  }
+  /* Fire immediately */
+  tryPlay();
+  /* Fire on every readiness event */
+  ['loadeddata','canplay','canplaythrough','loadedmetadata'].forEach(function(ev){
+    v.addEventListener(ev, tryPlay);
+  });
+  /* Fire on page load */
+  document.addEventListener('DOMContentLoaded', function(){ v.load(); tryPlay(); });
+  window.addEventListener('load', tryPlay);
+  /* Interval fallback: retry every 400ms for the first 8 seconds */
+  var attempts = 0;
+  var ivl = setInterval(function(){
+    if(!v.paused){ clearInterval(ivl); return; }
+    tryPlay();
+    if(++attempts >= 20) clearInterval(ivl);
+  }, 400);
+  /* iOS / touch fallback — first user gesture */
+  document.addEventListener('touchstart', tryPlay, {once:true, passive:true});
+  document.addEventListener('click',      tryPlay, {once:true});
+  /* IntersectionObserver — replay when scrolled back into view */
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting) tryPlay(); });
+    }).observe(v);
+  }
+})();
+
+/* ── HERO TEXT REVEAL ── */
+(function(){
+  var items = [
+    document.getElementById('hero-overline'),
+    document.getElementById('ht1'),
+    document.getElementById('ht2'),
+    document.getElementById('hero-sub'),
+    document.getElementById('hero-btns')
+  ];
+  items.forEach(function(el){
+    if(!el) return;
+    el.style.opacity='0';
+    el.style.transform='translateY(28px)';
+    el.style.transition='opacity 0.85s cubic-bezier(0.25,0.46,0.45,0.94),transform 0.85s cubic-bezier(0.25,0.46,0.45,0.94)';
+  });
+  function reveal(){
+    items.forEach(function(el,i){
+      if(!el) return;
+      setTimeout(function(){
+        el.style.opacity='1';
+        el.style.transform='translateY(0)';
+      }, 180 + i*150);
+    });
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', reveal); }
+  else { setTimeout(reveal, 80); }
+})();
+
+/* ── SCROLL REVEAL ── */
+(function(){
+  var els = document.querySelectorAll('.rv');
+  if(!els.length) return;
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); }
+      });
+    },{threshold:0.07,rootMargin:'0px 0px -48px 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  } else {
+    function check(){
+      els.forEach(function(el){
+        if(!el.classList.contains('on') && el.getBoundingClientRect().top < window.innerHeight - 50){
+          el.classList.add('on');
+        }
+      });
+    }
+    window.addEventListener('scroll', check, {passive:true});
+    check();
+  }
+})();
+
+/* ── SLIDESHOW ── */
+(function(){
+  var slides   = document.querySelectorAll('.ss-slide');
+  var counter  = document.getElementById('ssCounter');
+  var fill     = document.getElementById('ssProgressFill');
+  var btnPrev  = document.getElementById('ssPrev');
+  var btnNext  = document.getElementById('ssNext');
+  var total    = slides.length;
+  var current  = 0;
+  var timer    = null;
+  var INTERVAL = 5000;
+
+  function pct(n){ return ((n+1)/total*100).toFixed(2)+'%'; }
+
+  function goTo(n){
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    if(counter) counter.textContent = String(current+1).padStart(2,'0')+' / '+String(total).padStart(2,'0');
+    if(fill) fill.style.width = pct(current);
+  }
+
+  function next(){ goTo(current+1); }
+  function prev(){ goTo(current-1); }
+
+  function startTimer(){ timer = setInterval(next, INTERVAL); }
+  function resetTimer(){ clearInterval(timer); startTimer(); }
+
+  if(fill) fill.style.width = pct(0);
+
+  if(btnPrev){ btnPrev.addEventListener('click', function(){ prev(); resetTimer(); }); }
+  if(btnNext){ btnNext.addEventListener('click', function(){ next(); resetTimer(); }); }
+
+  /* Keyboard navigation */
+  document.addEventListener('keydown', function(e){
+    if(e.key==='ArrowLeft'){ prev(); resetTimer(); }
+    if(e.key==='ArrowRight'){ next(); resetTimer(); }
+  });
+
+  /* Touch / swipe */
+  var stack = document.getElementById('ssStack');
+  if(stack){
+    var startX = 0;
+    stack.addEventListener('touchstart', function(e){ startX = e.touches[0].clientX; }, {passive:true});
+    stack.addEventListener('touchend', function(e){
+      var dx = e.changedTouches[0].clientX - startX;
+      if(Math.abs(dx) > 44){
+        if(dx < 0){ next(); } else { prev(); }
+        resetTimer();
+      }
+    }, {passive:true});
+  }
+
+  startTimer();
+})();
+</script>
+
+</body>
+</html>

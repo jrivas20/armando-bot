@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About SOCF Fitness | Orlando's #1 Functional Fitness Community</title>
+<meta name="description" content="SOCF Fitness is Orlando's #1 functional fitness gym — 9 years strong. 111 five-star reviews, HYROX training, functional fitness, Competitors &amp; Kids Fit programs. Learn our story.">
+<meta name="keywords" content="about SOCF Fitness, functional fitness community Orlando, best gym Orlando, HYROX gym Orlando, CrossFit community Orlando, Orlando fitness gym story, gym near me Orlando FL">
+<meta property="og:title" content="About SOCF Fitness | Orlando's #1 Functional Fitness Community">
+<meta property="og:description" content="More than a gym — a community built on intensity, results, and showing up. 111 five-star reviews. Orlando, FL.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.socffitness.com/about">
+<link rel="canonical" href="https://www.socffitness.com/about">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SportsActivityLocation","name":"SOCF Fitness","description":"Orlando's premier functional fitness gym offering HYROX training, Functional Fitness, Competitors program, and Kids Fit.","url":"https://www.socffitness.com","telephone":"(407) 550-5898","address":{"@type":"PostalAddress","addressLocality":"Orlando","addressRegion":"FL","addressCountry":"US"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"5","reviewCount":"111"}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,800;0,900;1,800;1,900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
+
+<style>
+/* ── GHL OVERRIDE ───────────────────────────────────────── */
+html,body,.c-section,.c-wrapper,.row-container,.c-row,.c-column,.vertical,.full,
+.hl-builder,.hl_page-preview,#full-width-row,.section,.inner,.container,
+.container-fluid,.row,section.c-section,div[data-default-columns],
+[class*="container"],[class*="section"],[class*="wrapper"],[class*="inner"],
+[class*="full-width"],[class*="hl_"],[id*="section"],[id*="row"]{
+  max-width:100%!important;width:100%!important;
+  margin-left:0!important;margin-right:0!important;
+  padding-left:0!important;padding-right:0!important;
+  box-sizing:border-box!important;overflow-x:hidden!important;}
+html,body{overflow-x:hidden!important;}
+
+/* ── VARS ───────────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --black:#060606;--dark:#0e0e0e;--card:#131313;--card2:#181818;
+  --lime:#C8FF00;--white:#fff;--gray:#555;--gray2:#888;
+  --fd:'Barlow Condensed',Impact,sans-serif;
+  --fb:'Inter',system-ui,sans-serif;
+  --g:clamp(20px,4vw,72px);
+  --sp:clamp(80px,10vw,140px);
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+}
+html{scroll-behavior:auto;}
+body{font-family:var(--fb);background:var(--black);color:var(--white);
+  -webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden;cursor:none;}
+a{color:inherit;text-decoration:none;}
+img,video{max-width:100%;display:block;}
+
+/* ── CURSOR ─────────────────────────────────────────────── */
+.cur{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;mix-blend-mode:difference;}
+.cur-ball{width:40px;height:40px;border-radius:50%;background:var(--lime);
+  transform:translate(-50%,-50%) scale(0.35);transition:transform 0.25s var(--ease-out);}
+.cur.active .cur-ball{transform:translate(-50%,-50%) scale(1);}
+.cur.text-mode .cur-ball{transform:translate(-50%,-50%) scale(3);background:rgba(200,255,0,.15);}
+
+/* ── GRAIN ──────────────────────────────────────────────── */
+.grain{position:fixed;inset:0;z-index:9990;pointer-events:none;opacity:.028;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px;animation:grain 0.4s steps(1) infinite;}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-4%,3%)}50%{transform:translate(3%,-5%)}75%{transform:translate(-2%,6%)}100%{transform:translate(0,0)}}
+
+/* ── PRELOADER ───────────────────────────────────────────── */
+#loader{position:fixed;inset:0;z-index:9998;background:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;}
+.loader-count{font-family:var(--fd);font-size:clamp(80px,18vw,200px);
+  font-style:italic;font-weight:900;color:#fff;letter-spacing:-.02em;
+  line-height:1;clip-path:inset(0 0 0 0);}
+.loader-bar-wrap{width:clamp(120px,20vw,220px);height:1px;background:rgba(255,255,255,.1);margin-top:24px;}
+.loader-bar{height:1px;background:var(--lime);width:0;}
+.loader-label{font-size:9px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;
+  color:rgba(255,255,255,.25);margin-top:14px;}
+
+/* ── STICKY BAR ─────────────────────────────────────────── */
+.bar{position:fixed;top:0;left:0;right:0;z-index:1000;padding:18px var(--g);
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background .5s,backdrop-filter .5s;}
+.bar.bg{background:rgba(6,6,6,.88);backdrop-filter:blur(24px);}
+.bar-logo{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(18px,2.2vw,24px);letter-spacing:.06em;text-transform:uppercase;}
+.bar-logo em{color:var(--lime);font-style:normal;}
+.bar-right{display:flex;align-items:center;gap:24px;}
+.bar-tag{font-size:9px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;
+  color:rgba(255,255,255,.28);display:none;}
+@media(min-width:860px){.bar-tag{display:block;}}
+
+/* ── MAGNETIC BTN ────────────────────────────────────────── */
+.mag-wrap{display:inline-block;position:relative;}
+.mag-btn{display:inline-block;padding:13px 28px;font-size:10px;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;transition:background .2s,color .2s;
+  position:relative;will-change:transform;}
+.mag-btn.lime{background:var(--lime);color:#000;}
+.mag-btn.lime:hover{background:#d8ff20;}
+.mag-btn.ghost{border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.8);}
+.mag-btn.ghost:hover{border-color:var(--lime);color:var(--lime);}
+
+/* ── BADGE ───────────────────────────────────────────────── */
+.badge-fixed{position:fixed;bottom:28px;right:28px;z-index:1001;
+  width:72px;height:72px;border-radius:50%;overflow:hidden;
+  animation:badgePulse 3.5s ease-in-out infinite;}
+.badge-fixed img{width:100%;height:100%;object-fit:cover;}
+@keyframes badgePulse{
+  0%,100%{box-shadow:0 0 0 2px var(--lime),0 8px 32px rgba(0,0,0,.6)}
+  50%{box-shadow:0 0 0 5px var(--lime),0 0 48px rgba(200,255,0,.22),0 8px 32px rgba(0,0,0,.6)}
+}
+
+/* ── HERO ────────────────────────────────────────────────── */
+.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;}
+.hero-vid-wrap{position:absolute;inset:0;z-index:1;overflow:hidden;}
+.hero-vid{width:100%;height:110%;object-fit:cover;transform-origin:center;will-change:transform;}
+.hero-overlay{position:absolute;inset:0;z-index:2;
+  background:linear-gradient(to bottom,rgba(6,6,6,.25) 0%,rgba(6,6,6,.55) 50%,rgba(6,6,6,.97) 100%);}
+.hero-inner{position:relative;z-index:3;
+  padding:0 var(--g) clamp(64px,9vh,110px);width:100%;max-width:1600px;}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--lime);display:flex;align-items:center;gap:14px;margin-bottom:20px;opacity:0;}
+.hero-eyebrow::before{content:'';width:28px;height:1px;background:var(--lime);}
+.hero-h1{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(68px,11vw,160px);line-height:.86;letter-spacing:-.01em;
+  text-transform:uppercase;overflow:hidden;}
+.hero-h1 .char{display:inline-block;transform:translateY(110%) rotate(5deg);opacity:0;}
+.hero-h1 .hi{color:var(--lime);}
+.hero-h1 .dim{color:rgba(255,255,255,.14);}
+.hero-sub{font-size:clamp(14px,1.4vw,17px);line-height:1.78;
+  color:rgba(255,255,255,.48);max-width:520px;margin-top:24px;margin-bottom:40px;
+  opacity:0;transform:translateY(20px);}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;opacity:0;transform:translateY(20px);}
+
+/* ── MARQUEE ─────────────────────────────────────────────── */
+.marquee-wrap{background:var(--lime);overflow:hidden;padding:18px 0;}
+.marquee-track{display:flex;white-space:nowrap;animation:marquee 30s linear infinite;}
+.marquee-track:hover{animation-play-state:paused;}
+.marquee-item{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(17px,2.2vw,24px);text-transform:uppercase;letter-spacing:.06em;
+  color:#000;padding:0 32px;flex-shrink:0;}
+.marquee-sep{opacity:.3;}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── STORY ───────────────────────────────────────────────── */
+.story{padding:var(--sp) var(--g);display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,96px);align-items:center;}
+@media(max-width:860px){.story{grid-template-columns:1fr;}}
+.story-media{position:relative;overflow:hidden;}
+.story-vid{width:100%;aspect-ratio:9/11;object-fit:cover;}
+.story-media-accent{position:absolute;top:-16px;left:-16px;width:60%;height:2px;background:var(--lime);}
+.story-media-accent2{position:absolute;bottom:-16px;right:-16px;width:40%;height:2px;background:var(--lime);}
+.story-year{position:absolute;top:20px;right:20px;
+  font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(56px,8vw,96px);line-height:1;letter-spacing:-.02em;
+  color:rgba(0,0,0,.0);-webkit-text-stroke:1px rgba(255,255,255,.08);}
+.story-text{}
+.story-pre{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--lime);display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.story-pre::before{content:'';width:24px;height:1px;background:var(--lime);}
+.story-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(44px,6.5vw,88px);line-height:.88;text-transform:uppercase;
+  letter-spacing:-.01em;margin-bottom:28px;}
+.story-body{font-size:clamp(14px,1.2vw,16px);line-height:1.85;
+  color:rgba(255,255,255,.42);margin-bottom:28px;}
+.story-body + .story-body{margin-top:0;}
+
+/* ── TIMELINE ────────────────────────────────────────────── */
+.timeline{padding:var(--sp) var(--g);background:var(--dark);}
+.tl-head{text-align:center;margin-bottom:clamp(56px,7vw,96px);}
+.tl-pre{font-size:10px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--lime);margin-bottom:16px;}
+.tl-title{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(48px,7vw,96px);line-height:.88;text-transform:uppercase;letter-spacing:-.01em;}
+.tl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
+@media(max-width:760px){.tl-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.tl-grid{grid-template-columns:1fr;}}
+.tl-item{background:var(--card);padding:clamp(28px,3.5vw,52px) clamp(20px,2.5vw,36px);
+  border-top:2px solid transparent;transition:border-color .35s,background .35s;position:relative;overflow:hidden;}
+.tl-item:hover{border-color:var(--lime);background:var(--card2);}
+.tl-year{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(48px,5vw,72px);line-height:1;letter-spacing:-.02em;
+  color:rgba(255,255,255,.07);position:absolute;top:12px;right:16px;
+  -webkit-text-stroke:1px rgba(255,255,255,.06);}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--lime);margin-bottom:20px;}
+.tl-label{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--lime);margin-bottom:12px;}
+.tl-fact{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(22px,2.8vw,38px);text-transform:uppercase;line-height:.96;margin-bottom:12px;}
+.tl-desc{font-size:12px;line-height:1.7;color:rgba(255,255,255,.3);}
+
+/* ── PILLARS ─────────────────────────────────────────────── */
+.pillars{padding:var(--sp) var(--g);background:var(--black);}
+.pillars-head{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end;
+  margin-bottom:clamp(48px,6vw,80px);}
+@media(max-width:760px){.pillars-head{grid-template-columns:1fr;gap:24px;}}
+.pillars-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(44px,7vw,96px);line-height:.88;text-transform:uppercase;letter-spacing:-.01em;}
+.pillars-sub{font-size:clamp(14px,1.2vw,16px);line-height:1.85;color:rgba(255,255,255,.35);}
+.pillars-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+@media(max-width:680px){.pillars-grid{grid-template-columns:1fr;}}
+.pillar{background:var(--card);padding:clamp(32px,4vw,56px) clamp(24px,3vw,40px);
+  position:relative;overflow:hidden;transition:background .4s;}
+.pillar:hover{background:var(--card2);}
+.pillar-num{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(80px,11vw,140px);line-height:1;letter-spacing:-.04em;
+  color:rgba(255,255,255,.04);position:absolute;top:-8px;right:16px;
+  -webkit-text-stroke:1px rgba(255,255,255,.04);}
+.pillar-icon{width:40px;height:40px;margin-bottom:24px;position:relative;z-index:1;}
+.pillar-icon svg{width:100%;height:100%;}
+.pillar-title{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(28px,3vw,44px);text-transform:uppercase;line-height:.92;
+  margin-bottom:16px;position:relative;z-index:1;}
+.pillar-body{font-size:13px;line-height:1.8;color:rgba(255,255,255,.35);
+  position:relative;z-index:1;}
+.pillar-line{position:absolute;bottom:0;left:0;width:0;height:2px;
+  background:var(--lime);transition:width .5s var(--ease-out);}
+.pillar:hover .pillar-line{width:100%;}
+
+/* ── GALLERY (HORIZONTAL) ────────────────────────────────── */
+.h-gallery{background:var(--dark);}
+.h-gallery-pin{overflow:hidden;}
+.h-gallery-track{display:flex;gap:3px;padding:clamp(40px,5vw,72px) var(--g);width:max-content;}
+.h-gal-item{flex-shrink:0;width:clamp(260px,28vw,380px);
+  height:clamp(340px,40vw,520px);overflow:hidden;position:relative;cursor:none;}
+.h-gal-item.tall{height:clamp(480px,55vw,680px);}
+.h-gal-item.wide{width:clamp(380px,42vw,560px);}
+.h-gal-item img{width:100%;height:100%;object-fit:cover;
+  transition:transform 1.4s var(--ease-out);will-change:transform;}
+.h-gal-item:hover img{transform:scale(1.06);}
+.h-gal-overlay{position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 50%);z-index:1;
+  opacity:0;transition:opacity .4s;}
+.h-gal-item:hover .h-gal-overlay{opacity:1;}
+.h-gal-label{position:absolute;bottom:18px;left:18px;z-index:2;
+  font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--lime);opacity:0;transform:translateY(8px);transition:all .35s;}
+.h-gal-item:hover .h-gal-label{opacity:1;transform:translateY(0);}
+.gallery-header{padding:var(--sp) var(--g) 0;display:flex;align-items:flex-end;
+  justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.gallery-title{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(40px,6vw,80px);line-height:.88;text-transform:uppercase;}
+.gallery-count{font-size:9px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(255,255,255,.22);}
+
+/* ── COACHES ─────────────────────────────────────────────── */
+.coaches{padding:var(--sp) var(--g);background:var(--black);}
+.coaches-head{margin-bottom:clamp(48px,6vw,80px);}
+.coaches-pre{font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--lime);display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.coaches-pre::before{content:'';width:24px;height:1px;background:var(--lime);}
+.coaches-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(44px,6.5vw,88px);line-height:.88;text-transform:uppercase;}
+.coaches-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+@media(max-width:760px){.coaches-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.coaches-grid{grid-template-columns:1fr;}}
+.coach{background:var(--card);overflow:hidden;position:relative;transition:background .35s;}
+.coach:hover{background:var(--card2);}
+.coach-img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;
+  transition:transform 1.2s var(--ease-out);}
+.coach:hover .coach-img{transform:scale(1.04);}
+.coach-info{padding:20px 22px 24px;}
+.coach-name{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(22px,2.4vw,32px);text-transform:uppercase;line-height:.92;margin-bottom:8px;}
+.coach-role{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--lime);}
+.coach-cert{font-size:11px;color:rgba(255,255,255,.3);margin-top:6px;line-height:1.5;}
+.coach-bar{height:2px;background:var(--lime);width:0;transition:width .5s var(--ease-out);margin-top:16px;}
+.coach:hover .coach-bar{width:100%;}
+
+/* ── REVIEWS ─────────────────────────────────────────────── */
+.reviews{padding:var(--sp) var(--g);background:var(--dark);}
+.reviews-head{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end;
+  margin-bottom:clamp(48px,6vw,80px);}
+@media(max-width:760px){.reviews-head{grid-template-columns:1fr;gap:24px;}}
+.reviews-h2{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(44px,6.5vw,88px);line-height:.88;text-transform:uppercase;}
+.reviews-score{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+.reviews-num{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(52px,7vw,96px);line-height:1;color:var(--lime);}
+.reviews-stars{display:flex;gap:4px;justify-content:flex-end;}
+.reviews-stars span{color:var(--lime);font-size:18px;}
+.reviews-label{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.28);}
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+@media(max-width:760px){.reviews-grid{grid-template-columns:1fr;}}
+.review{background:var(--card);padding:clamp(24px,3vw,40px);
+  border-top:2px solid transparent;transition:border-color .35s,background .35s;position:relative;}
+.review:hover{border-color:var(--lime);background:var(--card2);}
+.review-stars{display:flex;gap:3px;margin-bottom:16px;}
+.review-stars span{color:var(--lime);font-size:13px;}
+.review-body{font-size:13px;line-height:1.85;color:rgba(255,255,255,.48);margin-bottom:20px;}
+.review-author{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.25);}
+.review-quote{position:absolute;top:16px;right:20px;font-family:Georgia,serif;
+  font-size:56px;line-height:1;color:rgba(200,255,0,.06);}
+
+/* ── CTA STRIP ───────────────────────────────────────────── */
+.cta-strip{background:var(--lime);padding:clamp(48px,6vw,80px) var(--g);
+  display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;}
+.cta-strip-text{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:clamp(36px,6vw,76px);text-transform:uppercase;letter-spacing:-.01em;
+  color:#000;line-height:.9;}
+.cta-strip-right{display:flex;flex-direction:column;align-items:flex-end;gap:14px;}
+.cta-strip-sub{font-size:11px;color:rgba(0,0,0,.45);letter-spacing:.1em;text-align:right;}
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.footer{background:var(--dark);border-top:1px solid rgba(255,255,255,.06);
+  padding:clamp(28px,4vw,52px) var(--g);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.foot-logo{font-family:var(--fd);font-style:italic;font-weight:900;
+  font-size:22px;letter-spacing:.06em;text-transform:uppercase;}
+.foot-logo em{color:var(--lime);font-style:normal;}
+.foot-info{font-size:11px;color:rgba(255,255,255,.22);line-height:1.7;text-align:right;}
+.foot-info a{color:var(--lime);}
+
+/* ── FADE REVEAL ─────────────────────────────────────────── */
+.fade-up{opacity:0;transform:translateY(32px);}
+
+/* ── MOBILE RESPONSIVE ───────────────────────────────────── */
+@media(max-width:768px){
+  .hero{align-items:flex-start!important;min-height:100svh;}
+  .hero-inner{padding-top:clamp(88px,22svh,140px)!important;padding-bottom:clamp(32px,5svh,56px)!important;text-align:center;}
+  .hero-eyebrow{justify-content:center;}
+  .hero-actions{justify-content:center;}
+  .hero-sub{margin-left:auto;margin-right:auto;}
+  .hero-scroll{display:none;}
+  .story-split{flex-direction:column;}
+  .story-left,.story-right{width:100%;}
+  .story-year{font-size:18vw;}
+  .timeline-item{flex-direction:column;gap:16px;}
+  .tl-year{min-width:unset;}
+  .pillars-grid{grid-template-columns:1fr 1fr;}
+  .h-gallery-pin{overflow-x:auto!important;overflow-y:visible!important;
+    -webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;}
+  .h-gal-item{scroll-snap-align:start;width:72vw!important;height:54vw!important;}
+  .h-gal-item.tall{height:72vw!important;}
+  .reviews-grid{grid-template-columns:1fr;}
+  .cta-strip{flex-direction:column;text-align:center;}
+  .cta-strip-right{align-items:center;}
+  .footer{flex-direction:column;text-align:center;}
+  .foot-info{text-align:center;}
+}
+@media(max-width:480px){
+  .pillars-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="cur" id="cur"><div class="cur-ball"></div></div>
+
+
+<!-- PRELOADER -->
+<div id="loader">
+  <div class="loader-count" id="loaderCount">0</div>
+  <div class="loader-bar-wrap"><div class="loader-bar" id="loaderBar"></div></div>
+  <div class="loader-label">Our Story · Orlando · 9 Years Strong</div>
+</div>
+
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-vid-wrap">
+    <video class="hero-vid" autoplay muted loop playsinline preload="auto"
+      src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/699b63f520c0353db519d1f9.mp4"></video>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow" id="heroEyebrow">Our Story · Orlando, Florida</div>
+    <div class="hero-h1" id="heroH1">MORE<br>THAN A<br><span class="hi">GYM.</span></div>
+    <p class="hero-sub" id="heroSub">We are a community of athletes, parents, competitors, and beginners — united by one belief: you are capable of more than you think.</p>
+    <div class="hero-actions" id="heroActions">
+      <div class="mag-wrap">
+        <a href="https://socf.pushpress.com/landing/plans/plan_e7810e5ac7cd4a/participant?category=plcat_l7yyg3qsv6p5f0" target="_blank" class="mag-btn lime">Start Your Journey</a>
+      </div>
+      <div class="mag-wrap">
+        <a href="tel:+14075505898" class="mag-btn ghost">(407) 550-5898</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">Orlando's #1 Gym</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">9 Years Strong</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">111 Five-Star Reviews</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Community First</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Results Driven</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Functional Fitness</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Orlando's #1 Gym</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">9 Years Strong</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">111 Five-Star Reviews</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Community First</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Results Driven</span><span class="marquee-item marquee-sep">·</span>
+    <span class="marquee-item">Functional Fitness</span><span class="marquee-item marquee-sep">·</span>
+  </div>
+</div>
+
+<!-- STORY -->
+<section class="story">
+  <div class="story-media fade-up">
+    <div class="story-media-accent"></div>
+    <div class="story-media-accent2"></div>
+    <div class="story-year">2017</div>
+    <video class="story-vid" autoplay muted loop playsinline
+      src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/699b63f520c0354c5a19d1f8.mp4"></video>
+  </div>
+  <div class="story-text">
+    <div class="story-pre">9 Years in Orlando</div>
+    <h2 class="story-h2" data-split>Built For<br>Athletes<br><span style="color:var(--lime)">Who Show Up.</span></h2>
+    <p class="story-body fade-up">SOCF Fitness was born from a simple idea: the best gym in Orlando shouldn't just be about equipment — it should be about people. We built a space where intensity meets community, where every class is coached by someone who genuinely cares about your performance.</p>
+    <p class="story-body fade-up">Nine years in, every step has been guided by our members. From our first functional fitness classes to expanding into HYROX training, Competitors, and Kids Fit — we now serve 400+ athletes across 4 programs. The mission has never changed.</p>
+    <div class="fade-up" style="margin-top:36px;">
+      <div class="mag-wrap">
+        <a href="https://socf.pushpress.com/landing/plans/plan_e7810e5ac7cd4a/participant?category=plcat_l7yyg3qsv6p5f0" target="_blank" class="mag-btn lime">Join The Community</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline">
+  <div class="tl-head">
+    <div class="tl-pre fade-up">Our Journey</div>
+    <h2 class="tl-title" data-split>Nine Years.<br>One Mission.</h2>
+  </div>
+  <div class="tl-grid">
+    <div class="tl-item fade-up">
+      <div class="tl-year">17</div>
+      <div class="tl-dot"></div>
+      <div class="tl-label">2017 · The Beginning</div>
+      <div class="tl-fact">Doors<br>Open</div>
+      <div class="tl-desc">SOCF Fitness launches in Orlando with functional fitness classes and a founding community committed to real results.</div>
+    </div>
+    <div class="tl-item fade-up">
+      <div class="tl-year">19</div>
+      <div class="tl-dot"></div>
+      <div class="tl-label">2019 · Expansion</div>
+      <div class="tl-fact">Programs<br>Expand</div>
+      <div class="tl-desc">We expand programming with Kids Fit and Competitors — serving the whole family, not just adults.</div>
+    </div>
+    <div class="tl-item fade-up">
+      <div class="tl-year">22</div>
+      <div class="tl-dot"></div>
+      <div class="tl-label">2022 · HYROX Training</div>
+      <div class="tl-fact">HYROX<br>Training</div>
+      <div class="tl-desc">SOCF adds dedicated HYROX programming — race-specific workouts, sled pushes, ski ergs, and rowing to prep athletes for competition.</div>
+    </div>
+    <div class="tl-item fade-up">
+      <div class="tl-year">26</div>
+      <div class="tl-dot"></div>
+      <div class="tl-label">2026 · #1 in Orlando</div>
+      <div class="tl-fact">111<br>Reviews</div>
+      <div class="tl-desc">Google ranks us #1 gym in Orlando. 111 five-star reviews. 400+ active members. Nine years in — the mission never changes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PILLARS -->
+<section class="pillars">
+  <div class="pillars-head">
+    <h2 class="pillars-h2" data-split>Why Athletes<br>Choose<br><span style="color:var(--lime)">SOCF.</span></h2>
+    <p class="pillars-sub fade-up">We don't just give you a place to work out. We give you a system — expert coaching, proven programming, and a community that shows up every single day.</p>
+  </div>
+  <div class="pillars-grid">
+    <div class="pillar fade-up">
+      <div class="pillar-num">01</div>
+      <div class="pillar-icon">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="19" stroke="#C8FF00" stroke-width="1.5"/>
+          <path d="M12 20h16M20 12v16" stroke="#C8FF00" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="pillar-title">Expert<br>Coaching</div>
+      <div class="pillar-body">Every class is led by a certified coach who programs for performance and scales for every level. No guesswork — just guided progress.</div>
+      <div class="pillar-line"></div>
+    </div>
+    <div class="pillar fade-up">
+      <div class="pillar-num">02</div>
+      <div class="pillar-icon">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="19" stroke="#C8FF00" stroke-width="1.5"/>
+          <path d="M14 26l6-12 6 12" stroke="#C8FF00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 22h8" stroke="#C8FF00" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="pillar-title">Real<br>Community</div>
+      <div class="pillar-body">From 5am classes to competition day — you're never alone. Our members cheer each other on, hold each other accountable, and celebrate every win.</div>
+      <div class="pillar-line"></div>
+    </div>
+    <div class="pillar fade-up">
+      <div class="pillar-num">03</div>
+      <div class="pillar-icon">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="19" stroke="#C8FF00" stroke-width="1.5"/>
+          <path d="M13 27V20a7 7 0 0114 0v7" stroke="#C8FF00" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="20" cy="14" r="3" stroke="#C8FF00" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="pillar-title">Proven<br>Results</div>
+      <div class="pillar-body">111 five-star reviews don't lie. Our athletes PR weekly, qualify for HYROX competitions, and transform their bodies and their confidence.</div>
+      <div class="pillar-line"></div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY (HORIZONTAL SCROLL) -->
+<section class="h-gallery">
+  <div class="gallery-header">
+    <h2 class="gallery-title" data-split>See The<br><span style="color:var(--lime)">Community.</span></h2>
+    <div class="gallery-count fade-up">13 Photos · Real Members · Real Results</div>
+  </div>
+  <div class="h-gallery-pin" id="hGalleryPin">
+    <div class="h-gallery-track" id="hGalleryTrack">
+      <div class="h-gal-item tall">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26eabb609d0a038963.png" alt="SOCF training Orlando" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">SOCF Training</div>
+      </div>
+      <div class="h-gal-item">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26c8574fdaa7f6aadc.png" alt="SOCF class Orlando" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">Group Class</div>
+      </div>
+      <div class="h-gal-item">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26c256592f58ba6747.png" alt="HYROX training" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">HYROX Training</div>
+      </div>
+      <div class="h-gal-item wide">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26cc62bf1609f43059.png" alt="Functional fitness" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">Functional Fitness</div>
+      </div>
+      <div class="h-gal-item">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26c5a9e6ea8255bf56.png" alt="SOCF community" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">Community</div>
+      </div>
+      <div class="h-gal-item tall">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd262f4795f98122c054.png" alt="SOCF workout" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">Workout</div>
+      </div>
+      <div class="h-gal-item">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26b013803877c94baa.png" alt="SOCF athletes" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">Athletes</div>
+      </div>
+      <div class="h-gal-item wide">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26b2e79a3ff7cddc40.png" alt="Gym Orlando" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">Gym Floor</div>
+      </div>
+      <div class="h-gal-item">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26c8574fe796f6aadb.png" alt="Kids fitness" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">Kids Fit</div>
+      </div>
+      <div class="h-gal-item">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26dbd0b5bc24781f2e.png" alt="Training session" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">Training Session</div>
+      </div>
+      <div class="h-gal-item">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26c25659222aba6746.png" alt="Community workout" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">Community Workout</div>
+      </div>
+      <div class="h-gal-item">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd26eabb6051ab038964.png" alt="SOCF members" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">SOCF Members</div>
+      </div>
+      <div class="h-gal-item wide">
+        <img src="https://assets.cdn.filesafe.space/d1VBgXk2TqHYwlTy85Pa/media/69cbcd262f4795887d22c04a.png" alt="Gym floor Orlando" loading="lazy">
+        <div class="h-gal-overlay"></div><div class="h-gal-label">Gym Floor</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="reviews">
+  <div class="reviews-head">
+    <h2 class="reviews-h2" data-split>What Our<br>Members<br><span style="color:var(--lime)">Say.</span></h2>
+    <div class="reviews-score fade-up">
+      <div class="reviews-num">5.0</div>
+      <div class="reviews-stars">
+        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+      </div>
+      <div class="reviews-label">111 Google Reviews</div>
+    </div>
+  </div>
+  <div class="reviews-grid">
+    <div class="review fade-up">
+      <div class="review-quote">"</div>
+      <div class="review-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <div class="review-body">"SOCF completely changed how I think about fitness. The coaches push you in the best way possible and the community keeps you accountable. I've hit PRs I never thought were possible."</div>
+      <div class="review-author">— Maria G. · Member since 2021</div>
+    </div>
+    <div class="review fade-up">
+      <div class="review-quote">"</div>
+      <div class="review-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <div class="review-body">"Trained here for HYROX and placed in my first competition. The HYROX-specific programming is legit — this gym knows their stuff. Best decision I made for my athletic career."</div>
+      <div class="review-author">— Jordan T. · HYROX Competitor</div>
+    </div>
+    <div class="review fade-up">
+      <div class="review-quote">"</div>
+      <div class="review-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <div class="review-body">"My kids love the Kids Fit program and I love that I can train at the same time. The entire staff genuinely cares. This place is the real deal — best gym in Orlando, no question."</div>
+      <div class="review-author">— Sara M. · Member + Kids Fit Parent</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<section class="cta-strip">
+  <div class="cta-strip-text" data-split>Ready to<br>Write Your<br>Story?</div>
+  <div class="cta-strip-right">
+    <p class="cta-strip-sub">First class is on us. No commitment.</p>
+    <div class="mag-wrap">
+      <a href="https://socf.pushpress.com/landing/plans/plan_e7810e5ac7cd4a/participant?category=plcat_l7yyg3qsv6p5f0" target="_blank" class="mag-btn" style="background:#000;color:var(--lime);">Claim Free Class →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="foot-logo">SOCF<em>.</em>FITNESS</div>
+  <div class="foot-info">
+    <div>Orlando, FL · <a href="tel:+14075505898">(407) 550-5898</a></div>
+    <div>Mon–Fri 6am–7:30pm · Sat 10–11:30am</div>
+    <div style="margin-top:4px;color:rgba(255,255,255,.1);">© 2026 SOCF Fitness. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ── LENIS ───────────────────────────────────────────────── */
+const lenis=new Lenis({duration:1.3,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t))});
+function raf(t){lenis.raf(t);ScrollTrigger.update();requestAnimationFrame(raf);}
+requestAnimationFrame(raf);
+
+/* ── CURSOR ──────────────────────────────────────────────── */
+const curEl=document.getElementById('cur');
+let mx=window.innerWidth/2,my=window.innerHeight/2,cx=mx,cy=my;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function cursorLoop(){
+  cx+=(mx-cx)*.14;cy+=(my-cy)*.14;
+  curEl.style.transform=`translate(${cx}px,${cy}px)`;
+  requestAnimationFrame(cursorLoop);
+})();
+document.querySelectorAll('a,button,[data-mag]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>curEl.classList.add('active'));
+  el.addEventListener('mouseleave',()=>curEl.classList.remove('active'));
+});
+document.querySelectorAll('p,[data-text]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>curEl.classList.add('text-mode'));
+  el.addEventListener('mouseleave',()=>curEl.classList.remove('text-mode'));
+});
+
+/* ── MAGNETIC BUTTONS ────────────────────────────────────── */
+document.querySelectorAll('.mag-wrap').forEach(wrap=>{
+  const btn=wrap.querySelector('.mag-btn');
+  wrap.addEventListener('mousemove',e=>{
+    const r=btn.getBoundingClientRect();
+    const x=e.clientX-r.left-r.width/2;
+    const y=e.clientY-r.top-r.height/2;
+    gsap.to(btn,{x:x*.28,y:y*.28,duration:.35,ease:'power2.out'});
+  });
+  wrap.addEventListener('mouseleave',()=>{
+    gsap.to(btn,{x:0,y:0,duration:.6,ease:'elastic.out(1,0.5)'});
+  });
+});
+
+/* ── PRELOADER ───────────────────────────────────────────── */
+(function(){
+  const count=document.getElementById('loaderCount');
+  const bar=document.getElementById('loaderBar');
+  let n=0;
+  const iv=setInterval(()=>{
+    n=Math.min(n+Math.floor(Math.random()*4)+2,100);
+    count.textContent=n;
+    bar.style.width=n+'%';
+    if(n>=100){
+      clearInterval(iv);
+      setTimeout(()=>{
+        gsap.to('#loader',{yPercent:-100,duration:.9,ease:'power3.inOut',
+          onComplete:()=>document.getElementById('loader').remove()});
+        gsap.to('#heroEyebrow',{opacity:1,duration:.7,ease:'power3.out',delay:.1});
+        setTimeout(()=>{
+          const split=new SplitType('#heroH1',{types:'chars'});
+          gsap.fromTo(split.chars,
+            {opacity:0,y:'100%',rotate:6},
+            {opacity:1,y:'0%',rotate:0,duration:.7,stagger:.025,ease:'back.out(1.4)'}
+          );
+          gsap.to(['#heroSub','#heroActions'],
+            {opacity:1,y:0,duration:.8,stagger:.1,ease:'power3.out',delay:.2});
+        },200);
+      },300);
+    }
+  },30);
+})();
+
+/* ── STICKY BAR ──────────────────────────────────────────── */
+
+/* ── VIDEO PARALLAX ──────────────────────────────────────── */
+gsap.to('.hero-vid',{
+  yPercent:12,ease:'none',
+  scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}
+});
+
+/* ── SPLIT TEXT REVEALS ───────────────────────────────────── */
+document.querySelectorAll('[data-split]').forEach(el=>{
+  const split=new SplitType(el,{types:'chars,words'});
+  gsap.fromTo(split.chars,
+    {opacity:0,y:'60%',rotate:4},
+    {opacity:1,y:'0%',rotate:0,duration:.65,stagger:.018,ease:'back.out(1.2)',
+     scrollTrigger:{trigger:el,start:'top 85%',once:true}}
+  );
+});
+
+/* ── FADE UP ─────────────────────────────────────────────── */
+document.querySelectorAll('.fade-up').forEach((el,i)=>{
+  gsap.fromTo(el,{opacity:0,y:36},
+    {opacity:1,y:0,duration:.8,ease:'power3.out',
+     scrollTrigger:{trigger:el,start:'top 86%',once:true},delay:(i%4)*.08}
+  );
+});
+
+/* ── HORIZONTAL GALLERY ──────────────────────────────────── */
+const track=document.getElementById('hGalleryTrack');
+const pin=document.getElementById('hGalleryPin');
+if(window.innerWidth>768){
+  gsap.to(track,{
+    x:()=>-(track.scrollWidth-window.innerWidth+80),
+    ease:'none',
+    scrollTrigger:{
+      trigger:pin,start:'top top',
+      end:()=>'+='+(track.scrollWidth-window.innerWidth+80),
+      pin:true,scrub:1,anticipatePin:1
+    }
+  });
+}else{
+  pin.style.overflowX='auto';
+  pin.style.webkitOverflowScrolling='touch';
+  pin.style.scrollSnapType='x mandatory';
+  track.style.padding='clamp(24px,5vw,40px) var(--g, 20px)';
+}
+
+/* ── SMOOTH ANCHOR ───────────────────────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();lenis.scrollTo(t,{offset:-72});}
+  });
+});
+</script>
+</body>
+</html>

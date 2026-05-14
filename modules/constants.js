@@ -83,7 +83,8 @@ const CAROUSEL_IMAGES = {
 };
 
 // ─── GBP post type rotation (Mon–Fri) ────────────────────
-const GBP_POST_TYPES = ['WHATS_NEW', 'WHATS_NEW', 'WHATS_NEW', 'OFFER', 'EVENT'];
+// All WHATS_NEW — no promotions, no discounts, no offers. Only promote visiting the location.
+const GBP_POST_TYPES = ['WHATS_NEW', 'WHATS_NEW', 'WHATS_NEW', 'WHATS_NEW', 'WHATS_NEW'];
 
 module.exports = {
   GHL_LOCATION_ID, GHL_USER_ID,

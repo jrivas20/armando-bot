@@ -213,6 +213,14 @@ app.post('/diego/weekly-report', async (_req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
+app.get('/diego/weekly-report', async (_req, res) => {
+  try {
+    runDiegoWeeklyReport();
+    res.json({ status: 'ok', message: 'Diego is building the weekly project report' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
 
 // ─── Diego: Client Scorecard ──────────────────────────────
 // Runs 1st of every month — grades every client A/B/C
@@ -518,8 +526,24 @@ app.post('/diego/standup', async (_req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
+app.get('/diego/standup', async (_req, res) => {
+  try {
+    runDiegoStandup();
+    res.json({ status: 'ok', message: 'Diego is building your morning standup' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
 
 app.post('/diego/scorecard', async (_req, res) => {
+  try {
+    runDiegoScorecard();
+    res.json({ status: 'ok', message: 'Diego is building the monthly client scorecard' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+app.get('/diego/scorecard', async (_req, res) => {
   try {
     runDiegoScorecard();
     res.json({ status: 'ok', message: 'Diego is building the monthly client scorecard' });

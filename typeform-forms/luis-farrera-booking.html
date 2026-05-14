@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Book Your Tattoo Session — Luis A. Farrera</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- ── GHL FULL-WIDTH OVERRIDE ─────────────────────────────────────────── -->
+  <style>
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow-x: hidden;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    #page-wrap {
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+      overflow-x: hidden;
+    }
+    #ljr-site, #ljr-site > *, .ljr-page-wrapper, .ljr-page-wrapper > * {
+      max-width: 100% !important;
+      width: 100% !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      box-sizing: border-box !important;
+    }
+  </style>
+  <!-- ──────────────────────────────────────────────────────────────────────── -->
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:     #050505;
+      --bg2:    #0a0a0a;
+      --gold:   #cfa947;
+      --gold2:  #e2c66f;
+      --text:   #f0ece3;
+      --muted:  rgba(240,236,227,0.45);
+      --dim:    rgba(240,236,227,0.22);
+      --border: rgba(207,169,71,0.18);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
+      cursor: none;
+    }
+
+    /* ── BACKGROUND ATMOSPHERE ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(207,169,71,0.07) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 90% 95%,  rgba(207,169,71,0.04) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor {
+      position: fixed; width: 7px; height: 7px;
+      background: var(--gold); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.12s ease;
+    }
+    .cursor-ring {
+      position: fixed; width: 30px; height: 30px;
+      border: 1px solid rgba(207,169,71,0.45); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+    .cursor.hover       { transform: translate(-50%,-50%) scale(2.2); }
+    .cursor-ring.hover  { width: 50px; height: 50px; }
+
+    /* ── TOP GOLD LINE ── */
+    .top-line {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%);
+      opacity: 0.35; z-index: 200;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 22px 36px;
+      display: flex; align-items: center;
+      background: linear-gradient(to bottom, rgba(5,5,5,0.92) 0%, transparent 100%);
+    }
+    .logo { display: flex; align-items: center; gap: 13px; }
+    .logo-mark {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 21px; letter-spacing: 3px; color: var(--gold);
+    }
+    .logo-sep { width: 1px; height: 20px; background: var(--border); }
+    .logo-name {
+      font-size: 10px; font-weight: 300;
+      color: var(--muted); letter-spacing: 1.8px; text-transform: uppercase;
+    }
+
+    /* ── HERO SECTION ── */
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 130px 28px 90px;
+      text-align: center;
+    }
+    .hero-inner {
+      max-width: 680px; width: 100%;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .eyebrow {
+      display: flex; align-items: center; gap: 14px;
+      font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); opacity: 0.75; margin-bottom: 30px;
+    }
+    .eyebrow::before, .eyebrow::after {
+      content: ''; display: block;
+      width: 30px; height: 1px;
+      background: var(--gold); opacity: 0.5;
+    }
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(68px, 12vw, 136px);
+      line-height: 0.88; letter-spacing: 2px;
+      margin-bottom: 30px;
+    }
+    .hero h1 em { color: var(--gold); font-style: normal; }
+    .hero p {
+      font-size: clamp(15px, 1.8vw, 18px); font-weight: 300;
+      color: var(--muted); line-height: 1.75;
+      max-width: 480px; margin-bottom: 48px;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 15px 36px;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 17px; letter-spacing: 3px;
+      text-decoration: none; border-radius: 3px;
+      cursor: none;
+      transition: background 0.25s, color 0.25s, transform 0.2s;
+    }
+    .hero-cta:hover { background: var(--gold); color: #050505; transform: translateY(-2px); }
+    .hero-cta svg  { width: 17px; height: 17px; }
+
+    /* trust pills */
+    .trust-row {
+      margin-top: 54px;
+      display: flex; align-items: center; gap: 10px;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .trust-pill {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 16px;
+      border: 1px solid rgba(207,169,71,0.14);
+      border-radius: 30px;
+      font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--dim);
+    }
+    .trust-pill svg { width: 11px; height: 11px; color: var(--gold); flex-shrink: 0; }
+
+    /* scroll indicator */
+    .scroll-indicator {
+      margin-top: 60px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(207,169,71,0.3);
+      animation: bounce 2.5s ease-in-out infinite;
+    }
+    .scroll-indicator svg { width: 16px; height: 16px; color: var(--gold); opacity: 0.35; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(6px); }
+    }
+
+    /* ── FORM SECTION ── */
+    .form-section {
+      position: relative; z-index: 1;
+      padding: 90px 28px 110px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+    .form-inner { max-width: 780px; margin: 0 auto; }
+
+    .form-intro {
+      text-align: center; margin-bottom: 52px;
+    }
+    .form-intro .step-label {
+      font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); opacity: 0.6; margin-bottom: 14px;
+    }
+    .gold-rule {
+      width: 36px; height: 1px;
+      background: var(--gold); opacity: 0.4;
+      margin: 0 auto 20px;
+    }
+    .form-intro h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(42px, 6vw, 72px);
+      letter-spacing: 2px; margin-bottom: 14px;
+    }
+    .form-intro p {
+      font-size: 14px; font-weight: 300;
+      color: var(--muted); line-height: 1.7;
+      max-width: 420px; margin: 0 auto;
+    }
+
+    .form-card {
+      background: rgba(207,169,71,0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      padding: 12px;
+    }
+    .form-card iframe {
+      width: 100% !important;
+      border: none; display: block;
+      border-radius: 4px;
+    }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      padding: 32px 28px;
+      text-align: center;
+      font-size: 11px; letter-spacing: 1.5px;
+      color: rgba(207,169,71,0.25);
+      border-top: 1px solid rgba(207,169,71,0.07);
+      background: var(--bg);
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal.d1 { transition-delay: 0.1s; }
+    .reveal.d2 { transition-delay: 0.2s; }
+    .reveal.d3 { transition-delay: 0.3s; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 640px) {
+      html, body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
+      .site-header { padding: 16px 20px; }
+      .hero { padding: 110px 20px 70px; min-height: auto; }
+      .form-section { padding: 64px 16px 80px; }
+      .form-card { padding: 6px; }
+      .hero-cta { cursor: pointer; }
+      .trust-row { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor"      id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<div id="page-wrap">
+
+  <!-- TOP LINE -->
+  <div class="top-line"></div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="logo">
+      <span class="logo-mark">LF</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">Luis A. Farrera Tattoo</span>
+    </div>
+  </header>
+
+  <!-- ══ HERO ══════════════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-inner">
+
+      <div class="eyebrow reveal">Custom Tattoo Booking</div>
+
+      <h1 class="reveal d1">
+        BOOK YOUR<br>
+        <em>TATTOO</em><br>
+        SESSION
+      </h1>
+
+      <p class="reveal d2">
+        Every great tattoo starts with a conversation.
+        Tell us about your vision below — we'll review your request
+        and reach out within 24 hours to confirm your consultation.
+      </p>
+
+      <a href="#booking-form" class="hero-cta reveal d3">
+        Start Your Request
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </a>
+
+      <div class="trust-row reveal d3">
+        <div class="trust-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Custom Art Only
+        </div>
+        <div class="trust-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          24h Response
+        </div>
+        <div class="trust-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          Free Consultation
+        </div>
+      </div>
+
+      <div class="scroll-indicator">
+        <span>Scroll to form</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <polyline points="19 12 12 19 5 12"></polyline>
+        </svg>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ BOOKING FORM ═══════════════════════════════════════════════════════ -->
+  <section class="form-section" id="booking-form">
+    <div class="form-inner">
+
+      <div class="form-intro reveal">
+        <p class="step-label">Booking Request</p>
+        <div class="gold-rule"></div>
+        <h2>TELL US YOUR VISION</h2>
+        <p>Fill out the form below and we'll reach out to confirm availability, discuss your design, and schedule your session.</p>
+      </div>
+
+      <div class="form-card reveal d1">
+        <iframe
+          src="https://links.jrzmarketing.com/widget/form/Hzo6772r9eso4tozQ6H1"
+          style="width:100%;height:1212px;border:none;border-radius:4px"
+          id="inline-Hzo6772r9eso4tozQ6H1"
+          data-layout="{'id':'INLINE'}"
+          data-trigger-type="alwaysShow"
+          data-trigger-value=""
+          data-activation-type="alwaysActivated"
+          data-activation-value=""
+          data-deactivation-type="neverDeactivate"
+          data-deactivation-value=""
+          data-form-name="Book Now"
+          data-height="1212"
+          data-layout-iframe-id="inline-Hzo6772r9eso4tozQ6H1"
+          data-form-id="Hzo6772r9eso4tozQ6H1"
+          title="Book Now">
+        </iframe>
+        <script src="https://links.jrzmarketing.com/js/form_embed.js"></script>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ════════════════════════════════════════════════════════════ -->
+  <footer class="site-footer">
+    © 2025 Luis A. Farrera Tattoo — All Rights Reserved
+  </footer>
+
+</div><!-- /page-wrap -->
+
+<!-- ── CURSOR ─────────────────────────────────────────────────── -->
+<script>
+(function(){
+  var cur  = document.getElementById('cursor');
+  var ring = document.getElementById('cursorRing');
+  if (!cur || !ring) return;
+  var mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',function(e){ mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+  (function raf(){ rx+=(mx-rx)*0.11; ry+=(my-ry)*0.11; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(raf); })();
+  document.querySelectorAll('a,button').forEach(function(el){
+    el.addEventListener('mouseenter',function(){ cur.classList.add('hover'); ring.classList.add('hover'); });
+    el.addEventListener('mouseleave',function(){ cur.classList.remove('hover'); ring.classList.remove('hover'); });
+  });
+})();
+</script>
+
+<!-- ── SCROLL REVEAL ───────────────────────────────────────────── -->
+<script>
+(function(){
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{ threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+})();
+</script>
+
+<!-- ── META PIXEL — fires on GHL form submit ──────────────────── -->
+<script>
+window.addEventListener('message', function(e){
+  if (!e.data) return;
+  var d = e.data;
+  var hit = (d.type==='form-submitted' || d.type==='form_submitted' ||
+             d.event==='form_submitted' || d.event==='ghl:formSubmitted' ||
+             (typeof d==='string' && /submit/i.test(d)));
+  if (hit && typeof fbq === 'function') {
+    fbq('track','Lead',{ content_name:'Tattoo Booking Request', content_category:'Booking Form' });
+  }
+});
+</script>
+
+</body>
+</html>

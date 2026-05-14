@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Diego Alejandro Silva Herrera — Class of 2029 Baseball Prospect. Catcher/Utility | Orlando, FL | Division 1 Target">
+  <title>Diego Silva · Class 2029 · Baseball Prospect</title>
+
+  <!-- GHL FULL-BLEED OVERRIDE -->
+  <style>
+  html,body{margin:0!important;padding:0!important;width:100%!important;overflow-x:hidden!important}
+  .page-container,.container-fluid,#app,.main-content,[class*="container"]{max-width:100%!important;padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important}
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- GSAP + ScrollTrigger + SplitText -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+
+  <style>
+  /* ── VARIABLES ─────────────────────────────────────────────── */
+  :root {
+    --navy:   #070B14;
+    --navy2:  #0D1525;
+    --navy3:  #152035;
+    --gold:   #C9A84C;
+    --gold2:  #E8C96C;
+    --white:  #FFFFFF;
+    --muted:  #6B8299;
+    --text:   #CBD5E0;
+    --font-h: 'Oswald', sans-serif;
+    --font-b: 'Inter', sans-serif;
+    --ease:   cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--navy);color:var(--text);
+    font-family:var(--font-b);font-size:16px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+
+  /* ── CUSTOM CURSOR ──────────────────────────────────────────── */
+  .cursor {
+    position:fixed;width:12px;height:12px;border-radius:50%;
+    background:var(--gold);pointer-events:none;z-index:9999;
+    transform:translate(-50%,-50%);transition:transform .1s, width .2s, height .2s, opacity .2s;
+    mix-blend-mode:difference;
+  }
+  .cursor-ring {
+    position:fixed;width:36px;height:36px;border-radius:50%;
+    border:1px solid rgba(201,168,76,.5);pointer-events:none;z-index:9998;
+    transform:translate(-50%,-50%);transition:transform .08s linear, width .3s, height .3s, opacity .3s;
+  }
+  @media(max-width:768px){.cursor,.cursor-ring{display:none}}
+
+  /* ── NAV ──────────────────────────────────────────────────── */
+  .nav {
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    padding:18px 56px;
+    display:flex;align-items:center;justify-content:space-between;
+    transition:padding .4s var(--ease);
+  }
+  .nav-bg {
+    position:absolute;inset:0;
+    background:rgba(7,11,20,0);
+    backdrop-filter:blur(0px);
+    border-bottom:1px solid rgba(201,168,76,0);
+    transition:background .4s, backdrop-filter .4s, border-color .4s;
+    pointer-events:none;
+  }
+  .nav.scrolled .nav-bg {
+    background:rgba(7,11,20,.94);
+    backdrop-filter:blur(16px);
+    border-color:rgba(201,168,76,.1);
+  }
+  .nav.scrolled { padding:12px 56px; }
+  .nav-brand {
+    position:relative;z-index:1;
+    display:flex;align-items:center;gap:10px;text-decoration:none;
+  }
+  .nav-brand-badge {
+    width:36px;height:36px;border-radius:8px;background:var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-h);font-size:14px;font-weight:700;color:var(--navy);
+    transition:transform .2s var(--ease);
+  }
+  .nav-brand:hover .nav-brand-badge{transform:rotate(-5deg) scale(1.05)}
+  .nav-brand-text {
+    font-family:var(--font-h);font-size:13px;font-weight:600;
+    letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,.65);
+  }
+  .nav-links{position:relative;z-index:1;display:flex;gap:32px;list-style:none}
+  .nav-links a {
+    font-size:13px;font-weight:500;letter-spacing:.5px;
+    color:rgba(255,255,255,.5);text-decoration:none;
+    position:relative;padding-bottom:2px;transition:color .2s;
+  }
+  .nav-links a::after {
+    content:'';position:absolute;bottom:0;left:0;width:0;height:1px;
+    background:var(--gold);transition:width .3s var(--ease);
+  }
+  .nav-links a:hover{color:var(--gold)}
+  .nav-links a:hover::after{width:100%}
+  .nav-cta {
+    position:relative;z-index:1;
+    padding:9px 22px;background:var(--gold);color:var(--navy);
+    border:none;border-radius:7px;font-family:var(--font-b);
+    font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;
+    transition:background .2s,transform .1s,box-shadow .2s;
+    box-shadow:0 0 0 rgba(201,168,76,0);
+  }
+  .nav-cta:hover{background:var(--gold2);box-shadow:0 0 24px rgba(201,168,76,.25)}
+  .nav-cta:active{transform:scale(.97)}
+  @media(max-width:768px){
+    .nav{padding:14px 20px}
+    .nav.scrolled{padding:10px 20px}
+    .nav-links{display:none}
+  }
+
+  /* ── HERO ──────────────────────────────────────────────────── */
+  .hero {
+    min-height:100vh;position:relative;
+    display:flex;align-items:center;overflow:hidden;
+    background:var(--navy);
+  }
+  .hero-bg {
+    position:absolute;inset:0;
+    background:linear-gradient(135deg,rgba(7,11,20,.99) 0%,rgba(13,21,37,.9) 50%,rgba(7,11,20,.98) 100%);
+    /* ADD PHOTO: background-image:url('YOUR_PHOTO.jpg');background-size:cover;background-position:top center */
+  }
+
+  /* Animated grid */
+  .hero-grid {
+    position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(201,168,76,.05) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(201,168,76,.05) 1px,transparent 1px);
+    background-size:60px 60px;
+    animation:gridShift 20s linear infinite;
+  }
+  @keyframes gridShift {
+    0%   { background-position: 0 0; }
+    100% { background-position: 60px 60px; }
+  }
+
+  /* Gold glow orb */
+  .hero-glow {
+    position:absolute;top:-10%;right:-10%;
+    width:800px;height:800px;
+    background:radial-gradient(circle,rgba(201,168,76,.09) 0%,transparent 65%);
+    animation:glowPulse 6s ease-in-out infinite;
+    pointer-events:none;
+  }
+  .hero-glow2 {
+    position:absolute;bottom:-20%;left:-5%;
+    width:600px;height:600px;
+    background:radial-gradient(circle,rgba(12,40,80,.6) 0%,transparent 65%);
+    animation:glowPulse 8s ease-in-out 3s infinite;
+    pointer-events:none;
+  }
+  @keyframes glowPulse {
+    0%,100%{transform:scale(1);opacity:.8}
+    50%{transform:scale(1.08);opacity:1}
+  }
+
+  /* Floating particles */
+  .particle {
+    position:absolute;width:3px;height:3px;border-radius:50%;
+    background:var(--gold);opacity:0;pointer-events:none;
+    animation:floatParticle var(--dur,8s) var(--delay,0s) linear infinite;
+  }
+  @keyframes floatParticle {
+    0%   {transform:translate(0,0) rotate(0deg);opacity:0}
+    10%  {opacity:var(--op,.3)}
+    90%  {opacity:var(--op,.3)}
+    100% {transform:translate(var(--tx,20px),var(--ty,-200px)) rotate(360deg);opacity:0}
+  }
+
+  .hero-inner {
+    position:relative;z-index:2;
+    max-width:1200px;margin:0 auto;
+    padding:130px 56px 90px;width:100%;
+  }
+  .hero-eyebrow {
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 16px;
+    background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);
+    border-radius:999px;
+    font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+    color:var(--gold);margin-bottom:28px;
+    opacity:0;transform:translateY(16px);
+  }
+  .hero-eyebrow-dot {
+    width:6px;height:6px;border-radius:50%;background:var(--gold);
+    animation:dotPulse 2s ease infinite;
+  }
+  @keyframes dotPulse {
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:.3;transform:scale(.6)}
+  }
+
+  .hero-name {
+    font-family:var(--font-h);
+    font-size:clamp(56px,9vw,108px);
+    font-weight:700;line-height:.9;
+    color:var(--white);letter-spacing:-2px;margin-bottom:20px;
+    overflow:hidden;
+  }
+  .hero-name .word {
+    display:inline-block;
+    opacity:0;transform:translateY(100%);
+  }
+  .hero-name .gold-word { color:var(--gold); }
+  .hero-name br { display:block; content:''; margin-bottom:4px; }
+
+  .hero-class {
+    font-family:var(--font-h);
+    font-size:clamp(14px,2vw,20px);
+    font-weight:300;color:rgba(255,255,255,.4);
+    letter-spacing:6px;text-transform:uppercase;
+    margin-bottom:36px;
+    opacity:0;transform:translateX(-20px);
+  }
+
+  .hero-tags {
+    display:flex;flex-wrap:wrap;gap:10px;margin-bottom:52px;
+    opacity:0;transform:translateY(20px);
+  }
+  .hero-tag {
+    padding:8px 16px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+    border-radius:7px;font-size:12px;font-weight:600;
+    letter-spacing:.4px;color:rgba(255,255,255,.65);
+    transition:border-color .2s,background .2s;
+  }
+  .hero-tag:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16)}
+  .hero-tag.gold{
+    background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.28);color:var(--gold);
+  }
+  .hero-tag.gold:hover{background:rgba(201,168,76,.16)}
+
+  .hero-btns {
+    display:flex;gap:14px;flex-wrap:wrap;
+    opacity:0;transform:translateY(20px);
+  }
+  .btn-primary {
+    padding:15px 34px;background:var(--gold);color:var(--navy);
+    border:none;border-radius:9px;font-family:var(--font-b);
+    font-size:14px;font-weight:800;cursor:pointer;text-decoration:none;
+    display:inline-flex;align-items:center;gap:9px;
+    transition:background .2s,transform .15s,box-shadow .2s;
+    box-shadow:0 4px 24px rgba(201,168,76,.15);
+  }
+  .btn-primary:hover{background:var(--gold2);box-shadow:0 8px 40px rgba(201,168,76,.3);transform:translateY(-2px)}
+  .btn-primary:active{transform:scale(.97)}
+  .btn-secondary {
+    padding:15px 34px;background:transparent;color:rgba(255,255,255,.7);
+    border:1px solid rgba(255,255,255,.18);border-radius:9px;
+    font-family:var(--font-b);font-size:14px;font-weight:600;
+    cursor:pointer;text-decoration:none;
+    display:inline-flex;align-items:center;gap:9px;
+    transition:border-color .2s,color .2s,background .2s;
+  }
+  .btn-secondary:hover{border-color:rgba(255,255,255,.4);color:var(--white);background:rgba(255,255,255,.04)}
+
+  /* Animated scroll indicator */
+  .hero-scroll {
+    position:absolute;bottom:36px;left:56px;
+    display:flex;align-items:center;gap:12px;
+    opacity:0;
+  }
+  .hero-scroll-line {
+    width:40px;height:1px;
+    background:linear-gradient(to right,rgba(201,168,76,.7),transparent);
+    animation:scrollLine 2s ease infinite;
+  }
+  @keyframes scrollLine {
+    0%{width:0;opacity:0}
+    50%{width:40px;opacity:1}
+    100%{width:0;opacity:0}
+  }
+  .hero-scroll-text {
+    font-size:10px;font-weight:700;letter-spacing:3px;
+    text-transform:uppercase;color:rgba(255,255,255,.25);
+  }
+  @media(max-width:768px){
+    .hero-inner{padding:100px 20px 60px}
+    .hero-scroll{left:20px;bottom:24px}
+  }
+
+  /* ── STATS STRIP ─────────────────────────────────────────── */
+  .stats-strip{background:var(--gold);overflow:hidden;position:relative}
+  .stats-strip-inner{display:flex;align-items:stretch}
+  .stat-item{
+    flex:1;padding:22px 20px;text-align:center;
+    border-right:1px solid rgba(7,11,20,.12);min-width:0;
+    position:relative;overflow:hidden;
+    transition:background .2s;cursor:default;
+  }
+  .stat-item::after {
+    content:'';position:absolute;inset:0;
+    background:rgba(7,11,20,.06);
+    transform:scaleY(0);transform-origin:bottom;
+    transition:transform .3s var(--ease);
+  }
+  .stat-item:hover::after{transform:scaleY(1)}
+  .stat-item:last-child{border-right:none}
+  .stat-num {
+    font-family:var(--font-h);font-size:clamp(18px,2.8vw,30px);
+    font-weight:700;color:var(--navy);line-height:1;margin-bottom:5px;
+  }
+  .stat-label {
+    font-size:9px;font-weight:800;letter-spacing:1.8px;
+    text-transform:uppercase;color:rgba(7,11,20,.5);
+  }
+  @media(max-width:600px){
+    .stats-strip-inner{flex-wrap:wrap}
+    .stat-item{flex:0 0 50%;border-bottom:1px solid rgba(7,11,20,.1)}
+    .stat-item:nth-child(2){border-right:none}
+    .stat-item:nth-last-child(-n+2){border-bottom:none}
+  }
+
+  /* ── SHARED SECTION ──────────────────────────────────────── */
+  .section{padding:100px 56px;max-width:1200px;margin:0 auto}
+  @media(max-width:768px){.section{padding:64px 20px}}
+
+  .eyebrow{
+    font-size:11px;font-weight:700;letter-spacing:3px;
+    text-transform:uppercase;color:var(--gold);margin-bottom:12px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .eyebrow::before{
+    content:'';display:inline-block;width:20px;height:2px;
+    background:var(--gold);border-radius:1px;
+  }
+  .section-title{
+    font-family:var(--font-h);font-size:clamp(34px,4.5vw,58px);
+    font-weight:700;color:var(--white);line-height:1.0;
+    letter-spacing:-.5px;margin-bottom:18px;
+  }
+  .section-sub{
+    font-size:16px;color:var(--muted);line-height:1.75;
+    max-width:600px;margin-bottom:52px;
+  }
+  .gold-line{width:48px;height:3px;background:var(--gold);border-radius:2px;margin-bottom:32px}
+
+  /* ── ABOUT ────────────────────────────────────────────────── */
+  .about-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:80px;align-items:center}
+  @media(max-width:900px){.about-grid{grid-template-columns:1fr;gap:44px}}
+
+  .about-photo {
+    position:relative;border-radius:20px;overflow:hidden;
+    aspect-ratio:3/4;background:var(--navy3);
+    border:1px solid rgba(255,255,255,.07);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .about-photo-inner {
+    position:absolute;inset:0;
+    background:linear-gradient(to top,rgba(7,11,20,.9) 0%,rgba(7,11,20,.1) 50%,transparent 100%);
+    z-index:1;
+  }
+  .about-photo-placeholder{text-align:center;color:var(--muted);font-size:13px;padding:24px;z-index:0}
+  .about-photo-badge {
+    position:absolute;bottom:22px;left:22px;right:22px;z-index:2;
+    padding:14px 18px;
+    background:rgba(201,168,76,.12);backdrop-filter:blur(12px);
+    border:1px solid rgba(201,168,76,.28);border-radius:12px;
+    font-family:var(--font-h);font-size:14px;font-weight:600;
+    color:var(--gold);letter-spacing:.5px;
+  }
+  /* Decorative corner accents on photo */
+  .about-photo::before,
+  .about-photo::after {
+    content:'';position:absolute;width:40px;height:40px;z-index:3;
+    pointer-events:none;
+  }
+  .about-photo::before {
+    top:16px;left:16px;
+    border-top:2px solid rgba(201,168,76,.4);
+    border-left:2px solid rgba(201,168,76,.4);
+    border-radius:4px 0 0 0;
+  }
+  .about-photo::after {
+    bottom:16px;right:16px;
+    border-bottom:2px solid rgba(201,168,76,.4);
+    border-right:2px solid rgba(201,168,76,.4);
+    border-radius:0 0 4px 0;
+  }
+
+  .about-text p{font-size:15.5px;color:var(--text);line-height:1.82;margin-bottom:20px}
+  .about-text p strong{color:var(--white)}
+
+  .about-flags{display:flex;gap:10px;flex-wrap:wrap;margin-top:32px}
+  .about-flag{
+    display:flex;align-items:center;gap:8px;padding:10px 15px;
+    background:var(--navy2);border:1px solid rgba(255,255,255,.06);border-radius:9px;
+    font-size:12.5px;font-weight:600;color:rgba(255,255,255,.72);
+    transition:border-color .2s,background .2s;
+  }
+  .about-flag:hover{background:var(--navy3);border-color:rgba(201,168,76,.2)}
+  .about-flag-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+  /* ── POSITION CARDS ──────────────────────────────────────── */
+  .position-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:52px}
+  @media(max-width:768px){.position-grid{grid-template-columns:1fr}}
+
+  .position-card {
+    padding:34px;background:var(--navy);
+    border:1px solid rgba(255,255,255,.07);border-radius:18px;
+    transition:border-color .3s,transform .3s var(--ease),box-shadow .3s;
+    position:relative;overflow:hidden;
+  }
+  .position-card::before {
+    content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(to right,transparent,rgba(201,168,76,.3),transparent);
+    opacity:0;transition:opacity .3s;
+  }
+  .position-card:hover{
+    border-color:rgba(201,168,76,.25);
+    transform:translateY(-6px);
+    box-shadow:0 20px 60px rgba(0,0,0,.4),0 0 40px rgba(201,168,76,.05);
+  }
+  .position-card:hover::before{opacity:1}
+  .position-card.primary{
+    border-color:rgba(201,168,76,.18);
+    background:linear-gradient(135deg,rgba(201,168,76,.04) 0%,var(--navy) 50%);
+  }
+  .card-badge{
+    display:inline-block;padding:4px 10px;background:var(--gold);
+    border-radius:5px;font-size:9px;font-weight:900;
+    letter-spacing:2px;text-transform:uppercase;color:var(--navy);margin-bottom:18px;
+  }
+  .card-badge.muted{background:rgba(255,255,255,.07);color:rgba(255,255,255,.45)}
+  .card-title{
+    font-family:var(--font-h);font-size:27px;font-weight:700;
+    color:var(--white);margin-bottom:12px;
+  }
+  .card-desc{font-size:13.5px;color:var(--muted);line-height:1.72;margin-bottom:26px}
+
+  .skill-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .skill-label{width:115px;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.45);flex-shrink:0}
+  .skill-track{flex:1;height:4px;background:rgba(255,255,255,.05);border-radius:99px;overflow:hidden}
+  .skill-fill{height:100%;background:linear-gradient(to right,var(--gold),var(--gold2));border-radius:99px;width:0;transition:width 1.4s var(--ease)}
+  .skill-val{width:36px;font-size:10px;font-weight:700;color:var(--gold);text-align:right;flex-shrink:0}
+
+  /* ── COACHES ──────────────────────────────────────────────── */
+  .coaches-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:52px}
+  @media(max-width:768px){.coaches-grid{grid-template-columns:1fr}}
+
+  .coach-card {
+    padding:34px;background:var(--navy2);
+    border:1px solid rgba(255,255,255,.07);border-radius:18px;
+    transition:border-color .3s,transform .3s var(--ease),box-shadow .3s;
+  }
+  .coach-card:hover{
+    border-color:rgba(201,168,76,.22);
+    transform:translateY(-4px);
+    box-shadow:0 16px 48px rgba(0,0,0,.3);
+  }
+  .coach-icon-wrap{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+  .coach-icon {
+    width:54px;height:54px;border-radius:14px;
+    background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.18);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-h);font-size:18px;font-weight:700;color:var(--gold);
+    flex-shrink:0;
+  }
+  .coach-meta{}
+  .coach-name{font-family:var(--font-h);font-size:21px;font-weight:700;color:var(--white);margin-bottom:3px}
+  .coach-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)}
+  .coach-desc{font-size:13.5px;color:var(--muted);line-height:1.72}
+  .coach-mlb-badge {
+    display:inline-flex;align-items:center;gap:6px;margin-top:18px;
+    padding:7px 13px;background:rgba(192,57,43,.1);
+    border:1px solid rgba(192,57,43,.22);border-radius:7px;
+    font-size:11px;font-weight:700;color:#E74C3C;letter-spacing:.5px;
+  }
+
+  /* ── TIMELINE ────────────────────────────────────────────── */
+  .timeline{position:relative;padding-left:32px;margin-top:52px}
+  .timeline-line {
+    position:absolute;left:11px;top:6px;bottom:0;width:2px;
+    background:linear-gradient(to bottom,var(--gold),rgba(201,168,76,.1));
+    transform-origin:top;transform:scaleY(0);
+    transition:transform 1.5s var(--ease);
+  }
+  .timeline-line.animate{transform:scaleY(1)}
+  .tl-item{position:relative;margin-bottom:38px}
+  .tl-dot {
+    position:absolute;left:-32px;top:6px;
+    width:12px;height:12px;border-radius:50%;
+    border:2px solid var(--gold);background:var(--navy);
+    transition:background .3s,transform .3s var(--ease);
+  }
+  .tl-dot.filled{background:var(--gold)}
+  .tl-item:hover .tl-dot{transform:scale(1.4)}
+  .tl-year{font-size:10.5px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:4px}
+  .tl-title{font-family:var(--font-h);font-size:18px;font-weight:600;color:var(--white);margin-bottom:4px}
+  .tl-desc{font-size:13px;color:var(--muted);line-height:1.65}
+
+  /* ── ACADEMIC ────────────────────────────────────────────── */
+  .academic-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-top:52px}
+  @media(max-width:768px){.academic-grid{grid-template-columns:1fr;gap:28px}}
+
+  .ac-card{
+    padding:32px;background:var(--navy2);
+    border:1px solid rgba(255,255,255,.07);border-radius:18px;
+    transition:border-color .3s,transform .3s var(--ease);
+  }
+  .ac-card:hover{border-color:rgba(201,168,76,.18);transform:translateY(-3px)}
+  .ac-card+.ac-card{margin-top:20px}
+  .ac-card-title{
+    font-family:var(--font-h);font-size:17px;font-weight:600;color:var(--white);
+    margin-bottom:20px;display:flex;align-items:center;gap:10px;
+  }
+  .ac-icon{
+    width:32px;height:32px;border-radius:8px;background:rgba(201,168,76,.1);
+    display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;
+  }
+  .ac-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.045);
+    margin-bottom:14px;
+  }
+  .ac-row:last-child{padding-bottom:0;border-bottom:none;margin-bottom:0}
+  .ac-row-label{font-size:13.5px;color:rgba(255,255,255,.5)}
+  .ac-row-val{font-family:var(--font-h);font-size:15px;font-weight:700;color:var(--white)}
+  .ac-row-val.gold{color:var(--gold)}
+
+  .values-list{display:flex;flex-direction:column;gap:18px}
+  .value-item{display:flex;gap:14px;align-items:flex-start}
+  .value-num{
+    width:28px;height:28px;border-radius:50%;
+    background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:900;color:var(--gold);flex-shrink:0;margin-top:2px;
+  }
+  .value-title{font-weight:700;color:var(--white);font-size:14px;margin-bottom:3px}
+  .value-desc{font-size:12.5px;color:var(--muted);line-height:1.55}
+
+  /* ── VIDEO ──────────────────────────────────────────────── */
+  .video-wrap{
+    width:100%;max-width:820px;margin:52px auto 0;
+    aspect-ratio:16/9;background:var(--navy2);
+    border:1px solid rgba(255,255,255,.07);border-radius:20px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:18px;cursor:pointer;position:relative;overflow:hidden;
+    transition:border-color .3s,box-shadow .3s;
+  }
+  .video-wrap:hover{
+    border-color:rgba(201,168,76,.3);
+    box-shadow:0 24px 80px rgba(0,0,0,.5),0 0 60px rgba(201,168,76,.06);
+  }
+  .video-wrap::before {
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 50% 50%,rgba(201,168,76,.04) 0%,transparent 70%);
+    opacity:0;transition:opacity .4s;
+  }
+  .video-wrap:hover::before{opacity:1}
+  .play-btn {
+    width:76px;height:76px;border-radius:50%;background:var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .3s var(--ease),background .2s,box-shadow .3s;
+    box-shadow:0 0 0 rgba(201,168,76,0);
+  }
+  .video-wrap:hover .play-btn{
+    transform:scale(1.1);background:var(--gold2);
+    box-shadow:0 0 40px rgba(201,168,76,.4);
+  }
+  .play-icon{
+    width:0;height:0;
+    border-top:13px solid transparent;border-bottom:13px solid transparent;
+    border-left:22px solid var(--navy);margin-left:5px;
+  }
+  .video-label{font-family:var(--font-h);font-size:20px;font-weight:600;color:rgba(255,255,255,.65)}
+  .video-sub{font-size:13px;color:var(--muted)}
+
+  /* ── MARQUEE STRIP ──────────────────────────────────────── */
+  .marquee-wrap{
+    overflow:hidden;background:rgba(201,168,76,.05);
+    border-top:1px solid rgba(201,168,76,.1);
+    border-bottom:1px solid rgba(201,168,76,.1);
+    padding:16px 0;
+  }
+  .marquee-inner{
+    display:flex;gap:60px;white-space:nowrap;
+    animation:marqueeScroll 20s linear infinite;
+  }
+  .marquee-item{
+    font-family:var(--font-h);font-size:12px;font-weight:600;
+    letter-spacing:3px;text-transform:uppercase;
+    color:rgba(201,168,76,.5);flex-shrink:0;
+    display:flex;align-items:center;gap:12px;
+  }
+  .marquee-item::after{content:'⚾';font-size:10px}
+  @keyframes marqueeScroll {
+    0%{transform:translateX(0)}
+    100%{transform:translateX(-50%)}
+  }
+
+  /* ── RECRUIT CTA ─────────────────────────────────────────── */
+  .recruit-section{
+    background:var(--navy2);padding:110px 56px;
+    text-align:center;position:relative;overflow:hidden;
+  }
+  .recruit-section::before {
+    content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);
+    width:700px;height:700px;
+    background:radial-gradient(circle,rgba(201,168,76,.06) 0%,transparent 65%);
+    animation:glowPulse 7s ease-in-out infinite;pointer-events:none;
+  }
+  /* Animated corner lines */
+  .recruit-corner {
+    position:absolute;width:60px;height:60px;pointer-events:none;
+  }
+  .recruit-corner.tl{top:40px;left:40px;border-top:2px solid rgba(201,168,76,.2);border-left:2px solid rgba(201,168,76,.2)}
+  .recruit-corner.tr{top:40px;right:40px;border-top:2px solid rgba(201,168,76,.2);border-right:2px solid rgba(201,168,76,.2)}
+  .recruit-corner.bl{bottom:40px;left:40px;border-bottom:2px solid rgba(201,168,76,.2);border-left:2px solid rgba(201,168,76,.2)}
+  .recruit-corner.br{bottom:40px;right:40px;border-bottom:2px solid rgba(201,168,76,.2);border-right:2px solid rgba(201,168,76,.2)}
+
+  .recruit-inner{position:relative;z-index:1;max-width:660px;margin:0 auto}
+  .recruit-badge {
+    display:inline-block;padding:7px 18px;
+    background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.22);
+    border-radius:999px;font-size:11px;font-weight:700;
+    letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:28px;
+  }
+  .recruit-title{
+    font-family:var(--font-h);font-size:clamp(40px,5.5vw,62px);
+    font-weight:700;color:var(--white);line-height:1.02;margin-bottom:22px;
+  }
+  .recruit-sub{font-size:16px;color:var(--muted);line-height:1.75;margin-bottom:40px}
+  .recruit-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .recruit-info{
+    display:flex;gap:40px;justify-content:center;flex-wrap:wrap;
+    margin-top:44px;padding-top:44px;border-top:1px solid rgba(255,255,255,.055);
+  }
+  .ri-item{text-align:center}
+  .ri-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  .ri-val{font-family:var(--font-h);font-size:15px;font-weight:600;color:var(--white)}
+  @media(max-width:768px){.recruit-section{padding:70px 20px}}
+
+  /* ── FOOTER ─────────────────────────────────────────────── */
+  footer{
+    background:var(--navy);border-top:1px solid rgba(255,255,255,.05);
+    padding:32px 56px;display:flex;align-items:center;
+    justify-content:space-between;flex-wrap:wrap;gap:16px;
+  }
+  .footer-brand{font-family:var(--font-h);font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.28)}
+  .footer-brand span{color:var(--gold)}
+  .footer-note{font-size:12px;color:rgba(255,255,255,.18)}
+  @media(max-width:768px){footer{padding:24px 20px;flex-direction:column;text-align:center}}
+
+  /* ── PAGE LOADER ─────────────────────────────────────────── */
+  #page-loader {
+    position:fixed;inset:0;z-index:9999;
+    background:var(--navy);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  }
+  .loader-logo{
+    font-family:var(--font-h);font-size:48px;font-weight:700;
+    color:var(--gold);letter-spacing:-1px;
+    opacity:0;
+  }
+  .loader-sub{
+    font-size:11px;font-weight:700;letter-spacing:3px;
+    text-transform:uppercase;color:rgba(255,255,255,.3);
+    opacity:0;
+  }
+  .loader-bar-wrap{
+    width:120px;height:2px;background:rgba(255,255,255,.06);
+    border-radius:1px;overflow:hidden;margin-top:8px;opacity:0;
+  }
+  .loader-bar{height:100%;background:var(--gold);border-radius:1px;width:0}
+  </style>
+</head>
+<body>
+
+<!-- ══ CUSTOM CURSOR ══════════════════════════════════════════ -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- ══ PAGE LOADER ═══════════════════════════════════════════ -->
+<div id="page-loader">
+  <div class="loader-logo">DIEGO SILVA</div>
+  <div class="loader-sub">Class 2029 · Prospect Profile</div>
+  <div class="loader-bar-wrap">
+    <div class="loader-bar" id="loader-bar"></div>
+  </div>
+</div>
+
+<!-- ══ NAV ═══════════════════════════════════════════════════ -->
+<nav class="nav" id="main-nav">
+  <div class="nav-bg"></div>
+  <a href="#" class="nav-brand">
+    <div class="nav-brand-badge">DS</div>
+    <span class="nav-brand-text">Diego Silva · C2029</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#position">Position</a></li>
+    <li><a href="#training">Training</a></li>
+    <li><a href="#academics">Academics</a></li>
+    <li><a href="#highlights">Highlights</a></li>
+  </ul>
+  <a href="#recruit" class="nav-cta">Recruit Diego →</a>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <!-- Floating particles (created by JS) -->
+  <div id="particles"></div>
+
+  <div class="hero-inner">
+    <div class="hero-eyebrow" id="hero-eyebrow">
+      <div class="hero-eyebrow-dot"></div>
+      Class of 2029 &nbsp;·&nbsp; Division 1 Target
+    </div>
+
+    <h1 class="hero-name" id="hero-name">
+      <span class="word">Diego</span><br>
+      <span class="word gold-word">Silva</span>
+    </h1>
+    <div class="hero-class" id="hero-class">Prospect Profile — Orlando, FL</div>
+
+    <div class="hero-tags" id="hero-tags">
+      <span class="hero-tag gold">⚾ Catcher · Primary</span>
+      <span class="hero-tag">Utility Infield</span>
+      <span class="hero-tag">Born: Nov 27, 2010</span>
+      <span class="hero-tag">Caracas, VZ → Orlando, FL</span>
+      <span class="hero-tag gold">MLB Dream · Law School</span>
+    </div>
+
+    <div class="hero-btns" id="hero-btns">
+      <a href="#recruit" class="btn-primary">
+        Recruit Diego
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="#highlights" class="btn-secondary">
+        View Highlights
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-scroll" id="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    <span class="hero-scroll-text">Scroll</span>
+  </div>
+</section>
+
+<!-- ══ STATS STRIP ════════════════════════════════════════════ -->
+<div class="stats-strip" id="stats-strip">
+  <div class="stats-strip-inner">
+    <div class="stat-item"><div class="stat-num" data-count="2029" data-fmt="year">2029</div><div class="stat-label">Grad Year</div></div>
+    <div class="stat-item"><div class="stat-num">C / INF</div><div class="stat-label">Position</div></div>
+    <div class="stat-item"><div class="stat-num">R / R</div><div class="stat-label">Bats · Throws</div></div>
+    <div class="stat-item"><div class="stat-num" data-count="3">3</div><div class="stat-label">Years Training</div></div>
+    <div class="stat-item"><div class="stat-num">D1</div><div class="stat-label">Scholarship Goal</div></div>
+    <div class="stat-item"><div class="stat-num">MLB</div><div class="stat-label">Long-Term Target</div></div>
+  </div>
+</div>
+
+<!-- ══ MARQUEE ════════════════════════════════════════════════ -->
+<div class="marquee-wrap">
+  <div class="marquee-inner" id="marquee">
+    <span class="marquee-item">Catcher · Class 2029</span>
+    <span class="marquee-item">Orlando, Florida</span>
+    <span class="marquee-item">Trained by Ex-MLB Jackson Valera</span>
+    <span class="marquee-item">Division 1 Target</span>
+    <span class="marquee-item">Moisés &amp; Mari Academy</span>
+    <span class="marquee-item">Utility Infield</span>
+    <span class="marquee-item">Caracas · Venezuela</span>
+    <span class="marquee-item">Catcher · Class 2029</span>
+    <span class="marquee-item">Orlando, Florida</span>
+    <span class="marquee-item">Trained by Ex-MLB Jackson Valera</span>
+    <span class="marquee-item">Division 1 Target</span>
+    <span class="marquee-item">Moisés &amp; Mari Academy</span>
+    <span class="marquee-item">Utility Infield</span>
+    <span class="marquee-item">Caracas · Venezuela</span>
+  </div>
+</div>
+
+<!-- ══ ABOUT ══════════════════════════════════════════════════ -->
+<section id="about">
+  <div class="section">
+    <div class="about-grid">
+
+      <div class="about-photo js-reveal-left">
+        <!-- ✏️ Replace this with Diego's photo: add style="background-image:url('photo.jpg');background-size:cover;background-position:top center" to .about-photo -->
+        <div class="about-photo-inner"></div>
+        <div class="about-photo-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,.28)" stroke-width="1.5" style="margin-bottom:12px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <div style="font-size:12px;color:rgba(255,255,255,.2);line-height:1.7">Diego's action photo<br>Add here when available</div>
+        </div>
+        <div class="about-photo-badge">⚾ Orlando, FL &nbsp;·&nbsp; Catcher &nbsp;·&nbsp; Class 2029</div>
+      </div>
+
+      <div class="about-text js-reveal-right">
+        <div class="eyebrow">The Story</div>
+        <h2 class="section-title">Built from<br>Two Worlds.</h2>
+        <div class="gold-line"></div>
+        <p>Born in <strong>Caracas, Venezuela</strong>, Diego Alejandro Silva Herrera arrived in the United States at four years old — bringing a hunger that doesn't get taught in any training facility.</p>
+        <p>Now a <strong>rising sophomore in Orlando, Florida</strong>, Diego has spent the last three years building something real: a catcher with instincts behind the plate, a student with the grades to back it up, and a competitor with the mentality to lead a locker room.</p>
+        <p>He's not chasing a scholarship. He's earning one — one rep at a time under some of the best coaching in the game.</p>
+
+        <div class="about-flags">
+          <div class="about-flag"><div class="about-flag-dot"></div>Born: November 27, 2010</div>
+          <div class="about-flag"><div class="about-flag-dot"></div>Origin: Caracas, Venezuela</div>
+          <div class="about-flag"><div class="about-flag-dot"></div>Now: Orlando, FL</div>
+          <div class="about-flag"><div class="about-flag-dot"></div>Grade: Rising 10th · 2025–26</div>
+          <div class="about-flag"><div class="about-flag-dot"></div>Rep: JRZ Marketing</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ POSITION PROFILE ═══════════════════════════════════════ -->
+<section id="position" style="background:var(--navy2);padding:100px 0">
+  <div class="section">
+    <div class="js-reveal-up">
+      <div class="eyebrow">On the Field</div>
+      <h2 class="section-title">Position Profile</h2>
+      <p class="section-sub">Diego's primary home is behind the dish — but his baseball IQ and athleticism make him a weapon anywhere in the infield.</p>
+    </div>
+
+    <div class="position-grid">
+      <div class="position-card primary js-reveal-up">
+        <div class="card-badge">Primary Position</div>
+        <div class="card-title">⚾ Catcher</div>
+        <p class="card-desc">Diego fully committed to catching less than a year ago and has made rapid strides at the most demanding position on the field. Leadership presence, game-calling development, and arm strength make him a legitimate catching prospect with serious upside.</p>
+        <div class="skill-row"><div class="skill-label">Arm Strength</div><div class="skill-track"><div class="skill-fill" data-width="78"></div></div><div class="skill-val">Dev</div></div>
+        <div class="skill-row"><div class="skill-label">Blocking</div><div class="skill-track"><div class="skill-fill" data-width="73"></div></div><div class="skill-val">Dev</div></div>
+        <div class="skill-row"><div class="skill-label">Framing</div><div class="skill-track"><div class="skill-fill" data-width="74"></div></div><div class="skill-val">Dev</div></div>
+        <div class="skill-row"><div class="skill-label">Game Calling</div><div class="skill-track"><div class="skill-fill" data-width="70"></div></div><div class="skill-val">Dev</div></div>
+        <div class="skill-row"><div class="skill-label">Leadership</div><div class="skill-track"><div class="skill-fill" data-width="88"></div></div><div class="skill-val">High</div></div>
+      </div>
+
+      <div class="position-card js-reveal-up" style="transition-delay:.1s">
+        <div class="card-badge muted">Secondary Role</div>
+        <div class="card-title">🎯 Utility Infield</div>
+        <p class="card-desc">Diego's versatility across the infield gives college coaches a player with real roster flexibility. Natural instincts and developed fundamentals make him deployable at multiple positions — a quality that opens doors at every D1 program.</p>
+        <div class="skill-row"><div class="skill-label">Baseball IQ</div><div class="skill-track"><div class="skill-fill" data-width="86"></div></div><div class="skill-val">High</div></div>
+        <div class="skill-row"><div class="skill-label">Versatility</div><div class="skill-track"><div class="skill-fill" data-width="90"></div></div><div class="skill-val">High</div></div>
+        <div class="skill-row"><div class="skill-label">Glove Work</div><div class="skill-track"><div class="skill-fill" data-width="75"></div></div><div class="skill-val">Dev</div></div>
+        <div class="skill-row"><div class="skill-label">Range</div><div class="skill-track"><div class="skill-fill" data-width="72"></div></div><div class="skill-val">Dev</div></div>
+        <div class="skill-row"><div class="skill-label">Footwork</div><div class="skill-track"><div class="skill-fill" data-width="74"></div></div><div class="skill-val">Dev</div></div>
+      </div>
+    </div>
+
+    <!-- Batting Card -->
+    <div class="position-card js-reveal-up" style="margin-top:24px;background:linear-gradient(135deg,rgba(201,168,76,.05) 0%,var(--navy) 100%);border-color:rgba(201,168,76,.14)">
+      <div class="card-badge">Offense</div>
+      <div class="card-title">🏏 Batting Profile</div>
+      <p class="card-desc">Trained directly in batting mechanics by <strong style="color:rgba(255,255,255,.85)">Jackson Valera (ex-MLB)</strong> — a professional-grade foundation at the plate that most 14-year-olds simply don't have. Three years of consistent swing work under elite instruction.</p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:18px">
+        <div style="padding:14px 22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:11px;text-align:center">
+          <div style="font-family:var(--font-h);font-size:22px;font-weight:700;color:var(--white)">R/R</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.5px">Bats / Throws</div>
+        </div>
+        <div style="padding:14px 22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:11px;text-align:center">
+          <div style="font-family:var(--font-h);font-size:22px;font-weight:700;color:var(--white)">3 YRS</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.5px">Pro Training</div>
+        </div>
+        <div style="padding:14px 22px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:11px;text-align:center">
+          <div style="font-family:var(--font-h);font-size:22px;font-weight:700;color:var(--gold)">MLB</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.5px">Level Coaching</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TRAINING PEDIGREE ══════════════════════════════════════ -->
+<section id="training" style="background:var(--navy);padding:100px 0">
+  <div class="section">
+    <div class="js-reveal-up">
+      <div class="eyebrow">Development</div>
+      <h2 class="section-title">Training Pedigree</h2>
+      <p class="section-sub">The coaches behind Diego's development aren't just experienced — they're elite. When an ex-Major Leaguer is in your corner at 14, that's not a coincidence. That's a bet on talent.</p>
+    </div>
+
+    <div class="coaches-grid">
+      <div class="coach-card js-reveal-up">
+        <div class="coach-icon-wrap">
+          <div class="coach-icon">JV</div>
+          <div class="coach-meta">
+            <div class="coach-name">Jackson Valera</div>
+            <div class="coach-title">Hitting &amp; Fundamentals</div>
+          </div>
+        </div>
+        <p class="coach-desc">A former Major League Baseball player who has personally worked with Diego on batting mechanics, defensive fundamentals, and complete game development. Having a professional who has played at the highest level fine-tune your swing and baseball IQ at 14 is a rare, serious advantage that shows up in Diego's technical foundation.</p>
+        <div class="coach-mlb-badge">⚾ Former Major League Baseball Player</div>
+      </div>
+
+      <div class="coach-card js-reveal-up" style="transition-delay:.1s">
+        <div class="coach-icon-wrap">
+          <div class="coach-icon">WN</div>
+          <div class="coach-meta">
+            <div class="coach-name">Coach Wilner "Blue" Nava</div>
+            <div class="coach-title">Moisés &amp; Mari Academy</div>
+          </div>
+        </div>
+        <p class="coach-desc">At Moisés and Mari Academy, Coach Blue provides Diego with the structured environment and specialized repetition needed to accelerate his growth behind the plate. The academy's emphasis on fundamentals has been foundational to Diego's rapid rise as a catching prospect over the past year.</p>
+        <div style="margin-top:18px;padding:12px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:9px;font-size:12px;color:rgba(255,255,255,.35);font-style:italic;line-height:1.6">
+          "Consistent. Coachable. Never misses a rep."
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div style="margin-top:70px">
+      <div class="js-reveal-up">
+        <div class="eyebrow">Development Path</div>
+        <h3 style="font-family:var(--font-h);font-size:30px;font-weight:700;color:var(--white);margin-bottom:6px">The Road So Far</h3>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:0">Every rep. Every rep. Every rep.</p>
+      </div>
+      <div class="timeline" id="timeline">
+        <div class="timeline-line" id="timeline-line"></div>
+        <div class="tl-item js-reveal-up"><div class="tl-dot filled"></div><div class="tl-year">2010 — Caracas, Venezuela</div><div class="tl-title">Born Into the Game</div><div class="tl-desc">Diego Alejandro Silva Herrera born November 27th. Baseball roots begin in Venezuela — one of the most storied baseball nations in the world, with over 400 MLB alumni.</div></div>
+        <div class="tl-item js-reveal-up"><div class="tl-dot filled"></div><div class="tl-year">2014 — Orlando, Florida</div><div class="tl-title">New Country. Same Hunger.</div><div class="tl-desc">Emigrates to the United States at age four. Begins his American upbringing in Orlando, FL — keeping baseball as his north star through every transition.</div></div>
+        <div class="tl-item js-reveal-up"><div class="tl-dot filled"></div><div class="tl-year">2022 — Training Begins</div><div class="tl-title">Committed to the Process</div><div class="tl-desc">Diego begins dedicated training with ex-MLB Jackson Valera — batting mechanics, infield fundamentals, and strength development. The three-year grind starts here.</div></div>
+        <div class="tl-item js-reveal-up"><div class="tl-dot filled"></div><div class="tl-year">2024 — Behind the Plate</div><div class="tl-title">Catcher by Calling</div><div class="tl-desc">Diego fully commits to catching — the most demanding and most valued position on the diamond. Within a year, his progress is undeniable.</div></div>
+        <div class="tl-item js-reveal-up"><div class="tl-dot"></div><div class="tl-year">2025–2026 — Sophomore Season</div><div class="tl-title">Making the Leap</div><div class="tl-desc">Entering 10th grade in Orlando. Building showcase appearances, a clean stat line, and the academic record that puts a D1 offer on the table.</div></div>
+        <div class="tl-item js-reveal-up"><div class="tl-dot"></div><div class="tl-year">2029 — Graduation</div><div class="tl-title">D1 Scholarship &amp; MLB Path</div><div class="tl-desc">The destination: a Division 1 program that develops the total athlete — on the field and in the classroom — with the Major Leagues as the long-term goal.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ACADEMICS & CHARACTER ══════════════════════════════════ -->
+<section id="academics" style="background:var(--navy2);padding:100px 0">
+  <div class="section">
+    <div class="js-reveal-up">
+      <div class="eyebrow">Beyond the Field</div>
+      <h2 class="section-title">Academic Profile<br>&amp; Character</h2>
+      <p class="section-sub">College coaches recruit athletes. Great programs recruit people. Diego understands that the classroom and how he carries himself off the field is part of the offer package.</p>
+    </div>
+
+    <div class="academic-grid">
+      <div>
+        <div class="ac-card js-reveal-up">
+          <div class="ac-card-title"><div class="ac-icon">📚</div>Academic Profile</div>
+          <div class="ac-row"><div class="ac-row-label">Current Grade</div><div class="ac-row-val">9th → Rising 10th</div></div>
+          <div class="ac-row"><div class="ac-row-label">GPA</div><div class="ac-row-val gold">Available on Request</div></div>
+          <div class="ac-row"><div class="ac-row-label">School Location</div><div class="ac-row-val">Orlando, FL</div></div>
+          <div class="ac-row"><div class="ac-row-label">Academic Interest</div><div class="ac-row-val">Law / Legal Studies</div></div>
+        </div>
+
+        <div class="ac-card js-reveal-up" style="margin-top:20px">
+          <div class="ac-card-title"><div class="ac-icon">🎯</div>Recruiting Goals</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="padding:13px 16px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.13);border-radius:9px;font-size:13px;color:rgba(255,255,255,.7);line-height:1.65">
+              <strong style="color:var(--gold)">Short Term:</strong> Earn a full scholarship to a Division 1 program that invests in academic and athletic development equally.
+            </div>
+            <div style="padding:13px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:9px;font-size:13px;color:rgba(255,255,255,.7);line-height:1.65">
+              <strong style="color:rgba(255,255,255,.8)">Long Term:</strong> Professional career in the MLB — and a law degree that builds a complete future on and off the diamond.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="ac-card js-reveal-up">
+          <div class="ac-card-title"><div class="ac-icon">⭐</div>Core Values</div>
+          <div class="values-list">
+            <div class="value-item"><div class="value-num">01</div><div><div class="value-title">Responsibility</div><div class="value-desc">Diego owns his development. He doesn't wait for coaches to push him — he shows up early, stays late, and holds himself to a higher standard.</div></div></div>
+            <div class="value-item"><div class="value-num">02</div><div><div class="value-title">Discipline</div><div class="value-desc">Three years of consistent training without letting up. Discipline is what separates players who could from players who do — Diego does.</div></div></div>
+            <div class="value-item"><div class="value-num">03</div><div><div class="value-title">Teamwork</div><div class="value-desc">A natural teammate. Diego makes the people around him better — on the field and in the classroom. Great catchers are leaders first.</div></div></div>
+            <div class="value-item"><div class="value-num">04</div><div><div class="value-title">Positive Attitude</div><div class="value-desc">Every locker room needs a guy who raises the energy. Diego is that guy — consistent, optimistic, and impossible to rattle under pressure.</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HIGHLIGHTS ══════════════════════════════════════════════ -->
+<section id="highlights" style="background:var(--navy);padding:100px 0">
+  <div class="section" style="text-align:center">
+    <div class="js-reveal-up">
+      <div class="eyebrow" style="justify-content:center">Film Room</div>
+      <h2 class="section-title" style="margin:0 auto 18px">Highlight Reel</h2>
+      <p class="section-sub" style="margin:0 auto">Watch Diego's development behind the plate and across the infield.</p>
+    </div>
+
+    <!-- ✏️ Replace with actual YouTube/Hudl embed: swap div.video-wrap for <iframe> -->
+    <div class="video-wrap js-reveal-up">
+      <div class="play-btn"><div class="play-icon"></div></div>
+      <div class="video-label">2024–2025 Highlight Reel</div>
+      <div class="video-sub">Catching · Infield · At-Bat Mechanics</div>
+    </div>
+    <p style="font-size:12px;color:rgba(255,255,255,.18);margin-top:18px">Full game film available upon request · Contact JRZ Marketing</p>
+  </div>
+</section>
+
+<!-- ══ RECRUIT CTA ════════════════════════════════════════════ -->
+<section id="recruit" class="recruit-section">
+  <div class="recruit-corner tl"></div>
+  <div class="recruit-corner tr"></div>
+  <div class="recruit-corner bl"></div>
+  <div class="recruit-corner br"></div>
+
+  <div class="recruit-inner">
+    <div class="recruit-badge js-reveal-up">Recruiting Inquiries</div>
+    <h2 class="recruit-title js-reveal-up">
+      Interested in<br>Diego Silva?
+    </h2>
+    <p class="recruit-sub js-reveal-up">
+      Diego is represented by <strong style="color:var(--white)">JRZ Marketing</strong>. All recruiting inquiries, film requests, academic questions, and campus visit coordination go through us. We respond within 24 hours.
+    </p>
+    <div class="recruit-btns js-reveal-up">
+      <a href="mailto:info@jrzmarketing.com?subject=Recruiting Inquiry — Diego Silva Class 2029&body=Hello JRZ Marketing,%0D%0A%0D%0AI am interested in recruiting Diego Silva (Class 2029, Catcher/Utility, Orlando FL).%0D%0A%0D%0APlease send available film and academic information.%0D%0A%0D%0AThank you." class="btn-primary">
+        Send Recruiting Email
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </a>
+      <a href="https://links.jrzmarketing.com/widget/bookings/jrz-marketing" target="_blank" rel="noopener" class="btn-secondary">
+        Schedule a Call
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.57 3.38 2 2 0 0 1 3.54 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.54 16l.38.92z"/></svg>
+      </a>
+    </div>
+
+    <div class="recruit-info js-reveal-up">
+      <div class="ri-item"><div class="ri-label">Agent</div><div class="ri-val">JRZ Marketing</div></div>
+      <div class="ri-item"><div class="ri-label">Email</div><div class="ri-val">info@jrzmarketing.com</div></div>
+      <div class="ri-item"><div class="ri-label">Location</div><div class="ri-val">Orlando, FL</div></div>
+      <div class="ri-item"><div class="ri-label">Eligibility</div><div class="ri-val">Class of 2029</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ═════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-brand"><span>JRZ</span> Marketing · Diego Silva · Class 2029</div>
+  <div class="footer-note">Orlando, FL · info@jrzmarketing.com</div>
+</footer>
+
+<!-- ══ JAVASCRIPT ══════════════════════════════════════════════ -->
+<script>
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+/* ── PAGE LOADER ─────────────────────────────────────────── */
+const loader = document.getElementById('page-loader');
+const loaderBar = document.getElementById('loader-bar');
+
+const loaderTl = gsap.timeline({
+  onComplete: () => {
+    gsap.to(loader, { opacity: 0, duration: .6, ease: 'power2.inOut', onComplete: () => {
+      loader.style.display = 'none';
+      initHeroAnim();
+    }});
+  }
+});
+loaderTl
+  .to('.loader-logo', { opacity:1, y:0, duration:.6, ease:'power3.out' }, 0)
+  .to('.loader-sub',  { opacity:1, duration:.5, ease:'power2.out' }, .3)
+  .to('.loader-bar-wrap', { opacity:1, duration:.3 }, .4)
+  .to(loaderBar, { width:'100%', duration:1.2, ease:'power2.inOut' }, .5)
+  .to({}, { duration:.3 }); // pause at end
+
+/* ── HERO ANIMATIONS ─────────────────────────────────────── */
+function initHeroAnim() {
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl
+    .to('#hero-eyebrow', { opacity:1, y:0, duration:.8 }, 0)
+    .to('.hero-name .word', {
+      opacity:1, y:0, duration:.9, stagger:.12, ease:'power4.out'
+    }, .2)
+    .to('#hero-class', { opacity:1, x:0, duration:.7 }, .5)
+    .to('#hero-tags', { opacity:1, y:0, duration:.6 }, .7)
+    .to('#hero-btns', { opacity:1, y:0, duration:.6 }, .85)
+    .to('#hero-scroll', { opacity:1, duration:.8 }, 1.1);
+}
+
+/* ── FLOATING PARTICLES ──────────────────────────────────── */
+(function createParticles() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+    const dur  = 7 + Math.random() * 10;
+    const del  = Math.random() * 8;
+    const tx   = (Math.random() - .5) * 80;
+    const ty   = -(80 + Math.random() * 160);
+    const op   = .1 + Math.random() * .25;
+    p.style.cssText = `left:${x}%;top:${y}%;--dur:${dur}s;--delay:${del}s;--tx:${tx}px;--ty:${ty}px;--op:${op};width:${2+Math.random()*3}px;height:${2+Math.random()*3}px`;
+    container.appendChild(p);
+  }
+})();
+
+/* ── STICKY NAV ──────────────────────────────────────────── */
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
+
+/* ── CUSTOM CURSOR ──────────────────────────────────────── */
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+function animCursor() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  cursor.style.left = mx + 'px';
+  cursor.style.top  = my + 'px';
+  ring.style.left   = rx + 'px';
+  ring.style.top    = ry + 'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+document.querySelectorAll('a,button,.position-card,.coach-card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width  = '20px'; cursor.style.height = '20px';
+    ring.style.width    = '56px'; ring.style.height   = '56px';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width  = '12px'; cursor.style.height = '12px';
+    ring.style.width    = '36px'; ring.style.height   = '36px';
+  });
+});
+
+/* ── SCROLL REVEAL (generic) ─────────────────────────────── */
+gsap.utils.toArray('.js-reveal-up').forEach((el, i) => {
+  gsap.from(el, {
+    scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' },
+    opacity: 0, y: 40, duration: .85, delay: el.style.transitionDelay ? parseFloat(el.style.transitionDelay) : 0,
+    ease: 'power3.out'
+  });
+});
+
+gsap.utils.toArray('.js-reveal-left').forEach(el => {
+  gsap.from(el, {
+    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
+    opacity: 0, x: -60, duration: 1, ease: 'power3.out'
+  });
+});
+
+gsap.utils.toArray('.js-reveal-right').forEach(el => {
+  gsap.from(el, {
+    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
+    opacity: 0, x: 60, duration: 1, ease: 'power3.out'
+  });
+});
+
+/* ── SKILL BARS ──────────────────────────────────────────── */
+document.querySelectorAll('.position-card').forEach(card => {
+  ScrollTrigger.create({
+    trigger: card,
+    start: 'top 80%',
+    once: true,
+    onEnter: () => {
+      card.querySelectorAll('.skill-fill').forEach(bar => {
+        bar.style.width = (bar.dataset.width || 0) + '%';
+      });
+    }
+  });
+});
+
+/* ── TIMELINE LINE DRAW ──────────────────────────────────── */
+ScrollTrigger.create({
+  trigger: '#timeline',
+  start: 'top 75%',
+  once: true,
+  onEnter: () => {
+    document.getElementById('timeline-line').classList.add('animate');
+  }
+});
+
+/* ── STATS STRIP PARALLAX ────────────────────────────────── */
+gsap.from('#stats-strip .stat-item', {
+  scrollTrigger: { trigger: '#stats-strip', start: 'top 90%' },
+  opacity: 0, y: 20, stagger: .07, duration: .5, ease: 'power2.out'
+});
+
+/* ── HERO PARALLAX ───────────────────────────────────────── */
+gsap.to('.hero-glow', {
+  scrollTrigger: { trigger: '.hero', scrub: 1.5 },
+  y: 120, ease: 'none'
+});
+gsap.to('.hero-grid', {
+  scrollTrigger: { trigger: '.hero', scrub: 2 },
+  y: 60, ease: 'none'
+});
+gsap.to('.hero-name', {
+  scrollTrigger: { trigger: '.hero', scrub: 1 },
+  y: 40, opacity: .3, ease: 'none'
+});
+
+/* ── SMOOTH SCROLL ───────────────────────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    const target = document.querySelector(link.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+    gsap.to(window, { scrollTo: { y: target, offsetY: 80 }, duration: 1.2, ease: 'power3.inOut' });
+  });
+});
+
+/* ── MAGNETIC BUTTONS ────────────────────────────────────── */
+document.querySelectorAll('.btn-primary, .btn-secondary, .nav-cta').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const r   = btn.getBoundingClientRect();
+    const dx  = e.clientX - r.left - r.width / 2;
+    const dy  = e.clientY - r.top  - r.height / 2;
+    gsap.to(btn, { x: dx * .15, y: dy * .15, duration: .3, ease: 'power2.out' });
+  });
+  btn.addEventListener('mouseleave', () => {
+    gsap.to(btn, { x: 0, y: 0, duration: .5, ease: 'elastic.out(1,.5)' });
+  });
+});
+
+/* ── COACH CARD TILT ─────────────────────────────────────── */
+document.querySelectorAll('.coach-card, .position-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r  = card.getBoundingClientRect();
+    const x  = (e.clientX - r.left) / r.width  - .5;
+    const y  = (e.clientY - r.top)  / r.height - .5;
+    gsap.to(card, { rotationY: x * 6, rotationX: -y * 4, transformPerspective: 800, duration: .4, ease: 'power2.out' });
+  });
+  card.addEventListener('mouseleave', () => {
+    gsap.to(card, { rotationY: 0, rotationX: 0, duration: .6, ease: 'elastic.out(1,.5)' });
+  });
+});
+</script>
+
+</body>
+</html>

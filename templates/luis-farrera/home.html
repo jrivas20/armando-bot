@@ -11,10 +11,35 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="dns-prefetch" href="https://assets.cdn.filesafe.space">
+
+<!-- ── GHL FULL BLEED OVERRIDE — Required on every GHL page ── -->
+<style>
+html, body,
+.page-section, .page-section--content,
+.funnelish-section, .funnelish-section--content,
+.section-wrap, .section-wrap--content,
+.hl_page-section, .hl_page-section--content,
+.container, .container-fluid,
+.row, .col, [class*="col-"],
+[class*="section"], [class*="container"],
+[class*="wrapper"], [class*="inner"],
+[class*="page-section"], [class*="hl_"] {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+body { overflow-x: hidden !important; }
+</style>
+<!-- ── END GHL FULL BLEED ── -->
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#050505;--bg2:#0b0b0b;--bg3:#121212;--panel:#171717;--text:#f4f1eb;--muted:rgba(244,241,235,.72);--soft:rgba(244,241,235,.45);--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--gold:#cfa947;--gold2:#e2c66f;--white:#ffffff;--max:1440px;--display:'Bebas Neue',sans-serif;--serif:'Cormorant Garamond',serif;--body:'Inter',sans-serif;--shadow:0 20px 70px rgba(0,0,0,.38)}
+:root{--bg:#050505;--bg2:#0b0b0b;--bg3:#121212;--panel:#171717;--text:#f4f1eb;--muted:rgba(244,241,235,.72);--soft:rgba(244,241,235,.45);--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--gold:#cfa947;--gold2:#e2c66f;--white:#ffffff;--max:1440px;--display:'Bebas Neue',sans-serif;--serif:'Cormorant Garamond',serif;--body:'Inter',sans-serif;--shadow:0 20px 70px rgba(0,0,0,.38);--nav-h:72px}
 html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:var(--body);overflow-x:hidden}
 img,video,iframe{display:block;max-width:100%}a{color:inherit;text-decoration:none}button{font:inherit}
 .lf-c{width:min(var(--max),calc(100% - 32px));margin:0 auto}.lf-s{padding:88px 0}
@@ -23,7 +48,7 @@ img,video,iframe{display:block;max-width:100%}a{color:inherit;text-decoration:no
 .lf-title{font:400 clamp(42px,7vw,90px)/.9 var(--display);letter-spacing:1px;text-transform:uppercase;margin:0}
 .lf-title em{display:block;font:300 italic clamp(18px,2vw,28px)/1.2 var(--serif);text-transform:none;letter-spacing:2px;color:rgba(255,255,255,.42)}
 .lf-sub{font:300 18px/1.8 var(--serif);color:var(--muted)}
-.lf-btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 24px;border:1px solid transparent;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:.22s ease;cursor:pointer;white-space:nowrap}
+.lf-btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 28px;border:1px solid transparent;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:.22s ease;cursor:pointer;white-space:nowrap}
 .lf-btn-gold{background:transparent;border-color:var(--gold);color:var(--gold2)}.lf-btn-gold:hover{background:var(--gold);color:#111}
 .lf-btn-light{background:var(--white);color:#111}.lf-btn-light:hover{opacity:.9;transform:translateY(-1px)}
 .lf-btn-line{background:transparent;border-color:var(--line2);color:var(--white)}.lf-btn-line:hover{border-color:var(--gold);color:var(--gold2)}
@@ -32,7 +57,7 @@ img,video,iframe{display:block;max-width:100%}a{color:inherit;text-decoration:no
 /* ── NAV ── */
 .lf-nav-wrap{position:fixed;top:0;left:0;right:0;z-index:200;transition:background .35s ease,border-color .35s ease;border-bottom:1px solid transparent}
 .lf-nav-wrap.scrolled{background:rgba(5,5,5,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom-color:rgba(207,169,71,.22)}
-.lf-nav{width:min(var(--max),calc(100% - 32px));margin:0 auto;min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.lf-nav{width:min(var(--max),calc(100% - 32px));margin:0 auto;min-height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:24px}
 .lf-nav-brand{display:flex;flex-direction:column;gap:3px}
 .lf-nav-brand strong{font:400 18px/1 var(--display);letter-spacing:3px;text-transform:uppercase;color:var(--text)}
 .lf-nav-brand span{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold2)}
@@ -43,62 +68,171 @@ img,video,iframe{display:block;max-width:100%}a{color:inherit;text-decoration:no
 .lf-nav-cta:hover{background:var(--gold);color:#111}
 .lf-nav-mob{display:none;background:none;border:0;color:#fff;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;padding:4px}
 
-/* ── TRUST BAR ── */
-.lf-trust-bar{background:rgba(207,169,71,.07);border-bottom:1px solid rgba(207,169,71,.16);padding:10px 16px;text-align:center}
-.lf-trust-bar-in{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(244,241,235,.5)}
-.lf-trust-bar-in span{display:inline-flex;align-items:center;gap:8px}
-.lf-trust-bar-in .dot::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--gold);flex-shrink:0;display:inline-block;margin-right:8px}
-.lf-trust-bar .stars{color:var(--gold2);letter-spacing:2px}
-.lf-trust-bar strong{color:var(--gold2);font-weight:500}
+/* ── AVAILABILITY BAR ── */
+.lf-avail-bar{background:linear-gradient(90deg,rgba(207,169,71,.04),rgba(207,169,71,.1),rgba(207,169,71,.04));border-bottom:1px solid rgba(207,169,71,.2);padding:10px 16px;position:relative;z-index:150}
+.lf-avail-inner{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;font-size:10px;letter-spacing:2.5px;text-transform:uppercase}
+.lf-avail-live{display:inline-flex;align-items:center;gap:7px;color:rgba(244,241,235,.55)}
+.lf-avail-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;flex-shrink:0;animation:livePulse 1.5s ease infinite}
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(74,222,128,.55)}70%{box-shadow:0 0 0 8px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+.lf-avail-sep{color:rgba(255,255,255,.18)}
+.lf-avail-accent{color:var(--gold2);font-weight:600}
+.lf-avail-link{color:var(--gold2);border-bottom:1px solid rgba(226,198,111,.3);transition:.2s;padding-bottom:1px}
+.lf-avail-link:hover{border-bottom-color:var(--gold2)}
 
-/* ── HERO — stacked vertical layout ── */
-.lf-hero{background:var(--bg);padding-top:72px}
-.lf-hero-wrap{width:min(820px,calc(100% - 32px));margin:0 auto;text-align:center;padding:52px 0 0}
+/* ── HERO — full-viewport two-column split ── */
+.lf-hero{position:relative;min-height:100svh;display:grid;grid-template-rows:auto 1fr;padding-top:var(--nav-h);background:var(--bg)}
+.lf-hero-split{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100svh - var(--nav-h) - 38px)}
 
-.lf-hero-kicker{display:inline-flex;align-items:center;justify-content:center;gap:14px;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold2);margin-bottom:20px}
-.lf-hero-kicker::before,.lf-hero-kicker::after{content:"";width:22px;height:1px;background:var(--gold);opacity:.55}
+/* Left copy */
+.lf-hero-left{display:flex;flex-direction:column;justify-content:center;padding:52px 52px 52px 0;max-width:680px;width:min(100%,680px);margin-left:auto}
 
-.lf-hero-display{font:400 clamp(60px,11.5vw,140px)/.84 var(--display);text-transform:uppercase;letter-spacing:2px;color:var(--text);margin:0 0 14px}
+.lf-hero-kicker{display:inline-flex;align-items:center;gap:10px;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold2);margin-bottom:22px}
+.lf-hero-kicker:before{content:"";width:20px;height:1px;background:var(--gold);opacity:.7}
 
-.lf-hero-h1{font:300 italic clamp(18px,1.8vw,23px)/1.5 var(--serif);color:rgba(244,241,235,.48);margin:0 0 20px}
+.lf-hero-display{font:400 clamp(64px,9vw,128px)/.82 var(--display);text-transform:uppercase;letter-spacing:2px;color:var(--text);margin:0 0 18px;line-height:.82}
 
-.lf-hero-body{font-size:16px;line-height:1.8;color:var(--muted);font-weight:300;max-width:580px;margin:0 auto 32px}
+.lf-hero-h1{font:300 italic clamp(17px,1.6vw,21px)/1.5 var(--serif);color:rgba(244,241,235,.45);margin:0 0 22px}
 
-.lf-hero-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:44px}
+.lf-hero-body{font-size:16px;line-height:1.8;color:var(--muted);font-weight:300;max-width:520px;margin:0 0 32px}
 
-/* ── INLINE VIDEO PLAYER ── */
-.lf-hero-player{position:relative;width:100%;aspect-ratio:16/9;background:#000;border:1px solid rgba(207,169,71,.18);box-shadow:0 0 0 1px rgba(255,255,255,.04),0 48px 120px rgba(0,0,0,.75);overflow:hidden;cursor:pointer}
-.lf-hero-player video{width:100%;height:100%;object-fit:cover;display:block}
-.lf-hero-play-overlay{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(5,5,5,.32);transition:background .25s ease}
-.lf-hero-play-overlay:hover{background:rgba(5,5,5,.14)}
-.lf-hero-play-btn{width:76px;height:76px;border-radius:50%;border:1.5px solid rgba(207,169,71,.45);background:rgba(5,5,5,.55);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;transition:.25s ease}
-.lf-hero-play-overlay:hover .lf-hero-play-btn{border-color:var(--gold);background:rgba(207,169,71,.12);transform:scale(1.1)}
-.lf-hero-play-btn svg{width:24px;height:24px;fill:var(--gold2);margin-left:4px}
-.lf-hero-sound-tag{position:absolute;top:14px;right:14px;z-index:3;display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(5,5,5,.68);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(244,241,235,.45)}
-.lf-hero-player::after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--gold),transparent);z-index:4}
-.lf-hero-player.playing .lf-hero-play-overlay{opacity:0;pointer-events:none}
-.lf-hero-player.playing .lf-hero-sound-tag{display:none}
+.lf-hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
 
-/* Trust row below video */
-.lf-hero-trust{display:flex;align-items:center;justify-content:center;gap:10px;padding:18px 0 52px;font-size:11px;letter-spacing:1.5px;color:rgba(244,241,235,.38);border-bottom:1px solid var(--line)}
-.lf-hero-trust .stars{color:var(--gold2);font-size:13px}
-.lf-hero-trust strong{color:rgba(244,241,235,.6);font-weight:500}
+/* Scarcity signal below CTAs */
+.lf-hero-scarcity{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(244,241,235,.4)}
+.lf-hero-scarcity-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+/* Trust strip */
+.lf-hero-trust{display:flex;align-items:center;gap:14px;margin-top:32px;padding-top:22px;border-top:1px solid var(--line);font-size:12px;color:rgba(244,241,235,.42);flex-wrap:wrap}
+.lf-hero-trust .stars{color:var(--gold2);font-size:13px;letter-spacing:2px}
+.lf-hero-trust strong{color:rgba(244,241,235,.65);font-weight:500}
+
+/* Right video panel */
+.lf-hero-right{position:relative;overflow:hidden;background:#000}
+
+.lf-hero-vid{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Gradient blends — left edge into copy, bottom fade */
+.lf-hero-right::before{content:"";position:absolute;left:0;top:0;bottom:0;width:120px;z-index:2;background:linear-gradient(to right,var(--bg) 0%,rgba(5,5,5,.7) 50%,transparent 100%);pointer-events:none}
+.lf-hero-right::after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(to bottom,rgba(5,5,5,.08) 0%,transparent 30%,transparent 60%,rgba(5,5,5,.65) 100%);pointer-events:none}
+
+/* Studio badge */
+.lf-vid-badge{position:absolute;top:20px;right:20px;z-index:4;display:flex;align-items:center;gap:8px;background:rgba(5,5,5,.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);padding:8px 14px;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(244,241,235,.7)}
+.lf-vid-live-dot{width:6px;height:6px;border-radius:50%;background:#ef4444;animation:redPulse 1.4s ease infinite}
+@keyframes redPulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.6)}70%{box-shadow:0 0 0 7px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+
+/* Gold accent line on video bottom */
+.lf-vid-accent{position:absolute;bottom:0;left:0;right:0;height:2px;z-index:4;background:linear-gradient(to right,transparent,rgba(207,169,71,.6),transparent)}
+
+/* Sound toggle */
+.lf-vid-sound{position:absolute;bottom:20px;right:20px;z-index:4;width:40px;height:40px;border:1px solid rgba(255,255,255,.14);background:rgba(5,5,5,.65);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;font-size:14px;color:rgba(244,241,235,.65)}
+.lf-vid-sound:hover{border-color:var(--gold);color:var(--gold2)}
 
 /* Responsive nav */
-@media(max-width:900px){
+@media(max-width:960px){
   .lf-nav-links{display:none}
   .lf-nav-mob{display:block}
-  .lf-nav-links.open{display:flex;flex-direction:column;align-items:flex-start;gap:16px;position:fixed;top:72px;left:0;right:0;background:rgba(5,5,5,.97);padding:24px;border-bottom:1px solid var(--line)}
-  .lf-trust-bar-in .dot:nth-child(n+4){display:none}
-}
-@media(max-width:640px){
-  .lf-hero-display{letter-spacing:1px}
-  .lf-hero-actions{flex-direction:column}
-  .lf-hero-actions .lf-btn{width:100%}
-  .lf-trust-bar-in .dot:nth-child(n+3){display:none}
+  .lf-nav-links.open{display:flex;flex-direction:column;align-items:flex-start;gap:16px;position:fixed;top:var(--nav-h);left:0;right:0;background:rgba(5,5,5,.97);padding:24px;border-bottom:1px solid var(--line)}
+  .lf-avail-inner span:nth-child(n+4){display:none}
+
+  /* ── MOBILE HERO — true reel layout ── */
+  /* Hero fills full screen, video behind, copy overlaid at bottom */
+  .lf-hero{
+    padding-top:0;
+    min-height:100svh;
+    height:100svh;
+    display:block;
+    position:relative;
+    overflow:hidden;
+  }
+  .lf-hero-split{
+    display:block;
+    position:absolute;
+    inset:0;
+    height:100%;
+  }
+  /* Video fills entire hero */
+  .lf-hero-right{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    order:0;
+  }
+  .lf-hero-right::before{display:none}
+  /* Stronger bottom gradient so copy reads on video */
+  .lf-hero-right::after{
+    background:linear-gradient(
+      to bottom,
+      rgba(5,5,5,.45) 0%,
+      transparent 25%,
+      transparent 40%,
+      rgba(5,5,5,.72) 65%,
+      rgba(5,5,5,.97) 100%
+    )
+  }
+  /* Copy sits at bottom of the full-screen video */
+  .lf-hero-left{
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
+    z-index:4;
+    padding:0 20px 36px;
+    max-width:100%;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+  }
 }
 
-/* ── rest of page styles unchanged ── */
+@media(max-width:640px){
+  .lf-c{width:min(var(--max),calc(100% - 20px))}
+  .lf-s{padding:72px 0}
+  /* Hide redundant elements inside overlay */
+  .lf-hero-kicker{display:none}
+  .lf-hero-h1{display:none}
+  .lf-hero-scarcity{display:none}
+  /* Headline — punchy, fits on 2 lines */
+  .lf-hero-display{
+    font-size:clamp(46px,13vw,68px);
+    letter-spacing:1px;
+    line-height:.88;
+    margin-bottom:12px;
+    text-shadow:0 2px 20px rgba(0,0,0,.6);
+  }
+  /* Short body — max 2 lines */
+  .lf-hero-body{
+    font-size:14px;
+    line-height:1.6;
+    margin-bottom:18px;
+    color:rgba(244,241,235,.85);
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  /* Full-width stacked CTAs */
+  .lf-hero-actions{flex-direction:column;gap:10px;margin-bottom:14px}
+  .lf-hero-actions .lf-btn{width:100%;min-height:52px;font-size:12px}
+  /* Compact trust strip */
+  .lf-hero-trust{
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px solid rgba(255,255,255,.12);
+    gap:8px;
+    font-size:11px;
+    flex-wrap:nowrap;
+    overflow:hidden;
+  }
+  .lf-avail-inner span:nth-child(n+3){display:none}
+  /* Page sections */
+  .lf-stats{grid-template-columns:1fr 1fr}
+  .lf-gallery-grid{grid-template-columns:1fr}
+  .lf-svc-card h3{min-height:auto}
+}
+
+/* ── rest of page styles ── */
 .lf-marquee{overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#060606;padding:18px 0}
 .lf-marquee-track{display:flex;gap:56px;white-space:nowrap;animation:lfMarquee 38s linear infinite;width:max-content}
 .lf-marquee-track span{font:400 14px/1 var(--display);letter-spacing:4px;text-transform:uppercase;color:rgba(244,241,235,.4);display:inline-flex;align-items:center;gap:56px}
@@ -190,7 +324,7 @@ img,video,iframe{display:block;max-width:100%}a{color:inherit;text-decoration:no
 .lf-footer-links{display:flex;gap:16px;flex-wrap:wrap}.lf-footer-links a,.lf-footer-copy{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--soft)}.lf-footer-links a:hover{color:var(--gold2)}
 @media(max-width:1200px){.lf-bio-grid,.lf-intro-grid{grid-template-columns:1fr}.lf-bio-photo img{min-height:380px}.lf-gallery-grid{grid-template-columns:repeat(3,1fr)}.lf-rev-track{grid-auto-columns:calc((100% - 10px)/2)}.lf-stats{grid-template-columns:repeat(2,1fr)}.lf-svc-grid{grid-template-columns:repeat(2,1fr)}.lf-phil-grid{grid-template-columns:1fr}.lf-phil-item{border-right:0;border-bottom:1px solid var(--line)}.lf-phil-item:last-child{border-bottom:0}}
 @media(max-width:900px){.lf-reel-row{grid-auto-columns:minmax(200px,70vw)}.lf-gallery-grid{grid-template-columns:repeat(2,1fr)}.lf-rev-track{grid-auto-columns:100%}.lf-bio-inline{grid-template-columns:1fr}.lf-svc-grid{grid-template-columns:1fr}}
-@media(max-width:640px){.lf-c{width:min(var(--max),calc(100% - 20px))}.lf-s{padding:72px 0}.lf-gallery-grid{grid-template-columns:1fr}.lf-stats{grid-template-columns:1fr 1fr}.lf-btn{width:100%}.lf-svc-card h3{min-height:auto}}
+@media(max-width:640px){.lf-stats{grid-template-columns:1fr 1fr}.lf-gallery-grid{grid-template-columns:1fr}.lf-svc-card h3{min-height:auto}}
 @keyframes lfPulse{0%{box-shadow:0 0 0 0 rgba(207,169,71,0.5)}70%{box-shadow:0 0 0 16px rgba(207,169,71,0)}100%{box-shadow:0 0 0 0 rgba(207,169,71,0)}}
 @keyframes lfPageFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 body{animation:lfPageFade .45s ease both}
@@ -227,53 +361,83 @@ img.img-blur.loaded{filter:blur(0) scale(1)}
   </div>
 </nav>
 
-<!-- TRUST BAR -->
-<div class="lf-trust-bar">
-  <div class="lf-trust-bar-in">
-    <span>New York City</span>
-    <span class="dot">Hustle Butter Studio · Soho</span>
-    <span class="dot">By Appointment Only</span>
-    <span class="dot"><span class="stars">★★★★★</span>&nbsp;<strong>5.0</strong>&nbsp;on Google</span>
-    <span class="dot">14 Years · 500+ Pieces</span>
+<!-- AVAILABILITY BAR -->
+<div class="lf-avail-bar">
+  <div class="lf-avail-inner">
+    <span class="lf-avail-live"><span class="lf-avail-dot"></span>Now Booking</span>
+    <span class="lf-avail-sep">·</span>
+    <span><span class="lf-avail-accent">Summer 2026</span> — Limited Availability</span>
+    <span class="lf-avail-sep">·</span>
+    <span>Private Soho Studio &nbsp;<a href="https://luisfarreratattoo.com/book-now" class="lf-avail-link">Secure Your Date →</a></span>
   </div>
 </div>
 
-<!-- HERO -->
+<!-- HERO — full-viewport split: copy left · video right -->
 <section class="lf-hero">
-  <div class="lf-hero-wrap">
+  <div class="lf-c" style="padding:0;width:100%;max-width:100%">
+    <div class="lf-hero-split">
 
-    <div class="lf-hero-kicker">Color Tattoo Artist · Soho NYC</div>
+      <!-- LEFT — copy -->
+      <div class="lf-hero-left">
+        <div class="lf-c" style="padding:0">
 
-    <div class="lf-hero-display" aria-hidden="true">Color<br>That<br>Holds.</div>
-    <h1 class="lf-hero-h1">Best Color Tattoo Artist in New York</h1>
+          <div class="lf-hero-kicker" id="lfHK">Luis Farrera · Soho NYC · By Appointment Only</div>
 
-    <p class="lf-hero-body">14 years building a technique around saturation, skin tone, and longevity. Private Soho studio. One client per day — no rushing, no flash, no repeats.</p>
+          <div class="lf-hero-display" id="lfHD" aria-hidden="true">New York's<br>Best Color<br>Tattoo Artist.</div>
+          <h1 class="lf-hero-h1" id="lfHH">Luis Farrera — New York City's Best Color Tattoo Artist</h1>
 
-    <div class="lf-hero-actions">
-      <a href="https://luisfarreratattoo.com/book-now" class="lf-btn lf-btn-gold">Book Your Session</a>
-      <a href="https://luisfarreratattoo.com/portfolio" class="lf-btn lf-btn-line">View Portfolio</a>
-    </div>
+          <p class="lf-hero-body" id="lfHB">Most color tattoos fade. Luis Farrera's don't. Working from a private Soho studio — one client per day, by appointment only — he's the color realism artist NYC collectors and international clients fly in for. <strong style="color:var(--gold2);font-weight:500;">Summer 2026 spots are filling fast. Secure yours now.</strong></p>
 
-    <!-- Inline video player -->
-    <div class="lf-hero-player" id="lfHeroPlayer">
-      <video id="lfHeroVid" muted playsinline preload="metadata" poster="https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67d4ed98d84290c6b8f45.jpeg">
-        <source src="https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69ea50c60d66f2a66598f192.mp4" type="video/mp4">
-      </video>
-      <div class="lf-hero-play-overlay" id="lfHeroPlay">
-        <div class="lf-hero-play-btn">
-          <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+          <div class="lf-hero-actions" id="lfHA">
+            <a href="https://luisfarreratattoo.com/book-now" class="lf-btn lf-btn-gold" id="lfHBtn">Secure Your Spot →</a>
+            <a href="https://luisfarreratattoo.com/portfolio" class="lf-btn lf-btn-line">See The Work</a>
+          </div>
+
+          <div class="lf-hero-scarcity" id="lfHS">
+            <span class="lf-hero-scarcity-dot"></span>
+            <span>Summer 2026 booking open &nbsp;·&nbsp; Select dates remaining</span>
+          </div>
+
+          <div class="lf-hero-trust" id="lfHT">
+            <span class="stars">★★★★★</span>
+            <strong>5.0</strong>
+            <span>· 47 Verified Reviews · Google</span>
+            <span style="color:var(--line2)">|</span>
+            <span>500+ Color Pieces</span>
+          </div>
+
         </div>
       </div>
-      <div class="lf-hero-sound-tag">🔇 Tap for sound</div>
-    </div>
 
-    <!-- Trust below video -->
-    <div class="lf-hero-trust">
-      <span class="stars">★★★★★</span>
-      <strong>5.0</strong>
-      <span>· 47 Verified Reviews · Google</span>
-    </div>
+      <!-- RIGHT — autoplay video -->
+      <div class="lf-hero-right" id="lfHR">
+        <video
+          class="lf-hero-vid"
+          id="lfHeroVid"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="auto"
+          poster="https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69d67d4ed98d84290c6b8f45.jpeg"
+        >
+          <source src="https://assets.cdn.filesafe.space/Q6FIvQ5WitCeq9wyXZ3L/media/69ea50c60d66f2a66598f192.mp4" type="video/mp4">
+        </video>
 
+        <!-- Studio badge -->
+        <div class="lf-vid-badge">
+          <span class="lf-vid-live-dot"></span>
+          Studio · Soho NYC
+        </div>
+
+        <!-- Sound toggle -->
+        <button class="lf-vid-sound" id="lfVidSound" aria-label="Toggle sound" title="Toggle sound">🔇</button>
+
+        <!-- Gold accent line -->
+        <div class="lf-vid-accent"></div>
+      </div>
+
+    </div>
   </div>
 </section>
 
@@ -298,8 +462,8 @@ img.img-blur.loaded{filter:blur(0) scale(1)}
 <h2>A Color Tattoo<br>Shouldn't Fade<br>Like A Memory.<em>The work, in one paragraph.</em></h2>
 </div>
 <div class="lf-intro-right">
-<p>Most color tattoos look incredible on day seven and disappointing by year seven. That gap — between <strong>how it heals</strong> and <strong>how it lasts</strong> — is the whole job.</p>
-<p>Luis Farrera is a <strong>color tattoo artist in New York City</strong>, working by appointment from a private Soho studio on custom color tattoos, color realism, and large-scale pieces. Clients don't come here for trends. They come for color work engineered around skin tone, body contour, and a decade from now.</p>
+<p>Most color tattoos fade. Luis Farrera's don't. After <strong>14 years</strong> and <strong>500+ custom pieces</strong> in <strong>Soho, New York</strong> — he's the <strong>color tattoo artist NYC collectors</strong> quietly refer each other to.</p>
+<p>One client per day. Every palette chosen around your skin tone. Every piece built to still look right at year ten. That's the standard — and why he's <strong>5.0-rated</strong> on Google.</p>
 <div class="lf-intro-sign">
 <div><small>The Artist</small><strong>Luis Farrera</strong></div>
 <div style="margin-left:auto"><small>Est.</small><strong>2011 · Caracas → NYC</strong></div>
@@ -454,10 +618,10 @@ img.img-blur.loaded{filter:blur(0) scale(1)}
 <div class="lf-footer-copy">© 2026 Luis Farrera. All rights reserved.</div>
 </div></footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script>(function(){
+
 // Nav scroll effect
 var nav=document.getElementById('lfNav');
 if(nav){window.addEventListener('scroll',function(){nav.classList.toggle('scrolled',window.scrollY>40);},{passive:true});}
@@ -466,29 +630,38 @@ if(nav){window.addEventListener('scroll',function(){nav.classList.toggle('scroll
 var mob=document.getElementById('lfNavMob'),links=document.getElementById('lfNavLinks');
 if(mob&&links){mob.addEventListener('click',function(){var o=links.classList.toggle('open');mob.textContent=o?'Close':'Menu';});}
 
-// Inline video player — click to play with sound
-var heroPlayer=document.getElementById('lfHeroPlayer');
+// Hero video — force autoplay (GHL-safe, 4-layer fallback)
 var heroVid=document.getElementById('lfHeroVid');
-var heroPlay=document.getElementById('lfHeroPlay');
-if(heroPlayer&&heroVid&&heroPlay){
-  heroPlay.addEventListener('click',function(){
-    heroVid.muted=false;
-    heroVid.play().then(function(){
-      heroPlayer.classList.add('playing');
-    }).catch(function(){
-      heroVid.muted=true;
-      heroVid.play().then(function(){heroPlayer.classList.add('playing');});
-    });
-  });
-  // Clicking video when playing = toggle mute
-  heroVid.addEventListener('click',function(){
-    if(heroPlayer.classList.contains('playing')){
+var soundBtn=document.getElementById('lfVidSound');
+function lfPlayHero(){
+  if(!heroVid)return;
+  heroVid.muted=true;
+  heroVid.setAttribute('muted','');
+  heroVid.setAttribute('playsinline','');
+  var p=heroVid.play();
+  if(p&&p.catch){p.catch(function(){heroVid.muted=true;setTimeout(function(){heroVid.play().catch(function(){});},200);});}
+}
+// Layer 1 — immediate
+lfPlayHero();
+// Layer 2 — DOMContentLoaded
+document.addEventListener('DOMContentLoaded',lfPlayHero);
+// Layer 3 — window load (after all assets)
+window.addEventListener('load',lfPlayHero);
+// Layer 4 — IntersectionObserver (fires when video enters viewport)
+if(heroVid){
+  var heroIO=new IntersectionObserver(function(e){if(e[0].isIntersecting)lfPlayHero();},{threshold:.1});
+  heroIO.observe(heroVid);
+  // Sound toggle
+  if(soundBtn){
+    soundBtn.addEventListener('click',function(){
       heroVid.muted=!heroVid.muted;
-    }
-  });
+      soundBtn.textContent=heroVid.muted?'🔇':'🔊';
+      soundBtn.title=heroVid.muted?'Unmute':'Mute';
+    });
+  }
 }
 
-// Reel video observer
+// Reel video observer (scroll-triggered play)
 var vo=new IntersectionObserver(function(e){e.forEach(function(x){var v=x.target;if(x.isIntersecting){var p=v.play();if(p&&p.catch)p.catch(function(){});}else v.pause();});},{threshold:.32});
 document.querySelectorAll('[data-lv]').forEach(function(v){vo.observe(v);});
 
@@ -509,65 +682,94 @@ document.querySelectorAll('.lf-btn-gold').forEach(function(b){
   b.addEventListener('mouseleave',function(){b.style.transform='';});
 });
 
-// Book CTA pulse
-var fc=document.querySelector('.lf-hero-actions .lf-btn-gold');
+// Book CTA pulse (after 2s delay)
+var fc=document.getElementById('lfHBtn');
 if(fc)setTimeout(function(){fc.style.animation='lfPulse 2.4s ease infinite';},2000);
 
-// Lenis + GSAP
-if(typeof Lenis!=='undefined'){
-  var lenis=new Lenis({lerp:.08,smoothWheel:true});
-  if(typeof gsap!=='undefined'&&typeof ScrollTrigger!=='undefined'){
-    gsap.registerPlugin(ScrollTrigger);
-    gsap.ticker.add(function(t){lenis.raf(t*1000);});
-    gsap.ticker.lagSmoothing(0);
-    lenis.on('scroll',ScrollTrigger.update);
-    gsap.utils.toArray('.lf-reveal').forEach(function(el){
-      gsap.fromTo(el,{opacity:0,y:40},{opacity:1,y:0,duration:.85,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}});
-    });
-    document.querySelectorAll('.lf-svc-grid,.lf-bio-grid,.lf-gallery-grid,.lf-phil-grid').forEach(function(grid){
-      var cards=grid.querySelectorAll('.lf-svc-card,.lf-bio-card,.lf-gi,.lf-phil-item');
-      if(cards.length)gsap.fromTo(cards,{opacity:0,y:36},{opacity:1,y:0,duration:.7,stagger:.1,ease:'power2.out',scrollTrigger:{trigger:grid,start:'top 85%'}});
-    });
-    document.querySelectorAll('.lf-stat-n').forEach(function(el){
-      var raw=el.textContent,num=parseFloat(raw);
-      if(isNaN(num))return;
-      var suffix=raw.replace(String(num),'');
-      gsap.fromTo({v:0},{v:num},{duration:1.6,ease:'power1.out',scrollTrigger:{trigger:el,start:'top 90%'},onUpdate:function(){el.textContent=(num%1===0?Math.round(this.targets()[0].v):this.targets()[0].v.toFixed(1))+suffix;}});
-    });
-    // Hero stagger entrance
-    gsap.from('.lf-hero-kicker',{opacity:0,y:16,duration:.7,delay:.2,ease:'power2.out'});
-    gsap.from('.lf-hero-display',{opacity:0,y:50,duration:1,delay:.38,ease:'power3.out'});
-    gsap.from('.lf-hero-h1',{opacity:0,y:16,duration:.6,delay:.72,ease:'power2.out'});
-    gsap.from('.lf-hero-body',{opacity:0,y:16,duration:.6,delay:.88,ease:'power2.out'});
-    gsap.from('.lf-hero-actions',{opacity:0,y:16,duration:.6,delay:1.04,ease:'power2.out'});
-    gsap.from('.lf-hero-player',{opacity:0,y:32,duration:.9,delay:1.2,ease:'power2.out'});
-  } else {
-    requestAnimationFrame(function raf(t){lenis.raf(t);requestAnimationFrame(raf);});
-    var ro=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
-    document.querySelectorAll('.lf-reveal').forEach(function(el){ro.observe(el);});
-  }
+// GSAP — native scroll, no Lenis
+if(typeof gsap!=='undefined'&&typeof ScrollTrigger!=='undefined'){
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Hero stagger entrance — left copy
+  var tl=gsap.timeline({delay:.15});
+  tl.from('#lfHK', {opacity:0,x:-20,duration:.6,ease:'power2.out'})
+    .from('#lfHD', {opacity:0,y:60,duration:1.1,ease:'power3.out'},'-=.3')
+    .from('#lfHH', {opacity:0,y:16,duration:.6,ease:'power2.out'},'-=.5')
+    .from('#lfHB', {opacity:0,y:16,duration:.6,ease:'power2.out'},'-=.4')
+    .from('#lfHA', {opacity:0,y:16,duration:.6,ease:'power2.out'},'-=.4')
+    .from('#lfHS', {opacity:0,duration:.5,ease:'power1.out'},'-=.3')
+    .from('#lfHT', {opacity:0,y:10,duration:.5,ease:'power1.out'},'-=.3');
+
+  // Hero right video — slide in from right
+  gsap.from('#lfHR',{opacity:0,x:40,duration:1.2,delay:.3,ease:'power3.out'});
+
+  // Scroll-triggered section reveals
+  gsap.utils.toArray('.lf-reveal').forEach(function(el){
+    gsap.fromTo(el,{opacity:0,y:40},{opacity:1,y:0,duration:.85,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}});
+  });
+
+  // Stagger cards
+  document.querySelectorAll('.lf-svc-grid,.lf-bio-grid,.lf-gallery-grid,.lf-phil-grid').forEach(function(grid){
+    var cards=grid.querySelectorAll('.lf-svc-card,.lf-bio-card,.lf-gi,.lf-phil-item');
+    if(cards.length)gsap.fromTo(cards,{opacity:0,y:36},{opacity:1,y:0,duration:.7,stagger:.1,ease:'power2.out',scrollTrigger:{trigger:grid,start:'top 85%'}});
+  });
+
+  // Stat counters
+  document.querySelectorAll('.lf-stat-n').forEach(function(el){
+    var raw=el.textContent,num=parseFloat(raw);
+    if(isNaN(num))return;
+    var suffix=raw.replace(String(num),'');
+    gsap.fromTo({v:0},{v:num},{duration:1.6,ease:'power1.out',scrollTrigger:{trigger:el,start:'top 90%'},onUpdate:function(){el.textContent=(num%1===0?Math.round(this.targets()[0].v):this.targets()[0].v.toFixed(1))+suffix;}});
+  });
+
 } else {
-  var ro2=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.lf-reveal').forEach(function(el){ro2.observe(el);});
+  // Fallback — IntersectionObserver reveal
+  var ro=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.lf-reveal').forEach(function(el){ro.observe(el);});
 }
 
-// Blur-up images
+// Lazy image progressive blur-in
 (function(){
   var imgs=document.querySelectorAll('img[loading="lazy"]');
   imgs.forEach(function(img){img.classList.add('img-blur');});
-  var io=new IntersectionObserver(function(entries){entries.forEach(function(en){if(!en.isIntersecting)return;var img=en.target;if(img.complete){img.classList.add('loaded');io.unobserve(img);return;}img.addEventListener('load',function(){img.classList.add('loaded');},{once:true});io.unobserve(img);});},{rootMargin:'200px'});
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting)return;
+      var img=en.target;
+      if(img.complete){img.classList.add('loaded');io.unobserve(img);return;}
+      img.addEventListener('load',function(){img.classList.add('loaded');},{once:true});
+      io.unobserve(img);
+    });
+  },{rootMargin:'200px'});
   imgs.forEach(function(img){io.observe(img);});
 })();
 
 // 3D card tilt
 document.querySelectorAll('.lf-svc-card,.lf-bio-card').forEach(function(card){
-  card.addEventListener('mousemove',function(e){var r=card.getBoundingClientRect();var x=((e.clientX-r.left)/r.width-.5)*10;var y=-((e.clientY-r.top)/r.height-.5)*10;card.style.transform='perspective(900px) rotateY('+x+'deg) rotateX('+y+'deg) scale(1.02)';});
+  card.addEventListener('mousemove',function(e){
+    var r=card.getBoundingClientRect();
+    var x=((e.clientX-r.left)/r.width-.5)*10;
+    var y=-((e.clientY-r.top)/r.height-.5)*10;
+    card.style.transform='perspective(900px) rotateY('+x+'deg) rotateX('+y+'deg) scale(1.02)';
+  });
   card.addEventListener('mouseleave',function(){card.style.transform='';});
 });
 
-// View transitions
-if(document.startViewTransition){document.addEventListener('click',function(e){var a=e.target.closest('a');if(!a)return;var h=a.getAttribute('href')||'';if(!h||h.startsWith('#')||h.startsWith('tel:')||h.startsWith('mailto:')||a.target==='_blank')return;try{var u=new URL(h,location.href);if(u.origin!==location.origin)return;}catch(x){return;}e.preventDefault();document.startViewTransition(function(){window.location.href=h;});});}
+// Custom cursor (fine pointer only)
+(function(){
+  if(!window.matchMedia('(pointer:fine)').matches)return;
+  var dot=document.createElement('div');dot.className='lf-cursor-dot';
+  var ring=document.createElement('div');ring.className='lf-cursor-ring';
+  document.body.appendChild(dot);document.body.appendChild(ring);
+  var mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+  document.addEventListener('mousedown',function(){dot.classList.add('clicking');});
+  document.addEventListener('mouseup',function(){dot.classList.remove('clicking');});
+  document.querySelectorAll('a,button').forEach(function(el){
+    el.addEventListener('mouseenter',function(){ring.classList.add('hovering');});
+    el.addEventListener('mouseleave',function(){ring.classList.remove('hovering');});
+  });
+  (function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
+})();
 
-// Custom cursor
-(function(){if(!window.matchMedia('(pointer:fine)').matches)return;var dot=document.createElement('div');dot.className='lf-cursor-dot';var ring=document.createElement('div');ring.className='lf-cursor-ring';document.body.appendChild(dot);document.body.appendChild(ring);var mx=0,my=0,rx=0,ry=0;document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});document.addEventListener('mousedown',function(){dot.classList.add('clicking');});document.addEventListener('mouseup',function(){dot.classList.remove('clicking');});document.querySelectorAll('a,button').forEach(function(el){el.addEventListener('mouseenter',function(){ring.classList.add('hovering');});el.addEventListener('mouseleave',function(){ring.classList.remove('hovering');});});(function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();})();
 })();</script></body></html>

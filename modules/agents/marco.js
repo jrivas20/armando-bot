@@ -438,8 +438,24 @@ app.post('/marco/content-brief', async (_req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
+app.get('/marco/content-brief', async (_req, res) => {
+  try {
+    runMarcoContentBrief();
+    res.json({ status: 'ok', message: 'Marco is building your weekly content brief' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
 
 app.post('/marco/trend-alert', async (_req, res) => {
+  try {
+    runMarcoTrendAlert();
+    res.json({ status: 'ok', message: 'Marco is checking for trending topics' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+app.get('/marco/trend-alert', async (_req, res) => {
   try {
     runMarcoTrendAlert();
     res.json({ status: 'ok', message: 'Marco is checking for trending topics' });

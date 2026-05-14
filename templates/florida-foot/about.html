@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us | The Florida Foot and Ankle Institute &mdash; Kissimmee, FL</title>
+  <meta name="description" content="Meet the team at The Florida Foot and Ankle Institute. Expert podiatric care with a focus on patient outcomes, comfort, and long-term foot health.">
+  <meta name="keywords" content="podiatrist kissimmee fl, foot ankle specialist florida, about florida foot ankle institute">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+  html,body,.page-section,.page-section--content,.funnelish-section,.funnelish-section--content,.section-wrap,.section-wrap--content,.hl_page-section,.hl_page-section--content,.container,.container-fluid,.row,.col,[class*="col-"],[class*="section"],[class*="container"],[class*="wrapper"],[class*="inner"],[class*="page-section"],[class*="hl_"]{max-width:100%!important;width:100%!important;padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box!important;}
+  html{touch-action:pan-y;}body{overflow-x:clip;overscroll-behavior-x:none;}
+  </style>
+  <style>
+    :root {
+      --teal: #007a7f;
+      --teal-dark: #005f63;
+      --teal-light: #e0f4f5;
+      --orange: #eb9220;
+      --orange-dark: #d07d18;
+      --white: #ffffff;
+      --bg: #f9fafb;
+      --text: #1a2332;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --soft: #f0fafa;
+      --shadow: 0 4px 24px rgba(0,122,127,.10);
+      --shadow-lg: 0 8px 40px rgba(0,122,127,.14);
+      --radius: 12px;
+      --max: 1200px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--white);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+
+    .fa-wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ─────────────────── NAV ─────────────────── */
+    .fa-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: var(--white);
+      padding: 14px 0;
+      transition: box-shadow 0.3s, padding 0.3s;
+    }
+    .fa-nav.scrolled {
+      box-shadow: 0 2px 20px rgba(0,0,0,.09);
+      padding: 10px 0;
+    }
+    .fa-nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .fa-nav-logo img {
+      height: 50px;
+      width: auto;
+    }
+    .fa-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+    .fa-nav-links a {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+    .fa-nav-links a:hover,
+    .fa-nav-links a[aria-current="page"] { color: var(--teal); }
+    .fa-btn-nav {
+      display: inline-block;
+      background: var(--teal);
+      color: var(--white) !important;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      transition: background 0.2s, transform 0.2s;
+      white-space: nowrap;
+    }
+    .fa-btn-nav:hover { background: var(--teal-dark); transform: translateY(-1px); }
+
+    .fa-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 6px;
+    }
+    .fa-hamburger span {
+      display: block;
+      width: 25px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .fa-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .fa-hamburger.open span:nth-child(2) { opacity: 0; }
+    .fa-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .fa-mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--white);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .fa-mobile-menu.open {
+      display: flex;
+      opacity: 1;
+      pointer-events: all;
+    }
+    .fa-mobile-menu a {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      transition: color 0.2s;
+    }
+    .fa-mobile-menu a:hover { color: var(--teal); }
+    .fa-mobile-menu .fa-btn-nav { font-size: 16px; padding: 14px 34px; }
+
+    /* ─────────────────── PAGE HERO (slim) ─────────────────── */
+    .fa-page-hero {
+      padding: 120px 24px 72px;
+      background: linear-gradient(135deg, #007a7f 0%, #005f63 50%, #004a50 100%);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .fa-page-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+      background-size: 300px 300px;
+      opacity: 0.22;
+      pointer-events: none;
+    }
+    .fa-page-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -160px;
+      left: -80px;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+      pointer-events: none;
+    }
+    .fa-page-hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .fa-eyebrow-pill {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 7px 20px;
+      border-radius: 999px;
+      margin-bottom: 22px;
+    }
+    .fa-page-hero h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(32px, 4.5vw, 56px);
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 18px;
+      letter-spacing: -0.022em;
+    }
+    .fa-page-hero-sub {
+      font-size: 17.5px;
+      color: rgba(255,255,255,.80);
+      line-height: 1.72;
+      margin-bottom: 32px;
+    }
+
+    .fa-btn-white-solid {
+      display: inline-block;
+      background: var(--white);
+      color: var(--teal);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 999px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.01em;
+    }
+    .fa-btn-white-solid:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.18); }
+
+    /* ─────────────────── SHARED ─────────────────── */
+    .fa-section { padding: 88px 0; }
+
+    .fa-section-eyebrow {
+      display: inline-block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 10px;
+    }
+    .fa-section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(26px, 3.2vw, 42px);
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+      letter-spacing: -0.015em;
+      margin-bottom: 14px;
+    }
+    .fa-section-sub {
+      font-size: 16.5px;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.72;
+    }
+    .fa-section-header {
+      text-align: center;
+      margin-bottom: 54px;
+    }
+    .fa-section-header .fa-section-sub { margin: 0 auto; }
+
+    /* ─────────────────── MISSION ─────────────────── */
+    .fa-mission { background: var(--white); }
+
+    .fa-mission-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .fa-mission-left {}
+    .fa-mission-left h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(26px, 3vw, 40px);
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 20px;
+      line-height: 1.2;
+      letter-spacing: -0.015em;
+    }
+    .fa-mission-left p {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.78;
+      margin-bottom: 18px;
+    }
+    .fa-mission-left p:last-child { margin-bottom: 0; }
+
+    .fa-mission-visual {
+      background: var(--teal-light);
+      border-radius: 20px;
+      min-height: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .fa-mission-visual::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0,122,127,.08) 0%, rgba(0,95,99,.04) 100%);
+    }
+    .fa-mission-visual svg {
+      position: relative;
+      z-index: 1;
+      width: 120px;
+      height: 120px;
+      fill: var(--teal);
+      opacity: 0.35;
+    }
+
+    /* ─────────────────── DOCTOR / CEO ─────────────────── */
+    .fa-physician { background: var(--soft); }
+
+    .fa-physician-heading {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .fa-physician-heading h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(26px, 3vw, 40px);
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+      letter-spacing: -0.015em;
+    }
+
+    .fa-physician-card {
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .fa-physician-img {
+      width: 100%;
+      height: 100%;
+      min-height: 420px;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      border-radius: 20px 0 0 20px;
+    }
+    .fa-physician-body {
+      padding: 48px 44px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .fa-physician-badge {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      width: fit-content;
+    }
+    .fa-physician-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(22px, 2.5vw, 32px);
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+    .fa-physician-subtitle {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--teal);
+      margin-bottom: 24px;
+    }
+    .fa-cred-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      margin-bottom: 24px;
+    }
+    .fa-cred-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .fa-cred-check {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      background: var(--teal);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+    .fa-cred-check svg { width: 10px; height: 10px; fill: var(--white); }
+    .fa-physician-bio {
+      font-size: 15.5px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+    .fa-btn-teal {
+      display: inline-block;
+      background: var(--teal);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 999px;
+      transition: background 0.2s, transform 0.2s;
+      letter-spacing: 0.01em;
+      width: fit-content;
+    }
+    .fa-btn-teal:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+    /* ─────────────────── VALUES ─────────────────── */
+    .fa-values { background: var(--white); }
+
+    .fa-values-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .fa-value-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      text-align: center;
+      transition: box-shadow 0.25s, transform 0.25s;
+    }
+    .fa-value-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+
+    .fa-value-icon {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .fa-value-icon.teal { background: var(--teal-light); }
+    .fa-value-icon.orange { background: #fef3e2; }
+    .fa-value-icon svg { width: 30px; height: 30px; }
+    .fa-value-icon.teal svg { fill: var(--teal); }
+    .fa-value-icon.orange svg { fill: var(--orange); }
+
+    .fa-value-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    .fa-value-desc {
+      font-size: 14.5px;
+      color: var(--muted);
+      line-height: 1.72;
+    }
+
+    /* ─────────────────── CTA BAND ─────────────────── */
+    .fa-cta-band {
+      background: var(--teal);
+      padding: 72px 24px;
+      text-align: center;
+    }
+    .fa-cta-band h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(24px, 3.2vw, 42px);
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 32px;
+      letter-spacing: -0.01em;
+    }
+    .fa-cta-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .fa-btn-orange {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 999px;
+      transition: background 0.2s, transform 0.2s;
+      letter-spacing: 0.01em;
+    }
+    .fa-btn-orange:hover { background: var(--orange-dark); transform: translateY(-2px); }
+    .fa-btn-cta-outline {
+      display: inline-block;
+      background: transparent;
+      color: var(--white);
+      border: 2px solid rgba(255,255,255,.60);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 999px;
+      transition: border-color 0.2s, background 0.2s;
+      letter-spacing: 0.01em;
+    }
+    .fa-btn-cta-outline:hover { border-color: var(--white); background: rgba(255,255,255,.10); }
+
+    /* ─────────────────── FOOTER ─────────────────── */
+    .fa-footer {
+      background: #0f2027;
+      padding: 72px 0 0;
+      color: rgba(255,255,255,.72);
+    }
+    .fa-footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1.4fr 1fr 1.5fr;
+      gap: 48px;
+      padding-bottom: 56px;
+    }
+    .fa-footer-brand-logo {
+      height: 46px;
+      width: auto;
+      margin-bottom: 16px;
+      filter: brightness(0) invert(1);
+    }
+    .fa-footer-tagline {
+      font-size: 13.5px;
+      color: rgba(255,255,255,.50);
+      line-height: 1.68;
+      max-width: 230px;
+    }
+    .fa-footer h4 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 16px;
+    }
+    .fa-footer ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .fa-footer ul li a {
+      font-size: 13.5px;
+      color: rgba(255,255,255,.62);
+      transition: color 0.2s;
+    }
+    .fa-footer ul li a:hover { color: var(--teal-light); }
+    .fa-footer-contact p {
+      font-size: 13.5px;
+      color: rgba(255,255,255,.62);
+      line-height: 1.68;
+      margin-bottom: 9px;
+    }
+    .fa-footer-contact p a { color: rgba(255,255,255,.62); transition: color 0.2s; }
+    .fa-footer-contact p a:hover { color: var(--teal-light); }
+    .fa-footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 20px 0;
+      text-align: center;
+    }
+    .fa-footer-bottom p {
+      font-size: 12.5px;
+      color: rgba(255,255,255,.35);
+    }
+
+    /* ─────────────────── SCROLL REVEAL ─────────────────── */
+    .fa-rv {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fa-rv.in { opacity: 1; transform: translateY(0); }
+    .fa-rv-d1 { transition-delay: 0.10s; }
+    .fa-rv-d2 { transition-delay: 0.20s; }
+    .fa-rv-d3 { transition-delay: 0.30s; }
+
+    /* ─────────────────── RESPONSIVE ─────────────────── */
+    @media (max-width: 900px) {
+      .fa-physician-card { grid-template-columns: 1fr; }
+      .fa-physician-img { min-height: 300px; border-radius: 20px 20px 0 0; }
+    }
+    @media (max-width: 768px) {
+      .fa-nav-links { display: none; }
+      .fa-hamburger { display: flex; }
+      .fa-mission-grid { grid-template-columns: 1fr; gap: 40px; }
+      .fa-values-grid { grid-template-columns: 1fr; }
+      .fa-section { padding: 60px 0; }
+      .fa-footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+    }
+    @media (max-width: 580px) {
+      .fa-footer-grid { grid-template-columns: 1fr; gap: 26px; }
+      .fa-physician-body { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav class="fa-nav" id="fa-nav" role="navigation" aria-label="Main navigation">
+    <div class="fa-nav-inner">
+      <div class="fa-nav-logo">
+        <a href="/" aria-label="The Florida Foot and Ankle Institute — Home">
+          <img src="https://static.wixstatic.com/media/e1b08d_44ac69541fad47a484758d5f27542c81~mv2.png" alt="The Florida Foot and Ankle Institute logo" width="160" height="50">
+        </a>
+      </div>
+      <ul class="fa-nav-links" role="list">
+        <li><a href="/">Home</a></li>
+        <li><a href="/about" aria-current="page">About Us</a></li>
+        <li><a href="/services">Services</a></li>
+        <li><a href="/contact">Contact Us</a></li>
+        <li><a href="/contact" class="fa-btn-nav">Request Appointment</a></li>
+      </ul>
+      <button class="fa-hamburger" id="fa-hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile overlay menu -->
+  <div class="fa-mobile-menu" id="fa-mobile-menu" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+    <a href="/" onclick="faCloseMobile()">Home</a>
+    <a href="/about" onclick="faCloseMobile()">About Us</a>
+    <a href="/services" onclick="faCloseMobile()">Services</a>
+    <a href="/contact" onclick="faCloseMobile()">Contact Us</a>
+    <a href="/contact" class="fa-btn-nav" onclick="faCloseMobile()">Request Appointment</a>
+  </div>
+
+  <main>
+
+    <!-- ── PAGE HERO ── -->
+    <section class="fa-page-hero" aria-label="About Our Practice">
+      <div class="fa-page-hero-inner">
+        <div class="fa-eyebrow-pill">Kissimmee, FL &middot; Board-Certified Care</div>
+        <h1>About Our Practice</h1>
+        <p class="fa-page-hero-sub">Dedicated to your foot and ankle health &mdash; one step at a time.</p>
+        <a href="/contact" class="fa-btn-white-solid">Request an Appointment</a>
+      </div>
+    </section>
+
+    <!-- ── MISSION ── -->
+    <section class="fa-section fa-mission" aria-labelledby="fa-mission-heading">
+      <div class="fa-wrap">
+        <div class="fa-mission-grid">
+          <div class="fa-rv">
+            <div class="fa-section-eyebrow">Who We Are</div>
+            <h2 class="fa-section-title" id="fa-mission-heading">Our Mission</h2>
+            <p>At The Florida Foot and Ankle Institute, our mission is to provide comprehensive, compassionate, and cutting-edge podiatric care to every patient who walks through our doors. We believe that healthy feet are foundational to a healthy life, and we are committed to helping each patient achieve their best possible outcomes.</p>
+            <p>We serve patients of all ages &mdash; from children with gait and developmental concerns to elderly patients managing complex chronic conditions. Our team understands that no two patients are the same, and we take the time to listen, evaluate thoroughly, and design individualized care plans that fit your specific needs and lifestyle.</p>
+            <p>We combine advanced diagnostic technology with a compassionate, patient-first approach. From conservative therapies to surgical solutions, we are here to guide you through every phase of your care with professionalism, transparency, and genuine concern for your well-being.</p>
+          </div>
+          <div class="fa-rv fa-rv-d2">
+            <div class="fa-mission-visual" aria-hidden="true">
+              <!-- Footprint SVG icon centered as decorative placeholder -->
+              <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M27 6c0-3.31 2.69-6 6-6s6 2.69 6 6c0 4-2.5 7-6 8.5C29.5 13 27 10 27 6z"/>
+                <path d="M21 18c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4zM35 18c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4zM17 22c0-1.66 1.34-3 3-3s3 1.34 3 3-1.34 3-3 3-3-1.34-3-3zM41 22c0-1.66 1.34-3 3-3s3 1.34 3 3-1.34 3-3 3-3-1.34-3-3z"/>
+                <path d="M22 30c-1 0-2.5.5-3 2l-3 14c-.5 2 0 4.5 1.5 6s3.5 2 5.5 2h1c2 0 3.5-.7 4.5-2.2L31 46l2.5 5.8C34.5 53.3 36 54 38 54h1c2 0 4-.5 5.5-2s2-4 1.5-6l-3-14c-.5-1.5-2-2-3-2H22z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── DOCTOR / PHYSICIAN ── -->
+    <section class="fa-section fa-physician" aria-labelledby="fa-physician-heading">
+      <div class="fa-wrap">
+        <div class="fa-physician-heading fa-rv">
+          <div class="fa-section-eyebrow">Our Team</div>
+          <h2 id="fa-physician-heading">Meet Our Physician</h2>
+        </div>
+        <div class="fa-physician-card fa-rv fa-rv-d1">
+          <img
+            src="https://static.wixstatic.com/media/e1b08d_a70ae99bc98f4207b86ad54dd1475aca~mv2.jpeg"
+            alt="Lead Physician at The Florida Foot and Ankle Institute"
+            class="fa-physician-img"
+            loading="lazy"
+          >
+          <div class="fa-physician-body">
+            <div class="fa-physician-badge">Board-Certified</div>
+            <div class="fa-physician-name">Dr. [Name], DPM</div>
+            <div class="fa-physician-subtitle">Doctor of Podiatric Medicine &mdash; Kissimmee, FL</div>
+            <ul class="fa-cred-list" role="list">
+              <li>
+                <div class="fa-cred-check" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                </div>
+                Doctor of Podiatric Medicine
+              </li>
+              <li>
+                <div class="fa-cred-check" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                </div>
+                Board-Certified in Foot Surgery
+              </li>
+              <li>
+                <div class="fa-cred-check" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                </div>
+                Specializing in Limb Salvage &amp; Diabetic Care
+              </li>
+              <li>
+                <div class="fa-cred-check" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                </div>
+                Member, American Podiatric Medical Association
+              </li>
+            </ul>
+            <p class="fa-physician-bio">With a deep commitment to patient care and specialized expertise in complex podiatric conditions, our lead physician brings years of advanced training and clinical experience to every consultation. We believe in treating the whole patient &mdash; not just the condition &mdash; and that trust, transparency, and thorough education are the cornerstones of exceptional care.</p>
+            <a href="/contact" class="fa-btn-teal">Request an Appointment</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── VALUES ── -->
+    <section class="fa-section fa-values" aria-labelledby="fa-values-heading">
+      <div class="fa-wrap">
+        <div class="fa-section-header fa-rv">
+          <div class="fa-section-eyebrow">What Drives Us</div>
+          <h2 class="fa-section-title" id="fa-values-heading">Our Core Values</h2>
+          <p class="fa-section-sub">The principles that guide everything we do &mdash; from the moment you call to your last follow-up appointment.</p>
+        </div>
+        <div class="fa-values-grid">
+          <div class="fa-value-card fa-rv fa-rv-d1">
+            <div class="fa-value-icon teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+            <div class="fa-value-title">Patient-First Care</div>
+            <p class="fa-value-desc">Every treatment decision starts with what is best for you. Your comfort, preferences, and long-term health always come before anything else.</p>
+          </div>
+          <div class="fa-value-card fa-rv fa-rv-d2">
+            <div class="fa-value-icon orange" aria-hidden="true">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>
+            </div>
+            <div class="fa-value-title">Advanced Techniques</div>
+            <p class="fa-value-desc">We use the latest in podiatric medicine &mdash; from advanced imaging to minimally invasive procedures &mdash; to deliver better outcomes for our patients.</p>
+          </div>
+          <div class="fa-value-card fa-rv fa-rv-d3">
+            <div class="fa-value-icon teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+            <div class="fa-value-title">Community Focus</div>
+            <p class="fa-value-desc">Proudly serving Kissimmee and all of Central Florida. We are invested in the health and wellbeing of our neighbors and the broader community we call home.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA BAND ── -->
+    <section class="fa-cta-band" aria-label="Appointment call to action">
+      <h2>Ready to Take the First Step?</h2>
+      <div class="fa-cta-btns">
+        <a href="/contact" class="fa-btn-orange">Request an Appointment</a>
+        <a href="tel:+1XXXXXXXXXX" class="fa-btn-cta-outline">Call Us</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="fa-footer" role="contentinfo">
+    <div class="fa-wrap">
+      <div class="fa-footer-grid">
+        <div>
+          <img src="https://static.wixstatic.com/media/e1b08d_44ac69541fad47a484758d5f27542c81~mv2.png" alt="The Florida Foot and Ankle Institute" class="fa-footer-brand-logo" loading="lazy">
+          <p class="fa-footer-tagline">Comprehensive Foot &amp; Ankle Care in Kissimmee, FL &mdash; dedicated to your mobility and long-term health.</p>
+        </div>
+        <div>
+          <h4>Our Services</h4>
+          <ul>
+            <li><a href="/services">Limb Salvage</a></li>
+            <li><a href="/services">Heel &amp; Arch Pain</a></li>
+            <li><a href="/services">Diabetic Foot Care</a></li>
+            <li><a href="/services">Sports Medicine &amp; Injury</a></li>
+            <li><a href="/services">Foot &amp; Ankle Surgery</a></li>
+            <li><a href="/services">Pediatric Foot Care</a></li>
+            <li><a href="/services">Orthotics &amp; Custom Insoles</a></li>
+            <li><a href="/services">Ingrown Toenails / Wound Care</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About Us</a></li>
+            <li><a href="/services">Services</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="fa-footer-contact">
+          <h4>Contact Us</h4>
+          <p>102 Park Place Blvd<br>Building A, Suite 3<br>Kissimmee, FL 34741</p>
+          <p><a href="tel:+1XXXXXXXXXX">(XXX) XXX-XXXX</a></p>
+          <p><a href="mailto:info@floridafootandankle.com">info@floridafootandankle.com</a></p>
+        </div>
+      </div>
+      <div class="fa-footer-bottom">
+        <p>&copy; 2025 The Florida Foot and Ankle Institute. All rights reserved. Kissimmee, FL.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // NAV scroll shadow
+    var faNav = document.getElementById('fa-nav');
+    window.addEventListener('scroll', function() {
+      faNav.classList.toggle('scrolled', window.scrollY > 10);
+    }, { passive: true });
+
+    // Hamburger / mobile menu
+    var faHam = document.getElementById('fa-hamburger');
+    var faMob = document.getElementById('fa-mobile-menu');
+
+    faHam.addEventListener('click', function() {
+      var isOpen = faMob.classList.contains('open');
+      if (isOpen) {
+        faCloseMobile();
+      } else {
+        faMob.classList.add('open');
+        faHam.classList.add('open');
+        faHam.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+
+    function faCloseMobile() {
+      faMob.classList.remove('open');
+      faHam.classList.remove('open');
+      faHam.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') faCloseMobile();
+    });
+
+    // Scroll reveal
+    var faRvObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          faRvObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.10, rootMargin: '0px 0px -36px 0px' });
+
+    document.querySelectorAll('.fa-rv').forEach(function(el) { faRvObs.observe(el); });
+  </script>
+</body>
+</html>

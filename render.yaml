@@ -53,3 +53,13 @@ services:
         sync: false
       - key: GITHUB_PAT
         sync: false
+      - key: META_APP_ID
+        sync: false
+      - key: META_APP_SECRET
+        sync: false
+      - key: AIFC_PAGE_TOKEN
+        sync: false
+      - key: AIFC_IG_ID
+        sync: false
+      - key: AIFC_IMAGES
+        sync: false

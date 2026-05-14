@@ -6217,6 +6217,14 @@ app.post('/sofia/website-check', async (_req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
+app.get('/sofia/website-check', async (_req, res) => {
+  try {
+    runSofiaWeeklyCheck();
+    res.json({ status: 'ok', message: 'Sofia is checking all client websites' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
 
 // ─── Sofia: Google PageSpeed Insights ────────────────────
 
@@ -10811,6 +10819,16 @@ app.get('/sofia/luis-farrera', (req, res) => {
   } catch(err) { res.status(500).send(`<pre>Error: ${err.message}\n${err.stack}</pre>`); }
 });
 
+// GET /typeform-forms/luis-farrera-booking — luxury booking page with GHL form embed
+app.get('/typeform-forms/luis-farrera-booking', (req, res) => {
+  res.sendFile(path.join(__dirname, 'typeform-forms', 'luis-farrera-booking.html'));
+});
+
+// GET /typeform-forms/take-a-sushi-mothers-day — Mother's Day email for Take a Sushi
+app.get('/typeform-forms/take-a-sushi-mothers-day', (req, res) => {
+  res.sendFile(path.join(__dirname, 'typeform-forms', 'take-a-sushi-mothers-day.html'));
+});
+
 // ══════════════════════════════════════════════════════════════
 // THE ESCOBAR KITCHEN — Owner.com-style sales site
 // ══════════════════════════════════════════════════════════════
@@ -14433,8 +14451,24 @@ app.post('/sofia/cro-report', async (_req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
+app.get('/sofia/cro-report', async (_req, res) => {
+  try {
+    runSofiaCROReport();
+    res.json({ status: 'ok', message: 'Sofia is building the monthly CRO report' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
 
 app.post('/sofia/onboarding-check', async (_req, res) => {
+  try {
+    runSofiaOnboardingCheck();
+    res.json({ status: 'ok', message: 'Sofia is checking for new clients' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+app.get('/sofia/onboarding-check', async (_req, res) => {
   try {
     runSofiaOnboardingCheck();
     res.json({ status: 'ok', message: 'Sofia is checking for new clients' });
@@ -14447,6 +14481,17 @@ app.post('/sofia/full-audit', async (req, res) => {
   try {
     const { url, clientName, industry } = req.body;
     if (!url) return res.status(400).json({ status: 'error', message: 'url required' });
+    const audit = await runSofiaFullAudit(url, clientName || 'Client', industry || 'business');
+    res.json({ status: 'ok', audit });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+// GET /sofia/full-audit?url=https://...&clientName=...&industry=...
+app.get('/sofia/full-audit', async (req, res) => {
+  try {
+    const { url, clientName, industry } = req.query;
+    if (!url) return res.status(400).json({ status: 'error', message: 'url query param required' });
     const audit = await runSofiaFullAudit(url, clientName || 'Client', industry || 'business');
     res.json({ status: 'ok', audit });
   } catch (err) {
@@ -14576,6 +14621,10 @@ app.get('/sofia/search-console', async (req, res) => {
 
 // POST /sofia/uptime-check — manual trigger for uptime monitor
 app.post('/sofia/uptime-check', async (_req, res) => {
+  runSofiaUptimeMonitor();
+  res.json({ status: 'ok', message: 'Sofia uptime monitor running' });
+});
+app.get('/sofia/uptime-check', async (_req, res) => {
   runSofiaUptimeMonitor();
   res.json({ status: 'ok', message: 'Sofia uptime monitor running' });
 });
@@ -14907,24 +14956,340 @@ let lastBacklinkCheckDate   = null;
 let lastStandupDate           = null;
 let lastLinkProspectingDate   = null;
 let lastGBPPostDate           = null;
+let lastAIFCPostDate          = null;
+let lastLSASyncMinute         = null;
+
+// ─── GOOGLE LOCAL SERVICES — COONEY HOMES LEAD SYNC ─────────────────────────
+// Polls Google LSA API every 30 min → creates GHL contact + opportunity for each new lead
+const LSA_COONEY_CUSTOMER_ID = '2819805815';
+const LSA_COONEY_LOCATION_ID = 'Gc4sUcLiRI2edddJ5Lfl';
+const LSA_COONEY_API_KEY     = 'pit-9432fc51-f2d0-42d0-8bc0-753b24c55d3e';
+const LSA_COONEY_PIPELINE_ID = '3bwYP7DRop9rWrnTFlhf';
+const LSA_PROCESSED_PUB_ID   = 'jrz/lsa_cooney_processed';
+
+async function runLSALeadSync(options = {}) {
+  const { dryRun = false } = options;
+  console.log(`[LSA] Syncing Cooney Homes leads (dryRun=${dryRun})...`);
+  const synced = [];
+
+  // Step 1 — fetch LSA leads via Google Ads GAQL (same token as existing Ads setup)
+  // Step 1a — fetch lead IDs + metadata via GAQL (contact details queried separately per lead)
+  let gaqlRows;
+  try {
+    gaqlRows = await googleAds.gaqlSearch(
+      LSA_COONEY_CUSTOMER_ID,
+      `SELECT
+         local_services_lead.id,
+         local_services_lead.lead_type,
+         local_services_lead.lead_status,
+         local_services_lead.lead_charged,
+         local_services_lead.creation_date_time,
+         local_services_lead.locale,
+         local_services_lead.category_id
+       FROM local_services_lead
+       ORDER BY local_services_lead.creation_date_time DESC
+       LIMIT 100`
+    );
+  } catch (gaqlErr) {
+    const raw = gaqlErr.response?.data ? JSON.stringify(gaqlErr.response.data) : gaqlErr.message;
+    throw new Error(`GAQL local_services_lead failed: ${raw}`);
+  }
+
+  // Step 1b — fetch conversations to get phone + name per lead
+  let convRows = [];
+  try {
+    convRows = await googleAds.gaqlSearch(
+      LSA_COONEY_CUSTOMER_ID,
+      `SELECT
+         local_services_lead_conversation.id,
+         local_services_lead_conversation.lead,
+         local_services_lead_conversation.message_details.text,
+         local_services_lead_conversation.phone_call_details.call_duration_millis,
+         local_services_lead_conversation.conversation_channel
+       FROM local_services_lead_conversation
+       LIMIT 200`
+    );
+  } catch (_) { convRows = []; }
+
+  // Build phone lookup from conversations (first phone call per lead)
+  const phoneByLead = {};
+  for (const row of convRows) {
+    const conv = row.localServicesLeadConversation || {};
+    const leadRef = conv.lead || '';
+    const leadId  = leadRef.split('/').pop();
+    if (leadId && !phoneByLead[leadId] && conv.phoneCallDetails) {
+      phoneByLead[leadId] = conv.phoneCallDetails;
+    }
+  }
+
+  // Normalize GAQL rows
+  const leads = gaqlRows.map(r => {
+    const l = r.localServicesLead || {};
+    const id = String(l.id || '');
+    return {
+      leadId:              id,
+      customerName:        '',   // not exposed via GAQL — use lead ID as identifier
+      customerPhoneNumber: '',   // contact_details restricted in GAQL
+      leadType:            l.leadType || 'PHONE_CALL',
+      leadStatus:          l.leadStatus || '',
+      chargeStatus:        l.leadCharged ? 'CHARGED' : 'NOT_CHARGED',
+      geo:                 '',
+      category:            l.categoryId || '',
+      createdAt:           l.creationDateTime || '',
+    };
+  });
+  console.log(`[LSA] ${leads.length} total lead(s) returned via Google Ads GAQL`);
+
+  // Step 3 — load already-processed lead IDs from Cloudinary
+  let processed = [];
+  try {
+    const snap = await axios.get(
+      `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/raw/upload/${LSA_PROCESSED_PUB_ID}.json`,
+      { timeout: 5000 }
+    );
+    processed = snap.data?.ids || [];
+  } catch (_) { processed = []; }
+
+  // Step 4 — get "New Lead" stage ID from GHL pipeline
+  let stageId = null;
+  try {
+    const pipeRes = await axios.get(
+      `https://services.leadconnectorhq.com/opportunities/pipelines/${LSA_COONEY_PIPELINE_ID}`,
+      { headers: { Authorization: `Bearer ${LSA_COONEY_API_KEY}`, Version: '2021-07-28' }, timeout: 10000 }
+    );
+    const stages = pipeRes.data?.stages || [];
+    const newLeadStage = stages.find(s => s.name?.toLowerCase().includes('new lead'));
+    stageId = newLeadStage?.id;
+    console.log(`[LSA] Stage resolved: "${newLeadStage?.name}" → ${stageId}`);
+  } catch (e) {
+    console.error('[LSA] Could not fetch pipeline stages:', e.message);
+  }
+
+  // Step 5 — process new leads
+  for (const lead of leads) {
+    const leadId = String(lead.leadId || '');
+    if (!leadId || processed.includes(leadId)) continue;
+
+    const phone     = lead.customerPhoneNumber || '';
+    const fullName  = (lead.customerName || '').trim();
+    const [fName, ...lParts] = fullName.split(' ');
+    const firstName = fName || 'LSA Lead';
+    const lastName  = lParts.join(' ') || '-';
+    const leadType  = (lead.leadType || 'PHONE').toLowerCase().replace(/_/g, '-');
+    const geo       = lead.geo || '';
+    const charged   = lead.chargeStatus === 'CHARGED';
+
+    console.log(`[LSA] New lead ${leadId}: "${fullName || phone}" — ${leadType} — ${geo} — ${charged ? 'charged' : 'not charged'}`);
+
+    if (dryRun) {
+      synced.push({ leadId, phone, name: fullName, leadType, geo, charged });
+      processed.push(leadId);
+      continue;
+    }
+
+    try {
+      // Create GHL contact
+      const contactPayload = {
+        firstName,
+        lastName,
+        source:     'Google Local Services',
+        tags:       ['google-local-services', `lsa-${leadType}`, ...(charged ? ['lsa-charged'] : [])],
+        locationId: LSA_COONEY_LOCATION_ID,
+      };
+      if (phone) contactPayload.phone = phone;
+      if (geo)   contactPayload.city  = geo;
+
+      const contactRes = await axios.post(
+        'https://services.leadconnectorhq.com/contacts/',
+        contactPayload,
+        { headers: { Authorization: `Bearer ${LSA_COONEY_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' }, timeout: 10000 }
+      );
+      const contactId = contactRes.data?.contact?.id;
+      console.log(`[LSA] Contact created: ${contactId} — ${firstName} ${lastName}`);
+
+      // Create GHL opportunity in "New Lead" stage
+      if (contactId && stageId) {
+        await axios.post(
+          'https://services.leadconnectorhq.com/opportunities/',
+          {
+            name:       `Google LSA — ${fullName || phone || 'Unknown'} (${leadType})`,
+            pipelineId: LSA_COONEY_PIPELINE_ID,
+            stageId,
+            contactId,
+            status:     'open',
+            source:     'Google Local Services',
+            locationId: LSA_COONEY_LOCATION_ID,
+          },
+          { headers: { Authorization: `Bearer ${LSA_COONEY_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' }, timeout: 10000 }
+        );
+        console.log(`[LSA] ✅ Opportunity created — ${fullName || phone}`);
+      }
+
+      processed.push(leadId);
+      synced.push({ leadId, phone, name: fullName, contactId, leadType, geo });
+      await new Promise(r => setTimeout(r, 1000));
+    } catch (e) {
+      console.error(`[LSA] ❌ Failed lead ${leadId}:`, e.response?.data || e.message);
+    }
+  }
+
+  // Step 6 — save processed IDs to Cloudinary
+  if (synced.length > 0 || processed.length > 0) {
+    try {
+      const ts      = Math.floor(Date.now() / 1000);
+      const sigData = `overwrite=true&public_id=${LSA_PROCESSED_PUB_ID}&timestamp=${ts}${process.env.CLOUDINARY_API_SECRET}`;
+      const sig     = require('crypto').createHash('sha1').update(sigData).digest('hex');
+      const form    = new FormData();
+      form.append('file',         Buffer.from(JSON.stringify({ ids: processed, updatedAt: new Date().toISOString() })), { filename: 'lsa.json', contentType: 'application/json' });
+      form.append('public_id',    LSA_PROCESSED_PUB_ID);
+      form.append('overwrite',    'true');
+      form.append('timestamp',    String(ts));
+      form.append('api_key',      CLOUDINARY_API_KEY);
+      form.append('signature',    sig);
+      form.append('resource_type','raw');
+      await axios.post(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`, form, { headers: form.getHeaders(), timeout: 15000 });
+      console.log(`[LSA] Saved ${processed.length} processed IDs to Cloudinary`);
+    } catch (e) {
+      console.error('[LSA] Cloudinary save error:', e.message);
+    }
+  }
+
+  console.log(`[LSA] Done — ${synced.length} new lead(s) added to GHL Cooney Homes`);
+  return { synced: synced.length, leads: synced };
+}
+
+// GET /lsa/sync?days=7     — run full sync (creates real GHL contacts)
+// GET /lsa/test            — dry run, shows what leads would be imported, no GHL writes
+// POST /webhook/lsa-lead — fired by GHL workflow when Google LSA email arrives
+// Creates a placeholder contact + opportunity in Cooney Homes pipeline immediately
+app.post('/webhook/lsa-lead', async (req, res) => {
+  res.json({ ok: true, received: true });
+
+  (async () => {
+    try {
+      const now     = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+      const headers = { Authorization: `Bearer ${LSA_COONEY_API_KEY}`, Version: '2021-07-28', 'Content-Type': 'application/json' };
+
+      // Step 1 — create placeholder contact
+      const contactRes = await axios.post(
+        'https://services.leadconnectorhq.com/contacts/',
+        {
+          firstName:  'Google LSA Lead',
+          lastName:   now,
+          source:     'Google Local Services',
+          tags:       ['google-local-services', 'needs-enrichment'],
+          locationId: LSA_COONEY_LOCATION_ID,
+        },
+        { headers, timeout: 10000 }
+      );
+      const contactId = contactRes.data?.contact?.id;
+      console.log(`[LSA-WEBHOOK] Contact created: ${contactId} — "Google LSA Lead ${now}"`);
+
+      // Step 2 — get New Lead stage ID
+      const pipeRes = await axios.get(
+        `https://services.leadconnectorhq.com/opportunities/pipelines/${LSA_COONEY_PIPELINE_ID}`,
+        { headers: { Authorization: `Bearer ${LSA_COONEY_API_KEY}`, Version: '2021-07-28' }, timeout: 10000 }
+      );
+      const stages  = pipeRes.data?.stages || [];
+      const stageId = stages.find(s => s.name?.toLowerCase().includes('new lead'))?.id;
+
+      // Step 3 — create opportunity
+      if (contactId && stageId) {
+        await axios.post(
+          'https://services.leadconnectorhq.com/opportunities/',
+          {
+            name:       `Google LSA Lead — ${now}`,
+            pipelineId: LSA_COONEY_PIPELINE_ID,
+            stageId,
+            contactId,
+            status:     'open',
+            source:     'Google Local Services',
+            locationId: LSA_COONEY_LOCATION_ID,
+          },
+          { headers, timeout: 10000 }
+        );
+        console.log(`[LSA-WEBHOOK] Opportunity created in New Lead stage`);
+      }
+
+      // Step 4 — notify Jose via GHL email
+      await sendEmail(
+        OWNER_CONTACT_ID,
+        '🔔 New Google LSA Lead — Cooney Homes',
+        `<p>A new Google Local Services lead just came in for <strong>Cooney Homes</strong>.</p>
+         <p><strong>Received:</strong> ${now}</p>
+         <p>The contact has been created in the <strong>New Lead</strong> pipeline and tagged <code>google-local-services</code>.</p>
+         <p>👉 <strong>Action needed:</strong> Open the <a href="https://ads.google.com/localservices/v2/dashboard">Google LSA Dashboard</a>, find the lead, and update the contact in GHL with their name and phone number.</p>
+         <p>Estimated time: 90 seconds.</p>`
+      );
+
+      console.log(`[LSA-WEBHOOK] ✅ Done — contact + opportunity + notification sent`);
+    } catch (e) {
+      console.error('[LSA-WEBHOOK] Error:', e.response?.data || e.message);
+    }
+  })();
+});
+
+app.get('/lsa/sync', async (req, res) => {
+  const daysBack = parseInt(req.query.days || '7');
+  try {
+    const result = await runLSALeadSync({ daysBack, dryRun: false });
+    res.json({ ok: true, ...result });
+  } catch (e) {
+    console.error('[LSA] /lsa/sync error:', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.get('/lsa/test', async (req, res) => {
+  try {
+    const result = await runLSALeadSync({ dryRun: true });
+    res.json({ ok: true, dryRun: true, message: 'No GHL contacts created — dry run only', ...result });
+  } catch (e) {
+    const detail = e.response?.data ? JSON.stringify(e.response.data).slice(0, 1000) : e.message;
+    console.error('[LSA] /lsa/test error:', detail);
+    res.status(500).json({ ok: false, error: e.message, detail });
+  }
+});
 
 // ─── GOOGLE BUSINESS PROFILE AUTO-POSTING ────────────────────────────────────
-// Runs daily at 9:00am — fetches connected Google accounts per client,
-// generates a location-specific GBP post with Claude Haiku, publishes via GHL.
+// Runs Mon–Fri at 8:00am EST — fetches connected Google accounts per client,
+// pulls top DataForSEO keyword for context, generates post with Claude Haiku,
+// publishes via GHL Social Posting API.
+
+// Pull the highest-volume keyword for this client from DataForSEO.
+// Falls back to first keyword in config if DataForSEO is unavailable.
+async function _gbpTopKeyword(keywords = []) {
+  if (!DATAFORSEO_PASSWORD || !keywords.length) return keywords[0] || '';
+  try {
+    const auth  = Buffer.from(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`).toString('base64');
+    const res   = await axios.post(
+      `${DATAFORSEO_BASE}/v3/keywords_data/google_ads/search_volume/live`,
+      [{ keywords: keywords.slice(0, 5), language_code: 'en', location_code: 2840 }],
+      { headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' }, timeout: 15000 }
+    );
+    const items = res.data?.tasks?.[0]?.result || [];
+    if (!items.length) return keywords[0];
+    const sorted = [...items].sort((a, b) => (b.search_volume || 0) - (a.search_volume || 0));
+    return sorted[0]?.keyword || keywords[0];
+  } catch (_) {
+    return keywords[0]; // never block a post over a DataForSEO timeout
+  }
+}
 
 async function runDailyGBPPosts() {
-  console.log('[GBP] Starting daily Google Business Profile posts...');
+  console.log('[GBP] Starting daily Google Business Profile posts (8am)...');
   const results = [];
 
-  const gbpClients = Object.entries(SEO_CLIENTS).filter(([, c]) => c.blogEnabled !== false && c.gbpEnabled !== false);
+  // Only skip clients with gbpEnabled: false — blog flag does NOT affect GBP
+  const gbpClients = Object.entries(SEO_CLIENTS).filter(([, c]) => c.gbpEnabled !== false);
 
   for (const [locationId, config] of gbpClients) {
-    const { name, industry, voice, author } = config;
+    const { name, industry, voice, author, keywords = [] } = config;
     const token = config.apiKey;
     if (!token) continue;
 
     try {
-      // Fetch connected Google accounts for this sub-account
+      // Step 1 — check connected Google accounts in GHL
       const accountsRes = await axios.get(
         `https://services.leadconnectorhq.com/social-media-posting/${locationId}/accounts`,
         { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 10000 }
@@ -14933,60 +15298,69 @@ async function runDailyGBPPosts() {
         .filter(a => a.platform === 'google' && !a.isExpired && !a.deleted);
 
       if (!googleAccounts.length) {
-        console.log(`[GBP] No Google accounts connected for ${name} — skipping`);
+        console.log(`[GBP] No Google account connected for ${name} — connect GMB in GHL Social Planner`);
         continue;
       }
 
       console.log(`[GBP] ${name}: ${googleAccounts.length} GBP location(s) found`);
 
-      // Rotate post type by day of week
-      const dayIdx = new Date().getDay();
-      const postType = GBP_POST_TYPES[dayIdx % GBP_POST_TYPES.length];
+      // Step 2 — DataForSEO: pull top-volume keyword to anchor today's post
+      const topKeyword = await _gbpTopKeyword(keywords);
+      console.log(`[GBP] ${name} → top keyword: "${topKeyword}"`);
 
-      // Generate post for each connected GBP location
+      // Step 3 — always WHATS_NEW. No offers, no discounts, no events. Visit-only content.
+      const dayIdx  = new Date().getDay();
+      const postType = GBP_POST_TYPES[dayIdx % GBP_POST_TYPES.length];
+      const postTypeLabel = "What's New — give people a compelling reason to come visit this location today";
+
+      // Step 4 — generate one post per connected GBP location
       for (const account of googleAccounts) {
         const locationName = account.name || name;
 
         const msg = await anthropic.messages.create({
           model: 'claude-haiku-4-5-20251001',
           max_tokens: 300,
-          messages: [{ role: 'user', content: `Write a Google Business Profile "${postType}" post for ${locationName} — a ${industry} in Central Florida.
+          messages: [{ role: 'user', content: `Write a Google Business Profile post for ${locationName} — a ${industry} in Central Florida.
 
 AUTHOR: ${author?.name || name}, ${author?.title || ''}
 BRAND VOICE: ${voice || 'Helpful, local, and direct.'}
-POST TYPE: ${postType === 'WHATS_NEW' ? "What's New (share an update, tip, or reason to visit)" : postType === 'OFFER' ? 'Special Offer (limited time deal or promotion)' : 'Event (upcoming event or special occasion)'}
+POST TYPE: ${postTypeLabel}
+TARGET KEYWORD: "${topKeyword}" — this is the top-searched keyword for this business in their city. Weave it in naturally once.
 
 RULES:
 - 150–280 characters total
-- Mention a specific service, dish, or benefit
-- End with a clear action ("Call us", "Book online", "Order now", "Visit us today")
-- Sound like a real local business owner wrote it — no corporate speak
+- ONLY goal: give people a reason to come visit this location in person
+- Talk about the business as a whole — what they do, who they serve, why locals trust them, what the experience is like
+- Ground the post in the city/area context — reference the local community naturally
+- End with a visit-focused CTA: "Come visit us", "Stop by today", "Visit us in [city]", "Come in today", "We're open — come see us"
+- Sound like a real local business owner — warm, direct, community-rooted
 - NO hashtags, NO emojis unless naturally fitting
+- NO promotions, NO discounts, NO deals, NO limited-time offers, NO pricing, NO percentages
+- NO specific dishes, menu items, products by name — speak about the business category and experience only
+- NO "Book online", NO "Order now", NO "Call us" — only in-person visit language
+- Keyword must appear once and feel organic, never stuffed
 
-Return ONLY the post text, nothing else.` }]
+Return ONLY the post text. Nothing else.` }]
         });
 
         const postText = msg.content[0].text.trim();
 
-        // Publish via GHL Social Posting API — withRetry handles transient GHL errors
-        const postNow = new Date();
+        // Step 5 — publish via GHL Social Posting API
         await withRetry(() => axios.post(
           `https://services.leadconnectorhq.com/social-media-posting/${locationId}/posts`,
           {
             accountIds: [account.id],
-            summary: postText,
-            type: 'post',
-            userId: GHL_USER_ID,
-            status: 'scheduled',
-            scheduleDate: postNow.toISOString(),
-            scheduleTimeUpdated: true,
-            media: [],
+            summary:    postText,
+            type:       'post',
+            userId:     GHL_USER_ID,
+            status:     'published',
+            media:      [],
           },
           { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' }, timeout: 15000 }
         ));
 
-        console.log(`[GBP] ✅ Posted to ${locationName} GBP: "${postText.slice(0, 60)}..."`);
-        results.push({ client: name, location: locationName, text: postText });
+        console.log(`[GBP] ✅ ${locationName}: "${postText.slice(0, 70)}..."`);
+        results.push({ client: name, location: locationName, keyword: topKeyword, text: postText });
         await new Promise(r => setTimeout(r, 2000));
       }
     } catch (e) {
@@ -14996,9 +15370,413 @@ Return ONLY the post text, nothing else.` }]
     await new Promise(r => setTimeout(r, 3000));
   }
 
-  console.log(`[GBP] Done — ${results.length} GBP posts published`);
+  console.log(`[GBP] Done — ${results.length} GBP post(s) published`);
   return results;
 }
+
+// ─── AIFC — Albania International Fire Conference ─────────────────────────────
+// Daily auto-post at 4am EST (= 10am Spain CEST) → FB page 61589673482733 + IG
+// Setup flow:
+//   1. GET /meta/exchange-token?token=SHORT → returns permanent page token
+//   2. Set AIFC_PAGE_TOKEN in Render env vars
+//   3. GET /aifc/ig-id → returns Instagram Business Account ID
+//   4. Set AIFC_IG_ID in Render env vars
+//   5. GET /aifc/post?image=URL to test immediately
+
+const AIFC_FB_PAGE_ID = '61589673482733';
+const META_APP_ID     = process.env.META_APP_ID     || '';
+const META_APP_SECRET = process.env.META_APP_SECRET || '';
+
+// Comma-separated Cloudinary image URLs stored in env — e.g. https://res.cloudinary.com/.../aifc1.jpg,https://...
+const AIFC_IMAGE_POOL = (process.env.AIFC_IMAGES || '').split(',').map(s => s.trim()).filter(Boolean);
+
+async function runAIFCDailyPost(overrideImageUrl = null) {
+  const token  = process.env.AIFC_PAGE_TOKEN || '';
+  const igId   = process.env.AIFC_IG_ID      || '';
+
+  if (!token) {
+    console.log('[AIFC] ⚠️  No AIFC_PAGE_TOKEN set — run GET /meta/exchange-token to get one');
+    return { skipped: true, reason: 'no AIFC_PAGE_TOKEN' };
+  }
+
+  // Pick image: override → pool rotation → skip
+  let imageUrl = overrideImageUrl;
+  if (!imageUrl && AIFC_IMAGE_POOL.length) {
+    const dayIndex = Math.floor(Date.now() / 86400000);
+    imageUrl = AIFC_IMAGE_POOL[dayIndex % AIFC_IMAGE_POOL.length];
+  }
+  if (!imageUrl) {
+    console.log('[AIFC] ⚠️  No image URL — pass ?image= to /aifc/post or set AIFC_IMAGES env var');
+    return { skipped: true, reason: 'no image' };
+  }
+
+  // Generate professional caption with Claude
+  const today = new Date().toLocaleDateString('en-US', { timeZone: 'Europe/Madrid', weekday: 'long', month: 'long', day: 'numeric' });
+  let caption = '';
+  try {
+    const captionRes = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 400,
+      messages: [{ role: 'user', content: `You are the official social media voice of the Albania International Fire Conference (AIFC) — an elite international firefighter summit in Albania that brings together fire professionals, rescue specialists, and safety experts from across the globe.
+
+Write ONE caption for today's (${today}) social media photo post. The tone is professional, inspiring, and community-focused — celebrating the global brotherhood and sisterhood of firefighters and the mission of fire safety excellence.
+
+CONTENT MIX — rotate naturally day by day:
+- Conference highlights and announcements
+- Firefighter culture, brotherhood/sisterhood, and dedication
+- Fire safety education and prevention awareness
+- Behind-the-scenes of conference preparation
+- Tribute to fire professionals serving worldwide
+- International fire community connections and partnerships
+- Training, innovation, and professional development
+
+STRICT RULES:
+- 150–220 characters total (punchy and memorable)
+- End with 4–5 hashtags: always include #AIFC and at least 2 of: #AlbaniaFireConference #Firefighters #FireSafety #FierjaZjarrëve #InternationalFireFighters
+- Use emojis sparingly — max 2, never at the start
+- Professional tone — not salesy or generic
+- Write in English (international audience)
+- Feel authentic to fire service culture
+
+Output ONLY the caption. No explanation, no quotes around it.` }],
+    });
+    caption = captionRes.content[0].text.trim();
+    console.log(`[AIFC] Caption: ${caption.slice(0, 100)}...`);
+  } catch (e) {
+    console.error('[AIFC] Caption generation failed:', e.message);
+    caption = 'The fire service never stops. Every day is a mission. 🔥 #AIFC #Firefighters #FireSafety #AlbaniaFireConference';
+  }
+
+  const results = { imageUrl, caption, facebook: null, instagram: null };
+
+  // ── Facebook: POST /{page-id}/photos ─────────────────────────────────────
+  try {
+    const fbRes = await axios.post(
+      `https://graph.facebook.com/v19.0/${AIFC_FB_PAGE_ID}/photos`,
+      { url: imageUrl, message: caption, access_token: token },
+      { timeout: 30000 }
+    );
+    results.facebook = { ok: true, postId: fbRes.data.post_id || fbRes.data.id };
+    console.log(`[AIFC] ✅ Facebook posted: ${results.facebook.postId}`);
+  } catch (e) {
+    const errMsg = e.response?.data?.error?.message || e.message;
+    results.facebook = { ok: false, error: errMsg };
+    console.error(`[AIFC] ❌ Facebook error: ${errMsg}`);
+  }
+
+  // ── Instagram: 2-step container → publish ────────────────────────────────
+  if (igId) {
+    try {
+      // Step 1: create media container
+      const containerRes = await axios.post(
+        `https://graph.facebook.com/v19.0/${igId}/media`,
+        { image_url: imageUrl, caption, access_token: token },
+        { timeout: 30000 }
+      );
+      const creationId = containerRes.data.id;
+      console.log(`[AIFC] IG container: ${creationId}`);
+
+      // Step 2: wait for container to process, then publish
+      await new Promise(r => setTimeout(r, 4000));
+      const publishRes = await axios.post(
+        `https://graph.facebook.com/v19.0/${igId}/media_publish`,
+        { creation_id: creationId, access_token: token },
+        { timeout: 30000 }
+      );
+      results.instagram = { ok: true, mediaId: publishRes.data.id };
+      console.log(`[AIFC] ✅ Instagram posted: ${results.instagram.mediaId}`);
+    } catch (e) {
+      const errMsg = e.response?.data?.error?.message || e.message;
+      results.instagram = { ok: false, error: errMsg };
+      console.error(`[AIFC] ❌ Instagram error: ${errMsg}`);
+    }
+  } else {
+    results.instagram = { ok: false, skipped: true, reason: 'AIFC_IG_ID not set — run GET /aifc/ig-id to get it' };
+    console.log('[AIFC] IG skipped — AIFC_IG_ID not configured');
+  }
+
+  return results;
+}
+
+// ── Step 1 of setup: exchange short-lived token for permanent page token ──────
+// GET /meta/exchange-token?token=SHORT_LIVED_TOKEN
+// How to get a short-lived token: developers.facebook.com/tools/explorer
+//   App: JRZ Claude AI | Permissions: pages_show_list, pages_read_engagement,
+//   pages_manage_posts, instagram_basic, instagram_content_publish
+app.get('/meta/exchange-token', async (req, res) => {
+  const shortToken = (req.query.token || '').trim();
+  if (!shortToken) return res.status(400).json({
+    error: 'Pass ?token=YOUR_SHORT_LIVED_TOKEN',
+    howToGet: 'Go to developers.facebook.com/tools/explorer → App: JRZ Claude AI → Generate User Token with: pages_show_list, pages_read_engagement, pages_manage_posts, instagram_basic, instagram_content_publish',
+  });
+  if (!META_APP_ID || !META_APP_SECRET) return res.status(500).json({
+    error: 'META_APP_ID or META_APP_SECRET not set in Render env vars — add them in the Render dashboard',
+  });
+
+  try {
+    // Step 1: short-lived → 60-day long-lived user token
+    const exchRes = await axios.get('https://graph.facebook.com/v19.0/oauth/access_token', {
+      params: {
+        grant_type:        'fb_exchange_token',
+        client_id:         META_APP_ID,
+        client_secret:     META_APP_SECRET,
+        fb_exchange_token: shortToken,
+      },
+      timeout: 15000,
+    });
+    const longToken = exchRes.data.access_token;
+    const expiresIn = exchRes.data.expires_in || 5184000; // default 60 days
+
+    // Step 2: get pages the user manages — page tokens from long-lived tokens NEVER expire
+    const pagesRes = await axios.get('https://graph.facebook.com/v19.0/me/accounts', {
+      params: { access_token: longToken, fields: 'id,name,access_token,category,fan_count' },
+      timeout: 15000,
+    });
+    const pages = pagesRes.data.data || [];
+    const aifcPage = pages.find(p => p.id === AIFC_FB_PAGE_ID);
+
+    return res.json({
+      ok: true,
+      longLivedToken: longToken,
+      expiresIn: `${Math.round(expiresIn / 86400)} days (~${new Date(Date.now() + expiresIn * 1000).toLocaleDateString()})`,
+      aifcPage: aifcPage ? {
+        id:        aifcPage.id,
+        name:      aifcPage.name,
+        category:  aifcPage.category,
+        fans:      aifcPage.fan_count,
+        pageToken: aifcPage.access_token,
+        '⭐ ACTION': 'Copy pageToken → Render Dashboard → armando-bot → Environment → Set AIFC_PAGE_TOKEN = this value (it never expires)',
+      } : {
+        found:  false,
+        pageId: AIFC_FB_PAGE_ID,
+        note:   `Page ${AIFC_FB_PAGE_ID} not in your managed pages. Make sure your FB account has Admin role on this page.`,
+      },
+      allManagedPages: pages.map(p => ({ id: p.id, name: p.name, category: p.category })),
+      nextSteps: [
+        '1. Copy aifcPage.pageToken above',
+        '2. Render Dashboard → armando-bot → Environment → AIFC_PAGE_TOKEN = paste token',
+        '3. Open browser: https://armando-bot-1.onrender.com/aifc/ig-id (uses page token from env)',
+        '4. Copy the instagramBusinessAccountId → set as AIFC_IG_ID in Render',
+        '5. Test: https://armando-bot-1.onrender.com/aifc/post?image=https://YOUR_CLOUDINARY_IMAGE.jpg',
+      ],
+    });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e.response?.data?.error || e.message });
+  }
+});
+
+// ── Step 2 of setup: get Instagram Business Account ID for the AIFC page ─────
+// GET /aifc/ig-id        (uses AIFC_PAGE_TOKEN from env — call after setting it in Render)
+// GET /aifc/ig-id?token= (pass token manually if not yet in env)
+app.get('/aifc/ig-id', async (req, res) => {
+  const token = (req.query.token || '').trim() || process.env.AIFC_PAGE_TOKEN || '';
+  if (!token) return res.status(400).json({
+    error: 'No token. Either set AIFC_PAGE_TOKEN in Render env vars or pass ?token=PAGE_TOKEN',
+    hint: 'Run GET /meta/exchange-token first to get the permanent page token',
+  });
+  try {
+    const r = await axios.get(`https://graph.facebook.com/v19.0/${AIFC_FB_PAGE_ID}`, {
+      params: { fields: 'instagram_business_account,name,fan_count', access_token: token },
+      timeout: 15000,
+    });
+    const igId = r.data.instagram_business_account?.id;
+    return res.json({
+      ok:           !!igId,
+      pageName:     r.data.name,
+      fans:         r.data.fan_count,
+      instagramBusinessAccountId: igId || null,
+      action: igId
+        ? `Set AIFC_IG_ID=${igId} in Render Dashboard → armando-bot → Environment`
+        : 'No Instagram Business Account linked. Go to: Facebook Page Settings → Instagram → Connect your IG Business account',
+    });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e.response?.data?.error || e.message });
+  }
+});
+
+// ── Manual trigger: fire one AIFC post right now ──────────────────────────────
+// GET /aifc/post                     → uses pool rotation
+// GET /aifc/post?image=CLOUDINARY_URL → uses that specific image
+app.get('/aifc/post', (req, res) => {
+  const imageUrl = (req.query.image || '').trim() || null;
+  res.json({
+    status:   'started',
+    imageUrl: imageUrl || 'pool rotation (AIFC_IMAGES env var)',
+    message:  'AIFC post firing to Facebook + Instagram — check /status in ~20s',
+  });
+  runCron('aifc-post', () => runAIFCDailyPost(imageUrl), true);
+});
+
+// Manual trigger + status check
+app.get('/cron/gbp-posts', (req, res) => {
+  res.json({ status: 'started', message: 'GBP posts running in background — check GET /status in ~30s' });
+  runCron('gbp-posts', runDailyGBPPosts, true);
+});
+
+// Themed GBP post — fire a holiday/event post to all clients right now
+// GET /cron/gbp-theme?topic=Mothers+Day+2026
+app.get('/cron/gbp-theme', async (req, res) => {
+  const topic = (req.query.topic || 'special occasion').replace(/\+/g, ' ');
+  res.json({ status: 'started', topic, message: `Themed GBP post firing for all clients — topic: "${topic}". Check logs in ~60s.` });
+
+  (async () => {
+    const results = [];
+    const gbpClients = Object.entries(SEO_CLIENTS).filter(([, c]) => c.gbpEnabled !== false);
+    console.log(`[GBP-THEME] Firing themed post — topic: "${topic}" — ${gbpClients.length} clients`);
+
+    for (const [locationId, config] of gbpClients) {
+      const { name, industry, voice, cta } = config;
+      const token = config.apiKey;
+      if (!token) continue;
+
+      try {
+        const accountsRes = await axios.get(
+          `https://services.leadconnectorhq.com/social-media-posting/${locationId}/accounts`,
+          { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 10000 }
+        );
+        const googleAccounts = (accountsRes.data?.results?.accounts || [])
+          .filter(a => a.platform === 'google' && !a.isExpired && !a.deleted);
+        if (!googleAccounts.length) { console.log(`[GBP-THEME] No GMB for ${name}`); continue; }
+
+        for (const account of googleAccounts) {
+          const locationName = account.name || name;
+          const msg = await anthropic.messages.create({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 300,
+            messages: [{ role: 'user', content: `Write a Google Business Profile post for ${locationName} — a ${industry} in Central Florida — celebrating "${topic}".
+
+BRAND VOICE: ${voice || 'Warm, local, and genuine.'}
+CTA: ${cta || 'Visit us today'}
+
+RULES:
+- 150–280 characters total
+- Tie the holiday/topic to what this specific business offers
+- Sound warm and authentic — like a real local business owner writing it
+- End with the CTA
+- NO hashtags, NO emojis unless they truly fit
+- Do NOT use generic filler — make it specific to this business
+
+Return ONLY the post text. Nothing else.` }]
+          });
+
+          const postText = msg.content[0].text.trim();
+          await withRetry(() => axios.post(
+            `https://services.leadconnectorhq.com/social-media-posting/${locationId}/posts`,
+            { accountIds: [account.id], summary: postText, type: 'post', userId: GHL_USER_ID, status: 'published', media: [] },
+            { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' }, timeout: 15000 }
+          ));
+
+          console.log(`[GBP-THEME] ✅ ${locationName}: "${postText.slice(0, 80)}..."`);
+          results.push({ client: name, location: locationName, text: postText });
+          await new Promise(r => setTimeout(r, 2000));
+        }
+      } catch (e) {
+        console.error(`[GBP-THEME] ❌ ${name}:`, e.message);
+      }
+      await new Promise(r => setTimeout(r, 3000));
+    }
+    console.log(`[GBP-THEME] Done — ${results.length} post(s) published for topic: "${topic}"`);
+  })();
+});
+
+// Debug: list connected Google accounts per client (helps verify GMB is connected in GHL)
+app.get('/gbp/accounts', async (_req, res) => {
+  const report = [];
+  const clients = Object.entries(SEO_CLIENTS).filter(([, c]) => c.gbpEnabled !== false);
+  for (const [locationId, config] of clients) {
+    const token = config.apiKey;
+    if (!token) { report.push({ name: config.name, error: 'no apiKey' }); continue; }
+    try {
+      const r = await axios.get(
+        `https://services.leadconnectorhq.com/social-media-posting/${locationId}/accounts`,
+        { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 10000 }
+      );
+      const google = (r.data?.results?.accounts || []).filter(a => a.platform === 'google');
+      report.push({
+        name: config.name,
+        locationId,
+        googleAccounts: google.length,
+        connected:      google.filter(a => !a.isExpired && !a.deleted).length,
+        expired:        google.filter(a => a.isExpired).length,
+        accounts:       google.map(a => ({ id: a.id, name: a.name, expired: a.isExpired })),
+      });
+    } catch (e) {
+      report.push({ name: config.name, error: e.message });
+    }
+    await new Promise(r => setTimeout(r, 500));
+  }
+  res.json({ total: report.length, report });
+});
+
+// Debug: test one full GBP post cycle for a single client — returns full error if it fails
+app.get('/gbp/test-post', async (req, res) => {
+  const locationId = req.query.lid || 'd7iUPfamAaPlSBNj6IhT'; // default: JRZ Marketing
+  const config     = SEO_CLIENTS[locationId];
+  if (!config) return res.status(404).json({ error: `No client for locationId: ${locationId}` });
+
+  const token = config.apiKey;
+  if (!token) return res.status(400).json({ error: 'No apiKey for this client' });
+
+  try {
+    // Step 1: fetch accounts
+    const accountsRes = await axios.get(
+      `https://services.leadconnectorhq.com/social-media-posting/${locationId}/accounts`,
+      { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28' }, timeout: 10000 }
+    );
+    const googleAccounts = (accountsRes.data?.results?.accounts || [])
+      .filter(a => a.platform === 'google' && !a.isExpired && !a.deleted);
+
+    if (!googleAccounts.length) {
+      return res.json({ ok: false, step: 'accounts', message: 'No Google accounts connected in GHL', raw: accountsRes.data });
+    }
+
+    const account      = googleAccounts[0];
+    const locationName = account.name || config.name;
+
+    // Step 2: hardcoded test post — isolates GHL API from Claude
+    const topKeyword = (config.keywords || [])[0] || config.industry;
+    const postText   = `JRZ Marketing helps Orlando businesses grow with AI-powered marketing automation and local SEO. Want more leads without more ad spend? Book a free strategy call at jrzmarketing.com`;
+
+    // Step 3: attempt GHL post — capture full error if it fails
+    let postResult = null;
+    let postError  = null;
+    try {
+      const r = await axios.post(
+        `https://services.leadconnectorhq.com/social-media-posting/${locationId}/posts`,
+        {
+          accountIds: [account.id],
+          summary:    postText,
+          type:       'post',
+          userId:     GHL_USER_ID,
+          status:     'published',
+          media:      [],
+        },
+        { headers: { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' }, timeout: 15000 }
+      );
+      postResult = r.data;
+    } catch (pe) {
+      postError = {
+        message:  pe.message,
+        status:   pe.response?.status,
+        data:     pe.response?.data,
+      };
+    }
+
+    res.json({
+      ok:          !postError,
+      client:      config.name,
+      locationId,
+      accountId:   account.id,
+      accountName: locationName,
+      keyword:     topKeyword,
+      postText,
+      postResult,
+      postError,
+    });
+  } catch (e) {
+    res.status(500).json({ ok: false, step: 'general', error: e.message, data: e.response?.data });
+  }
+});
 
 // ─── /health — instant deploy verification ────────────────────────────────────
 app.get('/health', (_req, res) => {
@@ -15295,10 +16073,23 @@ setInterval(async () => {
     const isWeekday   = dayOfWeek >= 1 && dayOfWeek <= 5;
     const dateOfMonth = nowEST.getDate();
 
-    // 9:00am Mon–Fri — Google Business Profile posts
-    if (hour === 9 && minute >= 0 && minute < 5 && isWeekday && lastGBPPostDate !== today) {
+    // Every 30 min — Google Local Services lead sync → Cooney Homes GHL
+    const lsaMinuteKey = `${today}_${hour}_${minute < 30 ? 'a' : 'b'}`;
+    if (lastLSASyncMinute !== lsaMinuteKey && (minute < 2 || (minute >= 30 && minute < 32))) {
+      lastLSASyncMinute = lsaMinuteKey;
+      runCron('lsa-sync', runLSALeadSync, true);
+    }
+
+    // 8:00am Mon–Fri — Google Business Profile posts (DataForSEO keyword + Claude Haiku → GHL Social API)
+    if (hour === 8 && minute >= 0 && minute < 5 && isWeekday && lastGBPPostDate !== today) {
       lastGBPPostDate = today;
       runCron('gbp-posts', runDailyGBPPosts, true);
+    }
+
+    // 4:00am EST daily — AIFC Albania International Fire Conference (= 10am Spain CEST)
+    if (hour === 4 && minute < 5 && lastAIFCPostDate !== today) {
+      lastAIFCPostDate = today;
+      runCron('aifc-post', () => runAIFCDailyPost(), true);
     }
 
     // 6:50am daily — AI team standup
@@ -16766,6 +17557,118 @@ app.post('/google-ads/build-campaign', async (req, res) => {
   }
 });
 
+// POST /google-ads/build-full — build a complete multi-ad-group search campaign
+// Body: { cid, name, budget, finalUrl, bidStrategy?, adGroups[], negatives[], schedule:{}, proximity:{} }
+app.post('/google-ads/build-full', async (req, res) => {
+  try {
+    const {
+      cid = DEFAULT_ADS_CUSTOMER,
+      name,
+      budget,
+      finalUrl,
+      bidStrategy = 'MAXIMIZE_CLICKS',
+      adGroups    = [],
+      negatives   = [],
+      schedule    = {},
+      proximity   = {},
+    } = req.body;
+
+    if (!name || !budget || !finalUrl || !adGroups.length) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Required: name, budget, finalUrl, adGroups (array with name/keywords/headlines/descriptions)',
+      });
+    }
+
+    const result = await googleAds.buildFullSearchCampaign(cid, {
+      name, budget, finalUrl, bidStrategy, adGroups, negatives, schedule, proximity,
+    });
+
+    res.json({ ok: true, customerId: cid, ...result });
+  } catch (err) {
+    console.error('[GoogleAds] build-full error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /google-ads/finalize-campaign — add extensions, conversion tracking, pause Smart Campaigns, enable ads
+// Body: { cid, campaignRN, phone, sitelinks[], callouts[], accountName?, enableCampaign? }
+app.post('/google-ads/finalize-campaign', async (req, res) => {
+  try {
+    const {
+      cid            = DEFAULT_ADS_CUSTOMER,
+      campaignRN,
+      phone,
+      countryCode    = 'US',
+      sitelinks      = [],
+      callouts       = [],
+      accountName    = 'Client',
+      enableCampaign = false,
+    } = req.body;
+
+    if (!campaignRN) {
+      return res.status(400).json({ ok: false, error: 'Required: campaignRN (campaign resource name)' });
+    }
+
+    const report = {};
+
+    // 1 — Extensions (call + sitelinks + callouts)
+    report.extensions = await googleAds.addCampaignExtensions(cid, campaignRN, {
+      phone, countryCode, sitelinks, callouts,
+    });
+
+    // 2 — Conversion tracking
+    report.conversions = await googleAds.setupConversionTracking(cid, { accountName });
+
+    // 3 — Pause dead Smart Campaigns
+    report.smartCampaignsPaused = await googleAds.pauseSmartCampaigns(cid);
+
+    // 4 — Enable all ads + ad groups inside this campaign
+    report.adsEnabled = await googleAds.enableCampaignAds(cid, campaignRN);
+
+    // 5 — Enable campaign itself if requested
+    if (enableCampaign) {
+      await googleAds.setCampaignStatus(cid, campaignRN, 'ENABLED');
+      report.campaignStatus = 'ENABLED';
+    } else {
+      report.campaignStatus = 'PAUSED — set enableCampaign:true to go live';
+    }
+
+    res.json({ ok: true, customerId: cid, campaignRN, ...report });
+  } catch (err) {
+    console.error('[GoogleAds] finalize-campaign error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /google-ads/add-schedule — add ad schedule blocks to an existing campaign
+// Body: { cid, campaignResourceName, days[], startHour, endHour }
+app.post('/google-ads/add-schedule', async (req, res) => {
+  try {
+    const { cid = DEFAULT_ADS_CUSTOMER, campaignResourceName, days, startHour, endHour } = req.body;
+    if (!campaignResourceName) return res.status(400).json({ ok: false, error: 'Required: campaignResourceName' });
+    const result = await googleAds.addAdSchedule(cid, campaignResourceName, { days, startHour, endHour });
+    res.json({ ok: true, customerId: cid, campaignResourceName, days, startHour, endHour, result });
+  } catch (err) {
+    console.error('[GoogleAds] add-schedule error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /google-ads/remove-campaign — permanently delete a campaign
+// Body: { cid, campaignResourceName }
+app.post('/google-ads/remove-campaign', async (req, res) => {
+  try {
+    const { cid = DEFAULT_ADS_CUSTOMER, campaignResourceName } = req.body;
+    if (!campaignResourceName) return res.status(400).json({ ok: false, error: 'Required: campaignResourceName' });
+    const result = await googleAds.adsMutate(cid, 'campaigns', [{ remove: campaignResourceName }]);
+    res.json({ ok: true, removed: campaignResourceName, result });
+  } catch (err) {
+    console.error('[GoogleAds] remove-campaign error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // POST /google-ads/campaign/status — pause or enable a campaign
 // Body: { cid, campaignResourceName, status: "PAUSED" | "ENABLED" }
 app.post('/google-ads/campaign/status', async (req, res) => {
@@ -16823,7 +17726,65 @@ app.post('/google-ads/query', async (req, res) => {
   }
 });
 
+// GET /google-ads/conversion-tags?cid=&name= — get or create conversion actions, return labels + gtag snippets
+app.get('/google-ads/conversion-tags', async (req, res) => {
+  try {
+    const cid  = (req.query.cid  || '').replace(/-/g, '');
+    const name = req.query.name  || 'Client';
+    if (!cid) return res.status(400).json({ ok: false, error: 'Required: cid' });
+
+    // 1 — get account-level conversion tracking ID (the AW-XXXXXXX number)
+    const custRows = await googleAds.gaqlSearch(cid,
+      'SELECT customer.conversion_tracking_setting.conversion_tracking_id FROM customer');
+    const awNum = custRows[0]?.customer?.conversionTrackingSetting?.conversionTrackingId || '';
+    const awTag = awNum ? `AW-${awNum}` : 'AW-UNKNOWN';
+
+    // 2 — query existing conversion actions with tag snippets
+    const caQuery = `
+      SELECT conversion_action.id, conversion_action.name, conversion_action.type,
+             conversion_action.status, conversion_action.tag_snippets
+      FROM conversion_action WHERE conversion_action.status != 'REMOVED'`;
+    let rows = await googleAds.gaqlSearch(cid, caQuery);
+
+    // 3 — create missing form/lead conversion action if none exist
+    const hasForm = rows.some(r => /form|lead/i.test(r.conversionAction?.name || ''));
+    if (!hasForm) {
+      await googleAds.setupConversionTracking(cid, { accountName: name });
+      rows = await googleAds.gaqlSearch(cid, caQuery); // re-fetch with new ones
+    }
+
+    // 4 — extract label from event snippet (format: AW-XXXXXXX/LABEL)
+    const conversions = rows.map(r => {
+      const ca       = r.conversionAction || {};
+      const snippets = ca.tagSnippets || [];
+      const evSnip   = snippets.find(s => s.type === 'WEBPAGE_ONCLICK' || s.type === 'WEBPAGE') || snippets[0];
+      const match    = (evSnip?.eventSnippet || '').match(/send_to['":\s]+AW-\d+\/([^'")\s]+)/);
+      const label    = match ? match[1] : null;
+      return {
+        id:           ca.id,
+        name:         ca.name,
+        type:         ca.type,
+        status:       ca.status,
+        label,
+        sendTo:       label ? `${awTag}/${label}` : awTag,
+        eventSnippet: evSnip?.eventSnippet || null,
+      };
+    });
+
+    res.json({ ok: true, customerId: cid, awTag, total: conversions.length, conversions });
+  } catch (err) {
+    console.error('[GoogleAds] conversion-tags error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // ── GitHub Autopilot — commit files directly from Render → triggers auto-deploy ──────────────────
+// GET /b64?t=TEXT — encode any text to base64 (used by /github/patch workflow)
+app.get('/b64', (req, res) => {
+  const text = req.query.t || '';
+  res.json({ b64: Buffer.from(text).toString('base64'), len: text.length });
+});
+
 // POST /github/commit  — push any file to jrivas20/armando-bot main
 // Body: { path: "server.js", content: "<base64 encoded>", message: "feat: ..." }
 // After commit Render auto-deploys (autoDeploy: true in render.yaml)
@@ -17096,6 +18057,57 @@ app.post('/google-ads/optimize', async (req, res) => {
 // ── AMS Glazing — Static homepage (Wix iframe embed) ─────────────────────────
 app.get('/sofia/ams-glazing', (req, res) => {
   res.sendFile(path.join(__dirname, 'templates', 'ams-glazing-home.html'));
+});
+
+// ── JR Paver Sealing — Multi-page site (no nav, GHL handles navigation) ──────
+app.get('/sofia/jr-paver-sealing', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'jr-paver-sealing', 'home.html'));
+});
+app.get('/sofia/jr-paver-sealing/about', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'jr-paver-sealing', 'about.html'));
+});
+app.get('/sofia/jr-paver-sealing/services', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'jr-paver-sealing', 'services.html'));
+});
+app.get('/sofia/jr-paver-sealing/faq', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'jr-paver-sealing', 'faq.html'));
+});
+app.get('/sofia/jr-paver-sealing/contact', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'jr-paver-sealing', 'contact.html'));
+});
+
+// ─── WEEKLY BUILD REPORT ─────────────────────────────────────────────────────
+// Fires every Monday — pulls last 7 days of GitHub commits, asks Claude to
+// summarize into a "What We Built Last Week" report, emails Jose directly.
+async function runWeeklyBuildReport() {
+  try {
+    const since = new Date(Date.now() - 6.048e8).toISOString();
+    const r = await axios.get('https://api.github.com/repos/jrivas20/armando-bot/commits', {
+      params: { since, per_page: 30 },
+      headers: { Authorization: 'Bearer ' + process.env.GITHUB_PAT, 'User-Agent': 'armando-bot' }
+    });
+    const commits = r.data.map(x => x.commit.message).join('\n');
+    const msg = await anthropic.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 800,
+      messages: [{ role: 'user', content: 'You are Armando, AI team lead at JRZ Marketing. Based on these GitHub commits from the past 7 days, write a short "What We Built Last Week" report for Jose Rivas. Group by category (Infrastructure, Ads, Sites, Content). Simple bullet points. End with 1-line total shipped.\n\nCommits:\n' + commits }]
+    });
+    const body = msg.content[0].text.replace(/\n/g, '<br>');
+    const html = '<div style="font-family:Arial,sans-serif;max-width:600px;padding:20px">' + body + '</div>';
+    await sendEmail(OWNER_CONTACT_ID, 'JRZ Marketing — What We Built Last Week', html);
+    console.log('[WeeklyBuild] Report sent to Jose');
+  } catch (e) {
+    console.error('[WeeklyBuild] Error:', e.message);
+  }
+}
+
+app.get('/armando/weekly-build-report', async (_q, r) => {
+  try {
+    runWeeklyBuildReport(); // non-blocking
+    r.json({ status: 'ok', message: 'Weekly build report started — check email in ~30s' });
+  } catch (e) {
+    r.status(500).json({ status: 'error', message: e.message });
+  }
 });
 
 const PORT = process.env.PORT || 3000;

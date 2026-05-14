@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Testimonials — JRZ Ink Systems</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,800;0,900;1,900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+html,body,.c-section,.c-wrapper,.row-container,.c-row,.c-column,
+.vertical,.full,.hl-builder,.hl_page-preview,#full-width-row,
+.section,.inner,.container,.container-fluid,.row,section.c-section,
+div[data-default-columns],[class*="container"],[class*="section"],
+[class*="wrapper"],[class*="inner"],[class*="full-width"],[class*="hl_"],
+[id*="section"],[id*="row"]{max-width:100%!important;width:100%!important;margin-left:0!important;margin-right:0!important;padding-left:0!important;padding-right:0!important;box-sizing:border-box!important;overflow-x:hidden!important;}
+html,body{overflow-x:hidden!important;}
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--cream:#f8f8f6;--black:#000;--red:#d97757;--dark:#080808;--font-d:'Barlow Condensed','Arial Narrow',Impact,sans-serif;--font-b:'Inter',system-ui,sans-serif;--g:clamp(20px,4vw,64px);--sp:clamp(64px,9vw,110px);}
+body{font-family:var(--font-b);background:var(--cream);color:#000;line-height:1.5;-webkit-font-smoothing:antialiased;cursor:none;text-rendering:optimizeLegibility;}
+img,video{max-width:100%;display:block;}a{color:inherit;text-decoration:none;}
+.wrap{width:100%;max-width:100vw;overflow-x:hidden;position:relative;}
+.grain{position:fixed;inset:0;z-index:9990;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px 256px;animation:grainAnim 0.5s steps(1) infinite;}
+@keyframes grainAnim{0%{transform:translate(0,0);}10%{transform:translate(-3%,-4%);}20%{transform:translate(-6%,3%);}30%{transform:translate(2%,-6%);}40%{transform:translate(-3%,8%);}50%{transform:translate(-7%,2%);}60%{transform:translate(4%,-5%);}70%{transform:translate(6%,4%);}80%{transform:translate(-4%,6%);}90%{transform:translate(3%,-3%);}100%{transform:translate(0,0);}}
+#preloader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;}
+.pre-logo{font-family:var(--font-d);font-weight:900;font-size:clamp(48px,8vw,100px);color:#fff;letter-spacing:.05em;text-transform:uppercase;clip-path:inset(0 100% 0 0);}
+.pre-line{width:0;height:2px;background:#fff;max-width:200px;}
+.pre-sub{font-size:10px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.35);opacity:0;}
+#cur{position:fixed;width:14px;height:14px;background:#fff;border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);mix-blend-mode:difference;transition:width .2s,height .2s;will-change:transform;}
+#cur.big{width:52px;height:52px;}
+#cur-dot{position:fixed;width:4px;height:4px;background:#fff;border-radius:50%;pointer-events:none;z-index:9997;transform:translate(-50%,-50%);mix-blend-mode:difference;}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:18px var(--g);display:flex;align-items:center;justify-content:space-between;transition:background .4s,backdrop-filter .4s;}
+.nav.scrolled{background:rgba(0,0,0,.85);backdrop-filter:blur(20px);}
+.nav-brand img{width:auto;height:32px;object-fit:contain;}
+.nav-links{display:flex;gap:22px;list-style:none;}
+.nav-links a{font-size:10px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.14em;text-transform:uppercase;transition:color .2s;white-space:nowrap;}
+.nav-links a:hover{color:#fff;}
+.nav-cta{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:11px 20px;border:1.5px solid rgba(255,255,255,.4);color:#fff;transition:all .25s;flex-shrink:0;}
+.nav-cta:hover{background:#fff;color:#000;border-color:#fff;}
+.nav-ham{display:none;flex-direction:column;gap:5px;cursor:none;padding:4px;}
+.nav-ham span{width:24px;height:2px;background:#fff;transition:all .3s;}
+@media(max-width:1100px){.nav-links,.nav-cta{display:none;}.nav-ham{display:flex;}}
+.mobile-menu{position:fixed;inset:0;z-index:999;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:28px;clip-path:inset(0 0 100% 0);transition:clip-path .6s cubic-bezier(.77,0,.18,1);}
+.mobile-menu.open{clip-path:inset(0 0 0% 0);}
+.mobile-menu a{font-family:var(--font-d);font-weight:900;font-size:clamp(36px,8vw,64px);color:#fff;letter-spacing:.05em;text-transform:uppercase;transition:color .2s;}
+.mobile-menu a:hover{color:var(--red);}
+.mobile-close{position:absolute;top:28px;right:var(--g);font-size:28px;color:rgba(255,255,255,.4);cursor:none;background:none;border:none;font-weight:300;transition:color .2s;}
+.btn{display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-b);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;padding:17px 32px;border:1.5px solid transparent;transition:all .3s;cursor:none;min-height:50px;}
+.btn-wh{background:#fff;color:#000;border-color:#fff;}.btn-wh:hover{background:transparent;color:#fff;}
+.btn-go{background:transparent;color:#fff;border-color:rgba(255,255,255,.3);}.btn-go:hover{border-color:#fff;}
+.btn-dk{background:#000;color:#fff;border-color:#000;}.btn-dk:hover{background:transparent;color:#000;}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red);}.btn-red:hover{background:transparent;color:var(--red);}
+.btn-full{width:100%;}
+@media(max-width:640px){.btn{width:100%;}}
+.footer{background:#000;color:#fff;padding:56px var(--g) 28px;}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;padding-bottom:36px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:24px;}
+.footer-brand img{height:44px;width:auto;object-fit:contain;}
+.footer-col h5{font-size:9px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:12px;}
+.footer-col ul{list-style:none;}
+.footer-col li{margin-bottom:8px;font-size:12px;color:rgba(255,255,255,.45);}
+.footer-col a:hover{color:#fff;}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.22);gap:20px;flex-wrap:wrap;}
+@media(max-width:900px){.footer-top{grid-template-columns:1fr;gap:28px;}.footer-bottom{flex-direction:column;align-items:flex-start;}}
+.r{opacity:0;transform:translateY(52px);}
+.rl{opacity:0;transform:translateX(-52px);}
+.rr{opacity:0;transform:translateX(52px);}
+.rs{opacity:0;transform:scale(.93);}
+.stg>*{opacity:0;transform:translateY(36px);}
+
+/* PAGE SPECIFIC */
+.hero-tm{min-height:70vh;background:#000;color:#fff;display:flex;align-items:center;padding:140px var(--g) var(--sp);}
+.hero-tm-inner{max-width:900px;}
+.hero-label{font-size:10px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:20px;}
+.hero-h{font-family:var(--font-d);font-weight:900;font-size:clamp(72px,12vw,160px);line-height:.86;letter-spacing:.02em;text-transform:uppercase;margin-bottom:28px;}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.6);max-width:52ch;line-height:1.65;}
+
+.testimonials-section{background:var(--dark);padding:var(--sp) var(--g);}
+.tcard{display:grid;grid-template-columns:1fr 1fr;gap:60px;padding-bottom:60px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:60px;}
+.tcard:last-child{border-bottom:none;margin-bottom:0;}
+.tcard-quote-side{position:relative;}
+.tcard-qmark{font-family:var(--font-d);font-weight:900;font-size:180px;color:var(--red);opacity:.3;line-height:1;margin-bottom:-40px;display:block;}
+.tcard-qtext{font-size:clamp(15px,2vw,22px);font-style:italic;color:rgba(255,255,255,.7);line-height:1.75;max-width:72ch;}
+.tcard-info-side{display:flex;flex-direction:column;justify-content:center;}
+.tcard-name{font-family:var(--font-d);font-weight:900;font-size:clamp(36px,5vw,52px);color:#fff;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;}
+.tcard-style{font-size:11px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:4px;}
+.tcard-city{font-size:12px;color:rgba(255,255,255,.3);margin-bottom:28px;}
+.tcard-stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.tcard-stat{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:16px 18px;}
+.tcard-stat-val{font-family:var(--font-d);font-weight:900;font-size:clamp(22px,3vw,32px);color:#fff;letter-spacing:.02em;text-transform:uppercase;}
+.tcard-stat-lbl{font-size:9px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:3px;}
+@media(max-width:800px){.tcard{grid-template-columns:1fr;gap:36px;}.tcard-qmark{font-size:100px;margin-bottom:-20px;}}
+
+.locked-slot{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);padding:48px;text-align:center;margin-top:0;}
+.locked-qmark{font-family:var(--font-d);font-weight:900;font-size:120px;color:rgba(217,119,87,.2);line-height:1;display:block;margin-bottom:-20px;}
+.locked-text{font-size:15px;font-style:italic;color:rgba(255,255,255,.3);max-width:48ch;margin:0 auto 28px;line-height:1.7;}
+
+.stats-band{background:var(--red);padding:56px var(--g);display:grid;grid-template-columns:repeat(3,1fr);gap:2px;text-align:center;}
+.stats-band-item{}
+.stat-big{font-family:var(--font-d);font-weight:900;font-size:clamp(48px,8vw,100px);color:#fff;line-height:.9;letter-spacing:.02em;text-transform:uppercase;}
+.stat-lbl{font-size:10px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-top:12px;}
+@media(max-width:700px){.stats-band{grid-template-columns:1fr;gap:32px;padding:var(--sp) var(--g);}}
+
+.cta-dark{background:#000;padding:var(--sp) var(--g);text-align:center;}
+.cta-dark-h{font-family:var(--font-d);font-weight:900;font-size:clamp(64px,10vw,140px);line-height:.86;color:#fff;text-transform:uppercase;margin-bottom:20px;}
+.cta-dark-h em{color:var(--red);font-style:italic;}
+.cta-dark-sub{font-size:15px;color:rgba(255,255,255,.5);max-width:50ch;margin:0 auto 36px;line-height:1.65;}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<div id="preloader"><div class="pre-logo">JRZ INK</div><div class="pre-line"></div><div class="pre-sub">Systems · Est. 2026</div></div>
+<div id="cur"></div><div id="cur-dot"></div>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="closeMobile()">✕</button>
+  <a href="home.html" onclick="closeMobile()">Home</a>
+  <a href="services.html" onclick="closeMobile()">Services</a>
+  <a href="clients.html" onclick="closeMobile()">Clients</a>
+  <a href="financing.html" onclick="closeMobile()">Financing</a>
+  <a href="faq.html" onclick="closeMobile()">FAQ</a>
+  <a href="/contact-us" onclick="closeMobile()" style="color:var(--red)">Contact Us</a>
+</div>
+
+<nav class="nav" id="mainNav">
+  <div class="nav-brand"><a href="home.html"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/69dc72b1b30bc5237146bf95.png" alt="JRZ Ink Systems"></a></div>
+  <ul class="nav-links">
+    <li><a href="home.html">Home</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="clients.html">Clients</a></li>
+    <li><a href="financing.html">Financing</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+  </ul>
+  <a href="/contact-us" class="nav-cta">Contact Us</a>
+  <div class="nav-ham" id="hamBtn" onclick="toggleMobile()"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="wrap">
+  <!-- HERO -->
+  <section class="hero-tm">
+    <div class="hero-tm-inner">
+      <div class="hero-label r">Artist Reviews</div>
+      <h1 class="hero-h r">Results.<br>Not Promises.</h1>
+      <p class="hero-sub r">Both artists were fully booked before they wrote a word.</p>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials-section">
+
+    <!-- Luis Farrera -->
+    <div class="tcard r">
+      <div class="tcard-quote-side">
+        <span class="tcard-qmark">"</span>
+        <p class="tcard-qtext">Before JRZ Ink Systems I was living in feast-or-famine mode. January was dead. March was chaos. I had no system — just Instagram and hope. Month one with JRZ: 84 leads, $14.83 per lead, calendar filled for 6 weeks. I haven't touched my DMs since.</p>
+      </div>
+      <div class="tcard-info-side">
+        <div class="tcard-name">Luis Farrera</div>
+        <div class="tcard-style">Color Specialist</div>
+        <div class="tcard-city">Miami, FL</div>
+        <div class="tcard-stats">
+          <div class="tcard-stat"><div class="tcard-stat-val">84 Leads</div><div class="tcard-stat-lbl">First Month</div></div>
+          <div class="tcard-stat"><div class="tcard-stat-val">30 Days</div><div class="tcard-stat-lbl">To Full Calendar</div></div>
+          <div class="tcard-stat"><div class="tcard-stat-val">$14.83</div><div class="tcard-stat-lbl">Cost Per Lead</div></div>
+          <div class="tcard-stat"><div class="tcard-stat-val">5.06%</div><div class="tcard-stat-lbl">Click-Through Rate</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Adriana -->
+    <div class="tcard r">
+      <div class="tcard-quote-side">
+        <span class="tcard-qmark">"</span>
+        <p class="tcard-qtext">I almost didn't apply. Fine line is trust-based — you can't just run ads and expect people to show up for something permanent. JRZ built my funnel around my portfolio, my aesthetic, my process. First month, CPL dropped to $11. Second month, I raised my deposit and people still booked. I turned away 3 clients this week.</p>
+      </div>
+      <div class="tcard-info-side">
+        <div class="tcard-name">Adriana</div>
+        <div class="tcard-style">Fine Line</div>
+        <div class="tcard-city">Central FL</div>
+        <div class="tcard-stats">
+          <div class="tcard-stat"><div class="tcard-stat-val">2→12+</div><div class="tcard-stat-lbl">Sessions / Week</div></div>
+          <div class="tcard-stat"><div class="tcard-stat-val">$11.40</div><div class="tcard-stat-lbl">Cost Per Lead</div></div>
+          <div class="tcard-stat"><div class="tcard-stat-val">4.8%</div><div class="tcard-stat-lbl">Click-Through Rate</div></div>
+          <div class="tcard-stat"><div class="tcard-stat-val">Fine Line</div><div class="tcard-stat-lbl">Style Only</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Locked Slot -->
+    <div class="locked-slot r">
+      <span class="locked-qmark">"</span>
+      <p class="locked-text">This could be your review. Apply and we'll build the system that earns it.</p>
+      <a href="/contact-us" class="btn btn-red">Apply Now</a>
+    </div>
+
+  </section>
+
+  <!-- STATS BAND -->
+  <section class="stats-band">
+    <div class="stats-band-item r">
+      <div class="stat-big">84 Leads</div>
+      <div class="stat-lbl">In 30 Days</div>
+    </div>
+    <div class="stats-band-item r">
+      <div class="stat-big">$14.83</div>
+      <div class="stat-lbl">Avg CPL</div>
+    </div>
+    <div class="stats-band-item r">
+      <div class="stat-big">5.06%</div>
+      <div class="stat-lbl">Avg CTR</div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-dark">
+    <h2 class="cta-dark-h r">Your Results <em>Next.</em></h2>
+    <p class="cta-dark-sub r">One spot left. 30-minute call. We audit your setup and tell you what's leaking.</p>
+    <a href="/contact-us" class="btn btn-red r">Apply Now</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand"><img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/69dc72b1b30bc5237146bf95.png" alt="JRZ Ink Systems"></div>
+      <div class="footer-col"><h5>Navigate</h5><ul>
+        <li><a href="home.html">Home</a></li><li><a href="services.html">Services</a></li>
+        <li><a href="financing.html">Financing</a></li><li><a href="faq.html">FAQ</a></li>
+        <li><a href="/contact-us">Contact Us</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Contact</h5><ul><li>hello@jrzinksystems.com</li><li>Central Florida</li><li>Remote — Nationwide</li><li>By Application Only</li></ul></div>
+      <div class="footer-col"><h5>Legal</h5><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><div>© 2026 JRZ Ink Systems — A JRZ Marketing Company</div><div>Full booking service for tattoo artists and studios</div></div>
+  </footer>
+</div>
+
+<script>
+window.addEventListener('load',function(){var tl=gsap.timeline();tl.to('.pre-logo',{clipPath:'inset(0 0% 0 0)',duration:.9,ease:'power3.inOut'}).to('.pre-line',{width:'100%',duration:.6,ease:'power2.inOut'},'-=.3').to('.pre-sub',{opacity:1,duration:.4},'-=.1').to('#preloader',{opacity:0,duration:.7,delay:.4,ease:'power2.inOut',onComplete(){document.getElementById('preloader').style.display='none';}});});
+(function(){var cur=document.getElementById('cur'),dot=document.getElementById('cur-dot'),cx=0,cy=0,dx=0,dy=0;document.addEventListener('mousemove',function(e){cx=e.clientX;cy=e.clientY;cur.style.left=cx+'px';cur.style.top=cy+'px';});function animDot(){dx+=(cx-dx)*.15;dy+=(cy-dy)*.15;dot.style.left=dx+'px';dot.style.top=dy+'px';requestAnimationFrame(animDot);}animDot();document.querySelectorAll('a,button,.btn').forEach(function(el){el.addEventListener('mouseenter',function(){cur.classList.add('big');});el.addEventListener('mouseleave',function(){cur.classList.remove('big');});});})();
+window.addEventListener('scroll',function(){document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>60);});
+function toggleMobile(){var m=document.getElementById('mobileMenu');m.classList.toggle('open');var s=document.getElementById('hamBtn').querySelectorAll('span');if(m.classList.contains('open')){s[0].style.transform='rotate(45deg) translate(5px,5px)';s[1].style.opacity='0';s[2].style.transform='rotate(-45deg) translate(5px,-5px)';}else{s[0].style.transform='';s[1].style.opacity='';s[2].style.transform='';}}
+function closeMobile(){document.getElementById('mobileMenu').classList.remove('open');var s=document.getElementById('hamBtn').querySelectorAll('span');s[0].style.transform='';s[1].style.opacity='';s[2].style.transform='';}
+gsap.registerPlugin(ScrollTrigger);
+function rev(sel){gsap.utils.toArray(sel).forEach(function(el){gsap.to(el,{scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'},opacity:1,y:0,x:0,scale:1,duration:.85,ease:'power3.out'});});}
+rev('.r');rev('.rl');rev('.rr');rev('.rs');
+gsap.utils.toArray('.stg').forEach(function(p){gsap.to(Array.from(p.children),{scrollTrigger:{trigger:p,start:'top 85%',toggleActions:'play none none none'},opacity:1,y:0,duration:.7,stagger:.1,ease:'power2.out'});});
+(function(){var s=['.c-section','.c-wrapper','.row-container','.c-row','.c-column','.inner','section.c-section','div[data-default-columns]','.hl_page-preview'];function n(){s.forEach(function(sel){document.querySelectorAll(sel).forEach(function(el){el.style.maxWidth='100%';el.style.width='100%';el.style.paddingLeft='0';el.style.paddingRight='0';el.style.marginLeft='0';el.style.marginRight='0';});});}n();new MutationObserver(n).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});window.addEventListener('load',n);[500,1500,3000].forEach(function(t){setTimeout(n,t);});})();
+</script>
+</body>
+</html>

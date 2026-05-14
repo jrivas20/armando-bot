@@ -883,8 +883,24 @@ app.post('/elena/monthly-reports', async (_req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
+app.get('/elena/monthly-reports', async (_req, res) => {
+  try {
+    elenaMonthlyReports();
+    res.json({ status: 'ok', message: 'Elena is generating monthly reports for all 32 subaccounts' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
 
 app.post('/elena/health-check', async (_req, res) => {
+  try {
+    elenaHealthCheck();
+    res.json({ status: 'ok', message: 'Elena is running health check on all subaccounts' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+app.get('/elena/health-check', async (_req, res) => {
   try {
     elenaHealthCheck();
     res.json({ status: 'ok', message: 'Elena is running health check on all subaccounts' });
@@ -911,8 +927,24 @@ app.post('/elena/mid-month-checkin', async (_req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
+app.get('/elena/mid-month-checkin', async (_req, res) => {
+  try {
+    elenaMidMonthCheckIn();
+    res.json({ status: 'ok', message: 'Elena is sending mid-month check-ins to at-risk clients' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
 
 app.post('/elena/quarterly-report', async (_req, res) => {
+  try {
+    elenaQuarterlyReport();
+    res.json({ status: 'ok', message: 'Elena is generating the quarterly portfolio report' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+app.get('/elena/quarterly-report', async (_req, res) => {
   try {
     elenaQuarterlyReport();
     res.json({ status: 'ok', message: 'Elena is generating the quarterly portfolio report' });
