@@ -16454,12 +16454,12 @@ setInterval(async () => {
     const isWeekday   = dayOfWeek >= 1 && dayOfWeek <= 5;
     const dateOfMonth = nowEST.getDate();
 
-    // Every 30 min — Google Local Services lead sync → Cooney Homes GHL
-    const lsaMinuteKey = `${today}_${hour}_${minute < 30 ? 'a' : 'b'}`;
-    if (lastLSASyncMinute !== lsaMinuteKey && (minute < 2 || (minute >= 30 && minute < 32))) {
-      lastLSASyncMinute = lsaMinuteKey;
-      runCron('lsa-sync', runLSALeadSync, true);
-    }
+    // LSA sync — DISABLED (was creating duplicate contacts via loop) — re-enable after GHL workflow is fixed
+    // const lsaMinuteKey = `${today}_${hour}_${minute < 30 ? 'a' : 'b'}`;
+    // if (lastLSASyncMinute !== lsaMinuteKey && (minute < 2 || (minute >= 30 && minute < 32))) {
+    //   lastLSASyncMinute = lsaMinuteKey;
+    //   runCron('lsa-sync', runLSALeadSync, true);
+    // }
 
     // 8:00am Mon–Fri — Google Business Profile posts (DataForSEO keyword + Claude Haiku → GHL Social API)
     if (hour === 8 && minute >= 0 && minute < 5 && isWeekday && lastGBPPostDate !== today) {
