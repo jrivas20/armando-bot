@@ -4,20 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a0a0a">
-<meta property="og:title" content="Jose Rivas | JRZ Marketing">
-<meta property="og:description" content="Founder & CEO · AI Marketing Systems · Orlando, FL">
-<meta property="og:image" content="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957046f7483036e598e1b5f.jpg">
+<meta property="og:title" content="Jose Rivas — JRZ Marketing">
+<meta property="og:description" content="Owner · JRZ Marketing | CMO · Fire Rescue Group | CMO · Legacy Ink | Co-Owner · JRZ Sports | Entrepreneur">
+<meta property="og:image" content="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957046fc902bf728fde16fd.jpg">
 <title>Jose Rivas | JRZ Marketing</title>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
-  --yellow:#F5C200;
   --black:#0a0a0a;
   --panel:#141414;
-  --border:rgba(255,255,255,.08);
-  --red:#CC3311;
+  --border:rgba(255,255,255,.07);
 }
 html,body{height:100%;background:var(--black);}
 body{font-family:'Inter',sans-serif;color:#fff;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
@@ -29,90 +27,105 @@ body{font-family:'Inter',sans-serif;color:#fff;overflow-x:hidden;-webkit-font-sm
   min-height:100dvh;
   display:flex;flex-direction:column;
   position:relative;
-  padding-bottom:32px;
+  padding-bottom:36px;
+  border-top:1.5px solid rgba(255,255,255,.1);
 }
 
 /* ── TOP BAR ── */
 .top-bar{
   display:flex;align-items:center;justify-content:space-between;
-  padding:18px 22px 0;
+  padding:20px 24px 0;
 }
 .jrz-logo{
-  font-family:'Oswald',sans-serif;font-weight:800;font-size:14px;
-  letter-spacing:.14em;text-transform:uppercase;color:#fff;
+  font-family:'Oswald',sans-serif;font-weight:800;font-size:13px;
+  letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.9);
 }
-.jrz-logo span{color:var(--yellow);}
 .top-share{
   width:34px;height:34px;border-radius:50%;
-  background:rgba(255,255,255,.06);border:1px solid var(--border);
+  background:rgba(255,255,255,.05);border:1px solid var(--border);
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;transition:all .15s;
 }
-.top-share:hover{background:rgba(245,194,0,.15);border-color:rgba(245,194,0,.3);}
+.top-share:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);}
 
 /* ── HERO ── */
 .hero{
   display:flex;flex-direction:column;align-items:center;
-  padding:28px 22px 24px;
+  padding:32px 24px 26px;
   position:relative;
 }
 .hero::before{
   content:'';
-  position:absolute;top:0;left:0;right:0;height:180px;
-  background:radial-gradient(ellipse at 50% 0%,rgba(245,194,0,.08) 0%,transparent 70%);
+  position:absolute;top:0;left:0;right:0;height:220px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.035) 0%,transparent 70%);
   pointer-events:none;
 }
 
 /* Photo */
 .photo-wrap{
-  width:108px;height:108px;
+  width:112px;height:112px;
   border-radius:50%;
-  border:3px solid var(--yellow);
-  box-shadow:0 0 0 6px rgba(245,194,0,.1), 0 16px 40px rgba(0,0,0,.6);
+  border:2px solid rgba(255,255,255,.4);
+  box-shadow:0 0 0 7px rgba(255,255,255,.04), 0 20px 50px rgba(0,0,0,.8);
   overflow:hidden;
   position:relative;
   flex-shrink:0;
-  margin-bottom:18px;
+  margin-bottom:22px;
 }
 .photo-wrap img{
   width:100%;height:100%;object-fit:cover;display:block;
 }
 
-/* Name block */
+/* Name */
 .name{
-  font-family:'Oswald',sans-serif;font-weight:800;font-size:30px;
-  letter-spacing:.04em;text-transform:uppercase;text-align:center;
-  color:#fff;line-height:.95;margin-bottom:6px;
+  font-family:'Oswald',sans-serif;font-weight:800;font-size:34px;
+  letter-spacing:.07em;text-transform:uppercase;text-align:center;
+  color:#fff;line-height:.95;margin-bottom:18px;
 }
-.title-row{
-  display:flex;align-items:center;gap:8px;margin-bottom:14px;
+
+/* Thin rule under name */
+.name-rule{
+  width:36px;height:1px;background:rgba(255,255,255,.14);
+  margin-bottom:16px;
 }
-.role{
-  font-size:12px;font-weight:500;color:rgba(255,255,255,.55);
-  letter-spacing:.06em;
+
+/* Roles */
+.roles-list{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  margin-bottom:20px;
 }
-.sep{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.2);}
-.company-badge{
-  background:var(--yellow);color:var(--black);
-  font-family:'Oswald',sans-serif;font-size:8px;font-weight:800;
-  letter-spacing:.22em;text-transform:uppercase;padding:3px 9px;
+.role-row{
+  display:flex;align-items:center;gap:8px;
+}
+.role-pos{
+  font-family:'Oswald',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.25em;text-transform:uppercase;color:#fff;
+}
+.role-dot{
+  width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.18);
+  flex-shrink:0;
+}
+.role-co{
+  font-size:10px;font-weight:400;color:rgba(255,255,255,.38);
+  letter-spacing:.03em;
 }
 
 /* Location chip */
 .loc-chip{
   display:inline-flex;align-items:center;gap:5px;
-  background:rgba(255,255,255,.05);border:1px solid var(--border);
-  border-radius:20px;padding:5px 12px;
-  font-size:11px;color:rgba(255,255,255,.45);
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:20px;padding:5px 13px;
+  font-size:11px;color:rgba(255,255,255,.3);
+  letter-spacing:.03em;
 }
 
 /* ── ACTION BUTTONS ── */
 .actions{
   display:grid;grid-template-columns:repeat(4,1fr);
-  gap:10px;padding:0 22px 24px;
+  gap:10px;padding:0 24px 26px;
 }
 .act-btn{
-  display:flex;flex-direction:column;align-items:center;gap:5px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
   cursor:pointer;text-decoration:none;
   border:none;background:transparent;
 }
@@ -126,168 +139,127 @@ body{font-family:'Inter',sans-serif;color:#fff;overflow-x:hidden;-webkit-font-sm
 .act-icon::before{
   content:'';position:absolute;inset:0;opacity:0;transition:opacity .15s;
 }
-.act-btn.call .act-icon{border-color:rgba(52,199,89,.25);}
-.act-btn.call .act-icon::before{background:rgba(52,199,89,.1);}
-.act-btn.call:hover .act-icon,.act-btn.call:active .act-icon{border-color:rgba(52,199,89,.5);}
+.act-btn.call .act-icon{border-color:rgba(52,199,89,.2);}
+.act-btn.call .act-icon::before{background:rgba(52,199,89,.08);}
+.act-btn.call:hover .act-icon,.act-btn.call:active .act-icon{border-color:rgba(52,199,89,.45);}
 .act-btn.call:hover .act-icon::before,.act-btn.call:active .act-icon::before{opacity:1;}
 
-.act-btn.sms .act-icon{border-color:rgba(0,122,255,.25);}
-.act-btn.sms .act-icon::before{background:rgba(0,122,255,.08);}
-.act-btn.sms:hover .act-icon,.act-btn.sms:active .act-icon{border-color:rgba(0,122,255,.5);}
+.act-btn.sms .act-icon{border-color:rgba(0,122,255,.2);}
+.act-btn.sms .act-icon::before{background:rgba(0,122,255,.06);}
+.act-btn.sms:hover .act-icon,.act-btn.sms:active .act-icon{border-color:rgba(0,122,255,.45);}
 .act-btn.sms:hover .act-icon::before,.act-btn.sms:active .act-icon::before{opacity:1;}
 
-.act-btn.email .act-icon{border-color:rgba(245,194,0,.25);}
-.act-btn.email .act-icon::before{background:rgba(245,194,0,.08);}
-.act-btn.email:hover .act-icon,.act-btn.email:active .act-icon{border-color:rgba(245,194,0,.5);}
+.act-btn.email .act-icon{border-color:rgba(255,255,255,.14);}
+.act-btn.email .act-icon::before{background:rgba(255,255,255,.04);}
+.act-btn.email:hover .act-icon,.act-btn.email:active .act-icon{border-color:rgba(255,255,255,.32);}
 .act-btn.email:hover .act-icon::before,.act-btn.email:active .act-icon::before{opacity:1;}
 
-.act-btn.web .act-icon{border-color:rgba(175,82,222,.25);}
-.act-btn.web .act-icon::before{background:rgba(175,82,222,.08);}
-.act-btn.web:hover .act-icon,.act-btn.web:active .act-icon{border-color:rgba(175,82,222,.5);}
+.act-btn.web .act-icon{border-color:rgba(175,82,222,.2);}
+.act-btn.web .act-icon::before{background:rgba(175,82,222,.06);}
+.act-btn.web:hover .act-icon,.act-btn.web:active .act-icon{border-color:rgba(175,82,222,.45);}
 .act-btn.web:hover .act-icon::before,.act-btn.web:active .act-icon::before{opacity:1;}
 
-.act-lbl{font-size:10px;font-weight:500;color:rgba(255,255,255,.4);letter-spacing:.05em;}
+.act-lbl{font-size:10px;font-weight:500;color:rgba(255,255,255,.3);letter-spacing:.04em;}
 
 /* ── SAVE CONTACT ── */
-.save-wrap{padding:0 22px 20px;}
+.save-wrap{padding:0 24px 22px;}
 .save-btn{
   display:flex;align-items:center;justify-content:center;gap:10px;
-  width:100%;padding:15px;cursor:pointer;
-  background:var(--yellow);color:var(--black);
+  width:100%;padding:16px;cursor:pointer;
+  background:#fff;color:#0a0a0a;
   border:none;
   font-family:'Oswald',sans-serif;font-size:13px;font-weight:800;
-  letter-spacing:.18em;text-transform:uppercase;
+  letter-spacing:.2em;text-transform:uppercase;
   transition:all .15s;
-  box-shadow:0 4px 24px rgba(245,194,0,.25);
+  box-shadow:0 6px 28px rgba(255,255,255,.07);
 }
-.save-btn:hover,.save-btn:active{background:#e6b500;box-shadow:0 4px 32px rgba(245,194,0,.4);}
-.save-btn.saved{background:#1a1a1a;color:var(--yellow);border:1px solid rgba(245,194,0,.25);}
+.save-btn:hover,.save-btn:active{background:#ebebeb;box-shadow:0 6px 36px rgba(255,255,255,.14);}
+.save-btn.saved{background:#1a1a1a;color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.15);}
 
 /* ── STATS ── */
 .stats-row{
   display:grid;grid-template-columns:repeat(3,1fr);
   gap:1px;background:var(--border);
   border:1px solid var(--border);
-  margin:0 22px 20px;
+  margin:0 24px 22px;
 }
 .stat{
-  background:var(--panel);padding:14px 10px;
+  background:var(--panel);padding:16px 10px;
   text-align:center;
 }
 .stat-num{
-  font-family:'Oswald',sans-serif;font-weight:800;font-size:20px;
-  color:var(--yellow);line-height:1;margin-bottom:4px;
+  font-family:'Oswald',sans-serif;font-weight:800;font-size:22px;
+  color:#fff;line-height:1;margin-bottom:5px;
 }
-.stat-lbl{font-size:9px;font-weight:500;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;line-height:1.3;}
+.stat-lbl{font-size:9px;font-weight:500;color:rgba(255,255,255,.28);letter-spacing:.12em;text-transform:uppercase;line-height:1.4;}
 
 /* ── ABOUT ── */
 .about{
-  margin:0 22px 20px;
+  margin:0 24px 22px;
   background:var(--panel);border:1px solid var(--border);
-  padding:16px 18px;
+  padding:18px 20px;
 }
 .about-tag{
   font-family:'Oswald',sans-serif;font-size:8px;font-weight:700;
-  letter-spacing:.32em;text-transform:uppercase;color:var(--yellow);
-  margin-bottom:8px;
+  letter-spacing:.35em;text-transform:uppercase;color:rgba(255,255,255,.4);
+  margin-bottom:9px;
 }
 .about-txt{
-  font-size:13px;line-height:1.65;color:rgba(255,255,255,.55);
+  font-size:13px;line-height:1.7;color:rgba(255,255,255,.48);
   font-weight:400;
 }
 
 /* ── DIVIDER ── */
 .divider{
   display:flex;align-items:center;gap:10px;
-  padding:0 22px 20px;
+  padding:0 24px 22px;
 }
 .div-line{flex:1;height:1px;background:var(--border);}
-.div-lbl{font-size:9px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.18);}
+.div-lbl{font-size:9px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.13);}
 
 /* ── QR SECTION ── */
 .qr-section{
-  margin:0 22px 20px;
+  margin:0 24px 22px;
   background:var(--panel);border:1px solid var(--border);
-  padding:20px;
-  display:flex;flex-direction:column;align-items:center;gap:14px;
+  padding:22px;
+  display:flex;flex-direction:column;align-items:center;gap:16px;
 }
-.qr-head{
-  text-align:center;
-}
+.qr-head{text-align:center;}
 .qr-head-lbl{
-  font-family:'Oswald',sans-serif;font-size:9px;font-weight:700;
-  letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.25);
-  margin-bottom:4px;
+  font-family:'Oswald',sans-serif;font-size:8px;font-weight:700;
+  letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.2);
+  margin-bottom:5px;
 }
-.qr-head-txt{font-size:12px;color:rgba(255,255,255,.5);line-height:1.5;}
+.qr-head-txt{font-size:12px;color:rgba(255,255,255,.35);line-height:1.6;}
 .qr-box{
   background:#fff;padding:10px;
   width:140px;height:140px;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 0 3px rgba(245,194,0,.2);
+  box-shadow:0 0 0 3px rgba(255,255,255,.08);
 }
 #qr-canvas{width:120px!important;height:120px!important;}
 .qr-url{
-  font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.05em;
+  font-size:10px;color:rgba(255,255,255,.18);letter-spacing:.04em;
   font-family:'Inter',sans-serif;text-align:center;word-break:break-all;
 }
-
-/* ── CONNECT FORM ── */
-.connect-section{
-  margin:0 22px 20px;
-}
-.connect-hdr{
-  margin-bottom:14px;
-}
-.connect-tag{
-  font-family:'Oswald',sans-serif;font-size:8px;font-weight:700;
-  letter-spacing:.32em;text-transform:uppercase;color:var(--yellow);
-  margin-bottom:4px;
-}
-.connect-h{
-  font-family:'Oswald',sans-serif;font-size:20px;font-weight:800;
-  text-transform:uppercase;color:#fff;line-height:1;
-}
-.connect-sub{font-size:12px;color:rgba(255,255,255,.38);line-height:1.5;margin-top:5px;}
-.form-row{display:flex;flex-direction:column;gap:10px;}
-.form-input{
-  width:100%;padding:13px 14px;
-  background:var(--panel);border:1px solid var(--border);
-  color:#fff;font-size:14px;font-family:'Inter',sans-serif;
-  outline:none;transition:border-color .15s;
-  border-radius:0;-webkit-appearance:none;
-}
-.form-input::placeholder{color:rgba(255,255,255,.22);}
-.form-input:focus{border-color:rgba(245,194,0,.4);}
-.connect-btn{
-  width:100%;padding:14px;
-  background:var(--panel);border:1.5px solid var(--yellow);
-  color:var(--yellow);font-family:'Oswald',sans-serif;font-size:11px;
-  font-weight:700;letter-spacing:.2em;text-transform:uppercase;
-  cursor:pointer;transition:all .15s;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.connect-btn:hover,.connect-btn:active{background:var(--yellow);color:var(--black);}
-.connect-btn.sent{background:rgba(52,199,89,.08);border-color:rgba(52,199,89,.3);color:rgba(52,199,89,.8);}
 
 /* ── FOOTER ── */
 .pg-footer{
   margin-top:auto;
-  padding:24px 22px 0;
+  padding:22px 24px 0;
   display:flex;flex-direction:column;align-items:center;gap:6px;
   border-top:1px solid var(--border);
 }
-.ft-logo{font-family:'Oswald',sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.2);}
-.ft-logo span{color:rgba(245,194,0,.4);}
-.ft-copy{font-size:9px;color:rgba(255,255,255,.15);letter-spacing:.06em;}
-.ft-link{font-size:10px;color:rgba(255,255,255,.2);text-decoration:none;letter-spacing:.06em;}
-.ft-link:hover{color:rgba(245,194,0,.5);}
+.ft-logo{font-family:'Oswald',sans-serif;font-weight:800;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.12);}
+.ft-copy{font-size:9px;color:rgba(255,255,255,.1);letter-spacing:.06em;}
+.ft-link{font-size:10px;color:rgba(255,255,255,.14);text-decoration:none;letter-spacing:.05em;}
+.ft-link:hover{color:rgba(255,255,255,.38);}
 
 /* ── TOAST ── */
 #toast{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
-  background:#1a1a1a;border:1px solid rgba(245,194,0,.25);
-  color:var(--yellow);font-family:'Oswald',sans-serif;font-size:10px;
+  background:#1a1a1a;border:1px solid rgba(255,255,255,.12);
+  color:#fff;font-family:'Oswald',sans-serif;font-size:10px;
   font-weight:700;letter-spacing:.2em;text-transform:uppercase;
   padding:10px 20px;white-space:nowrap;
   opacity:0;transition:all .25s;z-index:999;
@@ -295,12 +267,12 @@ body{font-family:'Inter',sans-serif;color:#fff;overflow-x:hidden;-webkit-font-sm
 }
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* Desktop centering */
+/* Desktop */
 @media(min-width:421px){
   body{background:#050505;}
   .card{
     margin:0 auto;
-    box-shadow:0 0 0 1px rgba(255,255,255,.05),0 40px 80px rgba(0,0,0,.8);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04),0 40px 80px rgba(0,0,0,.9);
     min-height:100dvh;
   }
 }
@@ -312,9 +284,9 @@ body{font-family:'Inter',sans-serif;color:#fff;overflow-x:hidden;-webkit-font-sm
 
   <!-- TOP BAR -->
   <div class="top-bar">
-    <div class="jrz-logo"><span>JRZ</span> Marketing</div>
+    <div class="jrz-logo">JRZ Marketing</div>
     <button class="top-share" onclick="shareCard()" title="Share card">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
         <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
       </svg>
@@ -324,17 +296,38 @@ body{font-family:'Inter',sans-serif;color:#fff;overflow-x:hidden;-webkit-font-sm
   <!-- HERO -->
   <div class="hero">
     <div class="photo-wrap">
-      <img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957046f7483036e598e1b5f.jpg"
+      <img src="https://assets.cdn.filesafe.space/d7iUPfamAaPlSBNj6IhT/media/6957046fc902bf728fde16fd.jpg"
            alt="Jose Rivas" crossorigin="anonymous">
     </div>
     <div class="name">Jose Rivas</div>
-    <div class="title-row">
-      <span class="role">Founder & CEO</span>
-      <span class="sep"></span>
-      <span class="company-badge">JRZ Marketing</span>
+    <div class="name-rule"></div>
+    <div class="roles-list">
+      <div class="role-row">
+        <span class="role-pos">Owner</span>
+        <span class="role-dot"></span>
+        <span class="role-co">JRZ Marketing</span>
+      </div>
+      <div class="role-row">
+        <span class="role-pos">CMO</span>
+        <span class="role-dot"></span>
+        <span class="role-co">Fire Rescue Group</span>
+      </div>
+      <div class="role-row">
+        <span class="role-pos">CMO</span>
+        <span class="role-dot"></span>
+        <span class="role-co">Legacy Ink</span>
+      </div>
+      <div class="role-row">
+        <span class="role-pos">Co-Owner</span>
+        <span class="role-dot"></span>
+        <span class="role-co">JRZ Sports</span>
+      </div>
+      <div class="role-row">
+        <span class="role-pos">Entrepreneur</span>
+      </div>
     </div>
     <div class="loc-chip">
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2.5" stroke-linecap="round">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2.5" stroke-linecap="round">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
       </svg>
       Orlando, FL
@@ -361,7 +354,7 @@ body{font-family:'Inter',sans-serif;color:#fff;overflow-x:hidden;-webkit-font-sm
     </a>
     <a href="mailto:info@jrzmarketing.com" class="act-btn email">
       <div class="act-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(245,194,0,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
           <polyline points="22,6 12,13 2,6"/>
         </svg>
@@ -424,7 +417,7 @@ body{font-family:'Inter',sans-serif;color:#fff;overflow-x:hidden;-webkit-font-sm
   <div class="qr-section">
     <div class="qr-head">
       <div class="qr-head-lbl">My Digital Card</div>
-      <div class="qr-head-txt">Show this QR code — anyone can scan it to get my contact info instantly.</div>
+      <div class="qr-head-txt">Show this QR code — anyone can scan it to save my contact instantly.</div>
     </div>
     <div class="qr-box">
       <div id="qr-canvas"></div>
@@ -432,51 +425,23 @@ body{font-family:'Inter',sans-serif;color:#fff;overflow-x:hidden;-webkit-font-sm
     <div class="qr-url" id="qr-url-lbl"></div>
   </div>
 
-  <!-- CONNECT DIVIDER -->
-  <div class="divider">
-    <div class="div-line"></div>
-    <div class="div-lbl">Stay Connected</div>
-    <div class="div-line"></div>
-  </div>
-
-  <!-- CONNECT FORM -->
-  <div class="connect-section">
-    <div class="connect-hdr">
-      <div class="connect-tag">Drop Your Info</div>
-      <div class="connect-h">Let's Connect</div>
-      <div class="connect-sub">Leave your name and number — I'll follow up personally.</div>
-    </div>
-    <div class="form-row">
-      <input class="form-input" id="fc-name" type="text" placeholder="Your Name" autocomplete="name">
-      <input class="form-input" id="fc-phone" type="tel" placeholder="Your Phone Number" autocomplete="tel">
-      <input class="form-input" id="fc-email" type="email" placeholder="Email (optional)" autocomplete="email">
-      <button class="connect-btn" id="connectBtn" onclick="submitConnect()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-        </svg>
-        Send My Info to Jose
-      </button>
-    </div>
-  </div>
-
   <!-- FOOTER -->
   <footer class="pg-footer">
-    <div class="ft-logo"><span>JRZ</span> Marketing</div>
+    <div class="ft-logo">JRZ Marketing</div>
     <a href="https://jrzmarketing.com" class="ft-link" target="_blank">jrzmarketing.com</a>
-    <div class="ft-copy">© 2025 JRZ Marketing · Orlando, FL</div>
+    <div class="ft-copy">© 2026 JRZ Marketing · Orlando, FL</div>
   </footer>
 
 </div>
 
-<!-- Toast -->
-<div id="toast">Copied!</div>
+<div id="toast"></div>
 
 <script>
-/* ── CARD URL ──────────────────────────────────── */
+/* ── CARD URL ── */
 const CARD_URL = window.location.href.split('?')[0];
 document.getElementById('qr-url-lbl').textContent = CARD_URL;
 
-/* ── QR CODE ───────────────────────────────────── */
+/* ── QR CODE ── */
 new QRCode(document.getElementById('qr-canvas'), {
   text: CARD_URL,
   width: 120, height: 120,
@@ -484,7 +449,7 @@ new QRCode(document.getElementById('qr-canvas'), {
   correctLevel: QRCode.CorrectLevel.H
 });
 
-/* ── VCARD SAVE ────────────────────────────────── */
+/* ── VCARD SAVE ── */
 function saveContact() {
   const vcard = [
     'BEGIN:VCARD',
@@ -492,12 +457,12 @@ function saveContact() {
     'FN:Jose Rivas',
     'N:Rivas;Jose;;;',
     'ORG:JRZ Marketing',
-    'TITLE:Founder & CEO',
+    'TITLE:Owner · JRZ Marketing | CMO · Fire Rescue Group | CMO · Legacy Ink | Co-Owner · JRZ Sports',
     'TEL;TYPE=CELL,VOICE:+14078446376',
     'EMAIL;TYPE=INTERNET:info@jrzmarketing.com',
     'URL:https://jrzmarketing.com',
     'ADR;TYPE=WORK:;;Orlando;FL;;US',
-    'NOTE:AI marketing systems that actually work.',
+    'NOTE:Owner of JRZ Marketing. CMO of Fire Rescue Group & Legacy Ink. Co-Owner of JRZ Sports. Entrepreneur.',
     'END:VCARD'
   ].join('\r\n');
 
@@ -517,11 +482,10 @@ function saveContact() {
   }, 4000);
 }
 
-/* ── SHARE ─────────────────────────────────────── */
+/* ── SHARE ── */
 function shareCard() {
   if (navigator.share) {
-    navigator.share({ title: 'Jose Rivas | JRZ Marketing', text: 'Connect with me — save my contact info instantly.', url: CARD_URL })
-      .catch(() => {});
+    navigator.share({ title: 'Jose Rivas | JRZ Marketing', text: 'Save my contact — everything in one link.', url: CARD_URL }).catch(() => {});
   } else {
     navigator.clipboard.writeText(CARD_URL).catch(() => {
       const ta = document.createElement('textarea');
@@ -532,48 +496,12 @@ function shareCard() {
   }
 }
 
-/* ── CONNECT FORM → GHL ────────────────────────── */
-async function submitConnect() {
-  const name  = document.getElementById('fc-name').value.trim();
-  const phone = document.getElementById('fc-phone').value.trim();
-  const email = document.getElementById('fc-email').value.trim();
-
-  if (!name || !phone) { showToast('Name & phone required'); return; }
-
-  const btn = document.getElementById('connectBtn');
-  btn.style.pointerEvents = 'none';
-  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Sending...`;
-
-  try {
-    const res = await fetch('/card/connect', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, email, source: 'Digital Card — Jose Rivas' })
-    });
-    if (res.ok) {
-      btn.classList.add('sent');
-      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Got it — Jose will reach out!`;
-      showToast("You're in! Expect a message soon.");
-      ['fc-name','fc-phone','fc-email'].forEach(id => document.getElementById(id).value = '');
-    } else { throw new Error(); }
-  } catch {
-    btn.style.pointerEvents = '';
-    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send My Info to Jose`;
-    showToast('Error — try again');
-  }
-}
-
-/* ── TOAST ─────────────────────────────────────── */
+/* ── TOAST ── */
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
-
-/* spin keyframe */
-const s = document.createElement('style');
-s.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
-document.head.appendChild(s);
 </script>
 </body>
 </html>
