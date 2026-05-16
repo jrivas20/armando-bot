@@ -10830,6 +10830,45 @@ app.get('/typeform-forms/take-a-sushi-mothers-day', (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════════
+// DIGITAL BUSINESS CARD — Jose Rivas / JRZ Marketing
+// GET  /card/jose-rivas   → serves the digital card (clean URL)
+// POST /card/connect      → visitor drops info → GHL contact
+// ══════════════════════════════════════════════════════════════
+app.get('/card/jose-rivas', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'card', 'jose-rivas.html'));
+});
+
+app.post('/card/connect', async (req, res) => {
+  const { name, phone, email, source } = req.body || {};
+  if (!name || !phone) return res.status(400).json({ error: 'name and phone required' });
+  try {
+    const h = { Authorization: `Bearer ${GHL_API_KEY}`, Version: '2021-07-28' };
+    const [fn, ...rest] = name.trim().split(' ');
+    const cr = await axios.post('https://services.leadconnectorhq.com/contacts/', {
+      locationId: GHL_LOCATION_ID,
+      firstName:  fn,
+      lastName:   rest.join(' ') || '',
+      email:      email || '',
+      phone,
+      source:     source || 'Digital Card — Jose Rivas',
+      tags:       ['digital-card', 'networking']
+    }, { headers: h });
+    const cid = cr.data?.contact?.id;
+    console.log(`[Digital Card] New connect: ${name} (${phone}) → contact ${cid}`);
+    if (cid) {
+      await axios.post(`https://services.leadconnectorhq.com/contacts/${cid}/notes`, {
+        userId: GHL_USER_ID,
+        body: `Connected via Jose Rivas digital card. Source: ${source || 'JRZ Marketing Digital Card'}.`
+      }, { headers: h }).catch(() => {});
+    }
+    res.json({ success: true, contactId: cid });
+  } catch (e) {
+    console.error('[Digital Card] Connect error:', e.message);
+    res.status(500).json({ error: 'Failed to save contact' });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
 // THE ESCOBAR KITCHEN — Owner.com-style sales site
 // ══════════════════════════════════════════════════════════════
 const EK = {
